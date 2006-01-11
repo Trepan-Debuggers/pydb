@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.2 2006/01/11 04:10:32 rockyb Exp $
+#$Id: Makefile.am,v 1.3 2006/01/11 17:55:01 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,21 +16,23 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # SUBDIRS = test doc emacs
+SUBDIRS := emacs
 
+DEBUGGER := pydb
+python_DEBUGGER := $(DEBUGGER).py
+python_PYTHON := pydb/$(DEBUGGER).py
+bin_SCRIPTS := $(DEBUGGER)
+pkgdata_DATA := pydb/$(DEBUGGER).doc
+pkgdatadir = $(pythondir)
+PHONY := $(DEBUGGER)
 
-DEBUGGER_BIN := pydb
-DEBUGGER := $(DEBUGGER_BIN).py
-bin_SCRIPTS := $(DEBUGGER_BIN)
-pkgdata_DATA = pydb/pydb.doc pydb/$(DEBUGGER)
+EXTRA_DIST = ChangeLog $(pkgdata_DATA)
 
-PHONY := $(DEBUGGER_BIN)
-
-EXTRA_DIST = ChangeLog 
-
-install-binSCRIPTS: $(bin_SCRIPTS)
+install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
 	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
-	$(LN_S) "$(DESTDIR)$(pkgdatadir)/$(DEBUGGER)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
+	chmod +x "$(DESTDIR)$(pythondir)/$(python_DEBUGGER)"
+	$(LN_S) "$(DESTDIR)$(pythondir)/$(python_DEBUGGER)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
