@@ -18,13 +18,14 @@
 AC_INIT([pydb],[0.1],[pydb-devel@lists.sourceforge.net])
 AM_PATH_LISPDIR
 AM_MAINTAINER_MODE
-AC_REVISION([$Id: configure.ac,v 1.1 2006/01/10 23:27:42 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.2 2006/01/11 04:10:32 rockyb Exp $])dnl
 
 dnl make sure we are using a recent autoconf version
 AC_PREREQ(2.53)
 
 AC_ARG_PROGRAM
 AM_INIT_AUTOMAKE
+AC_PROG_LN_S
 
 dnl We use a path for perl so the #! line in autoscan will work.
 AC_ARG_WITH(python, AC_HELP_STRING([--with-python], 
@@ -40,4 +41,21 @@ if test "$PYTHON_PROG" = no; then
   You might want to use the --with-python option.])
 fi
 
+PYTHON_VERSION=$($PYTHON_PROG ${srcdir}/python-version.py)
+case "${PYTHON_VERSION}" in
+    2.4.2) ;;
+    *) 
+      AC_MSG_WARN([Only version 2.4.2 has been tested.])
+      ;;
+esac    	    
+
+datadir=$($PYTHON_PROG ${srcdir}/site-packages-path.py)
+if test $? != 0 ; then
+   AC_MSG_ERROR([Didn't get Python site packages install path.])
+fi
+AC_SUBST(datadir)
+
+
 AC_CONFIG_FILES([Makefile])
+
+AC_OUTPUT

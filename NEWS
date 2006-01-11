@@ -1,0 +1,20 @@
+0.1
+
+First release of extended python debugger.
+
+* Add gdb frame command
+
+* Add gdb run (restart) command
+
+* "set dialect" sets for python pydb or gdb
+
+* Document retval
+
+* Add info commands ("args", "break", "line', "locals" and "source")
+
+* Add examine command analogous to Perl's.
+
+* up/down work like gdb's (when gdb dialect is in effect).
+  Can supply an optional number of frames to go up/down.
+
+* step/next skip over "def" commands.

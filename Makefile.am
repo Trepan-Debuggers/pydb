@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.1 2006/01/10 23:27:42 rockyb Exp $
+#$Id: Makefile.am,v 1.2 2006/01/11 04:10:32 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -17,22 +17,35 @@
 
 # SUBDIRS = test doc emacs
 
-pkgdata_DATA := pydb.py pydb.doc
+
+DEBUGGER_BIN := pydb
+DEBUGGER := $(DEBUGGER_BIN).py
+bin_SCRIPTS := $(DEBUGGER_BIN)
+pkgdata_DATA = pydb/pydb.doc pydb/$(DEBUGGER)
+
+PHONY := $(DEBUGGER_BIN)
 
 EXTRA_DIST = ChangeLog 
+
+install-binSCRIPTS: $(bin_SCRIPTS)
+	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
+	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
+	$(LN_S) "$(DESTDIR)$(pkgdatadir)/$(DEBUGGER)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
 
 if MAINTAINER_MODE
 
-.PHONY: ChangeLog
+PHONY += ChangeLog
 ChangeLog:
 	$(CVS2CL) -W 450 --header $(srcdir)/cvs2cl_header --utc -w -I ChangeLog --usermap $(srcdir)/cvs2cl_usermap -P 
 
 ACLOCAL_AMFLAGS=-I .
 
 endif
+
+.PHONY: $(PHONY)
 
 #;;; Local Variables: ***
 #;;; mode:makefile ***
