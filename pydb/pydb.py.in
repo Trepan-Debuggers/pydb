@@ -1,4 +1,5 @@
 #!@PYTHON@
+# $Id: pydb.py.in,v 1.2 2006/01/11 21:56:05 rockyb Exp $
 
 """A Python debugger.
 (See also pydb.doc for documentation.)
@@ -42,8 +43,8 @@ def find_function(funcname, filename):
 
 # Interaction prompt line will separate file and call info from code
 # text using value of line_prefix string.  A newline and arrow may
-# be to your liking.  You can set it once pdb is imported using the
-# command "pdb.line_prefix = '\n% '".
+# be to your liking.  You can set it once pydb is imported using the
+# command "pydb.line_prefix = '\n% '".
 # line_prefix = ': '    # Use this to get the old situation back
 line_prefix = '\n-> '   # Probably a better default
 
@@ -52,7 +53,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     def __init__(self):
         bdb.Bdb.__init__(self)
         cmd.Cmd.__init__(self)
-        self.prompt = '(Pdb) '
+        self.prompt = '(Pydb) '
         self.gdb_dialect = True
         self.aliases = {}
         self.mainpyfile = ''
@@ -63,12 +64,12 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         except ImportError:
             pass
 
-        # Read $HOME/.pdbrc and ./.pdbrc
+        # Read $HOME/.pydbrc and ./.pydbrc
         self.rcLines = []
         if 'HOME' in os.environ:
             envHome = os.environ['HOME']
             try:
-                rcFile = open(os.path.join(envHome, ".pdbrc"))
+                rcFile = open(os.path.join(envHome, ".pydbrc"))
             except IOError:
                 pass
             else:
@@ -76,13 +77,18 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                     self.rcLines.append(line)
                 rcFile.close()
         try:
-            rcFile = open(".pdbrc")
+            rcFile = open(".pydbrc")
         except IOError:
             pass
         else:
             for line in rcFile.readlines():
                 self.rcLines.append(line)
             rcFile.close()
+
+        if self.gdb_dialect:
+            self.__init_gdb_dialect()
+        else:
+            self.__init_python_dialect()
 
     def reset(self):
         bdb.Bdb.reset(self)
@@ -121,6 +127,45 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 print '*** Expecting an integer, got:', arg
                 raise ValueError
         return default
+
+    def __info_args(self, arg):
+        """args)
+Print the arguments of the current function."""
+        f = self.curframe
+        co = f.f_code
+        dict = f.f_locals
+        n = co.co_argcount
+        if co.co_flags & 4: n = n+1
+        if co.co_flags & 8: n = n+1
+        for i in range(n):
+            name = co.co_varnames[i]
+            print name, '=',
+            if name in dict: print dict[name]
+            else: print "*** undefined ***"
+
+    def __init_gdb_dialect(self):
+        """Do things to set up for a more gdb-like command set"""
+        if self.gdb_dialect: return
+        for fn in ('args', 'return', 'r'):
+            # We do the del one at a time because a NameError
+            # on an earlier fn will terminate the deletion
+            # without acting on the later fns.
+            for prefix in ('do', 'help'):
+                try:
+                    exec "del %_%s" % (prefix, fn)
+                except NameError:
+                    pass
+        self.gdb_dialect = True;
+
+    def __init_python_dialect(self):
+        """Do things to set up for a more python-like command set"""
+        if not self.gdb_dialect: return
+        do_r = do_return = do_finish
+        do_args = __info_args
+        for fn in ('args', 'return'):
+            exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
+                 % (fn, fn)
+        self.gdb_dialect = False;
 
     # Override Bdb methods
 
@@ -374,8 +419,10 @@ For python return is like gdb's finish.
         if len(args) != 2:
             print "*** Expecting exactly 2 arguments. Got %d" % len(args)
         if arg[0] == 'dialect':
-            if arg[1] == 'gdb': self.gdb_dialect = True
-            elif arg[1] == 'python': self.gdb_dialect = False
+            if arg[1] == 'gdb':
+                self.__init_gdb_dialect()
+            elif arg[1] == 'python': 
+                self.__init_python()
             else:
                 print "*** Expecting dialect to be either gdb or python"
 
@@ -662,7 +709,7 @@ info source -- Information about the current Python file
 
         frame=self.curframe
         if "args" == arg:
-            self.do_args(None)
+            self.__info_args(None)
         elif "break" == arg:
             # FIXME: Should split out the "info" part in args
             self.do_L(None)
@@ -709,12 +756,11 @@ History, breakpoints, actions and debugger options are preserved."""
 
     do_R = do_ru = do_restart = do_run
 
-    def do_return(self, arg):
-        """r(eturn)
+    def do_finish(self, arg):
+        """finish
 Continue execution until the current function returns."""
         self.set_return(self.curframe)
         return 1
-    do_r = do_return
 
     def do_continue(self, arg):
         """c(ont(inue))
@@ -780,21 +826,6 @@ Handles the receipt of EOF as a command."""
         self.set_quit()
         return 1
 
-    def do_args(self, arg):
-        """args)
-Print the arguments of the current function."""
-        f = self.curframe
-        co = f.f_code
-        dict = f.f_locals
-        n = co.co_argcount
-        if co.co_flags & 4: n = n+1
-        if co.co_flags & 8: n = n+1
-        for i in range(n):
-            name = co.co_varnames[i]
-            print name, '=',
-            if name in dict: print dict[name]
-            else: print "*** undefined ***"
-
     def do_retval(self, arg):
         """retval
 Show the value that is to be returned from a function.        
@@ -837,7 +868,14 @@ Pretty-print the value of the expression."""
 
     def do_examine(self, arg):
         """examine expression
-Print the type and pretty print the value of the expression."""
+        Print the type of the expression and prettyprint its value.
+	For functions, methods, classes and modules we print out the
+	documentation string if any.
+
+	For functions we also show the argument list.
+	
+	The short command name is x."""
+
         obj = self._getval(arg)
         if inspect.isfunction(obj):
             # For functions we print the fn(args) and doc if it exists
@@ -955,7 +993,7 @@ are then hidden until the alias is removed.  Aliasing is recursively
 applied to the first word of the command line; all other words
 in the line are left alone.
 
-Some useful aliases (especially when placed in the .pdbrc file) are:
+Some useful aliases (especially when placed in the .pydbrc file) are:
 
 #Print instance variables (usage "pi classInst")
 alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
@@ -1017,12 +1055,13 @@ With a command name as argument, print help about that command
 "help exec" gives help on the ! command"""
     help_help = help_h
 
-    for fn in ('EOF', 'L', 'alias', 'args', 'break', 'clear', 'condition',
+    for fn in ('EOF', 'L', 'alias', 'break', 'clear', 'condition',
                'continue', 'debug', 'disable', 'down', 'enable', 'examine',
-               'frame', 'ignore', 'info', 'jump', 'list', 'next', 'p', 'pp',
-               'quit', 'return', 'run', 'set', 'step', 'tbreak', 'unalias',
-               'up', 'whatis', 'where'):
-        exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' % (fn, fn)
+               'finish', 'frame', 'ignore', 'info', 'jump', 'list',
+               'next', 'p', 'pp', 'quit', 'run', 'set', 'step', 'tbreak',
+               'unalias', 'up', 'whatis', 'where'):
+        exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
+             % (fn, fn)
 
     # Is this the right way to do this? 
     help_R = help_ru = help_restart = help_run
@@ -1035,7 +1074,6 @@ With a command name as argument, print help about that command
     help_l = help_list
     help_n = help_next
     help_q = help_exit = help_quit
-    help_r = help_return
     help_s = help_step
     help_u = help_up
 
@@ -1047,8 +1085,8 @@ The exclamation point can be omitted unless the first word
 of the statement resembles a debugger command.
 To assign to a global variable you must always prefix the
 command with a 'global' command, e.g.:
-(Pdb) global list_options; list_options = ['-l']
-(Pdb)"""
+(Pydb) global list_options; list_options = ['-l']
+(Pydb)"""
 
     def help_pdb(self):
         help()
@@ -1150,7 +1188,8 @@ def help():
 
 def main():
     if not sys.argv[1:]:
-        print "usage: pdb.py scriptfile [arg] ..."
+        print "usage: %s scriptfile [arg] ..." % \
+              os.path.basename(sys.argv[0])
         sys.exit(2)
 
     mainpyfile =  sys.argv[1]     # Get script filename
@@ -1158,7 +1197,7 @@ def main():
         print 'Error:', mainpyfile, 'does not exist'
         sys.exit(1)
 
-    del sys.argv[0]         # Hide "pdb.py" from argument list
+    del sys.argv[0]         # Hide "pydb.py" from argument list
 
     # Replace pdb's dir with script's dir in front of module search path.
     sys.path[0] = os.path.dirname(mainpyfile)
@@ -1195,3 +1234,8 @@ def main():
 # When invoked as main program, invoke the debugger on a script
 if __name__=='__main__':
     main()
+
+#
+# Local variables:
+#  mode: Python
+# End:

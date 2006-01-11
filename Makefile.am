@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.3 2006/01/11 17:55:01 rockyb Exp $
+#$Id: Makefile.am,v 1.4 2006/01/11 21:56:03 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,21 +18,39 @@
 # SUBDIRS = test doc emacs
 SUBDIRS := emacs
 
+# Basename of debugger, used to form help doc, python script and script
+# installed in an executable directory.
 DEBUGGER := pydb
-python_DEBUGGER := $(DEBUGGER).py
-python_PYTHON := pydb/$(DEBUGGER).py
+
+# They Python debugger script
+python_debugger_script := $(DEBUGGER).py
+pkgpython_PYTHON := $(DEBUGGER)/$(python_debugger_script)
+
 bin_SCRIPTS := $(DEBUGGER)
-pkgdata_DATA := pydb/$(DEBUGGER).doc
-pkgdatadir = $(pythondir)
+
+# We in fact do install python_PYTHON, just on in the executable directory.
+# Instead it's installed with other python programs. The noinst however
+# forces a changed pydb.py to get created whenever pydb.py.in changes.
+noinst_SCRIPTS := $(python_PYTHON)
+
+# Because we have a *script* called pydb installed in an executable directory
+# as well as a python script alas, we just can't need a different installation 
+# directory variable. 
+pkgdatadir = $(pkgpythondir)
 PHONY := $(DEBUGGER)
 
-EXTRA_DIST = ChangeLog $(pkgdata_DATA)
+EXTRA_DIST = ChangeLog $(pkgdata_DATA) pydb/Makefile
 
+# 
+# For the executable, we make a symbolic link to the python program,
+# and make sure it is executable. Configuration should have put the 
+# proper name to the python interpreter into the beginning.
+#
 install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
 	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
-	chmod +x "$(DESTDIR)$(pythondir)/$(python_DEBUGGER)"
-	$(LN_S) "$(DESTDIR)$(pythondir)/$(python_DEBUGGER)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
+	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
+	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog

@@ -21,7 +21,7 @@ AM_PATH_LISPDIR
 AM_PATH_PYTHON(2.4.2,, :)
 AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 AM_MAINTAINER_MODE
-AC_REVISION([$Id: configure.ac,v 1.3 2006/01/11 17:55:01 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.4 2006/01/11 21:56:03 rockyb Exp $])dnl
 
 dnl make sure we are using a recent autoconf version
 AC_PREREQ(2.53)
@@ -35,6 +35,7 @@ pythondir=$($PYTHON_PROG ${srcdir}/site-packages-path.py)
 if test $? != 0 ; then
    AC_MSG_ERROR([Didn't get Python site packages install path.])
 fi
+pkgpythondir=$pythondir/$PACKAGE_NAME
 
 AC_CONFIG_FILES([Makefile emacs/Makefile \
 		 pydb/pydb.py],[chmod +x pydb/pydb.py])
