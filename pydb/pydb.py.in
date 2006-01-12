@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.4 2006/01/12 04:17:24 rockyb Exp $
+# $Id: pydb.py.in,v 1.5 2006/01/12 04:33:55 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -1145,21 +1145,20 @@ Deletes the specified alias."""
     def print_stack_trace_gdb(self):
         i=len(self.stack)
         try:
-            seq=range(len(self.stack))
-            seq.reverse()
-            for i in seq:
+            for i in range(len(self.stack)):
                 self.print_stack_entry_gdb(i)
         except KeyboardInterrupt:
             pass
 
     def print_stack_entry_gdb(self, i_stack):
-        frame, lineno = self.stack[i_stack]
+        frame_lineno = self.stack[len(self.stack)-i_stack-1]
+        frame, lineno = frame_lineno
         if frame is self.curframe:
             print '->', 
         else:
             print '##',
         print "%d " % i_stack,
-        print self.format_stack_entry_gdb(self.stack[i_stack])
+        print self.format_stack_entry_gdb(frame_lineno)
 
 
 
