@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.5 2006/01/12 04:33:55 rockyb Exp $
+# $Id: pydb.py.in,v 1.6 2006/01/12 07:01:55 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -1344,7 +1344,11 @@ def main():
             t = sys.exc_info()[2]
             while t.tb_next is not None:
                 t = t.tb_next
-            pydb.interaction(t.tb_frame,t)
+            try:
+                pydb.interaction(t.tb_frame,t)
+            except Restart:
+                print "Restarting "+mainpyfile+" with arguments:\n\t" \
+                      +" ".join(sys.argv[1:])
             print "Post mortem debugger finished. The "+mainpyfile+" will be restarted"
 
 
