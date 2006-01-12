@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.3 2006/01/12 04:12:16 rockyb Exp $
+# $Id: pydb.py.in,v 1.4 2006/01/12 04:17:24 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -444,7 +444,7 @@ set listsize *int*
         if args[0] == 'args':
             argv_start = sys.argv[0:1]
             if arg:
-                sys.argv = arg.split(" ")
+                sys.argv = arg.split(" ")[1:]
             else:
                 sys.argv = []
             sys.argv[:0] = argv_start
