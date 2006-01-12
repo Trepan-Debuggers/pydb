@@ -11,7 +11,7 @@ Changes from pdb.py:
 - Add Perl's "examine" to show info about a symbol.  For functions,
   methods, classes and modules the documentation string if any is printed.
   For functions, we also show the argument list. More work is needed here
-  to recurs fields of an arbitrary object and show that.
+  to recurse fields of an arbitrary object and show that.
 
 - add gdb's "frame" command
 
@@ -28,10 +28,10 @@ For now, there are two slight dialects of debugger command set: python
 and gdb
 
   For the gdb dialect, stack traces look more like they do in gdb and
-  frame numbering,  up and down work like that. In the python mode
-  stack traces should be the same.
+  so does frame numbering. "up" and "down" function gdb's does. In
+  the python mode, stack traces should be the same.
 
-  In the gdb dialect some commands have been removed: 
+  In the gdb dialect, some commands have been removed: 
   
   - "return": this is reserved for a gdb-style return and it's short
      name "r" can be confused with "run". The gdb equivalent is "finish"
@@ -42,8 +42,9 @@ and gdb
   Aliases could be added in one's .pydbrc for these.
 
 Coexistence: 
-  For now, we try not to conflict with pydb.py. After all, the Python 
-  made provision of multiple debuggers so we'll make use of that!
+  For now, we try not to conflict with pdb.py. After all, Python 
+  developers made provision of multiple debuggers so we'll make use of
+  that!
 
   So whereever there was a pdb, use pydb. Where Pdb use Pydb. So, as
   hinted above, the debugger initialization script is .pydbrc for this
