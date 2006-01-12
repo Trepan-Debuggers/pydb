@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.4 2006/01/11 21:56:03 rockyb Exp $
+#$Id: Makefile.am,v 1.5 2006/01/12 00:56:18 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,8 @@ noinst_SCRIPTS := $(python_PYTHON)
 pkgdatadir = $(pkgpythondir)
 PHONY := $(DEBUGGER)
 
-EXTRA_DIST = ChangeLog $(pkgdata_DATA) pydb/Makefile
+EXTRA_DIST = ChangeLog $(pkgdata_DATA) \
+	     pydb/Makefile setup.py site-packages-path.py
 
 # 
 # For the executable, we make a symbolic link to the python program,

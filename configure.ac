@@ -15,28 +15,59 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-AC_INIT([pydb],[0.1],[pydb-devel@lists.sourceforge.net])
+AC_INIT([pydb],[0.1],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
-AM_PATH_LISPDIR
-AM_PATH_PYTHON(2.4.2,, :)
-AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
-AM_MAINTAINER_MODE
-AC_REVISION([$Id: configure.ac,v 1.4 2006/01/11 21:56:03 rockyb Exp $])dnl
 
-dnl make sure we are using a recent autoconf version
+##
+## Find out where to install the debugger emacs lisp files
+##
+AM_PATH_LISPDIR
+AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
+
+##
+## Check for Python interpreter and make we have a recent version.
+##
+AM_PATH_PYTHON(2.4.2,, :)
+AC_REVISION([$Id: configure.ac,v 1.5 2006/01/12 00:56:18 rockyb Exp $])dnl
+
+##
+## In maintainer mode we produce a ChangeLog
+##
+AM_MAINTAINER_MODE
+
+##
+## make sure we are using a recent autoconf version
+##
 AC_PREREQ(2.53)
 
 AC_ARG_PROGRAM
 AM_INIT_AUTOMAKE
+
+##
+## cvs2cl is used to create the ChangeLog when we create a distribution
+##
 AM_MISSING_PROG(CVS2CL, cvs2cl, $missing_dir)
+
+##
+## A symbolic links is used to link a name in users PATH to the python
+## script.
+## 
 AC_PROG_LN_S
 
+
+##
+## Automake doesn't get Python's install path correct. So we 
+## figure it out and set it ourself.
+##
 pythondir=$($PYTHON_PROG ${srcdir}/site-packages-path.py)
 if test $? != 0 ; then
    AC_MSG_ERROR([Didn't get Python site packages install path.])
 fi
 pkgpythondir=$pythondir/$PACKAGE_NAME
 
+##
+## Produced derived files.
+##
 AC_CONFIG_FILES([Makefile emacs/Makefile \
 		 pydb/pydb.py],[chmod +x pydb/pydb.py])
 
