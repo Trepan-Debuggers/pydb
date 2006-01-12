@@ -30,8 +30,8 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ##
 ## Check for Python interpreter and make we have a recent version.
 ##
-AM_PATH_PYTHON(2.4.2,, :)
-AC_REVISION([$Id: configure.ac,v 1.6 2006/01/12 07:11:44 rockyb Exp $])dnl
+AM_PATH_PYTHON(2.3.5,, :)
+AC_REVISION([$Id: configure.ac,v 1.7 2006/01/12 09:34:05 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog
@@ -56,7 +56,6 @@ AM_MISSING_PROG(CVS2CL, cvs2cl, $missing_dir)
 ## script.
 ## 
 AC_PROG_LN_S
-
 
 ##
 ## Automake doesn't get Python's install path correct. So we 

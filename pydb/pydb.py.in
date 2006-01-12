@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.6 2006/01/12 07:01:55 rockyb Exp $
+# $Id: pydb.py.in,v 1.7 2006/01/12 09:34:06 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -1292,7 +1292,7 @@ def test():
 
 # print help
 def help():
-    doc_file='%.doc' % _debugger_name
+    doc_file='%s.doc' % _debugger_name
     for dirname in sys.path:
         fullname = os.path.join(dirname, doc_file)
         if os.path.exists(fullname):

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.7 2006/01/12 07:11:44 rockyb Exp $
+#$Id: Makefile.am,v 1.8 2006/01/12 09:34:05 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -24,23 +24,27 @@ DEBUGGER := pydb
 
 # They Python debugger script
 python_debugger_script := $(DEBUGGER).py
-pkgpython_PYTHON := $(DEBUGGER)/$(python_debugger_script)
+python_PYTHON := $(DEBUGGER)/$(python_debugger_script)
+
+# The help file
+pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
 
 bin_SCRIPTS := $(DEBUGGER)
 
 # We in fact do install python_PYTHON, just on in the executable directory.
 # Instead it's installed with other python programs. The noinst however
 # forces a changed pydb.py to get created whenever pydb.py.in changes.
-noinst_SCRIPTS := $(pkgpython_PYTHON)
+noinst_SCRIPTS := $(python_PYTHON)
 
 # Because we have a *script* called pydb installed in an executable directory
 # as well as a python script alas, we just can't need a different installation 
 # directory variable. 
-pkgdatadir = $(pkgpythondir)
+pkgdatadir = $(pythondir)
 PHONY := $(DEBUGGER)
 
 EXTRA_DIST = ChangeLog TODO $(pkgdata_DATA) \
-	     pydb/Makefile setup.py site-packages-path.py
+	     pydb/pydb.doc pydb/Makefile \
+	     setup.py site-packages-path.py
 
 # 
 # For the executable, we make a symbolic link to the python program,
@@ -50,8 +54,8 @@ EXTRA_DIST = ChangeLog TODO $(pkgdata_DATA) \
 install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
 	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
-	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
-	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
+	chmod +x "$(DESTDIR)$(pythondir)/$(python_debugger_script)"
+	$(LN_S) "$(DESTDIR)$(pythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
