@@ -1,9 +1,14 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.2 2006/01/11 21:56:05 rockyb Exp $
+# $Id: pydb.py.in,v 1.3 2006/01/12 04:12:16 rockyb Exp $
+
+_debugger_name = 'pydb'
 
 """A Python debugger.
-(See also pydb.doc for documentation.)
-"""
+(See also %s.doc for documentation.)
+""" % _debugger_name
+
+# The name of the debugger wee are currently going by.
+_version = '@PACKAGE_VERSION@'
 
 import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect
 from repr import Repr
@@ -18,7 +23,8 @@ _repr = Repr()
 _repr.maxstring = 200
 _saferepr = _repr.repr
 
-__all__ = ["run", "pm", "Pdb", "runeval", "runctx", "runcall", "set_trace",
+
+__all__ = ["run", "pm", "Pydb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
 
 def find_function(funcname, filename):
@@ -48,7 +54,7 @@ def find_function(funcname, filename):
 # line_prefix = ': '    # Use this to get the old situation back
 line_prefix = '\n-> '   # Probably a better default
 
-class Pdb(bdb.Bdb, cmd.Cmd):
+class Pydb(bdb.Bdb, cmd.Cmd):
 
     def __init__(self):
         bdb.Bdb.__init__(self)
@@ -58,6 +64,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.aliases = {}
         self.mainpyfile = ''
         self._wait_for_mainpyfile = False
+        self.listsize = 10
         # Try to load readline if it exists
         try:
             import readline
@@ -69,7 +76,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         if 'HOME' in os.environ:
             envHome = os.environ['HOME']
             try:
-                rcFile = open(os.path.join(envHome, ".pydbrc"))
+                rcFile = open(os.path.join(envHome, ".%src" % _debugger_name))
             except IOError:
                 pass
             else:
@@ -77,7 +84,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                     self.rcLines.append(line)
                 rcFile.close()
         try:
-            rcFile = open(".pydbrc")
+            rcFile = open(".%src" % _debugger_name)
         except IOError:
             pass
         else:
@@ -152,7 +159,7 @@ Print the arguments of the current function."""
             # without acting on the later fns.
             for prefix in ('do', 'help'):
                 try:
-                    exec "del %_%s" % (prefix, fn)
+                    exec "del %s_%s" % (prefix, fn)
                 except NameError:
                     pass
         self.gdb_dialect = True;
@@ -160,12 +167,13 @@ Print the arguments of the current function."""
     def __init_python_dialect(self):
         """Do things to set up for a more python-like command set"""
         if not self.gdb_dialect: return
-        do_r = do_return = do_finish
-        do_args = __info_args
+        do_r = do_return = self.do_finish
+        do_args = self.__info_args
         for fn in ('args', 'return'):
             exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
                  % (fn, fn)
         self.gdb_dialect = False;
+        do_h = cmd.Cmd.do_help
 
     # Override Bdb methods
 
@@ -404,27 +412,83 @@ the .py suffix may be omitted."""
     do_b = do_break
 
     def do_set(self, arg):
-        """set [dialect {gdb|python}.
-Sets command set and debugger dialect to be gdb or python.
+        """With a subcommand, this command modifies parts of the
+  debugger environment.  You can see these environment settings with
+  the "show" command.
 
-For gdb, 'up', 'down' and 'frame' commands work as they do in gdb
-For python stack numbering is pythonic.
+set args *arg*...
 
-For gdb, 'finish' runs to the end of execution and 'return' is reserved
-for immediate termination.
+  Set argument list to give program being debugged when it is started.
+  Follow this command with any number of args, to be passed to the
+  program.  Set number of source lines debugger will list by default.
 
-For python return is like gdb's finish.
+  Sets command set and debugger dialect to be gdb or python.
+
+set dialect {gdb|python}
+
+  For gdb, 'up', 'down' and 'frame' commands work as they do in gdb
+  For python stack numbering is pythonic.
+
+  For gdb, 'finish' runs to the end of execution and 'return' is
+  reserved for immediate termination.
+
+  For python return is like gdb's finish.
+
+set listsize *int*
+  Set number of source lines debugger will list by default.
 """
         args = arg.split()
         if len(args) != 2:
             print "*** Expecting exactly 2 arguments. Got %d" % len(args)
-        if arg[0] == 'dialect':
-            if arg[1] == 'gdb':
+            return
+        if args[0] == 'args':
+            argv_start = sys.argv[0:1]
+            if arg:
+                sys.argv = arg.split(" ")
+            else:
+                sys.argv = []
+            sys.argv[:0] = argv_start
+
+        elif args[0] == 'dialect':
+            if args[1] == 'gdb':
                 self.__init_gdb_dialect()
-            elif arg[1] == 'python': 
-                self.__init_python()
+            elif args[1] == 'python':
+                self.__init_python_dialect()
             else:
                 print "*** Expecting dialect to be either gdb or python"
+        elif args[0] == 'listsize':
+            try:
+                self.listsize = self.__get_int_arg(arg)
+            except ValueError:
+                pass
+        else:
+            print "*** unknown set subcommand %s" %  args[0]
+
+    def do_show(self, arg):
+        """Generic command for showing things about the debugger.
+
+show args -- Show argument list to give program being debugged when it is started
+show dialect -- Show what style of debugger interface is in effect.
+show listsize -- Show number of source lines gdb will list by default
+show prompt -- Show prompt
+show version -- Show what version of this is
+"""
+        if arg == 'args':
+            print "Argument list to give program being debugged when it is started is"
+            print '"%s"' % " ".join(sys.argv[1:])
+        elif arg == 'dialect':
+            print "Debugger command style is",
+            if self.gdb_dialect:
+                print "gdb."
+            else:
+                print "python."
+        elif arg == 'listsize':
+            print "Number of source lines %s will list by default is %d." \
+                  % (_debugger_name, self.listsize)
+        elif arg == 'prompt':
+            print """%s's prompt is "%s".""" % (_debugger_name, self.prompt)
+        elif arg == 'version':
+            print """%s version %r.""" % (_debugger_name, _version)
 
     def do_tbreak(self, arg):
         """tbreak  same arguments as break, but breakpoint is
@@ -618,7 +682,10 @@ breakpoint numbers."""
 Print a stack trace, with the most recent frame at the bottom.
 An arrow indicates the "current frame", which determines the
 context of most commands.  'bt' is an alias for this command."""
-        self.print_stack_trace()
+        if self.gdb_dialect:
+            self.print_stack_trace_gdb()
+        else:
+            self.print_stack_trace()
     do_T = do_bt = do_w = do_where
 
     def do_up(self, arg):
@@ -800,7 +867,7 @@ in the current environment)."""
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
-        p = Pdb()
+        p = Pydb()
         p.prompt = "(%s) " % self.prompt.strip()
         print "ENTERING RECURSIVE DEBUGGER"
         sys.call_tracing(p.run, (arg, globals, locals))
@@ -927,7 +994,7 @@ if the second argument is less than the first, it is a count."""
         else:
             first = self.lineno + 1
         if last is None:
-            last = first + 10
+            last = first + self.listsize
         filename = self.curframe.f_code.co_filename
         breaklist = self.get_file_breaks(filename)
         try:
@@ -987,20 +1054,20 @@ parameters.  If no command is given, the current alias for name
 is shown. If no name is given, all aliases are listed.
 
 Aliases may be nested and can contain anything that can be
-legally typed at the pdb prompt.  Note!  You *can* override
-internal pdb commands with aliases!  Those internal commands
+legally typed at the debugger prompt.  Note!  You *can* override
+internal debugger commands with aliases!  Those internal commands
 are then hidden until the alias is removed.  Aliasing is recursively
 applied to the first word of the command line; all other words
 in the line are left alone.
 
-Some useful aliases (especially when placed in the .pydbrc file) are:
+Some useful aliases (especially when placed in the .%src file) are:
 
 #Print instance variables (usage "pi classInst")
 alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
 
 #Print instance variables in self
 alias ps pi self
-"""
+""" % _debugger_name
         args = arg.split()
         if len(args) == 0:
             keys = self.aliases.keys()
@@ -1045,21 +1112,72 @@ Deletes the specified alias."""
         print self.format_stack_entry(frame_lineno, prompt_prefix)
 
 
+    def format_stack_entry_gdb(self, frame_lineno):
+        """Format and return a stack entry gdb-style. """
+        import linecache, repr
+        frame, lineno = frame_lineno
+        filename = self.canonic(frame.f_code.co_filename)
+        s = ''
+        if frame.f_code.co_name:
+            s = frame.f_code.co_name
+        else:
+            s = "<lambda>"
+        if '__args__' in frame.f_locals:
+            args = frame.f_locals['__args__']
+        else:
+            args = None
+        if args:
+            s += repr.repr(args)
+        else:
+            s += '()'
+        if '__return__' in frame.f_locals:
+            rv = frame.f_locals['__return__']
+            s += '->'
+            s += repr.repr(rv)
+
+        if s == '?()':
+            s = 'in'
+        else:
+            s += ' called from'
+        s += " file '%s' at line %r" % (filename, lineno)
+        return s
+
+    def print_stack_trace_gdb(self):
+        i=len(self.stack)
+        try:
+            seq=range(len(self.stack))
+            seq.reverse()
+            for i in seq:
+                self.print_stack_entry_gdb(i)
+        except KeyboardInterrupt:
+            pass
+
+    def print_stack_entry_gdb(self, i_stack):
+        frame, lineno = self.stack[i_stack]
+        if frame is self.curframe:
+            print '->', 
+        else:
+            print '##',
+        print "%d " % i_stack,
+        print self.format_stack_entry_gdb(self.stack[i_stack])
+
+
+
     # Help methods (derived from pydb.doc or vice versa)
 
     def help_h(self):
         print """h(elp)
 Without argument, print the list of available commands.
 With a command name as argument, print help about that command
-"help pdb" pipes the full documentation file to the $PAGER
+"help %s" pipes the full documentation file to the $PAGER
 "help exec" gives help on the ! command"""
     help_help = help_h
 
     for fn in ('EOF', 'L', 'alias', 'break', 'clear', 'condition',
                'continue', 'debug', 'disable', 'down', 'enable', 'examine',
                'finish', 'frame', 'ignore', 'info', 'jump', 'list',
-               'next', 'p', 'pp', 'quit', 'run', 'set', 'step', 'tbreak',
-               'unalias', 'up', 'whatis', 'where'):
+               'next', 'p', 'pp', 'quit', 'run', 'set', 'step', 'show',
+               'tbreak', 'unalias', 'up', 'whatis', 'where'):
         exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
              % (fn, fn)
 
@@ -1085,8 +1203,8 @@ The exclamation point can be omitted unless the first word
 of the statement resembles a debugger command.
 To assign to a global variable you must always prefix the
 command with a 'global' command, e.g.:
-(Pydb) global list_options; list_options = ['-l']
-(Pydb)"""
+%sglobal list_options; list_options = ['-l']
+%s""" % (self.prompt, self.prompt)
 
     def help_pdb(self):
         help()
@@ -1138,25 +1256,25 @@ command with a 'global' command, e.g.:
 # Simplified interface
 
 def run(statement, globals=None, locals=None):
-    Pdb().run(statement, globals, locals)
+    Pydb().run(statement, globals, locals)
 
 def runeval(expression, globals=None, locals=None):
-    return Pdb().runeval(expression, globals, locals)
+    return Pydb().runeval(expression, globals, locals)
 
 def runctx(statement, globals, locals):
     # B/W compatibility
     run(statement, globals, locals)
 
 def runcall(*args, **kwds):
-    return Pdb().runcall(*args, **kwds)
+    return Pydb().runcall(*args, **kwds)
 
 def set_trace():
-    Pdb().set_trace(sys._getframe().f_back)
+    Pydb().set_trace(sys._getframe().f_back)
 
 # Post-Mortem interface
 
 def post_mortem(t):
-    p = Pdb()
+    p = Pydb()
     p.reset()
     while t.tb_next is not None:
         t = t.tb_next
@@ -1175,7 +1293,7 @@ def test():
 
 # print help
 def help():
-    doc_file='pydb.doc'
+    doc_file='%.doc' % _debugger_name
     for dirname in sys.path:
         fullname = os.path.join(dirname, doc_file)
         if os.path.exists(fullname):
@@ -1206,11 +1324,11 @@ def main():
     # modified by the script being debugged. It's a bad idea when it was
     # changed by the user from the command line. There is a "restart" command which
     # allows explicit specification of command line arguments.
-    pdb = Pdb()
+    pydb = Pydb()
     while 1:
         try:
-            pdb._runscript(mainpyfile)
-            if pdb._user_requested_quit:
+            pydb._runscript(mainpyfile)
+            if pydb._user_requested_quit:
                 break
             print "The program finished and will be restarted"
         except Restart:
@@ -1227,7 +1345,7 @@ def main():
             t = sys.exc_info()[2]
             while t.tb_next is not None:
                 t = t.tb_next
-            pdb.interaction(t.tb_frame,t)
+            pydb.interaction(t.tb_frame,t)
             print "Post mortem debugger finished. The "+mainpyfile+" will be restarted"
 
 

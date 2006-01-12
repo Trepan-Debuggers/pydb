@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.5 2006/01/12 00:56:18 rockyb Exp $
+#$Id: Makefile.am,v 1.6 2006/01/12 04:12:15 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ bin_SCRIPTS := $(DEBUGGER)
 # We in fact do install python_PYTHON, just on in the executable directory.
 # Instead it's installed with other python programs. The noinst however
 # forces a changed pydb.py to get created whenever pydb.py.in changes.
-noinst_SCRIPTS := $(python_PYTHON)
+noinst_SCRIPTS := $(pkgpython_PYTHON)
 
 # Because we have a *script* called pydb installed in an executable directory
 # as well as a python script alas, we just can't need a different installation 

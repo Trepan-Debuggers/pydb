@@ -225,7 +225,50 @@ alias [name [command]]
         alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
         #Print instance variables in self
         alias ps pi self
-                
+
+set *subcommand*
+    With a subcommand, this command modifies parts of the debugger
+    environment.  You can see these environment settings with the
+    "show" command.
+
+  set args *arg*...
+ 
+    Set argument list to give program being debugged when it is
+    started. Follow this command with any number of args, to be passed
+    to the program.  Set number of source lines debugger will list by
+    default.
+
+  set dialect {gdb|python}
+
+    Sets command set and debugger dialect to be gdb or python.
+
+    For gdb, 'up', 'down' and 'frame' commands work as they do in gdb
+    For python stack numbering is pythonic.
+
+    For gdb, 'finish' runs to the end of execution and 'return' is reserved
+    for immediate termination.
+
+    For python return is like gdb's finish.
+
+  set listsize *int*
+    Set number of source lines debugger will list by default.
+
+show *subcommand* 
+
+    Generic command for showing things about the debugger.
+
+    show args -- Show argument list to give program being debugged when
+	it is started
+
+    show dialect -- Show what style of debugger interface is in effect.
+
+    show listsize -- Show number of source lines gdb will list by
+  	default
+
+    show prompt -- Show prompt
+
+    show version -- Show what version of this is
+
 unalias name
         Deletes the specified alias.
 
