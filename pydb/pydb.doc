@@ -1,22 +1,22 @@
-The Python Debugger Pdb
+The Extended Python Debugger Pydb
 =======================
 
 To use the debugger in its simplest form:
 
-        >>> import pdb
-        >>> pdb.run('<a statement>')
+        >>> import pydb
+        >>> pydb.run('<a statement>')
 
-The debugger's prompt is '(Pdb) '.  This will stop in the first
+The debugger's prompt is '(Pydb) '.  This will stop in the first
 function call in <a statement>.
 
 Alternatively, if a statement terminated with an unhandled exception,
-you can use pdb's post-mortem facility to inspect the contents of the
+you can use pydb's post-mortem facility to inspect the contents of the
 traceback:
 
         >>> <a statement>
         <exception traceback>
-        >>> import pdb
-        >>> pdb.pm()
+        >>> import pydb
+        >>> pydb.pm()
 
 The commands recognized by the debugger are listed in the next
 section.  Most can be abbreviated as indicated; e.g., h(elp) means
@@ -44,7 +44,7 @@ pair ';;'.  No intelligence is applied to separating the commands; the
 input is split at the first ';;', even if it is in the middle of a
 quoted string.
 
-If a file ".pdbrc" exists in your home directory or in the current
+If a file ".pydbrc" exists in your home directory or in the current
 directory, it is read in and executed as if it had been typed at the
 debugger prompt.  This is particularly useful for aliases.  If both
 files exist, the one in the home directory is read first and aliases
@@ -197,8 +197,8 @@ examine expression
         first word of the statement resembles a debugger command.  To
         assign to a global variable you must always prefix the command
         with a 'global' command, e.g.:
-        (Pdb) global list_options; list_options = ['-l']
-        (Pdb)
+        (Pydb) global list_options; list_options = ['-l']
+        (Pydb)
 
 whatis arg
          Prints the type of the argument.
@@ -212,14 +212,14 @@ alias [name [command]]
         aliases are listed.
 
         Aliases may be nested and can contain anything that can be
-        legally typed at the pdb prompt.  Note!  You *can* override
-        internal pdb commands with aliases!  Those internal commands
+        legally typed at the pydb prompt.  Note!  You *can* override
+        internal pydb commands with aliases!  Those internal commands
         are then hidden until the alias is removed.  Aliasing is
         recursively applied to the first word of the command line; all
         other words in the line are left alone.
 
         As an example, here are two useful aliases (especially when
-        placed in the .pdbrc file):
+        placed in the .pydbrc file):
 
         #Print instance variables (usage "pi classInst")
         alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
