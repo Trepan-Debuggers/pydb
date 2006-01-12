@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.7 2006/01/12 09:34:06 rockyb Exp $
+# $Id: pydb.py.in,v 1.8 2006/01/12 19:57:26 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -7,7 +7,7 @@ _debugger_name = 'pydb'
 (See also %s.doc for documentation.)
 """ % _debugger_name
 
-# The name of the debugger wee are currently going by.
+# The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
 import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect
@@ -60,6 +60,7 @@ class Pydb(bdb.Bdb, cmd.Cmd):
         bdb.Bdb.__init__(self)
         cmd.Cmd.__init__(self)
         self.prompt = '(Pydb) '
+        self.re_def = re.compile(r'\s*def\s+')
         self.gdb_dialect = True
         self.aliases = {}
         self.mainpyfile = ''
@@ -199,8 +200,7 @@ Print the arguments of the current function."""
             import linecache
             filename = self.canonic(frame.f_code.co_filename)
             line = linecache.getline(filename, frame.f_lineno)
-            re_ip = re.compile(r'\s*def\s+')
-            if re_ip.match(line) and not self.break_here(frame): return
+            if self.re_def.match(line) and not self.break_here(frame): return
         self.interaction(frame, None)
 
     def user_return(self, frame, return_value):
@@ -223,7 +223,7 @@ Print the arguments of the current function."""
 
     def interaction(self, frame, traceback):
         self.setup(frame, traceback)
-        self.print_stack_entry(self.stack[self.curindex])
+        self.print_location()
         self.cmdloop()
         self.forget()
 
@@ -298,7 +298,7 @@ Print the arguments of the current function."""
 
         self.curindex = pos
         self.curframe = self.stack[self.curindex][0]
-        self.print_stack_entry(self.stack[self.curindex])
+        self.print_location()
         self.lineno = None
 
     # Command definitions, called by cmdloop()
@@ -435,8 +435,11 @@ set dialect {gdb|python}
   For python return is like gdb's finish.
 
 set listsize *int*
-  Set number of source lines debugger will list by default.
-"""
+  Set number of source lines the debugger will list by default.
+
+set prompt *string*
+  Set debugger's prompt
+""" 
         args = arg.split()
         if len(args) != 2:
             print "*** Expecting exactly 2 arguments. Got %d" % len(args)
@@ -461,6 +464,12 @@ set listsize *int*
                 self.listsize = self.__get_int_arg(arg)
             except ValueError:
                 pass
+        elif args[0] == 'prompt':
+            if len(args) == 2:
+                self.prompt = args[1]
+            else:
+                print "*** Expecting exactly two arguments, the second the prompt string. Got %d" \
+                      % len(args)
         else:
             print "*** unknown set subcommand %s" %  args[0]
 
@@ -1102,6 +1111,24 @@ Deletes the specified alias."""
                 self.print_stack_entry(frame_lineno)
         except KeyboardInterrupt:
             pass
+
+    def print_location(self, prompt_prefix=line_prefix):
+        """Show where we are. GUI's and front-end interfaces often
+        use this to update displays. So it is helpful to make sure
+        we give at least some place that's located in a file.      
+        """
+        i_stack = self.curindex
+        while i_stack >= 0:
+            frame_lineno = self.stack[i_stack]
+            i_stack -= 1
+            frame, lineno = frame_lineno
+            print '>',
+            print self.format_stack_entry(frame_lineno, prompt_prefix)
+            # If we are stopped at a string such as running "exec" or
+            # execfile, print the next outer location for that front-ends
+            # tracking source execution.
+            if frame.f_code.co_filename != '<string>':
+                break
 
     def print_stack_entry(self, frame_lineno, prompt_prefix=line_prefix):
         frame, lineno = frame_lineno
