@@ -1,4 +1,5 @@
 0.1
+2006-01-12
 
 First release of extended python debugger.
 
@@ -6,7 +7,11 @@ First release of extended python debugger.
 
 * Add gdb run (restart) command
 
-* "set dialect" sets for python pydb or gdb
+* Add some "set"/"show" commands:
+    args, listsize, version (no set here), dialect
+
+* Step/next can take an argument of how many lines to step/next.
+  Stepping skips over "def" statements.
 
 * Document retval
 
