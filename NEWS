@@ -10,8 +10,9 @@ First release of extended python debugger.
 * Add some "set"/"show" commands:
     args, listsize, version (no set here), dialect
 
-* Step/next can take an argument of how many lines to step/next.
-  Stepping skips over "def" statements.
+* up/down can take a number of frames to move.
+
+* Stepping skips over "def" statements.
 
 * Document retval
 

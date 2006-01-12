@@ -21,8 +21,9 @@ Changes from pdb.py:
 - Add some "info" commands:
    args break, line, locals, source
 
-- Step/next can take an argument of how many lines to step/next.
-  Stepping skips over "def" statements.
+- up/down can take a number of frames to move.
+
+-  Stepping skips over "def" statements.
 
 For now, there are two slight dialects of debugger command set: python
 and gdb
