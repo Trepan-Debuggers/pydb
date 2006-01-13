@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.8 2006/01/12 19:57:26 rockyb Exp $
+# $Id: pydb.py.in,v 1.9 2006/01/13 04:23:26 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -441,8 +441,8 @@ set prompt *string*
   Set debugger's prompt
 """ 
         args = arg.split()
-        if len(args) != 2:
-            print "*** Expecting exactly 2 arguments. Got %d" % len(args)
+        if len(args) < 2:
+            print "*** Expecting at least 2 arguments. Got %d" % len(args)
             return
         if args[0] == 'args':
             argv_start = sys.argv[0:1]
@@ -465,11 +465,14 @@ set prompt *string*
             except ValueError:
                 pass
         elif args[0] == 'prompt':
-            if len(args) == 2:
-                self.prompt = args[1]
+            # Use the original prompt so we keep spaces and punctuation
+            # just skip over the work prompt.
+            re_prompt = re.compile(r'\s*prompt\s(.*)$')
+            mo = re_prompt.search(arg)
+            if mo:
+                self.prompt = mo.group(1)
             else:
-                print "*** Expecting exactly two arguments, the second the prompt string. Got %d" \
-                      % len(args)
+                print "*** Something went wrong trying to find the prompt"
         else:
             print "*** unknown set subcommand %s" %  args[0]
 
@@ -497,7 +500,7 @@ show version -- Show what version of this is
         elif arg == 'prompt':
             print """%s's prompt is "%s".""" % (_debugger_name, self.prompt)
         elif arg == 'version':
-            print """%s version %r.""" % (_debugger_name, _version)
+            print """%s version %s.""" % (_debugger_name, "@PACKAGE_VERSION@")
 
     def do_tbreak(self, arg):
         """tbreak  same arguments as break, but breakpoint is
@@ -1163,10 +1166,13 @@ Deletes the specified alias."""
             s += repr.repr(rv)
 
         if s == '?()':
-            s = 'in'
+            if filename=='<string>':
+                s = 'in exec'
+            else:
+                s = 'in file'
         else:
-            s += ' called from'
-        s += " file '%s' at line %r" % (filename, lineno)
+            s += ' called from file'
+        s += " '%s' at line %r" % (filename, lineno)
         return s
 
     def print_stack_trace_gdb(self):
