@@ -1,4 +1,16 @@
-0.1
+0.11cvs
+
+* Show a useful location when we are stopped on an exec or execfile.
+
+* Stack trace now reports exec positions a little bit better - 
+  it doesn't call it a file.
+
+* pydb.el updated for expanded commands
+
+* set prompt allows embedded blanks and punctiation. Still have problems
+  with trailing blanks.
+
+0.10
 2006-01-12
 
 First release of extended python debugger.
