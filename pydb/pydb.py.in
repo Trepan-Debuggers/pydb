@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.9 2006/01/13 04:23:26 rockyb Exp $
+# $Id: pydb.py.in,v 1.10 2006/01/15 00:40:53 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -175,6 +175,31 @@ Print the arguments of the current function."""
                  % (fn, fn)
         self.gdb_dialect = False;
         do_h = cmd.Cmd.do_help
+
+    def __get_exec_string(self, frame, max=30):
+
+        """__get_exec_string(frame, max)->prefix string Get
+        the initial part the string in an exec command.  frame is the
+        frame, and max characters of the string will be returned adjusted
+        with a trailing ... and any quote mark.  A real hack until
+        tracebacks do better in location reporting. """
+
+        if frame == None: return None
+        fi, li, fn, text = traceback.extract_stack(frame)[-1]
+        re_exec = re.compile(r'(^|\s+)exec\s+(.*)')
+        mo = re_exec.search(text)
+        if mo:
+            exec_arg = mo.group(2)
+            if len(exec_arg) > max:
+                if exec_arg[0] == '"' or \
+                       exec_arg[0] == "'":
+                    quote=exec_arg[0]
+                else:
+                    quote=''
+                    return "%s...%s" % (exec_arg[0:max], quote)
+            else:
+                return exec_arg
+        return None
 
     # Override Bdb methods
 
@@ -1165,14 +1190,24 @@ Deletes the specified alias."""
             s += '->'
             s += repr.repr(rv)
 
+        add_quotes_around_file = True
         if s == '?()':
             if filename=='<string>':
-                s = 'in exec'
+                exec_str = self.__get_exec_string(frame.f_back)
+                if exec_str != None:
+                    filename=exec_str
+                    add_quotes_around_file = False
+                    s = 'in exec'
+                else:
+                    # I suppose it's possible that the file name is <string>.
+                    s = 'in file'
             else:
                 s = 'in file'
         else:
             s += ' called from file'
-        s += " '%s' at line %r" % (filename, lineno)
+
+        if add_quotes_around_file: filename = "'%s'" % filename
+        s += " %s at line %r" % (filename, lineno)
         return s
 
     def print_stack_trace_gdb(self):
