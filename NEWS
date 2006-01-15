@@ -1,6 +1,6 @@
 0.11cvs
 
-* Show a useful location when we are stopped on an exec or execfile.
+* Show more accurate and useful location when we are stopped on an exec.
 
 * Stack trace now reports exec positions a little bit better - 
   it doesn't call it a file.
