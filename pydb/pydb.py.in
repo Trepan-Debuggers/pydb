@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.11 2006/01/16 02:33:20 rockyb Exp $
+# $Id: pydb.py.in,v 1.12 2006/01/16 03:20:04 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -55,10 +55,39 @@ def op_at_frame(frame):
     # print "+++ %s" % opname[op]
     return opname[op]
 
-re_def = re.compile(r'\s*def\s+')
+re_def = re.compile(r'^\s*def\s+')
 def is_def_stmt(line, frame):
     """Return True if we are looking at a def statement"""
+    # Should really also check that operand is a code object
     return re_def.match(line) and op_at_frame(frame)=='LOAD_CONST'
+
+def is_exec_stmt(frame):
+    """Return True if we are looking at an exec statement"""
+    return frame.f_back is not None and op_at_frame(frame.f_back)=='EXEC_STMT'
+
+def get_exec_string(frame, max=30):
+    """get_exec_string(frame, max)->prefix string Get
+    the initial part the string in an exec command.  frame is the
+    frame, and max characters of the string will be returned adjusted
+    with a trailing ... and any quote mark.  A real hack until
+    tracebacks do better in location reporting. """
+    
+    if frame == None: return None
+    fi, li, fn, text = traceback.extract_stack(frame)[-1]
+    re_exec = re.compile(r'(^|\s+)exec\s+(.*)')
+    mo = re_exec.search(text)
+    if mo:
+        exec_arg = mo.group(2)
+        if len(exec_arg) > max:
+            if exec_arg[0] == '"' or \
+                   exec_arg[0] == "'":
+                quote=exec_arg[0]
+            else:
+                quote=''
+                return "%s...%s" % (exec_arg[0:max], quote)
+        else:
+            return exec_arg
+    return None
 
 # Interaction prompt line will separate file and call info from code
 # text using value of line_prefix string.  A newline and arrow may
@@ -187,31 +216,6 @@ Print the arguments of the current function."""
                  % (fn, fn)
         self.gdb_dialect = False;
         do_h = cmd.Cmd.do_help
-
-    def __get_exec_string(self, frame, max=30):
-
-        """__get_exec_string(frame, max)->prefix string Get
-        the initial part the string in an exec command.  frame is the
-        frame, and max characters of the string will be returned adjusted
-        with a trailing ... and any quote mark.  A real hack until
-        tracebacks do better in location reporting. """
-
-        if frame == None: return None
-        fi, li, fn, text = traceback.extract_stack(frame)[-1]
-        re_exec = re.compile(r'(^|\s+)exec\s+(.*)')
-        mo = re_exec.search(text)
-        if mo:
-            exec_arg = mo.group(2)
-            if len(exec_arg) > max:
-                if exec_arg[0] == '"' or \
-                       exec_arg[0] == "'":
-                    quote=exec_arg[0]
-                else:
-                    quote=''
-                    return "%s...%s" % (exec_arg[0:max], quote)
-            else:
-                return exec_arg
-        return None
 
     # Override Bdb methods
 
@@ -443,6 +447,8 @@ the .py suffix may be omitted."""
     def defaultFile(self):
         """Produce a reasonable default."""
         filename = self.curframe.f_code.co_filename
+        # Consider using is_exec_stmt(). I just don't understand
+        # the conditions under which the below test is true.
         if filename == '<string>' and self.mainpyfile:
             filename = self.mainpyfile
         return filename
@@ -1165,10 +1171,9 @@ Deletes the specified alias."""
             frame, lineno = frame_lineno
             print '>',
             print self.format_stack_entry(frame_lineno, prompt_prefix)
-            # If we are stopped at a string such as running "exec" or
-            # execfile, print the next outer location for that front-ends
-            # tracking source execution.
-            if frame.f_code.co_filename != '<string>':
+            # If we are stopped at an "exec" or print the next outer
+            # location for that front-ends tracking source execution.
+            if is_exec_stmt(frame):
                 break
 
     def print_stack_entry(self, frame_lineno, prompt_prefix=line_prefix):
@@ -1205,15 +1210,12 @@ Deletes the specified alias."""
 
         add_quotes_around_file = True
         if s == '?()':
-            if filename=='<string>':
-                exec_str = self.__get_exec_string(frame.f_back)
+            if is_exec_stmt(frame):
+                s = 'in exec'
+                exec_str = get_exec_string(frame.f_back)
                 if exec_str != None:
-                    filename=exec_str
+                    filename = exec_str
                     add_quotes_around_file = False
-                    s = 'in exec'
-                else:
-                    # I suppose it's possible that the file name is <string>.
-                    s = 'in file'
             else:
                 s = 'in file'
         else:
