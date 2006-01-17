@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.12 2006/01/16 03:20:04 rockyb Exp $
+# $Id: pydb.py.in,v 1.13 2006/01/17 21:07:59 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -89,6 +89,15 @@ def get_exec_string(frame, max=30):
             return exec_arg
     return None
 
+# step_ignore_count should be an instance variable inside the Pdb
+# object but for reasons I don't understand yet, changing the value
+# inside do_next or do_step doesn't seem to persist when it is looked
+# at in user_line()
+
+# A 0 value means stop on this occurance. A positive value means to
+# skip that many more step/next's.
+step_ignore_count = 0
+
 # Interaction prompt line will separate file and call info from code
 # text using value of line_prefix string.  A newline and arrow may
 # be to your liking.  You can set it once pydb is imported using the
@@ -148,6 +157,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.stack = []
         self.curindex = 0
         self.curframe = None
+        step_ignore_count = 0  # 0 means stop if stepping
 
     def setup(self, f, t):
         self.forget()
@@ -173,7 +183,22 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             try: 
                 default = int(arg)
             except ValueError, msg:
-                print '*** Expecting an integer, got:', arg
+                print '*** Expecting an integer, got: ' % arg
+                raise ValueError
+        return default
+
+    def __get_pos_int(self, arg, min=0, default = 1):
+        """If arg arg is an int, use that otherwise take default"""
+        if arg:
+            try: 
+                default = int(arg)
+                if default < min:
+                    print '*** Expecting an integer reater than %d, got: ' \
+                          % arg
+                    raise ValueError
+                    
+            except ValueError, msg:
+                print '*** Expecting an integer, got: ' % arg
                 raise ValueError
         return default
 
@@ -235,13 +260,23 @@ Print the arguments of the current function."""
                 or frame.f_lineno <= 0):
                 return
             self._wait_for_mainpyfile = True
+
+        global step_ignore_count
         if self.stop_here(frame):
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
             import linecache
             filename = self.canonic(frame.f_code.co_filename)
             line = linecache.getline(filename, frame.f_lineno)
-            if is_def_stmt(line, frame) and not self.break_here(frame):
+            if not self.break_here(frame):
+                if step_ignore_count > 0:
+                    step_ignore_count -= 1
+                    return
+                if is_def_stmt(line, frame):
+                    return
+        else:
+            if not self.break_here(frame) and step_ignore_count > 0:
+                step_ignore_count -= 1
                 return
         self.interaction(frame, None)
 
@@ -794,14 +829,15 @@ Otherwise we match Python's stack: 0 is the oldest frame.
             arg = int(arg)
         except ValueError:
             print "*** The 'frame' command requires a frame number."
-        else:
-            i_stack = len(self.stack)
-            if arg < -i_stack or arg > i_stack-1:
-                print '*** frame number has to be in the range %d to %d' \
-                      % (-i_stack, i_stack-1)
-            else:
-                self.__adjust_frame(pos=arg, absolute_pos=True)
+            return
 
+        i_stack = len(self.stack)
+        if arg < -i_stack or arg > i_stack-1:
+            print '*** frame number has to be in the range %d to %d' \
+                  % (-i_stack, i_stack-1)
+        else:
+            self.__adjust_frame(pos=arg, absolute_pos=True)
+            
     def do_L(self, arg):
         """L
 Without argument, list info about all breakpoints.
@@ -847,20 +883,37 @@ info source -- Information about the current Python file
                   self.canonic(frame.f_code.co_filename)
 
     def do_step(self, arg):
-        """s(tep)
+        """s(tep) [count]
 Execute the current line, stop at the first possible occasion
 (either in a function that is called or in the current function).
 
 With an integer argument, step that many times."""
+
+        global step_ignore_count
+        try:
+            # 0 means stop now or step 1, so we subtract 1.
+            step_ignore_count = self.__get_pos_int(arg, 1) - 1
+        except ValueError:
+            return
+
         self.stepping=True
         self.set_step()
         return 1
     do_s = do_step
 
     def do_next(self, arg):
-        """n(ext)
+        """n(ext) [count]
 Continue execution until the next line in the current function
-is reached or it returns."""
+is reached or it returns.
+
+With an integer argument, perform that many times."""
+        global step_ignore_count
+        try:
+            # 0 means stop now or step 1, so we subtract 1.
+            step_ignore_count = self.__get_pos_int(arg, 1) - 1
+        except ValueError:
+            return
+
         self.stepping=False
         self.set_next(self.curframe)
         return 1
