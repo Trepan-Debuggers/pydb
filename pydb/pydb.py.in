@@ -1,11 +1,8 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.14 2006/01/17 21:23:21 rockyb Exp $
+"""$Id: pydb.py.in,v 1.15 2006/01/17 21:33:28 rockyb Exp $
+A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
-_debugger_name = 'pydb'
-
-"""A Python debugger.
-(See also %s.doc for documentation.)
-""" % _debugger_name
+_debugger_name = '@PACKAGE_NAME@'
 
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
