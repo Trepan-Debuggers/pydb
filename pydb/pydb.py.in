@@ -1,5 +1,5 @@
 #!@PYTHON@
-# $Id: pydb.py.in,v 1.13 2006/01/17 21:07:59 rockyb Exp $
+# $Id: pydb.py.in,v 1.14 2006/01/17 21:23:21 rockyb Exp $
 
 _debugger_name = 'pydb'
 
@@ -177,13 +177,13 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 if len(line) > 0 and line[0] != '#':
                     self.onecmd(line)
 
-    def __get_int_arg(self, arg, default = 1):
+    def __get_int(self, arg, default = 1):
         """If arg arg is an int, use that otherwise take default"""
         if arg:
             try: 
                 default = int(arg)
             except ValueError, msg:
-                print '*** Expecting an integer, got: ' % arg
+                print '*** Expecting an integer, got: %s' % str(arg)
                 raise ValueError
         return default
 
@@ -193,12 +193,16 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             try: 
                 default = int(arg)
                 if default < min:
-                    print '*** Expecting an integer reater than %d, got: ' \
-                          % arg
-                    raise ValueError
+                    print '*** Expecting an integer at least %d, got: %d' \
+                          % (min, default)
+                    # Really should use something custom? 
+                    raise ZeroDivisionError
                     
             except ValueError, msg:
-                print '*** Expecting an integer, got: ' % arg
+                print '*** Expecting an integer, got: %s' % str(arg)
+                raise ValueError
+            except ZeroDivisionError:
+                # Turn this into a ValueError
                 raise ValueError
         return default
 
@@ -540,7 +544,7 @@ set prompt *string*
                 print "*** Expecting dialect to be either gdb or python"
         elif args[0] == 'listsize':
             try:
-                self.listsize = self.__get_int_arg(arg)
+                self.listsize = self.__get_int(arg)
             except ValueError:
                 pass
         elif args[0] == 'prompt':
@@ -788,9 +792,9 @@ If using gdb dialect up matches the gdb: 0 is the most recent frame.
 Otherwise we match Python's stack: 0 is the oldest frame.
 """
         try:
-            count = self.__get_int_arg(arg)
+            count = self.__get_int(arg)
         except ValueError:
-            pass
+            return
         if self.gdb_dialect:
             count = -count
         self.__adjust_frame(pos=count, absolute_pos=False)
@@ -805,9 +809,9 @@ If using gdb dialect up matches the gdb: 0 is the most recent frame.
 Otherwise we match Python's stack: 0 is the oldest frame.
 """
         try:
-            count = self.__get_int_arg(arg)
+            count = self.__get_int(arg)
         except ValueError:
-            pass
+            return
         if self.gdb_dialect:
             count = -count
         self.__adjust_frame(pos=-count, absolute_pos=False)
