@@ -22,7 +22,6 @@
   ipython more transparent. The *module* name is Pydb, so one must either
   "import pydb" or import "pdb" (stock debugger).
 
-
 0.10
 2006-01-12
 
