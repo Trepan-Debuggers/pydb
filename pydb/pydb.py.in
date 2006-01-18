@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.15 2006/01/17 21:33:28 rockyb Exp $
+"""$Id: pydb.py.in,v 1.16 2006/01/18 00:29:48 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -7,7 +7,7 @@ _debugger_name = '@PACKAGE_NAME@'
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
-import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect
+import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect, dis
 from repr import Repr
 
 class Restart(Exception):
@@ -24,8 +24,13 @@ _saferepr = _repr.repr
 __all__ = ["run", "pm", "Pydb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
 
+# A pattern for a def header seems to be used a couple of times.
+re_def_str = r'^\s*def\s'
+re_def = re.compile(re_def_str)
+
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
+    # cre = re.compile(r'%s\s*%s\s*[(]' % (re_def_str, funcname))
     try:
         fp = open(filename)
     except IOError:
@@ -52,7 +57,6 @@ def op_at_frame(frame):
     # print "+++ %s" % opname[op]
     return opname[op]
 
-re_def = re.compile(r'^\s*def\s+')
 def is_def_stmt(line, frame):
     """Return True if we are looking at a def statement"""
     # Should really also check that operand is a code object
@@ -60,6 +64,7 @@ def is_def_stmt(line, frame):
 
 def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""
+    return False
     return frame.f_back is not None and op_at_frame(frame.f_back)=='EXEC_STMT'
 
 def get_exec_string(frame, max=30):
@@ -678,6 +683,26 @@ bp numbers."""
             if bp:
                 bp.disable()
 
+    def do_disassemble(self, arg):
+        """disassemble [arg]
+        With no argument disassemble at the current frame location.
+        With a numeric argument, disassemble at the frame location at that
+        line number. With a class, method, function or code argument
+        disassemble that.
+        """
+        if not arg:
+            dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
+        else:
+            try:
+                i = int(arg)
+                dis.disassemble(self.curframe.f_code, i)
+            except ValueError:
+                try: 
+                    obj=self._getval(arg)
+                    dis.dis(obj)
+                except NameError:
+                    pass
+        
     def do_condition(self, arg):
         """condition bpnumber str_condition
 str_condition is a string specifying an expression which
@@ -1227,7 +1252,7 @@ Deletes the specified alias."""
             print self.format_stack_entry(frame_lineno, prompt_prefix)
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.
-            if is_exec_stmt(frame):
+            if not is_exec_stmt(frame):
                 break
 
     def print_stack_entry(self, frame_lineno, prompt_prefix=line_prefix):
@@ -1310,7 +1335,8 @@ With a command name as argument, print help about that command
     help_help = help_h
 
     for fn in ('EOF', 'L', 'alias', 'break', 'clear', 'condition',
-               'continue', 'debug', 'disable', 'down', 'enable', 'examine',
+               'continue', 'debug', 'disable', 'disassemble',
+               'down', 'enable', 'examine',
                'finish', 'frame', 'ignore', 'info', 'jump', 'list',
                'next', 'p', 'pp', 'quit', 'run', 'set', 'step', 'show',
                'tbreak', 'unalias', 'up', 'whatis', 'where'):

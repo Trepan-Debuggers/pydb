@@ -125,6 +125,12 @@ disable bpnumber [bpnumber ...]
         breakpoint, it remains in the list of breakpoints and can be
         (re-)enabled.
 
+disassemble [arg]
+        With no argument disassemble at the current frame location.
+        With a numeric argument, disassemble at the frame location at that
+        line number. With a class, method, function or code argument
+        disassemble that.
+
 enable bpnumber [bpnumber ...]
         Enables the breakpoints specified.
 
