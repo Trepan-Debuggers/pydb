@@ -1,5 +1,7 @@
 0.11cvs
 
+* step/next can now take a count. E.g. step 2 or next 3.
+
 * Show more accurate and useful location when we are stopped on an exec.
 
 * Stack trace now reports exec positions a little bit better - 
@@ -9,6 +11,17 @@
 
 * set prompt allows embedded blanks and punctiation. Still have problems
   with trailing blanks.
+
+* Add a disassemble command.
+
+* Add line tracing via "set linetrace"
+
+* show with no parameters is like gdb: shows all subcommands.
+
+* Class name back to Pdb to make interaction with other programs like 
+  ipython more transparent. The *module* name is Pydb, so one must either
+  "import pydb" or import "pdb" (stock debugger).
+
 
 0.10
 2006-01-12

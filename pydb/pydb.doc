@@ -256,8 +256,15 @@ set *subcommand*
 
     For python return is like gdb's finish.
 
+  set linetrace {on|off}
+    Set line execution tracing. If 'on', lines will be shown before they 
+    are run.
+
   set listsize *int*
     Set number of source lines debugger will list by default.
+
+  set prompt *string*
+    Set debugger's prompt
 
 show *subcommand* 
 
@@ -268,10 +275,12 @@ show *subcommand*
 
     show dialect -- Show what style of debugger interface is in effect.
 
+    show linetrace -- Show the line tracing status
+
     show listsize -- Show number of source lines gdb will list by
   	default
 
-    show prompt -- Show prompt
+    show prompt -- Show the current debugger prompt
 
     show version -- Show what version of this is
 

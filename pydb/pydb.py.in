@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.16 2006/01/18 00:29:48 rockyb Exp $
+"""$Id: pydb.py.in,v 1.17 2006/01/18 08:11:41 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -114,6 +114,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.prompt = '(Pydb) '
         self.gdb_dialect = True
+        self.linetrace = False
         self.aliases = {}
         self.mainpyfile = ''
         self._wait_for_mainpyfile = False
@@ -161,6 +162,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.curframe = None
         step_ignore_count = 0  # 0 means stop if stepping
 
+
     def setup(self, f, t):
         self.forget()
         self.stack, self.curindex = self.get_stack(f, t)
@@ -179,8 +181,29 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 if len(line) > 0 and line[0] != '#':
                     self.onecmd(line)
 
+    def __get_onoff(self, arg, default=None):
+        """Return True if arg is 'on' or 1 and False arg is an 'off' or 0
+        Any other value is an error"""
+        if not arg:
+            if default is None:
+                print "*** Expecting 'on', 1, 'off', or 0. Got nothing."
+                raise ValueError
+            return default
+        if arg == '1' or arg == 'on': return True
+        if arg == '0' or arg =='off': return False
+        
+        print "*** Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg)
+        raise ValueError
+
+    def __show_onoff(self, bool):
+        """Return 'on' for True and 'off' for False, and ?? for anything
+        else."""
+        if bool == True: return "on"
+        if bool == False: return "off"
+        return "??"
+
     def __get_int(self, arg, default = 1):
-        """If arg arg is an int, use that otherwise take default"""
+        """If arg is an int, use that otherwise take default."""
         if arg:
             try: 
                 default = int(arg)
@@ -190,7 +213,8 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         return default
 
     def __get_pos_int(self, arg, min=0, default = 1):
-        """If arg arg is an int, use that otherwise take default"""
+        """If no argument use the default If arg is a positive int at
+        least min, use that otherwise report an error."""
         if arg:
             try: 
                 default = int(arg)
@@ -207,6 +231,11 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 # Turn this into a ValueError
                 raise ValueError
         return default
+
+    def __print_location_if_linetrace(self, frame):
+        if self.linetrace:
+            self.setup(frame, None)
+            self.print_location()
 
     def __info_args(self, arg):
         """args)
@@ -268,29 +297,43 @@ Print the arguments of the current function."""
             self._wait_for_mainpyfile = True
 
         global step_ignore_count
-        if self.stop_here(frame):
+        if self.stop_here(frame) or self.linetrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
             import linecache
             filename = self.canonic(frame.f_code.co_filename)
             line = linecache.getline(filename, frame.f_lineno)
             if not self.break_here(frame):
+                # No don't have a breakpoint. So we are either
+                # stepping or here be of line tracing.
                 if step_ignore_count > 0:
+                    # Don't stop this time, just note a step was done in
+                    # step count
                     step_ignore_count -= 1
+                    self.__print_location_if_linetrace(frame)
+                    return
+                elif step_ignore_count < 0:
+                    # We are stepping only because we tracing
+                    self.__print_location_if_linetrace(frame)
                     return
                 if is_def_stmt(line, frame):
+                    self.__print_location_if_linetrace(frame)
                     return
         else:
             if not self.break_here(frame) and step_ignore_count > 0:
                 step_ignore_count -= 1
                 return
+
         self.interaction(frame, None)
 
     def user_return(self, frame, return_value):
         """This function is called when a return trap is set here."""
         frame.f_locals['__return__'] = return_value
         print '--Return--'
-        self.interaction(frame, None)
+        if self.linetrace and self.returnframe == None:
+            self.__print_location_if_linetrace(frame)
+        else:
+            self.interaction(frame, None)
 
     def user_exception(self, frame, (exc_type, exc_value, exc_traceback)):
         """This function is called if an exception occurs,
@@ -519,6 +562,10 @@ set dialect {gdb|python}
 
   For python return is like gdb's finish.
 
+set linetrace {on|off}
+  Set line execution tracing. If 'on', lines will be shown before they
+  are run.
+
 set listsize *int*
   Set number of source lines the debugger will list by default.
 
@@ -544,9 +591,15 @@ set prompt *string*
                 self.__init_python_dialect()
             else:
                 print "*** Expecting dialect to be either gdb or python"
+        elif args[0] == 'linetrace':
+            try:
+                self.linetrace = self.__get_onoff(args[1])
+            except ValueError:
+                pass
+            
         elif args[0] == 'listsize':
             try:
-                self.listsize = self.__get_int(arg)
+                self.listsize = self.__get_int(args[1])
             except ValueError:
                 pass
         elif args[0] == 'prompt':
@@ -566,10 +619,18 @@ set prompt *string*
 
 show args -- Show argument list to give program being debugged when it is started
 show dialect -- Show what style of debugger interface is in effect.
+show linetrace -- Show the line tracing status
 show listsize -- Show number of source lines gdb will list by default
-show prompt -- Show prompt
+show prompt -- Show the current debugger prompt
 show version -- Show what version of this is
 """
+        if not arg:
+            for subcommand in ['args', 'dialect', 'linetrace',
+                               'listsize', 'prompt', 'version']:
+                print "%s: " % subcommand,
+                self.do_show(subcommand)
+            return
+
         if arg == 'args':
             print "Argument list to give program being debugged when it is started is"
             print '"%s"' % " ".join(sys.argv[1:])
@@ -579,6 +640,8 @@ show version -- Show what version of this is
                 print "gdb."
             else:
                 print "python."
+        elif arg == 'linetrace':
+            print "line tracing is %s" % self.__show_onoff(self.linetrace)
         elif arg == 'listsize':
             print "Number of source lines %s will list by default is %d." \
                   % (_debugger_name, self.listsize)
@@ -922,7 +985,6 @@ With an integer argument, step that many times."""
         except ValueError:
             return
 
-        self.stepping=True
         self.set_step()
         return 1
     do_s = do_step
@@ -940,7 +1002,6 @@ With an integer argument, perform that many times."""
         except ValueError:
             return
 
-        self.stepping=False
         self.set_next(self.curframe)
         return 1
     do_n = do_next
@@ -954,6 +1015,12 @@ History, breakpoints, actions and debugger options are preserved."""
             argv_start = sys.argv[0:1]
             sys.argv = arg.split(" ")
             sys.argv[:0] = argv_start
+
+        # linetrace is messing some setting somewhere so that
+        # restarting runs through everything again.
+        # A temporary and not satisfying fix is just to set
+        # it false on restart.
+        self.linetrace = False
         raise Restart
 
     do_R = do_ru = do_restart = do_run
@@ -962,13 +1029,24 @@ History, breakpoints, actions and debugger options are preserved."""
         """finish
 Continue execution until the current function returns."""
         self.set_return(self.curframe)
+        if self.linetrace:
+            global step_ignore_count
+            step_ignore_count = -1
+            self.stopframe = None
         return 1
 
     def do_continue(self, arg):
         """c(ont(inue))
 Continue execution, only stop when a breakpoint is encountered."""
-        self.stepping=False
-        self.set_continue()
+        if self.linetrace:
+            # linetracing is like stepping, but we just don't stop. If
+            # we were to calling set_continue, it  *might* remove all
+            # stopping if there were no breakpoints.
+            global step_ignore_count
+            step_ignore_count = -1
+            self.set_step()
+        else:
+            self.set_continue()
         return 1
     do_c = do_cont = do_continue
 
@@ -991,7 +1069,7 @@ Set the next line that will be executed."""
                 self.print_stack_entry(self.stack[self.curindex])
             except ValueError, e:
                 print '*** Jump failed:', e
-            self.stepping=False
+
     do_j = do_jump
 
     def do_debug(self, arg):
