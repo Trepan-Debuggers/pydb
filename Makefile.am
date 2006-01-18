@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.8 2006/01/12 09:34:05 rockyb Exp $
+#$Id: Makefile.am,v 1.9 2006/01/18 10:15:05 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# SUBDIRS = test doc emacs
+# SUBDIRS = test emacs
 SUBDIRS := emacs
+
+if BUILD_DOC
+SUBDIRS +=  doc
+endif
 
 # Basename of debugger, used to form help doc, python script and script
 # installed in an executable directory.

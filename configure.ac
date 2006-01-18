@@ -31,7 +31,7 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ## Check for Python interpreter and make we have a recent version.
 ##
 AM_PATH_PYTHON(2.3.5,, :)
-AC_REVISION([$Id: configure.ac,v 1.8 2006/01/13 04:23:59 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.9 2006/01/18 10:15:05 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog
@@ -45,6 +45,14 @@ AC_PREREQ(2.53)
 
 AC_ARG_PROGRAM
 AM_INIT_AUTOMAKE
+
+## Python source is needed to get documentation.
+AC_ARG_WITH(python-src, AC_HELP_STRING([--with-python-src], 
+		  [location of python 2.4 source]), PYTHON_SRC=$withval)
+
+AC_SUBST(PYTHON_SRC)
+AM_CONDITIONAL(BUILD_DOC, test x"$PYTHON_SRC" != "x")
+
 
 ##
 ## cvs2cl is used to create the ChangeLog when we create a distribution
