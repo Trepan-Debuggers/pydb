@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.18 2006/01/19 00:52:31 rockyb Exp $
+"""$Id: pydb.py.in,v 1.19 2006/01/19 13:10:55 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -292,36 +292,35 @@ Print the arguments of the current function."""
             if (self.mainpyfile != self.canonic(frame.f_code.co_filename)
                 or frame.f_lineno <= 0):
                 return
-            self._wait_for_mainpyfile = True
-
-        global step_ignore_count
+            self._wait_for_mainpyfile = False
         if self.stop_here(frame) or self.linetrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
             import linecache
             filename = self.canonic(frame.f_code.co_filename)
             line = linecache.getline(filename, frame.f_lineno)
+            global step_ignore_count
+            # No don't have a breakpoint. So we are either
+            # stepping or here be of line tracing.
+            if step_ignore_count > 0:
+                # Don't stop this time, just note a step was done in
+                # step count
+                step_ignore_count -= 1
+                self.__print_location_if_linetrace(frame)
+                return
+            elif step_ignore_count < 0:
+                # We are stepping only because we tracing
+                self.__print_location_if_linetrace(frame)
+                return
             if not self.break_here(frame):
-                # No don't have a breakpoint. So we are either
-                # stepping or here be of line tracing.
-                if step_ignore_count > 0:
-                    # Don't stop this time, just note a step was done in
-                    # step count
-                    step_ignore_count -= 1
-                    self.__print_location_if_linetrace(frame)
-                    return
-                elif step_ignore_count < 0:
-                    # We are stepping only because we tracing
-                    self.__print_location_if_linetrace(frame)
-                    return
                 if is_def_stmt(line, frame):
-                    self.__print_location_if_linetrace(frame)
-                    return
+                   self.__print_location_if_linetrace(frame)
+                   return
         else:
             if not self.break_here(frame) and step_ignore_count > 0:
+                self.__print_location_if_linetrace(frame)
                 step_ignore_count -= 1
                 return
-
         self.interaction(frame, None)
 
     def user_return(self, frame, return_value):
