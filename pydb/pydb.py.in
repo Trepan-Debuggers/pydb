@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.19 2006/01/19 13:10:55 rockyb Exp $
+"""$Id: pydb.py.in,v 1.20 2006/01/19 16:12:49 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -8,6 +8,7 @@ _debugger_name = '@PACKAGE_NAME@'
 _version = '@PACKAGE_VERSION@'
 
 import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect, dis
+import time
 from repr import Repr
 
 class Restart(Exception):
@@ -25,12 +26,14 @@ __all__ = ["run", "pm", "Pydb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
 
 # A pattern for a def header seems to be used a couple of times.
-re_def_str = r'^\s*def\s'
-re_def = re.compile(re_def_str)
+_re_def_str = r'^\s*def\s'
+_re_def = re.compile(_re_def_str)
+
+_re_linetrace_delay = re.compile(r'\s*linetrace\s*')
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
-    # cre = re.compile(r'%s\s*%s\s*[(]' % (re_def_str, funcname))
+    # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))
     try:
         fp = open(filename)
     except IOError:
@@ -49,6 +52,10 @@ def find_function(funcname, filename):
     fp.close()
     return answer
 
+def errmsg(msg):
+    """Common routine for debugger reporting debugger error messages"""
+    print "*** %s" % msg
+
 from opcode import opname
 def op_at_frame(frame):
     code = frame.f_code.co_code
@@ -60,7 +67,7 @@ def op_at_frame(frame):
 def is_def_stmt(line, frame):
     """Return True if we are looking at a def statement"""
     # Should really also check that operand is a code object
-    return re_def.match(line) and op_at_frame(frame)=='LOAD_CONST'
+    return _re_def.match(line) and op_at_frame(frame)=='LOAD_CONST'
 
 def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""
@@ -115,6 +122,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.prompt = '(Pydb) '
         self.gdb_dialect = True
         self.linetrace = False
+        self.linetrace_delay = 0
         self.aliases = {}
         self.mainpyfile = ''
         self._wait_for_mainpyfile = False
@@ -184,13 +192,13 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         Any other value is an error"""
         if not arg:
             if default is None:
-                print "*** Expecting 'on', 1, 'off', or 0. Got nothing."
+                errmsg("Expecting 'on', 1, 'off', or 0. Got nothing.")
                 raise ValueError
             return default
         if arg == '1' or arg == 'on': return True
         if arg == '0' or arg =='off': return False
         
-        print "*** Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg)
+        errmsg("Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg))
         raise ValueError
 
     def __show_onoff(self, bool):
@@ -206,7 +214,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             try: 
                 default = int(arg)
             except ValueError, msg:
-                print '*** Expecting an integer, got: %s' % str(arg)
+                errmsg('Expecting an integer, got: %s' % str(arg))
                 raise ValueError
         return default
 
@@ -217,13 +225,13 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             try: 
                 default = int(arg)
                 if default < min:
-                    print '*** Expecting an integer at least %d, got: %d' \
-                          % (min, default)
+                    errmsg('Expecting an integer at least %d, got: %d' \
+                          % (min, default))
                     # Really should use something custom? 
                     raise ZeroDivisionError
                     
             except ValueError, msg:
-                print '*** Expecting an integer, got: %s' % str(arg)
+                errmsg('Expecting an integer, got: %s' % str(arg))
                 raise ValueError
             except ZeroDivisionError:
                 # Turn this into a ValueError
@@ -234,6 +242,8 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         if self.linetrace:
             self.setup(frame, None)
             self.print_location()
+            if self.linetrace_delay:
+                time.sleep(self.linetrace_delay)
 
     def __info_args(self, arg):
         """args)
@@ -413,10 +423,10 @@ Print the arguments of the current function."""
             pos += self.curindex
 
         if pos < 0:
-            print "***Adjusting would be put us beyond the oldest frame"
+            errmsg("Adjusting would be put us beyond the oldest frame")
             return
         elif pos >= len(self.stack):
-            print "***Adjusting would be put us beyond the newest frame"
+            errmsg("Adjusting would be put us beyond the newest frame")
             return
 
         self.curindex = pos
@@ -467,8 +477,7 @@ the .py suffix may be omitted."""
                 filename = arg[:colon].rstrip()
                 f = self.lookupmodule(filename)
                 if not f:
-                    print '*** ', repr(filename),
-                    print 'not found from sys.path'
+                    errmsg("%s not found from sys.path" % repr(filename))
                     return
                 else:
                     filename = f
@@ -476,7 +485,7 @@ the .py suffix may be omitted."""
                 try:
                     lineno = int(arg)
                 except ValueError, msg:
-                    print '*** Bad lineno:', arg
+                    errmsg('Bad lineno: %s', str(arg))
                     return
             else:
                 # no colon; can be lineno or function
@@ -517,7 +526,7 @@ the .py suffix may be omitted."""
         if line:
             # now set the break point
             err = self.set_break(filename, line, temporary, cond, funcname)
-            if err: print '***', err
+            if err: errmsg(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
                 print "Breakpoint %d at %s:%d" % (bp.number,
@@ -559,9 +568,14 @@ set dialect {gdb|python}
 
   For python return is like gdb's finish.
 
-set linetrace {on|off}
+set linetrace {on|1|off|0}
   Set line execution tracing. If 'on', lines will be shown before they
   are run.
+
+set linetrace delay *float*
+  Set delay after listing a line. This only has an effect if linetrace
+  is in effect. This is useful if tracing inside a GUI that is displaying
+  the position in the source text. A value like 0.5 probably sufficient.
 
 set listsize *int*
   Set number of source lines the debugger will list by default.
@@ -571,7 +585,7 @@ set prompt *string*
 """ 
         args = arg.split()
         if len(args) < 2:
-            print "*** Expecting at least 2 arguments. Got %d" % len(args)
+            errmsg("Expecting at least 2 arguments. Got %d" % len(args))
             return
         if args[0] == 'args':
             argv_start = sys.argv[0:1]
@@ -587,12 +601,22 @@ set prompt *string*
             elif args[1] == 'python':
                 self.__init_python_dialect()
             else:
-                print "*** Expecting dialect to be either gdb or python"
+                errmsg("Expecting dialect to be either gdb or python")
         elif args[0] == 'linetrace':
-            try:
-                self.linetrace = self.__get_onoff(args[1])
-            except ValueError:
-                pass
+            if args[1]=='delay':
+                try:
+                    delay = float(args[2])
+                    self.linetrace_delay = delay
+                except IndexError:
+                    errmsg("Need a 3rd floating-point number")
+                except ValueError:
+                    errmsg("3rd argument %s is not a floating-point number" %
+                           str(args[2])                           )
+            else:
+                try:
+                    self.linetrace = self.__get_onoff(args[1])
+                except ValueError:
+                    pass
             
         elif args[0] == 'listsize':
             try:
@@ -607,9 +631,9 @@ set prompt *string*
             if mo:
                 self.prompt = mo.group(1)
             else:
-                print "*** Something went wrong trying to find the prompt"
+                errmsg("Something went wrong trying to find the prompt")
         else:
-            print "*** unknown set subcommand %s" %  args[0]
+            errmsg("unknown set subcommand %s" %  args[0])
 
     def do_show(self, arg):
         """Generic command for showing things about the debugger.
@@ -617,13 +641,15 @@ set prompt *string*
 show args -- Show argument list to give program being debugged when it is started
 show dialect -- Show what style of debugger interface is in effect.
 show linetrace -- Show the line tracing status
+show linetrace delay -- Delay after tracing each line
 show listsize -- Show number of source lines gdb will list by default
 show prompt -- Show the current debugger prompt
 show version -- Show what version of this is
 """
         if not arg:
-            for subcommand in ['args', 'dialect', 'linetrace',
-                               'listsize', 'prompt', 'version']:
+            for subcommand in ['args', 'dialect', 'linetrace', 
+                               'linetrace delay', 'listsize', 'prompt',
+                               'version']:
                 print "%s: " % subcommand,
                 self.do_show(subcommand)
             return
@@ -639,6 +665,8 @@ show version -- Show what version of this is
                 print "python."
         elif arg == 'linetrace':
             print "line tracing is %s" % self.__show_onoff(self.linetrace)
+        elif _re_linetrace_delay.match(arg):
+            print "line trace delay is %s seconds" % self.linetrace_delay
         elif arg == 'listsize':
             print "Number of source lines %s will list by default is %d." \
                   % (_debugger_name, self.listsize)
@@ -646,6 +674,8 @@ show version -- Show what version of this is
             print """%s's prompt is "%s".""" % (_debugger_name, self.prompt)
         elif arg == 'version':
             print """%s version %s.""" % (_debugger_name, "@PACKAGE_VERSION@")
+        else:
+            errmsg('unknown show subcommand "%s"' % arg)
 
     def do_tbreak(self, arg):
         """tbreak  same arguments as break, but breakpoint is
@@ -699,7 +729,7 @@ removed when first hit."""
         # Don't allow setting breakpoint at a blank line
         if (not line or (line[0] == '#') or
              (line[:3] == '"""') or line[:3] == "'''"):
-            print '*** Blank or comment'
+            errmsg('Blank or comment')
             return 0
         return lineno
 
@@ -840,7 +870,7 @@ breakpoint numbers."""
                 err = "Invalid line number (%s)" % arg
             else:
                 err = self.clear_break(filename, lineno)
-            if err: print '***', err
+            if err: errmsg(err)
             return
         numberlist = arg.split()
         for i in numberlist:
@@ -849,7 +879,7 @@ breakpoint numbers."""
                 continue
             err = self.clear_bpbynumber(i)
             if err:
-                print '***', err
+                errmsg(err)
             else:
                 print 'Deleted breakpoint', i
     do_cl = do_clear # 'c' is already an abbreviation for 'continue'
@@ -914,13 +944,13 @@ Otherwise we match Python's stack: 0 is the oldest frame.
         try:
             arg = int(arg)
         except ValueError:
-            print "*** The 'frame' command requires a frame number."
+            errmsg("The 'frame' command requires a frame number.")
             return
 
         i_stack = len(self.stack)
         if arg < -i_stack or arg > i_stack-1:
-            print '*** frame number has to be in the range %d to %d' \
-                  % (-i_stack, i_stack-1)
+            errmsg('Frame number has to be in the range %d to %d' \
+                  % (-i_stack, i_stack-1))
         else:
             self.__adjust_frame(pos=arg, absolute_pos=True)
             
@@ -1046,12 +1076,12 @@ Continue execution, only stop when a breakpoint is encountered."""
         """j(ump) lineno
 Set the next line that will be executed."""
         if self.curindex + 1 != len(self.stack):
-            print "*** You can only jump within the bottom frame"
+            errmsg("You can only jump within the bottom frame")
             return
         try:
             arg = int(arg)
         except ValueError:
-            print "*** The 'jump' command requires a line number."
+            errmsg("The 'jump' command requires a line number.")
         else:
             try:
                 # Do the jump, fix up our copy of the stack, and display the
@@ -1060,7 +1090,7 @@ Set the next line that will be executed."""
                 self.stack[self.curindex] = self.stack[self.curindex][0], arg
                 self.print_stack_entry(self.stack[self.curindex])
             except ValueError, e:
-                print '*** Jump failed:', e
+                errmsg('Jump failed: %s' % e)
 
     do_j = do_jump
 
@@ -1107,7 +1137,7 @@ statement.
         if '__return__' in self.curframe.f_locals:
             print self.curframe.f_locals['__return__']
         else:
-            print '*** Not yet returned!'
+            errmg('Not yet returned!')
     do_rv = do_retval
 
     def _getval(self, arg):
@@ -1192,7 +1222,7 @@ if the second argument is less than the first, it is a count."""
                 else:
                     first = max(1, int(x) - 5)
             except:
-                print '*** Error in argument:', repr(arg)
+                errmsg('Error in argument: %s' % repr(arg))
                 return
         elif self.lineno is None:
             first = max(1, self.curframe.f_lineno - 5)
@@ -1530,7 +1560,7 @@ def help():
         fullname = os.path.join(dirname, doc_file)
         if os.path.exists(fullname):
             sts = os.system('${PAGER-more} '+fullname)
-            if sts: print '*** Pager exit status:', sts
+            if sts: errmsg('Pager exit status: %s' % str(sts))
             break
     else:
         print 'Sorry, can\'t find the help file "%s" along the Python search path' \
