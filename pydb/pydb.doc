@@ -263,6 +263,11 @@ set *subcommand*
     Set line execution tracing. If 'on', lines will be shown before they 
     are run.
 
+  set linetrace delay *float*
+    Set delay after listing a line. This only has an effect if linetrace
+    is in effect. This is useful if tracing inside a GUI that is displaying
+    the position in the source text. A value like 0.5 is probably sufficient.
+
   set listsize *int*
     Set number of source lines debugger will list by default.
 

@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.20 2006/01/19 16:12:49 rockyb Exp $
+"""$Id: pydb.py.in,v 1.21 2006/01/19 21:55:48 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -9,27 +9,71 @@ _version = '@PACKAGE_VERSION@'
 
 import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect, dis
 import time
+from optparse import OptionParser
 from repr import Repr
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
 
-# Create a custom safe Repr instance and increase its maxstring.
-# The default of 30 truncates error messages too easily.
-_repr = Repr()
-_repr.maxstring = 200
-_saferepr = _repr.repr
-
-
 __all__ = ["run", "pm", "Pydb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
 
-# A pattern for a def header seems to be used a couple of times.
-_re_def_str = r'^\s*def\s'
-_re_def = re.compile(_re_def_str)
+def init():
+    global program, _repr, _saferepr, step_ignore_count
+    global re_def_str, _re_def, _re_linetrace_delay
 
-_re_linetrace_delay = re.compile(r'\s*linetrace\s*')
+    program = os.path.basename(sys.argv[0])
+
+    # Create a custom safe Repr instance and increase its maxstring.
+    # The default of 30 truncates error messages too easily.
+    _repr = Repr()
+    _repr.maxstring = 200
+    _saferepr = _repr.repr
+
+    # A pattern for a def header seems to be used a couple of times.
+    _re_def_str = r'^\s*def\s'
+    _re_def = re.compile(_re_def_str)
+    
+    _re_linetrace_delay = re.compile(r'\s*linetrace\s*')
+
+    # step_ignore_count should be an instance variable inside the Pdb
+    # object but for reasons I don't understand yet, changing the value
+    # inside do_next or do_step doesn't seem to persist when it is looked
+    # at in user_line()
+    
+    # A 0 value means stop on this occurance. A positive value means to
+    # skip that many more step/next's.
+    step_ignore_count = 0
+
+def process_options(pydb):
+    global program
+    usage_str="""%s [debugger-options] python-script [script-options...]
+
+       Runs the extended python debugger""" % (program)
+
+    optparser = OptionParser(usage=usage_str)
+
+    optparser.add_option("-x", "--trace", dest="linetrace",
+                         action="store_true", default=False, 
+                         help="Show lines before executing them")
+    optparser.add_option("", "--batch", dest="noninteractive",
+                         action="store_true", default=False, 
+                         help="Don't run intractive command shell on stops.\
+                         This option also sets --batch")
+    global opts
+    (opts, argv) = optparser.parse_args()
+    pydb.linetrace = opts.linetrace
+    pydb.noninteractive = opts.noninteractive
+
+    # execfile() run out of Bdb.py uses sys.argv, so we have to
+    # clobber it and make it what the debugged script expects. Also
+    # the debugged script may whant to look at sys.argv
+
+    global sys_argv
+    sys_argv = sys.argv   # Well, we'll save the original anyway
+    sys.argv = argv
+    return argv
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
@@ -98,15 +142,6 @@ def get_exec_string(frame, max=30):
             return exec_arg
     return None
 
-# step_ignore_count should be an instance variable inside the Pdb
-# object but for reasons I don't understand yet, changing the value
-# inside do_next or do_step doesn't seem to persist when it is looked
-# at in user_line()
-
-# A 0 value means stop on this occurance. A positive value means to
-# skip that many more step/next's.
-step_ignore_count = 0
-
 # Interaction prompt line will separate file and call info from code
 # text using value of line_prefix string.  A newline and arrow may
 # be to your liking.  You can set it once pydb is imported using the
@@ -121,6 +156,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.prompt = '(Pydb) '
         self.gdb_dialect = True
+        self.noninteractive = False
         self.linetrace = False
         self.linetrace_delay = 0
         self.aliases = {}
@@ -246,8 +282,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 time.sleep(self.linetrace_delay)
 
     def __info_args(self, arg):
-        """args)
-Print the arguments of the current function."""
+        """Print the arguments of the current function."""
         f = self.curframe
         co = f.f_code
         dict = f.f_locals
@@ -303,6 +338,7 @@ Print the arguments of the current function."""
                 or frame.f_lineno <= 0):
                 return
             self._wait_for_mainpyfile = False
+
         if self.stop_here(frame) or self.linetrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
@@ -357,7 +393,8 @@ Print the arguments of the current function."""
     def interaction(self, frame, traceback):
         self.setup(frame, traceback)
         self.print_location()
-        self.cmdloop()
+        if not self.noninteractive:
+            self.cmdloop()
         self.forget()
 
     def default(self, line):
@@ -1567,31 +1604,30 @@ def help():
         % doc_file
 
 def main():
-    if not sys.argv[1:]:
-        print "usage: %s scriptfile [arg] ..." % \
-              os.path.basename(sys.argv[0])
-        sys.exit(2)
+    """Routine which gets run if we were invoked directly"""
 
-    mainpyfile =  sys.argv[1]     # Get script filename
+    pydb = Pdb()
+    argv = process_options(pydb)
+
+    mainpyfile =  argv[0]     # Get script filename
     if not os.path.exists(mainpyfile):
         print 'Error:', mainpyfile, 'does not exist'
         sys.exit(1)
 
-    del sys.argv[0]         # Hide "pydb.py" from argument list
-
-    # Replace pdb's dir with script's dir in front of module search path.
+    # Replace pydb's dir with script's dir in front of module search path.
     sys.path[0] = os.path.dirname(mainpyfile)
 
     # Note on saving/restoring sys.argv: it's a good idea when sys.argv was
     # modified by the script being debugged. It's a bad idea when it was
-    # changed by the user from the command line. There is a "restart" command which
+    # changed by the user from the command line.
+    # There is a "restart" command which
     # allows explicit specification of command line arguments.
-    pydb = Pdb()
     while 1:
         try:
             pydb._runscript(mainpyfile)
             if pydb._user_requested_quit:
                 break
+            if pydb.noninteractive: break
             print "The program finished and will be restarted"
         except Restart:
             print "Restarting "+mainpyfile+" with arguments:\n\t" \
@@ -1600,8 +1636,12 @@ def main():
             # In most cases SystemExit does not warrant a post-mortem session.
             print "The program exited via sys.exit(). Exit status: ",
             print sys.exc_info()[1]
+            if pydb.noninteractive: break
         except:
             traceback.print_exc()
+            if pydb.noninteractive:
+                print "Uncaught exception."
+                break
             print "Uncaught exception. Entering post mortem debugging"
             print "Running 'cont' or 'step' will restart the program"
             t = sys.exc_info()[2]
@@ -1616,7 +1656,7 @@ def main():
         global step_ignore_count
         step_ignore_count = 0
 
-
+init()
 
 # When invoked as main program, invoke the debugger on a script
 if __name__=='__main__':
