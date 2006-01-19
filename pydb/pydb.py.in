@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.17 2006/01/18 08:11:41 rockyb Exp $
+"""$Id: pydb.py.in,v 1.18 2006/01/19 00:52:31 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -160,8 +160,6 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.stack = []
         self.curindex = 0
         self.curframe = None
-        step_ignore_count = 0  # 0 means stop if stepping
-
 
     def setup(self, f, t):
         self.forget()
@@ -1016,11 +1014,6 @@ History, breakpoints, actions and debugger options are preserved."""
             sys.argv = arg.split(" ")
             sys.argv[:0] = argv_start
 
-        # linetrace is messing some setting somewhere so that
-        # restarting runs through everything again.
-        # A temporary and not satisfying fix is just to set
-        # it false on restart.
-        self.linetrace = False
         raise Restart
 
     do_R = do_ru = do_restart = do_run
@@ -1591,6 +1584,9 @@ def main():
                 print "Restarting "+mainpyfile+" with arguments:\n\t" \
                       +" ".join(sys.argv[1:])
             print "Post mortem debugger finished. The "+mainpyfile+" will be restarted"
+        global step_ignore_count
+        step_ignore_count = 0
+
 
 
 # When invoked as main program, invoke the debugger on a script
