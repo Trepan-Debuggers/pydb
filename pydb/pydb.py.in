@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.22 2006/01/20 08:21:41 rockyb Exp $
+"""$Id: pydb.py.in,v 1.23 2006/01/20 08:42:28 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -16,7 +16,7 @@ class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
 
-__all__ = ["run", "pm", "Pydb", "runeval", "runctx", "runcall", "set_trace",
+__all__ = ["run", "pm", "Pdb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
 
 def init():
@@ -939,15 +939,16 @@ breakpoint numbers."""
     do_cl = do_clear # 'c' is already an abbreviation for 'continue'
 
     def do_where(self, arg):
-        """w(here)
+        """where
 Print a stack trace, with the most recent frame at the bottom.
 An arrow indicates the "current frame", which determines the
-context of most commands.  'bt' is an alias for this command."""
+context of most commands.  'bt' and 'T' are short command names
+for this."""
         if self.gdb_dialect:
             self.print_stack_trace_gdb()
         else:
             self.print_stack_trace()
-    do_T = do_bt = do_w = do_where
+    do_T = do_bt = do_where
 
     def do_up(self, arg):
         """u(p) [count]
@@ -1156,7 +1157,7 @@ in the current environment)."""
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
-        p = Pydb()
+        p = Pdb()
         p.prompt = "(%s) " % self.prompt.strip()
         print "ENTERING RECURSIVE DEBUGGER"
         sys.call_tracing(p.run, (arg, globals, locals))
@@ -1172,7 +1173,6 @@ The program being executed is aborted."""
         return 1
 
     do_q = do_quit
-    do_exit = do_quit
 
     def do_EOF(self, arg):
         """EOF
@@ -1572,25 +1572,25 @@ command with a 'global' command, e.g.:
 # Simplified interface
 
 def run(statement, globals=None, locals=None):
-    Pydb().run(statement, globals, locals)
+    Pdb().run(statement, globals, locals)
 
 def runeval(expression, globals=None, locals=None):
-    return Pydb().runeval(expression, globals, locals)
+    return Pdb().runeval(expression, globals, locals)
 
 def runctx(statement, globals, locals):
     # B/W compatibility
     run(statement, globals, locals)
 
 def runcall(*args, **kwds):
-    return Pydb().runcall(*args, **kwds)
+    return Pdb().runcall(*args, **kwds)
 
 def set_trace():
-    Pydb().set_trace(sys._getframe().f_back)
+    Pdb().set_trace(sys._getframe().f_back)
 
 # Post-Mortem interface
 
 def post_mortem(t):
-    p = Pydb()
+    p = Pdb()
     p.reset()
     while t.tb_next is not None:
         t = t.tb_next

@@ -73,10 +73,11 @@ info line -- Current line number in source fiel
 info locals -- Local variables of current stack frame
 info source -- Information about the current Python file
 
-w(here)
+where
         Print a stack trace, with the most recent frame at the bottom.
         An arrow indicates the "current frame", which determines the
-        context of most commands.
+        context of most commands. bt and T are short command names for 
+	this.
 
 d(own) [count]
         Move the current frame one level down in the stack trace
