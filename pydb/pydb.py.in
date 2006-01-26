@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.27 2006/01/26 21:52:23 rockyb Exp $
+"""$Id: pydb.py.in,v 1.28 2006/01/26 23:06:23 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -54,20 +54,28 @@ def process_options(pydb):
 
     optparser = OptionParser(usage=usage_str)
 
-    optparser.add_option("-x", "--trace", dest="linetrace",
+    optparser.add_option("-X", "--trace", dest="linetrace",
                          action="store_true", default=False, 
                          help="Show lines before executing them")
+    optparser.add_option("-n", "--nx", dest="noexecute",
+                         action="store_true", default=False, 
+                         help="Don't execute commands found in any " +
+                         "initialization files")
     optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
-                         help="Don't run interactive commands shell on stops\
-                         This option also sets --batch")
-    optparser.add_option("-o", "--output", dest="output",
+                         help="Don't run interactive commands shell on "+
+                         "stops. This option also sets --batch")
+    optparser.add_option("-x", "--command", dest="command",
+                         action="store", type='string', metavar='FILE',
+                         help="Execute commands from FILE")
+    optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
-                         help="Set where write debugger's output (stdout)")
-    optparser.add_option("--error", dest="errors",
+                         help="Write debugger's output (stdout)" +
+                         "to FILE")
+    optparser.add_option("--error", dest="errors", metavar='FILE',
                          action="store", type='string',
-                         help="Set where to put debugger's error " 
-                         + "output (stderr)")
+                         help="Write debugger's error output (stderr) " +
+                         "to FILE")
 
     # Set up to stop on the first non-option because that's the name
     # of the script to be debugged on arguments following that are
@@ -89,6 +97,19 @@ def process_options(pydb):
     if opts.linetrace: opts.noninteractive = True
     pydb.linetrace = opts.linetrace
     pydb.noninteractive = opts.noninteractive
+
+    # --nx or -n
+    if not opts.noexecute:
+        # Read $HOME/.pydbrc and ./.pydbrc
+        if 'HOME' in os.environ:
+            envHome = os.environ['HOME']
+            pydb.setup_source("%s.%src" % (envHome, _debugger_name))
+        pydb.setup_source(".%src" % _debugger_name);
+
+    # As per gdb, first we execute user initialization files and then
+    # we execute any file specified via --command.
+    if opts.command:
+        pydb.setup_source(os.path.expanduser(opts.command), True);
 
     if opts.output:
         try: 
@@ -194,29 +215,24 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     def __init__(self):
         bdb.Bdb.__init__(self)
         cmd.Cmd.__init__(self)
-        self.prompt = '(Pydb) '
+        self._wait_for_mainpyfile = False
+        self.aliases = {}
+        self.basename  = False
         self.gdb_dialect = True
-        self.noninteractive = False
         self.linetrace = False
         self.linetrace_delay = 0
-        self.aliases = {}
-        self.mainpyfile = ''
-        self._wait_for_mainpyfile = False
         self.listsize = 10
+        self.mainpyfile = ''
+        self.noninteractive = False
+        self.prompt = '(Pydb) '
+        self.rcLines = []
+        self.__init_gdb_dialect()
         # Try to load readline if it exists
         try:
             import readline
         except ImportError:
             pass
 
-        self.__init_gdb_dialect()
-
-        # Read $HOME/.pydbrc and ./.pydbrc
-        self.rcLines = []
-        if 'HOME' in os.environ:
-            envHome = os.environ['HOME']
-            self.__setup_source("%s.%src" % (envHome, _debugger_name))
-        self.__setup_source(".%src" % _debugger_name);
 
     def errmsg(self, msg):
         """Common routine for reporting debugger error messages.
@@ -342,7 +358,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
 
-    def __setup_source(self, arg, showError=False):
+    def setup_source(self, arg, showError=False):
         """Set up to read commands from a source file"""
         try:
             rcFile = open(os.path.join(arg))
@@ -664,6 +680,10 @@ set args *arg*...
   Follow this command with any number of args, to be passed to the
   program.  Set number of source lines debugger will list by default.
 
+set basename {on|1|off|0}
+  Set short filenames (the basename) in file locations. This is useful
+  in running regression tests.
+
 set linetrace {on|1|off|0}
   Set line execution tracing. If 'on', lines will be shown before they
   are run.
@@ -691,6 +711,12 @@ set prompt *string*
                 sys.argv = []
             sys.argv[:0] = argv_start
 
+        elif args[0] == 'basename':
+            try:
+                self.basename = self.__get_onoff(args[1])
+            except ValueError:
+                pass
+
         elif args[0] == 'linetrace':
             if args[1]=='delay':
                 try:
@@ -699,8 +725,8 @@ set prompt *string*
                 except IndexError:
                     self.errmsg("Need a 3rd floating-point number")
                 except ValueError:
-                    self.errmsg("3rd argument %s is not a floating-point " \
-                                + "number" % str(args[2]) )
+                    self.errmsg(("3rd argument %s is not a floating-point "
+                                 + "number") % str(args[2]) )
             else:
                 try:
                     self.linetrace = self.__get_onoff(args[1])
@@ -728,6 +754,7 @@ set prompt *string*
         """Generic command for showing things about the debugger.
 
 show args -- Show argument list to give program being debugged when it is started
+show basename -- Show if we are to show short of long filenames
 show linetrace -- Show the line tracing status
 show linetrace delay -- Delay after tracing each line
 show listsize -- Show number of source lines gdb will list by default
@@ -735,7 +762,7 @@ show prompt -- Show the current debugger prompt
 show version -- Show what version of this is
 """
         if not arg:
-            for subcommand in ['args', 'linetrace', 
+            for subcommand in ['args', 'basename', 'linetrace', 
                                'linetrace delay', 'listsize', 'prompt',
                                'version']:
                 self.msg_nocr("%s: " % subcommand)
@@ -743,14 +770,11 @@ show version -- Show what version of this is
             return
 
         if arg == 'args':
-            print "Argument list to give program being debugged when it is started is"
-            print '"%s"' % " ".join(sys.argv[1:])
-        elif arg == 'dialect':
-            print "Debugger command style is",
-            if self.gdb_dialect:
-                print "gdb."
-            else:
-                print "python."
+            self.msg("Argument list to give program being debugged " +
+                      "when it is started is")
+            self.msg('"%s"' % " ".join(sys.argv[1:]))
+        elif arg == 'basename':
+            self.msg("basename is %s" % self.__show_onoff(self.basename))
         elif arg == 'linetrace':
             self.msg("line tracing is %s" % self.__show_onoff(self.linetrace))
         elif _re_linetrace_delay.match(arg):
@@ -759,10 +783,11 @@ show version -- Show what version of this is
             self.msg("Number of source lines %s will list by default is %d." \
                   % (_debugger_name, self.listsize))
         elif arg == 'prompt':
-            self.msg("""%s's prompt is "%s".""" % \
+            self.msg("""%s's prompt is "%s".""" %
                      (_debugger_name, self.prompt))
         elif arg == 'version':
-            print """%s version %s.""" % (_debugger_name, "@PACKAGE_VERSION@")
+            self.msg("""%s version %s.""" %
+                     (_debugger_name, "@PACKAGE_VERSION@"))
         else:
             self.errmsg('unknown show subcommand "%s"' % arg)
 
@@ -774,8 +799,8 @@ show version -- Show what version of this is
 
         An error in any command terminates execution of the command
         file and control is returned to the console."""
-        self.__setup_source(os.path.expanduser(arg), True); rc =
-        self.execRcLines() return rc
+        self.setup_source(os.path.expanduser(arg), True);
+        if self.execRcLines() == 1:  return rc
 
     def do_tbreak(self, arg):
         """tbreak  [ ([filename:]lineno | function) [, condition] ]
@@ -844,11 +869,11 @@ bp numbers."""
             try:
                 i = int(i)
             except ValueError:
-                print 'Breakpoint index %r is not a number' % i
+                self.msg('Breakpoint index %r is not a number' % i)
                 continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                print 'No breakpoint numbered', i
+                self.msg('No breakpoint numbered', i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
@@ -864,11 +889,11 @@ bp numbers."""
             try:
                 i = int(i)
             except ValueError:
-                print 'Breakpoint index %r is not a number' % i
+                self.msg('Breakpoint index %r is not a number' % i)
                 continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                print 'No breakpoint numbered', i
+                self.msg('No breakpoint numbered', i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
@@ -1471,6 +1496,8 @@ Deletes the specified alias."""
         import linecache, repr
         frame, lineno = frame_lineno
         filename = self.canonic(frame.f_code.co_filename)
+        if self.basename:
+            filename = os.path.basename(filename)
         s = ''
         if frame.f_code.co_name:
             s = frame.f_code.co_name
@@ -1679,6 +1706,10 @@ def main():
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
     # invoke the debugger and script are in global sys_argv
+
+    if len(sys.argv) == 0:
+        print 'Error: you need to give a script name to debug'
+        sys.exit(1)
 
     mainpyfile =  sys.argv[0] # Get script filename. 
     if not os.path.exists(mainpyfile):
