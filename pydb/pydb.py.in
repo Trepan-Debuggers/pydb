@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.23 2006/01/20 08:42:28 rockyb Exp $
+"""$Id: pydb.py.in,v 1.24 2006/01/26 06:40:09 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -57,15 +57,51 @@ def process_options(pydb):
     optparser.add_option("-x", "--trace", dest="linetrace",
                          action="store_true", default=False, 
                          help="Show lines before executing them")
-    optparser.add_option("", "--batch", dest="noninteractive",
+    optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
-                         help="Don't run intractive command shell on stops.\
+                         help="Don't run intractive command shell on stops\
                          This option also sets --batch")
+    optparser.add_option("-o", "--output", dest="output",
+                         action="store", type='string',
+                         help="Set where write debugger's output (stdout)")
+    optparser.add_option("--error", dest="error",
+                         action="store", type='string',
+                         help="Set where to put debugger's error " 
+                         + "output (stderr)")
+
     global opts
     (opts, argv) = optparser.parse_args()
     if opts.linetrace: opts.noninteractive = True
     pydb.linetrace = opts.linetrace
     pydb.noninteractive = opts.noninteractive
+
+    if opts.output:
+        try: 
+            sys.stdout = open(opts.output, 'w')
+        except IOError, (errno, strerror):
+            print "I/O in opening debugger output file %s" % opts.output
+            print "error(%s): %s" % (errno, strerror)
+        except ValueError:
+            print "Could not convert data to an integer."
+        except:
+            print "Unexpected error in opening debugger output file %s" % \
+                  opts.output
+            print sys.exc_info()[0]
+            raise
+
+    if opts.errors:
+        try: 
+            sys.stdout = open(opts.errors, 'w')
+        except IOError, (errno, strerror):
+            print "I/O in opening debugger output file %s" % opts.errors
+            print "error(%s): %s" % (errno, strerror)
+        except ValueError:
+            print "Could not convert data to an integer."
+        except:
+            print "Unexpected error in opening debugger output file %s" % \
+                  opts.errors
+            print sys.exc_info()[0]
+            raise
 
     # execfile() run out of Bdb.py uses sys.argv, so we have to
     # clobber it and make it what the debugged script expects. Also
@@ -401,7 +437,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         if type(exc_type) == type(''):
             exc_type_name = exc_type
         else: exc_type_name = exc_type.__name__
-        msg(exc_type_name + ':' + _saferepr(exc_value))
+        self.msg("%s:%s" % (str(exc_type_name), str(_saferepr(exc_value))))
         self.interaction(frame, exc_traceback)
 
     # General interaction function
@@ -425,7 +461,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if type(t) == type(''):
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            self.msg('***' + exc_type_name + ':' + v)
+            self.errmsg('%s:%s' % (str(exc_type_name), str(v)))
 
     def precmd(self, line):
         """Handle alias expansion and ';;' separator."""
