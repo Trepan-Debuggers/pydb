@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.9 2006/01/18 10:15:05 rockyb Exp $
+#$Id: Makefile.am,v 1.10 2006/01/26 10:29:39 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -19,34 +19,31 @@
 SUBDIRS := emacs
 
 if BUILD_DOC
-SUBDIRS +=  doc
+SUBDIRS +=  Doc
 endif
 
 # Basename of debugger, used to form help doc, python script and script
 # installed in an executable directory.
 DEBUGGER := pydb
 
-# They Python debugger script
+# The Python debugger script
 python_debugger_script := $(DEBUGGER).py
 python_PYTHON := $(DEBUGGER)/$(python_debugger_script)
 
-# The help file
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
+pkgdatadir = $(pythondir)
 
-bin_SCRIPTS := $(DEBUGGER)
 
-# We in fact do install python_PYTHON, just on in the executable directory.
+# We in fact do install python_PYTHON, just not in the executable directory.
 # Instead it's installed with other python programs. The noinst however
 # forces a changed pydb.py to get created whenever pydb.py.in changes.
 noinst_SCRIPTS := $(python_PYTHON)
 
-# Because we have a *script* called pydb installed in an executable directory
-# as well as a python script alas, we just can't need a different installation 
-# directory variable. 
-pkgdatadir = $(pythondir)
+bin_SCRIPTS := $(DEBUGGER)
+
 PHONY := $(DEBUGGER)
 
-EXTRA_DIST = ChangeLog TODO $(pkgdata_DATA) \
+EXTRA_DIST = ChangeLog TODO \
 	     pydb/pydb.doc pydb/Makefile \
 	     setup.py site-packages-path.py
 

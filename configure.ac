@@ -31,7 +31,7 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ## Check for Python interpreter and make we have a recent version.
 ##
 AM_PATH_PYTHON(2.3.5,, :)
-AC_REVISION([$Id: configure.ac,v 1.9 2006/01/18 10:15:05 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.10 2006/01/26 10:29:39 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog
@@ -69,16 +69,25 @@ AC_PROG_LN_S
 ## Automake doesn't get Python's install path correct. So we 
 ## figure it out and set it ourself.
 ##
-pythondir=$($PYTHON_PROG ${srcdir}/site-packages-path.py)
-if test $? != 0 ; then
-   AC_MSG_ERROR([Didn't get Python site packages install path.])
+AC_ARG_WITH(site-packages,
+           AC_HELP_STRING([--with-site-packages], 
+	                  [place to install module]), 
+	   PY_PKGDIR)
+
+if test -z "$PY_PKGDIR" ; then 
+   pythondir=$($PYTHON ${srcdir}/site-packages-path.py)
+   if test $? != 0 ; then
+      AC_MSG_ERROR([Didn't get Python site packages install path.
+      Set it with --with-site-packages])
+   fi
+   pkgpythondir=\${pythondir}/$PACKAGE
 fi
-pkgpythondir=$pythondir/$PACKAGE_NAME
 
 ##
 ## Produced derived files.
 ##
-AC_CONFIG_FILES([Makefile emacs/Makefile \
-		 pydb/pydb.py],[chmod +x pydb/pydb.py])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([emacs/Makefile])
+AC_CONFIG_FILES([pydb/pydb.py],[chmod +x pydb/pydb.py])
 
 AC_OUTPUT

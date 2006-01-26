@@ -3,7 +3,15 @@
 * Add line tracing via "set linetrace". Allow a delay in linetracing:
    "set linetrace delay *float*" (delay is useful in front-end GUIs)
 
-* Non-interactive line tracing a la POSIX shells with -x or --trace
+* Add debugger command options:
+    --batch        - don't run interactive commands on shell stops
+    --trace (-x)   - non-interactive line tracing a la POSIX shells
+    --output (-o)  - redirect stdout to a file 
+    --error        - redirect stderr to a file
+
+* New debugger commands:
+   disassemble  - disassemble python instructions
+   source       - run a debugger script
 
 * step/next can now take a count. E.g. step 2 or next 3.
 
@@ -17,15 +25,11 @@
 * set prompt allows embedded blanks and punctiation. Still have problems
   with trailing blanks.
 
-* Add a disassemble command.
-
 * show with no parameters is like gdb: shows all subcommands.
 
 * Class name back to Pdb to make interaction with other programs like 
   ipython more transparent. The *module* name is Pydb, so one must either
   "import pydb" or import "pdb" (stock debugger).
-
-* Add debugger command options (e.g. --batch)
 
 0.10
 2006-01-12
