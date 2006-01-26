@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.25 2006/01/26 08:54:02 rockyb Exp $
+"""$Id: pydb.py.in,v 1.26 2006/01/26 10:26:56 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -7,8 +7,8 @@ _debugger_name = '@PACKAGE_NAME@'
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
-import sys, linecache, cmd, bdb, os, re, pprint, traceback, inspect, dis
-import time
+import bdb, cmd, dis, inspect, linecache, os, pprint
+import re, sys, time, traceback
 from optparse import OptionParser
 from repr import Repr
 
@@ -59,7 +59,7 @@ def process_options(pydb):
                          help="Show lines before executing them")
     optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
-                         help="Don't run intractive command shell on stops\
+                         help="Don't run interactive commands shell on stops\
                          This option also sets --batch")
     optparser.add_option("-o", "--output", dest="output",
                          action="store", type='string',
@@ -209,31 +209,14 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         except ImportError:
             pass
 
+        self.__init_gdb_dialect()
+
         # Read $HOME/.pydbrc and ./.pydbrc
         self.rcLines = []
         if 'HOME' in os.environ:
             envHome = os.environ['HOME']
-            try:
-                rcFile = open(os.path.join(envHome, ".%src" % _debugger_name))
-            except IOError:
-                pass
-            else:
-                for line in rcFile.readlines():
-                    self.rcLines.append(line)
-                rcFile.close()
-        try:
-            rcFile = open(".%src" % _debugger_name)
-        except IOError:
-            pass
-        else:
-            for line in rcFile.readlines():
-                self.rcLines.append(line)
-            rcFile.close()
-
-        if self.gdb_dialect:
-            self.__init_gdb_dialect()
-        else:
-            self.__init_python_dialect()
+            self.__setup_source("%s.%src" % (envHome, _debugger_name))
+        self.__setup_source(".%src" % _debugger_name);
 
     def errmsg(self, msg):
         """Common routine for reporting debugger error messages.
@@ -339,6 +322,20 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
 
+    def __setup_source(self, arg, showError=False):
+        """Set up to read commands from a source file"""
+        try:
+            rcFile = open(os.path.join(arg))
+        except IOError, (errno, strerror):
+            if showError:
+                self.errmsg("Error opening debugger command file %s: %s"
+                            % (arg, strerror))
+            pass
+        else:
+            for line in rcFile.readlines():
+                self.rcLines.append(line)
+            rcFile.close()
+
     def __info_args(self, arg):
         """Print the arguments of the current function."""
         f = self.curframe
@@ -366,18 +363,6 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                 except NameError:
                     pass
         self.gdb_dialect = True;
-
-    def __init_python_dialect(self):
-        """Do things to set up for a more python-like command set"""
-        if not self.gdb_dialect: return
-        do_r = do_return = self.do_finish
-        do_args = self.__info_args
-        for fn in ('args', 'return'):
-            exec 'def help_%s(self): ' \
-                 + 'self.msg(getattr(self.do_%s, "__doc__"))' \
-                 % (fn, fn)
-        self.gdb_dialect = False;
-        do_h = cmd.Cmd.do_help
 
     # Override Bdb methods
 
@@ -652,18 +637,6 @@ set args *arg*...
   Follow this command with any number of args, to be passed to the
   program.  Set number of source lines debugger will list by default.
 
-  Sets command set and debugger dialect to be gdb or python.
-
-set dialect {gdb|python}
-
-  For gdb, 'up', 'down' and 'frame' commands work as they do in gdb
-  For python stack numbering is pythonic.
-
-  For gdb, 'finish' runs to the end of execution and 'return' is
-  reserved for immediate termination.
-
-  For python return is like gdb's finish.
-
 set linetrace {on|1|off|0}
   Set line execution tracing. If 'on', lines will be shown before they
   are run.
@@ -691,13 +664,6 @@ set prompt *string*
                 sys.argv = []
             sys.argv[:0] = argv_start
 
-        elif args[0] == 'dialect':
-            if args[1] == 'gdb':
-                self.__init_gdb_dialect()
-            elif args[1] == 'python':
-                self.__init_python_dialect()
-            else:
-                self.errmsg("Expecting dialect to be either gdb or python")
         elif args[0] == 'linetrace':
             if args[1]=='delay':
                 try:
@@ -735,7 +701,6 @@ set prompt *string*
         """Generic command for showing things about the debugger.
 
 show args -- Show argument list to give program being debugged when it is started
-show dialect -- Show what style of debugger interface is in effect.
 show linetrace -- Show the line tracing status
 show linetrace delay -- Delay after tracing each line
 show listsize -- Show number of source lines gdb will list by default
@@ -743,7 +708,7 @@ show prompt -- Show the current debugger prompt
 show version -- Show what version of this is
 """
         if not arg:
-            for subcommand in ['args', 'dialect', 'linetrace', 
+            for subcommand in ['args', 'linetrace', 
                                'linetrace delay', 'listsize', 'prompt',
                                'version']:
                 self.msg_nocr("%s: " % subcommand)
@@ -774,9 +739,19 @@ show version -- Show what version of this is
         else:
             self.errmsg('unknown show subcommand "%s"' % arg)
 
+    def do_source(self, arg):
+        """source FILE
+        Read commands from a file named FILE.
+        Note that the file file '.%pydbrc' is read automatically
+        in this way when pydb is started."""
+        self.__setup_source(os.path.expanduser(arg), True);
+        self.execRcLines()
+
     def do_tbreak(self, arg):
-        """tbreak  same arguments as break, but breakpoint is
-removed when first hit."""
+        """tbreak  [ ([filename:]lineno | function) [, condition] ]
+        Set a temporary breakpoint. Arguments are like the "break" command.
+        Like "break" except the breakoint is only temporary, 
+        so it will be deleted when hit."""
         self.do_break(arg, 1)
 
     def lineinfo(self, identifier):
@@ -1531,26 +1506,28 @@ With a command name as argument, print help about that command
 "help exec" gives help on the ! command"""
     help_help = help_h
 
-    for fn in ('EOF', 'L', 'alias', 'break', 'clear', 'condition',
-               'continue', 'debug', 'disable', 'disassemble',
-               'down', 'enable', 'examine',
-               'finish', 'frame', 'ignore', 'info', 'jump', 'list',
-               'next', 'p', 'pp', 'quit', 'run', 'set', 'step', 'show',
-               'tbreak', 'unalias', 'up', 'whatis', 'where'):
+    for fn in ('EOF',    'L',         'alias',       'break',
+               'clear',  'condition', 'continue',
+               'debug',  'disable',   'disassemble', 'down',
+               'enable', 'examine',
+               'finish', 'frame',     'ignore',      'info', 'jump', 'list',
+               'next',   'p',         'pp',          'quit', 'run',
+               'set',    'show',      'source',      'step', 
+               'tbreak', 'unalias',   'up',          'whatis', 'where'):
         exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
              % (fn, fn)
 
     # Is this the right way to do this? 
     help_R = help_ru = help_restart = help_run
     help_b = help_break
-    help_bt = help_T = help_w = help_where
+    help_bt = help_T = help_where
     help_c = help_cont = help_continue
     help_cl = help_clear
     help_d = help_down
     help_j = help_jump
     help_l = help_list
     help_n = help_next
-    help_q = help_exit = help_quit
+    help_q = help_quit
     help_s = help_step
     help_u = help_up
 

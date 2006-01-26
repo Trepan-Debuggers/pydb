@@ -248,18 +248,6 @@ set *subcommand*
     to the program.  Set number of source lines debugger will list by
     default.
 
-  set dialect {gdb|python}
-
-    Sets command set and debugger dialect to be gdb or python.
-
-    For gdb, 'up', 'down' and 'frame' commands work as they do in gdb
-    For python stack numbering is pythonic.
-
-    For gdb, 'finish' runs to the end of execution and 'return' is reserved
-    for immediate termination.
-
-    For python return is like gdb's finish.
-
   set linetrace {on|off}
     Set line execution tracing. If 'on', lines will be shown before they 
     are run.
@@ -292,6 +280,16 @@ show *subcommand*
     show prompt -- Show the current debugger prompt
 
     show version -- Show what version of this is
+
+source FILE
+        Read commands from a file named FILE.
+        Note that the file file '.%@PACKAGE_NAME@rc' is read automatically
+        in this way when @PACKAGE_NAME@ is started."""
+
+tbreak  [ ([filename:]lineno | function) [, condition] ]
+        Set a temporary breakpoint. Arguments are like the "break" command.
+        Like "break" except the breakoint is only temporary, 
+        so it will be deleted when hit.  
 
 unalias name
         Deletes the specified alias.
