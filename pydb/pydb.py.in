@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.24 2006/01/26 06:40:09 rockyb Exp $
+"""$Id: pydb.py.in,v 1.25 2006/01/26 08:54:02 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -64,11 +64,18 @@ def process_options(pydb):
     optparser.add_option("-o", "--output", dest="output",
                          action="store", type='string',
                          help="Set where write debugger's output (stdout)")
-    optparser.add_option("--error", dest="error",
+    optparser.add_option("--error", dest="errors",
                          action="store", type='string',
                          help="Set where to put debugger's error " 
                          + "output (stderr)")
 
+    # Set up to stop on the first non-option because that's the name
+    # of the script to be debugged on arguments following that are
+    # that scripts options that should be left untouched.  We would
+    # not want to interpret and option for the script, e.g. --help, as
+    # one one of our own, e.g. --help.
+
+    optparser.disable_interspersed_args()
     global opts
     (opts, argv) = optparser.parse_args()
     if opts.linetrace: opts.noninteractive = True
