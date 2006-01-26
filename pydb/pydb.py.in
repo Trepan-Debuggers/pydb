@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.26 2006/01/26 10:26:56 rockyb Exp $
+"""$Id: pydb.py.in,v 1.27 2006/01/26 21:52:23 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -8,7 +8,7 @@ _debugger_name = '@PACKAGE_NAME@'
 _version = '@PACKAGE_VERSION@'
 
 import bdb, cmd, dis, inspect, linecache, os, pprint
-import re, sys, time, traceback
+import re, sys, time, traceback, types
 from optparse import OptionParser
 from repr import Repr
 
@@ -76,8 +76,16 @@ def process_options(pydb):
     # one one of our own, e.g. --help.
 
     optparser.disable_interspersed_args()
-    global opts
-    (opts, argv) = optparser.parse_args()
+
+    # execfile() run out of Bdb.py uses sys.argv, so we have to
+    # clobber it and make it what the debugged script expects. Also
+    # the debugged script probably wants to look at sys.argv.
+    # So we'll change sys.argv to look like the program were invoked
+    # directly
+    global sys_argv
+    sys_argv = sys.argv   # Well, we'll save the original just in case
+    (opts, sys.argv) = optparser.parse_args()
+
     if opts.linetrace: opts.noninteractive = True
     pydb.linetrace = opts.linetrace
     pydb.noninteractive = opts.noninteractive
@@ -110,14 +118,6 @@ def process_options(pydb):
             print sys.exc_info()[0]
             raise
 
-    # execfile() run out of Bdb.py uses sys.argv, so we have to
-    # clobber it and make it what the debugged script expects. Also
-    # the debugged script may whant to look at sys.argv
-
-    global sys_argv
-    sys_argv = sys.argv   # Well, we'll save the original anyway
-    sys.argv = argv
-    return argv
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
@@ -246,23 +246,43 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.curindex = 0
         self.curframe = None
 
-    def setup(self, f, t):
+    def setup(self, frame, traceback=None):
+        """Initialization done before entering the debugger-command
+        loop. We return 1 if we should NOT enter the debugger-command
+        loop."""
         self.forget()
-        self.stack, self.curindex = self.get_stack(f, t)
+        self.stack, self.curindex = self.get_stack(frame, traceback)
         self.curframe = self.stack[self.curindex][0]
-        self.execRcLines()
+        if self.execRcLines()==1: return 1
 
     # Can be executed earlier than 'setup' if desired
     def execRcLines(self):
+
+        """Some commands were batched in self.rcLines.  Run as many of
+        them as we can now.
+        
+        To be compatible with onecmd will return 1 if we are to
+        continue execution and None if not -- continue debugger
+        commmand loop reading.  The remaining lines will still be in
+        self.rcLines.  """
+
         if self.rcLines:
             # Make local copy because of recursion
             rcLines = self.rcLines
             # executed only once
-            self.rcLines = []
             for line in rcLines:
+                self.rcLines = self.rcLines[1:]
                 line = line[:-1]
                 if len(line) > 0 and line[0] != '#':
-                    self.onecmd(line)
+                    # Some commands like step, continue,
+                    # return return 1 to indicate execution
+                    # should be continued. The return code
+                    # value is kind of sucky but at present
+                    # it's too much work to fix all of the
+                    # places needed. So live with it.
+                    if self.onecmd(line) == 1:
+                        return 1
+
 
     def __get_onoff(self, arg, default=None):
         """Return True if arg is 'on' or 1 and False arg is an 'off' or 0
@@ -317,7 +337,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
 
     def __print_location_if_linetrace(self, frame):
         if self.linetrace:
-            self.setup(frame, None)
+            self.setup(frame)
             self.print_location()
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
@@ -377,6 +397,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
 
     def user_line(self, frame):
         """This function is called when we stop or break at this line."""
+        # print "+++ user_line here"
         if self._wait_for_mainpyfile:
             if (self.mainpyfile != self.canonic(frame.f_code.co_filename)
                 or frame.f_lineno <= 0):
@@ -425,21 +446,27 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     def user_exception(self, frame, (exc_type, exc_value, exc_traceback)):
         """This function is called if an exception occurs,
         but only if we are to stop at or just below this level."""
+
+        # Remove any pending source lines.
+        self.rcLines = []
+
         frame.f_locals['__exception__'] = exc_type, exc_value
-        if type(exc_type) == type(''):
+        if type(exc_type) == types.StringType:
             exc_type_name = exc_type
         else: exc_type_name = exc_type.__name__
         self.msg("%s:%s" % (str(exc_type_name), str(_saferepr(exc_value))))
         self.interaction(frame, exc_traceback)
 
-    # General interaction function
-
     def interaction(self, frame, traceback):
-        self.setup(frame, traceback)
-        self.print_location()
-        if not self.noninteractive:
-            self.cmdloop()
+        """Possibly goes into loop to read debugger commands."""
+        do_loop = self.setup(frame, traceback) != 1
+        if do_loop:
+            self.print_location()
+            if not self.noninteractive:
+                self.cmdloop()
         self.forget()
+        if not do_loop:
+            return 1
 
     def default(self, line):
         if line[:1] == '!': line = line[1:]
@@ -450,7 +477,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             exec code in globals, locals
         except:
             t, v = sys.exc_info()[:2]
-            if type(t) == type(''):
+            if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
             self.errmsg('%s:%s' % (str(exc_type_name), str(v)))
@@ -743,9 +770,12 @@ show version -- Show what version of this is
         """source FILE
         Read commands from a file named FILE.
         Note that the file file '.%pydbrc' is read automatically
-        in this way when pydb is started."""
-        self.__setup_source(os.path.expanduser(arg), True);
-        self.execRcLines()
+        in this way when pydb is started.
+
+        An error in any command terminates execution of the command
+        file and control is returned to the console."""
+        self.__setup_source(os.path.expanduser(arg), True); rc =
+        self.execRcLines() return rc
 
     def do_tbreak(self, arg):
         """tbreak  [ ([filename:]lineno | function) [, condition] ]
@@ -1331,7 +1361,7 @@ Prints the type of the argument which can be a Python expression."""
                          self.curframe.f_locals)
         except:
             t, v = sys.exc_info()[:2]
-            if type(t) == type(''):
+            if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
             print '***', exc_type_name + ':', repr(v)
@@ -1644,20 +1674,19 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    argv = process_options(pydb)
+    process_options(pydb)
 
-    mainpyfile =  argv[0]     # Get script filename
+    # process_options has munged sys.argv to remove any options that
+    # options that belong to this debugger. The original options to
+    # invoke the debugger and script are in global sys_argv
+
+    mainpyfile =  sys.argv[0] # Get script filename. 
     if not os.path.exists(mainpyfile):
         print 'Error:', mainpyfile, 'does not exist'
         sys.exit(1)
 
     # Replace pydb's dir with script's dir in front of module search path.
     sys.path[0] = os.path.dirname(mainpyfile)
-
-    # Note on sys.argv below. By this point process_options above has
-    # modified sys.argv to strip out references to the debugger.
-    # Thus the script being debugged sees sys.argv as though it were
-    # getting called directly.
 
     while 1:
 
