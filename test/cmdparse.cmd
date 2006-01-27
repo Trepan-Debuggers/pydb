@@ -1,12 +1,12 @@
-# $Id: cmdparse.cmd,v 1.1 2006/01/26 23:06:26 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.2 2006/01/27 18:35:00 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 print "********************************"
 print "***   Set/show commands     ***"
 print "*******************************"
-############################
-print "  args and baseneme..."
-############################
+########################################
+print "  test args and baseneme..."
+########################################
 set args this is a test
 show args
 set basename on
@@ -19,18 +19,18 @@ set basename 0
 show basename
 set basename 1
 show basename
-############################
-print "  listsize tests..."
-#############################
+########################################
+print "  test listsize tests..."
+########################################
 show listsize
 set listsize 20
 show listsize
 set listsize abc
 set listsize -20
 set listsize 20 forever
-#############################
-print "  linetrace tests..."
-#############################
+########################################
+print "  test linetrace..."
+########################################
 set linetrace delay
 set linetrace delay 2
 show linetrace delay
@@ -42,8 +42,19 @@ set linetrace on
 show linetrace
 set linetrace off
 show linetrace
-#############################
-print "  prompt, misc..."
-#############################
+########################################
+print "  test prompt, misc..."
+########################################
 show prompt
 show foo
+########################################
+print "  test numeric argument syntax "
+########################################
+up fdsafdsa
+u=foo
+down 1 b c
+frame foo
+step -1
+next -1
+### 
+quit

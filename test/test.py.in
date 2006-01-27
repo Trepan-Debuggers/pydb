@@ -1,0 +1,57 @@
+#!@PYTHON@
+"Unit test for Extended Python debugger "
+import difflib, os, pprint, pydb, time, sys, unittest
+
+builddir     ="@builddir@"
+if builddir[-1] != os.path.sep:
+    builddir += os.path.sep
+
+top_builddir ="@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+
+srcdir = "@srcdir@"
+if srcdir[-1] != os.path.sep:
+    srcdir += os.path.sep
+
+pydir        = "%s%s%s" %  (top_builddir, "pydb", os.path.sep)
+pydb         = "pydb.py"
+pydb_path    = "%s%s" % (pydir, pydb)
+
+def run_debugger(testname, pythonfile):
+    global srcdir, builddir, pydir
+    cmdfile     = "%s%s.cmd"     % (builddir, testname)
+    outfile     = "%s.out"       % (testname)
+    rightfile   = "%s%s.right" % (srcdir, testname)
+    # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
+    # (builddir, cmdfile, outfile, rightfile)
+
+    if  os.path.exists(outfile): os.unlink(outfile)
+
+    cmd = "%s --command %s --output=%s %s" % \
+          (pydb_path, cmdfile, outfile, pythonfile)
+    
+    os.system(cmd)
+    fromfile  = rightfile
+    fromdate  = time.ctime(os.stat(fromfile).st_mtime)
+    fromlines = open(fromfile, 'U').readlines()
+    tofile    = outfile
+    todate    = time.ctime(os.stat(tofile).st_mtime)
+    tolines   = open(tofile, 'U').readlines()
+    
+    diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
+                                     tofile, fromdate, todate))
+    if len(diff) != 0:
+        for line in diff:
+            print line,
+    return len(diff) == 0
+    
+class PdbTests(unittest.TestCase):
+
+    def test_cmdparse(self):
+        """Test command parsing"""
+        result=run_debugger(testname='cmdparse', pythonfile='hanoi.py')
+        self.assertEqual(True, result, "cmdparse")
+        
+if __name__ == "__main__":
+    unittest.main()

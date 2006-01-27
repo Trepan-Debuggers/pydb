@@ -1,0 +1,34 @@
+********************************
+***   Set/show commands     ***
+*******************************
+  test args and baseneme...
+*** Argument list to give program being debugged when it is started is
+*** "this is a test"
+*** basename is on
+*** Expecting 'on', 1, 'off', or 0. Got: foo.
+*** basename is on
+*** basename is off
+*** basename is off
+*** basename is on
+  test listsize tests...
+*** Number of source lines pydb will list by default is 10.
+*** Number of source lines pydb will list by default is 20.
+*** Expecting an integer, got: abc
+  test linetrace...
+*** Need a 3rd floating-point number
+*** line trace delay is 2.0 seconds
+*** line trace delay is 0.5 seconds
+*** 3rd argument foo is not a floating-point number
+*** line trace delay is 0.5 seconds
+*** line tracing is on
+*** line tracing is off
+  test prompt, misc...
+*** pydb's prompt is "(Pydb) ".
+*** unknown show subcommand "foo"
+  test numeric argument syntax 
+*** up command: Expecting an integer, got: fdsafdsa
+*** up command: Expecting an integer, got: =foo
+*** down command: Expecting an integer, got: 1 b c
+*** The 'frame' command requires a frame number. Got: foo
+*** step command: Expecting a positive integer at least 0, got: -1
+*** next command: Expecting a positive integer at least 0, got: -1
