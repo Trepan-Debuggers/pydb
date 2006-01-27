@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.28 2006/01/26 23:06:23 rockyb Exp $
+"""$Id: pydb.py.in,v 1.29 2006/01/27 12:18:49 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -321,17 +321,21 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         if bool == False: return "off"
         return "??"
 
-    def __get_int(self, arg, default = 1):
+    def __get_int(self, arg, default=1, cmdname=None):
         """If arg is an int, use that otherwise take default."""
         if arg:
             try: 
                 default = int(arg)
             except ValueError, msg:
-                self.errmsg('Expecting an integer, got: %s' % str(arg))
+                if cmdname:
+                    self.errmsg('%s command: Expecting an integer, got: %s' %
+                                (cmdname, str(arg)))
+                else:
+                    self.errmsg('Expecting an integer, got: %s' % str(arg))
                 raise ValueError
         return default
 
-    def __get_pos_int(self, arg, min=0, default = 1):
+    def __get_pos_int(self, arg, min=0, default = 1, cmdname=None):
         """If no argument use the default If arg is a positive int at
         least min, use that otherwise report an error."""
         if arg:
@@ -344,7 +348,12 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                     raise ZeroDivisionError
                     
             except ValueError, msg:
-                self.errmsg('Expecting an integer, got: %s' % str(arg))
+                if cmdname:
+                    self.errmsg(('%s command: Expecting a positive integer, '
+                                 + "got: %s") % (cmdname, str(arg)))
+                else:
+                    self.errmsg(('Expecting a positive integer, '
+                                 + "got: %s") % (cmdname, str(arg)))
                 raise ValueError
             except ZeroDivisionError:
                 # Turn this into a ValueError
@@ -1032,7 +1041,7 @@ If using gdb dialect up matches the gdb: 0 is the most recent frame.
 Otherwise we match Python's stack: 0 is the oldest frame.
 """
         try:
-            count = self.__get_int(arg)
+            count = self.__get_int(arg, cmdname="up")
         except ValueError:
             return
         if self.gdb_dialect:
@@ -1049,7 +1058,7 @@ If using gdb dialect up matches the gdb: 0 is the most recent frame.
 Otherwise we match Python's stack: 0 is the oldest frame.
 """
         try:
-            count = self.__get_int(arg)
+            count = self.__get_int(arg, cmdname="down")
         except ValueError:
             return
         if self.gdb_dialect:
@@ -1136,7 +1145,8 @@ With an integer argument, step that many times."""
         global step_ignore_count
         try:
             # 0 means stop now or step 1, so we subtract 1.
-            step_ignore_count = self.__get_pos_int(arg, 1) - 1
+            step_ignore_count = self.__get_pos_int(arg, default=1,
+                                                   cmdname='step') - 1
         except ValueError:
             return
 
@@ -1153,7 +1163,8 @@ With an integer argument, perform that many times."""
         global step_ignore_count
         try:
             # 0 means stop now or step 1, so we subtract 1.
-            step_ignore_count = self.__get_pos_int(arg, 1) - 1
+            step_ignore_count = self.__get_pos_int(arg, default=1,
+                                                   cmdname='next') - 1
         except ValueError:
             return
 
@@ -1276,7 +1287,7 @@ statement.
             if isinstance(t, str):
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            print '***', exc_type_name + ':', repr(v)
+            self.errmsg(str("%s: %s" % (exc_type_name, arg)))
             raise
 
     def do_p(self, arg):
@@ -1301,11 +1312,12 @@ Pretty-print the value of the expression."""
 	For functions, methods, classes and modules we print out the
 	documentation string if any.
 
-	For functions we also show the argument list.
-	
-	The short command name is x."""
+	For functions we also show the argument list."""
 
-        obj = self._getval(arg)
+        try: 
+            obj = self._getval(arg)
+        except:
+            return
         if inspect.isfunction(obj):
             # For functions we print the fn(args) and doc if it exists
             print "def %s%s:" % \
@@ -1323,7 +1335,6 @@ Pretty-print the value of the expression."""
         else:
             self.do_whatis(arg)
             self.do_pp(arg)
-    do_x = do_examine
     
 
     def do_list(self, arg):
