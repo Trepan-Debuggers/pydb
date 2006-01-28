@@ -133,20 +133,16 @@ EMACS=     emacs
 WHATSNEW=whatsnew25
 
 # what's what
-MANDVIFILES=	paper-$(PAPER)/api.dvi paper-$(PAPER)/ext.dvi \
-		paper-$(PAPER)/lib.dvi paper-$(PAPER)/mac.dvi \
+MANDVIFILES=	paper-$(PAPER)/lib.dvi \
 		paper-$(PAPER)/ref.dvi paper-$(PAPER)/tut.dvi
-HOWTODVIFILES=	paper-$(PAPER)/doc.dvi paper-$(PAPER)/inst.dvi \
-		paper-$(PAPER)/dist.dvi paper-$(PAPER)/$(WHATSNEW).dvi
+HOWTODVIFILES=	paper-$(PAPER)/doc.dvi paper-$(PAPER)/dist.dvi 
 
-MANPDFFILES=	paper-$(PAPER)/api.pdf paper-$(PAPER)/ext.pdf \
-		paper-$(PAPER)/lib.pdf paper-$(PAPER)/mac.pdf \
+MANPDFFILES=	paper-$(PAPER)/lib.pdf \
 		paper-$(PAPER)/ref.pdf paper-$(PAPER)/tut.pdf
 HOWTOPDFFILES=	paper-$(PAPER)/doc.pdf paper-$(PAPER)/inst.pdf \
 		paper-$(PAPER)/dist.pdf paper-$(PAPER)/$(WHATSNEW).pdf
 
-MANPSFILES=	paper-$(PAPER)/api.ps paper-$(PAPER)/ext.ps \
-		paper-$(PAPER)/lib.ps paper-$(PAPER)/mac.ps \
+MANPSFILES=	paper-$(PAPER)/lib.ps \
 		paper-$(PAPER)/ref.ps paper-$(PAPER)/tut.ps
 HOWTOPSFILES=	paper-$(PAPER)/doc.ps paper-$(PAPER)/inst.ps \
 		paper-$(PAPER)/dist.ps paper-$(PAPER)/$(WHATSNEW).ps
@@ -155,25 +151,9 @@ DVIFILES=	$(MANDVIFILES) $(HOWTODVIFILES)
 PDFFILES=	$(MANPDFFILES) $(HOWTOPDFFILES)
 PSFILES=	$(MANPSFILES) $(HOWTOPSFILES)
 
-HTMLCSSFILES=html/api/api.css \
-	html/doc/doc.css \
-	html/ext/ext.css \
-	html/lib/lib.css \
-	html/mac/mac.css \
-	html/ref/ref.css \
-	html/tut/tut.css \
-	html/inst/inst.css \
-	html/dist/dist.css
+HTMLCSSFILES=html/lib/lib.css
 
-ISILOCSSFILES=isilo/api/api.css \
-	isilo/doc/doc.css \
-	isilo/ext/ext.css \
-	isilo/lib/lib.css \
-	isilo/mac/mac.css \
-	isilo/ref/ref.css \
-	isilo/tut/tut.css \
-	isilo/inst/inst.css \
-	isilo/dist/dist.css
+ISILOCSSFILES=
 
 ALLCSSFILES=$(HTMLCSSFILES) $(ISILOCSSFILES)
 
@@ -373,29 +353,13 @@ html/modindex.html: html/lib/lib.html html/mac/mac.html
 
 html:	$(ALLHTMLFILES)
 
-api: html/api/api.html html/api/api.css
-html/api/api.html: $(APIFILES) api/refcounts.dat
-	$(MKHTML) --dir html/api api/api.tex
-
 doc: html/doc/doc.html html/doc/doc.css
 html/doc/doc.html: $(DOCFILES)
 	$(MKHTML) --dir html/doc doc/doc.tex
 
-ext: html/ext/ext.html html/ext/ext.css
-html/ext/ext.html: $(EXTFILES)
-	$(MKHTML) --dir html/ext ext/ext.tex
-
 lib: html/lib/lib.html html/lib/lib.css
 html/lib/lib.html: $(LIBFILES)
 	$(MKHTML) --dir html/lib lib/lib.tex
-
-mac: html/mac/mac.html html/mac/mac.css
-html/mac/mac.html: $(MACFILES)
-	$(MKHTML) --dir html/mac mac/mac.tex
-
-ref: html/ref/ref.html html/ref/ref.css
-html/ref/ref.html: $(REFFILES)
-	$(MKHTML) --dir html/ref ref/ref.tex
 
 tut: html/tut/tut.html html/tut/tut.css
 html/tut/tut.html: $(TUTFILES)
@@ -405,10 +369,6 @@ inst: html/inst/inst.html html/inst/inst.css
 html/inst/inst.html: $(INSTFILES) $(PYTHON_DOC)/perl/distutils.perl
 	$(MKHTML) --dir html/inst --split 4 inst/inst.tex
 
-dist: html/dist/dist.html html/dist/dist.css
-html/dist/dist.html: $(DISTFILES) $(PYTHON_DOC)/perl/distutils.perl
-	$(MKHTML) --dir html/dist --split 4 dist/dist.tex
-
 whatsnew: html/whatsnew/$(WHATSNEW).html
 html/whatsnew/$(WHATSNEW).html: whatsnew/$(WHATSNEW).tex
 	$(MKHTML) --dir html/whatsnew --split 4 whatsnew/$(WHATSNEW).tex
@@ -416,110 +376,9 @@ html/whatsnew/$(WHATSNEW).html: whatsnew/$(WHATSNEW).tex
 
 # The iSilo format is used by the iSilo document reader for PalmOS devices.
 
-ISILOINDEXFILES=isilo/api/api.html \
-	isilo/doc/doc.html \
-	isilo/ext/ext.html \
-	isilo/lib/lib.html \
-	isilo/mac/mac.html \
-	isilo/ref/ref.html \
-	isilo/tut/tut.html \
-	isilo/inst/inst.html \
-	isilo/dist/dist.html \
-	isilo/whatsnew/$(WHATSNEW).html
+ISILOINDEXFILES=
 
 $(ISILOINDEXFILES): $(COMMONPERL) html/stdabout.dat $(PYTHON_DOC)/perl/isilo.perl
-
-isilo:	isilo/python-api.pdb \
-	isilo/python-doc.pdb \
-	isilo/python-ext.pdb \
-	isilo/python-lib.pdb \
-	isilo/python-mac.pdb \
-	isilo/python-ref.pdb \
-	isilo/python-tut.pdb \
-	isilo/python-dist.pdb \
-	isilo/python-inst.pdb \
-	isilo/python-whatsnew.pdb
-
-isilo/python-api.pdb: isilo/api/api.html isilo/api/api.css
-	$(MKISILO) "-iPython/C API Reference Manual" \
-		isilo/api/api.html $@
-
-isilo/python-doc.pdb: isilo/doc/doc.html isilo/doc/doc.css
-	$(MKISILO) "-iDocumenting Python" \
-		isilo/doc/doc.html $@
-
-isilo/python-ext.pdb: isilo/ext/ext.html isilo/ext/ext.css
-	$(MKISILO) "-iExtending & Embedding Python" \
-		isilo/ext/ext.html $@
-
-isilo/python-lib.pdb: isilo/lib/lib.html isilo/lib/lib.css
-	$(MKISILO) "-iPython Library Reference" \
-		isilo/lib/lib.html $@
-
-isilo/python-mac.pdb: isilo/mac/mac.html isilo/mac/mac.css
-	$(MKISILO) "-iPython/C API Reference Manual" \
-		isilo/mac/mac.html $@
-
-isilo/python-ref.pdb: isilo/ref/ref.html isilo/ref/ref.css
-	$(MKISILO) "-iPython Reference Manual" \
-		isilo/ref/ref.html $@
-
-isilo/python-tut.pdb: isilo/tut/tut.html isilo/tut/tut.css
-	$(MKISILO) "-iPython Tutorial" \
-		isilo/tut/tut.html $@
-
-isilo/python-dist.pdb: isilo/dist/dist.html isilo/dist/dist.css
-	$(MKISILO) "-iDistributing Python Modules" \
-		isilo/dist/dist.html $@
-
-isilo/python-inst.pdb: isilo/inst/inst.html isilo/inst/inst.css
-	$(MKISILO) "-iInstalling Python Modules" \
-		isilo/inst/inst.html $@
-
-isilo/python-whatsnew.pdb: isilo/whatsnew/$(WHATSNEW).html isilo/whatsnew/$(WHATSNEW).css
-	$(MKISILO) "-iWhat's New in Python X.Y" \
-		isilo/whatsnew/$(WHATSNEW).html $@
-
-isilo/api/api.html: $(APIFILES) api/refcounts.dat
-	$(MKISILOHTML) --dir isilo/api api/api.tex
-
-isilo/doc/doc.html: $(DOCFILES)
-	$(MKISILOHTML) --dir isilo/doc doc/doc.tex
-
-isilo/ext/ext.html: $(EXTFILES)
-	$(MKISILOHTML) --dir isilo/ext ext/ext.tex
-
-isilo/lib/lib.html: $(LIBFILES)
-	$(MKISILOHTML) --dir isilo/lib lib/lib.tex
-
-isilo/mac/mac.html: $(MACFILES)
-	$(MKISILOHTML) --dir isilo/mac mac/mac.tex
-
-isilo/ref/ref.html: $(REFFILES)
-	$(MKISILOHTML) --dir isilo/ref ref/ref.tex
-
-isilo/tut/tut.html: $(TUTFILES)
-	$(MKISILOHTML) --dir isilo/tut tut/tut.tex
-
-isilo/inst/inst.html: $(INSTFILES) $(PYTHON_DOC)/perl/distutils.perl
-	$(MKISILOHTML) --dir isilo/inst inst/inst.tex
-
-isilo/dist/dist.html: $(DISTFILES) $(PYTHON_DOC)/perl/distutils.perl
-	$(MKISILOHTML) --dir isilo/dist dist/dist.tex
-
-isilo/whatsnew/$(WHATSNEW).html: whatsnew/$(WHATSNEW).tex
-	$(MKISILOHTML) --dir isilo/whatsnew whatsnew/$(WHATSNEW).tex
-
-# These are useful if you need to transport the iSilo-ready HTML to
-# another machine to perform the conversion:
-
-isilozip:  isilo-html-$(RELEASE).zip
-
-isilo-html-$(RELEASE).zip:	$(ISILOINDEXFILES)
-	rm -f $@
-	cd isilo && \
-		zip -q -9 ../$@ */*.css */*.html */*.txt
-
 
 # webchecker needs an extra flag to process the huge index from the libref
 WEBCHECKER=$(PYTHON) ../Tools/webchecker/webchecker.py
@@ -615,7 +474,7 @@ postscript-$(PAPER)-$(RELEASE).zip: $(PSFILES) paper-$(PAPER)/README
 	zip -q -r -9 $@ Python-Docs-$(RELEASE)
 	rm -r Python-Docs-$(RELEASE)
 
-HTMLPKGFILES=*.html */*.css */*.html */*.gif */*.png */*.txt
+HTMLPKGFILES=*.html */*.css */*.html */*.gif */*.png
 
 html-$(RELEASE).tar:	$(ALLHTMLFILES) $(HTMLCSSFILES)
 	mkdir Python-Docs-$(RELEASE)
@@ -663,7 +522,6 @@ ziphtml:	html-$(RELEASE).zip
 zipps:		postscript-$(PAPER)-$(RELEASE).zip
 zippdf:		pdf-$(PAPER)-$(RELEASE).zip
 ziplatex:	latex-$(RELEASE).zip
-zipisilo:	isilo-$(RELEASE).zip
 
 zips:		zippdf zipps ziphtml
 
@@ -715,8 +573,7 @@ clean:
 #	cd $(INFODIR) && $(MAKE) clean
 
 # Remove temporaries as well as final products
-clobber:
-	-rm -f html-$(RELEASE).tar
+clobber: clean
 	-rm -f html-$(RELEASE).tgz info-$(RELEASE).tgz
 	-rm -f pdf-$(RELEASE).tgz postscript-$(RELEASE).tgz
 	-rm -f latex-$(RELEASE).tgz html-$(RELEASE).zip
@@ -724,7 +581,6 @@ clobber:
 	-rm -f $(DVIFILES) $(PSFILES) $(PDFFILES)
 	-rm -f paper-$(PAPER)/*.tex paper-$(PAPER)/*.ind paper-$(PAPER)/*.idx
 	-rm -f paper-$(PAPER)/*.l2h paper-$(PAPER)/*.how paper-$(PAPER)/README
-#	cd $(INFODIR) && $(MAKE) clobber
 
 realclean distclean:  clobber
 

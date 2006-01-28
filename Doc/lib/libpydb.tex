@@ -1,7 +1,54 @@
 \chapter{The Extended Python Debugger \label{extdebugger}}
 
 \declaremodule{standard}{pydb}
-\modulesynopsis{The Extended Python debugger for interactive interpreters.}
+\modulesynopsis{The Extended Python debugger for interactive
+  interpreters.}
+
+The ``extended'' Python debugger builds on work done in the standard
+\ulink{\module{Python
+Debugger}}{http://docs.python.org/lib/module-pdb.html} (\tt{pdb.py}).
+
+However in filling out the command set and functionality, we've used
+the GNU debugger (\tt{gdb}) as a guide. 
+
+Following the gdb command sent has been helpful as a guide for how to
+structure the command set and helpful to users---especially those that
+know \tt{gdb} or my GNU Bash debugger \tt{bashdb} or to some extent my
+GNU Make debugger. For These pepole the learning curve is reduced and
+they don't need to learn yet another debugger command interface or get
+confused when switching between debuggers. But it also has been
+helpful for other programs!
+
+When I first thought about adding bash into the GUI interface ddd,
+basically all I had do do was tell ddd that handling this construct
+(e.g. stepping) is like gdb. There were a few places where I told ddd
+not to follow gdb but Perl instead because the paradigm needed had to
+be more like a scripting language than a compiled language. But in the
+end, adding support for bash inside ddd was much more straightforward
+and required much less thought than if I had invented my own debugger
+command set.
+
+After this was done and I fire up ddd, I notice that when my cursor is
+hovering over some of the buttons I see short descriptions for what
+that command does. And there is this button called ``customize bash''
+and in that there are all these setting variables. But I don't
+remember adding a box widget for customization or remember any code
+that I modified using tool tips. How did it do this? I was very
+curious and had to find out.
+
+Because I even copied the output format of gdb's ``info'', ``set'' and
+``show'' commands, what ddd is doing is running these commands on its
+own and parsing the output; it then uses that output to form tool tips
+and create a customization boxes.
+
+In a preliminary posting to \tt{comp.lang.python}, a number of people
+indicated that they did not standard Python debugger, or use it much.
+Consequently keeping compatibility can't be all that important---at
+least for these people.
+
+Thus In light of the above, in cases where the standard Python
+debugger was incompatible with \tt{gdb}, the \tt{gdb} commands have
+been used.
 
 \section{Debugger Commands \label{debugger-commands}}
 
@@ -24,11 +71,10 @@ listed.
 Commands that the debugger doesn't recognize are assumed to be Python
 statements and are executed in the context of the program being
 debugged.  Python statements can also be prefixed with an exclamation
-point (\samp{!}).  This is a powerful way to inspect the program
-being debugged; it is even possible to change a variable or call a
-function.  When an
-exception occurs in such a statement, the exception name is printed
-but the debugger's state is not changed.
+point (\samp{!}).  This is a powerful way to inspect the program being
+debugged; it is even possible to change a variable or call a function.
+When an exception occurs in such a statement, the exception name is
+printed but the debugger's state is not changed.
 
 Multiple commands may be entered on a single line, separated by
 \samp{;;}.  (A single \samp{;} is not used as it is
