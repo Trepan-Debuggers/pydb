@@ -1,0 +1,8 @@
+Makefile
+*.aux
+*.dvi
+*.idx
+*.ind
+*.l2h
+*.log
+*.toc

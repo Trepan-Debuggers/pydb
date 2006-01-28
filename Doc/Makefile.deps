@@ -1,0 +1,58 @@
+# -*- Makefile -*-
+# LaTeX source dependencies.
+
+COMMONSTYLES= $(PYTHON_DOC)/texinputs/python.sty \
+	$(PYTHON_DOC)/texinputs/pypaper.sty
+
+INDEXSTYLES=$(PYTHON_DOC)/texinputs/python.ist
+
+COMMONTEX=$(PTYHON_DOC)/commontex/copyright.tex \
+	$(PTYHON_DOC)/commontex/license.tex \
+	$(PTYHON_DOC)/commontex/patchlevel.tex \
+	$(PTYHON_DOC)/commontex/boilerplate.tex
+
+MANSTYLES= $(PYTHON_DOC)/texinputs/fncychap.sty \
+	$(PYTHON_DOC)/texinputs/manual.cls \
+	$(COMMONSTYLES)
+
+HOWTOSTYLES=
+APIFILES=
+
+# These files are generated from those listed above, and are used to
+# generate the typeset versions of the manuals.  The list is defined
+# here to make it easier to ensure parallelism.
+ANNOAPIFILES= $(MANSTYLES) $(INDEXSTYLES) $(COMMONTEX) api/refcounts.dat \
+	paper-$(PAPER)/api.tex \
+	paper-$(PAPER)/abstract.tex \
+	paper-$(PAPER)/concrete.tex \
+	paper-$(PAPER)/exceptions.tex \
+	paper-$(PAPER)/init.tex \
+	paper-$(PAPER)/intro.tex \
+	paper-$(PAPER)/memory.tex \
+	paper-$(PAPER)/newtypes.tex \
+	paper-$(PAPER)/refcounting.tex \
+	paper-$(PAPER)/utilities.tex \
+	paper-$(PAPER)/veryhigh.tex \
+	$(PTYHON_DOC)/commontex/reportingbugs.tex
+
+DOCFILES= $(HOWTOSTYLES) \
+	$(PTYHON_DOC)/commontex/boilerplate.tex \
+	$(PYTHON_DOC)/texinputs/ltxmarkup.sty \
+	doc/doc.tex
+
+EXTFILES= 
+
+TUTFILES=
+
+# LaTeX source files for the Python Reference Manual
+REFFILES=
+
+# LaTeX source files for the Python Library Reference
+LIBFILES= 
+
+# LaTeX source files for Macintosh Library Modules.
+MACFILES= 
+
+INSTFILES = 
+
+DISTFILES = 

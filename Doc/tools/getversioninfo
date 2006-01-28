@@ -12,7 +12,7 @@ except NameError:
 tools = os.path.dirname(os.path.abspath(__file__))
 Doc = os.path.dirname(tools)
 src = os.path.dirname(Doc)
-patchlevel_h = os.path.join(src, "Include", "patchlevel.h")
+patchlevel_h = os.path.join(Doc, "tools", "patchlevel.h")
 
 # This won't pick out all #defines, but it will pick up the ones we
 # care about.
@@ -34,15 +34,7 @@ if micro != 0:
     release += "." + str(micro)
 level = d["PY_RELEASE_LEVEL"]
 
-suffixes = {
-    "PY_RELEASE_LEVEL_ALPHA": "a",
-    "PY_RELEASE_LEVEL_BETA":  "b",
-    "PY_RELEASE_LEVEL_GAMMA": "c",
-    }
-
-releaseinfo = ""
-if level != "PY_RELEASE_LEVEL_FINAL":
-    releaseinfo = suffixes[level] + str(int(d["PY_RELEASE_SERIAL"]))
+releaseinfo = "pydb"
 
 def write_file(name, text):
     """Write text to a file if the file doesn't exist or if text
