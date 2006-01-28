@@ -21,18 +21,7 @@ APIFILES=
 # These files are generated from those listed above, and are used to
 # generate the typeset versions of the manuals.  The list is defined
 # here to make it easier to ensure parallelism.
-ANNOAPIFILES= $(MANSTYLES) $(INDEXSTYLES) $(COMMONTEX) api/refcounts.dat \
-	paper-$(PAPER)/api.tex \
-	paper-$(PAPER)/abstract.tex \
-	paper-$(PAPER)/concrete.tex \
-	paper-$(PAPER)/exceptions.tex \
-	paper-$(PAPER)/init.tex \
-	paper-$(PAPER)/intro.tex \
-	paper-$(PAPER)/memory.tex \
-	paper-$(PAPER)/newtypes.tex \
-	paper-$(PAPER)/refcounting.tex \
-	paper-$(PAPER)/utilities.tex \
-	paper-$(PAPER)/veryhigh.tex \
+ANNOAPIFILES= $(MANSTYLES) $(INDEXSTYLES) $(COMMONTEX) \
 	$(PTYHON_DOC)/commontex/reportingbugs.tex
 
 DOCFILES= $(HOWTOSTYLES) \
@@ -48,7 +37,8 @@ TUTFILES=
 REFFILES=
 
 # LaTeX source files for the Python Library Reference
-LIBFILES= 
+LIBFILES= lib/libpydb.tex
+
 
 # LaTeX source files for Macintosh Library Modules.
 MACFILES= 

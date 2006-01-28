@@ -66,6 +66,79 @@ Thus in light of the above, in cases where the standard Python
 debugger was incompatible with {\tt gdb}, the {\tt gdb} commands have
 been used.
 
+\section{Invoking the Debugger \label{debugger-switches}}
+
+There are two extension we've provided in running the debugger we have
+provided. First this debugger should installlitself somewhere in you
+command path, usually as \samp{pydb}, so you don't have to invoke it
+as an argument to the \samp{python} command. 
+
+Second the extended debugger supports command switches courtesy of
+\ulink{\module{optparse}}{http://docs.python.org/lib/module-optparse.html}.
+In particular \samp{pydb} has the two very common options
+\samp{--help} to show what options are available and \samp{--version}
+to show report the version that is use. 
+
+These two options are complete in of themselves and don't require any
+futher options. However usually you will want to give a the name of a
+script to debug and after that you may want to pass options for this
+script.
+
+Thus the general form of invoking the debugger is:
+
+\samp{ pydb} \optional{\var{debugger-options}\ldots} \var{python-script} \optional{\var{script-options}\ldots}
+
+\begin{description} 
+
+\item[--batch]
+
+Normally the debugger is entered before the debugged script is
+executed. If you want to initally start the script running, use this
+option. For example, if you know that a script will terminate with an
+exception which causes the debugger to be entered at that point, you
+may want to use this option. The \samp{--linetrace} option implicitly
+sets this option.
+
+\item[--command=\var{filename}\code{\Large{|}}-x \var{filename}]
+
+Run debugger script \var{filename}. Note that this script is run
+\emph{after} the user's \file{.pydbrc} file.
+
+\item[--nx|\code{\Large{|}}]
+
+Before execution is started, a debugger configuration file
+\file{.pydbrc} is run. In some situations, for example regression
+testing the debugger, one wants to make sure that such configuration
+files are \emph{not} run and this option will do that.
+
+\item[--output=\var{filename}]
+
+If you want to have the debugger write it's normal output
+(\samp{stdout}) to file \var{filename}, use this option. Useful in
+situations where is running a Python script but one doesn't have
+access to a terminal.
+
+\item[--error=\var{filename}]
+
+If you want to have the debugger write it's error output
+(\samp{stderr}) to file \var{filename}, use this option. Useful in
+situations where is running a Python script but one doesn't have
+access to a terminal.
+
+\item[--trace]
+
+POSIX-style line tracing is available. In POSIX shells the short
+option for this is \samp{-x}; however since we follow \samp{gdb}
+conventions \samp{-x} is used as a short option for
+\samp{--command}. When line tracing is turned on, each location (file
+name and linenumber) is printed before the command is executed. This
+option can be used in conjuntion with the \samp{--output} and
+\samp{--error} options described above situations where a terminal is
+not available or where one interactive attendence is unavailable or
+not desired.
+
+\end{description}
+
 \section{Debugger Commands \label{debugger-commands}}
 
 In this section we describe debugger commands which can be used when

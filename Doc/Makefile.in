@@ -57,8 +57,8 @@ srcdir=@srcdir@
 DISTFILES=lib/lib.tex lib/libpydb.tex Makefile.in Makefile.deps \
 	html
 
-PYTHON_SRC=@top_srcdir@
-PYTHON_DOC=@srcdir@
+PYTHON_SRC:=$(shell cd @top_srcdir@ && pwd)
+PYTHON_DOC:=$(shell cd @srcdir@ && pwd)
 
 # Customization -- you *may* have to edit this
 
@@ -66,7 +66,7 @@ PYTHON_DOC=@srcdir@
 PAPER=letter
 
 # Ideally, you shouldn't need to edit beyond this point
-.PHONY: realclean distclean clobber
+.PHONY: realclean distclean clean clobber
 
 
 INFODIR=	$(srcdir)/info
@@ -79,7 +79,7 @@ TOOLSDIR=	$(srcdir)/tools
 # doesn't exist or needs to be changed.  Documents which depend on the
 # version number should use \input{patchlevel} and include
 # commontex/patchlevel.tex in their dependencies.
-RELEASE=$(shell $(PYTHON) $(PYTHON_DOC)/tools/getversioninfo)
+RELEASE:=$(shell $(PYTHON) $(PYTHON_DOC)/tools/getversioninfo)
 
 PYTHON:=	   python
 DVIPS:=	   dvips -N0 -t $(PAPER)
@@ -133,19 +133,13 @@ EMACS=     emacs
 WHATSNEW=whatsnew25
 
 # what's what
-MANDVIFILES=	paper-$(PAPER)/lib.dvi \
-		paper-$(PAPER)/ref.dvi paper-$(PAPER)/tut.dvi
-HOWTODVIFILES=	paper-$(PAPER)/doc.dvi paper-$(PAPER)/dist.dvi 
+MANDVIFILES=	paper-$(PAPER)/lib.dvi 
 
-MANPDFFILES=	paper-$(PAPER)/lib.pdf \
-		paper-$(PAPER)/ref.pdf paper-$(PAPER)/tut.pdf
-HOWTOPDFFILES=	paper-$(PAPER)/doc.pdf paper-$(PAPER)/inst.pdf \
-		paper-$(PAPER)/dist.pdf paper-$(PAPER)/$(WHATSNEW).pdf
+MANPDFFILES=	paper-$(PAPER)/lib.pdf
 
-MANPSFILES=	paper-$(PAPER)/lib.ps \
-		paper-$(PAPER)/ref.ps paper-$(PAPER)/tut.ps
-HOWTOPSFILES=	paper-$(PAPER)/doc.ps paper-$(PAPER)/inst.ps \
-		paper-$(PAPER)/dist.ps paper-$(PAPER)/$(WHATSNEW).ps
+HOWTOPDFFILES=
+
+MANPSFILES=	paper-$(PAPER)/lib.ps
 
 DVIFILES=	$(MANDVIFILES) $(HOWTODVIFILES)
 PDFFILES=	$(MANPDFFILES) $(HOWTOPDFFILES)
@@ -169,13 +163,13 @@ include Makefile.deps
 
 # These must be declared phony since there
 # are directories with matching names:
-.PHONY: api doc ext lib mac ref tut inst dist
-.PHONY: html info isilo
+.PHONY: api doc lib ref tut inst dist
+.PHONY: html info
 
 
 # Main target
 default:	html
-all:		html dvi ps pdf isilo
+all:		html dvi ps pdf
 
 dvi:	$(DVIFILES)
 pdf:	$(PDFFILES)
