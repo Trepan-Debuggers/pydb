@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.31 2006/01/28 03:10:39 rockyb Exp $
+"""$Id: pydb.py.in,v 1.32 2006/01/28 03:42:07 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -683,11 +683,9 @@ the .py suffix may be omitted."""
                         # last thing to try
                         (ok, filename, ln) = self.lineinfo(arg)
                         if not ok:
-                            print '*** The specified object',
-                            print repr(arg),
-                            print 'is not a function'
-                            print ('or was not found '
-                                   'along sys.path.')
+                            self.errmsg(('The specified object %s is not'
+                                         +' a function or was not found '
+                                         +' along sys.path.') % str(repr(arg)))
                             return
                         funcname = ok # ok contains a function name
                         lineno = int(ln)
@@ -701,9 +699,8 @@ the .py suffix may be omitted."""
             if err: self.errmsg(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
-                print "Breakpoint %d at %s:%d" % (bp.number,
-                                                  self.filename(bp.file),
-                                                  bp.line)
+                self.msg("Breakpoint %d at %s:%d"
+                         % (bp.number, self.filename(bp.file), bp.line))
 
     # To be overridden in derived debuggers
     def defaultFile(self):
@@ -1043,10 +1040,10 @@ show version -- Show what version of this is
                     reply = reply + '%d crossings' % count
                 else:
                     reply = reply + '1 crossing'
-                print reply + ' of breakpoint %d.' % bpnum
+                self.msg('%s of breakpoint %d.' % (reply, bpnum))
             else:
-                print 'Will stop next time breakpoint',
-                print bpnum, 'is reached.'
+                self.msg('Will stop next time breakpoint %d is reached.' %
+                         bpnum)
 
     def do_clear(self, arg):
         """cl(ear) [[file:]linenumber]
@@ -1214,7 +1211,7 @@ show version -- Show what version of this is
 "info break" does the same thing.
 """
         if self.breaks:  # There's at least one
-            print "Num Type          Disp Enb    Where"
+            self.msg("Num Type          Disp Enb    Where")
             for bp in bdb.Breakpoint.bpbynumber:
                 if bp:
                     self.bpprint(bp)
@@ -1232,7 +1229,7 @@ show version -- Show what version of this is
         info source -- Information about the current Python file"""
 
         if not arg:
-            print self.do_info.__doc__
+            self.msg(self.do_info.__doc__)
             return
 
         frame=self.curframe
@@ -1242,14 +1239,16 @@ show version -- Show what version of this is
             # FIXME: Should split out the "info" part in args
             self.do_L(None)
         elif "line" == arg:
-            print 'Line %d of \"%s\"' % \
-                  (frame.f_lineno, self.canonic(frame.f_code.co_filename))
+            self.msg('Line %d of \"%s\"' % 
+                     (frame.f_lineno,
+                      self.filename(self.canonic(frame.f_code.co_filename))))
         elif "locals" == arg:
-            print "\n".join(["%s = %s" % (l, pprint.pformat(self._getval(l))) \
-                             for l in frame.f_locals])
+            self.msg("\n".join(["%s = %s"
+                                % (l, pprint.pformat(self._getval(l)))
+                                for l in frame.f_locals]))
         elif "source" == arg:
-            print 'Current Python file is %s' % \
-                  self.canonic(frame.f_code.co_filename)
+            self.msg('Current Python file is %s' % 
+                     self.filename(self.canonic(frame.f_code.co_filename)))
 
     def do_step(self, arg):
         """s(tep) [count]
@@ -1351,23 +1350,27 @@ Set the next line that will be executed."""
 
     def do_debug(self, arg):
         """debug code
-Enter a recursive debugger that steps through the code argument
-(which is an arbitrary expression or statement to be executed
-in the current environment)."""
+        Enter a recursive debugger that steps through the code argument
+        (which is an arbitrary expression or statement to be executed
+        in the current environment)."""
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
         p = Pdb()
         p.prompt = "(%s) " % self.prompt.strip()
-        print "ENTERING RECURSIVE DEBUGGER"
+        self.msg("ENTERING RECURSIVE DEBUGGER")
+        old_prompt = self.prompt
+        self.prompt.strip()
+        self.prompt = '(%s) ' % self.prompt
         sys.call_tracing(p.run, (arg, globals, locals))
-        print "LEAVING RECURSIVE DEBUGGER"
+        self.msg("LEAVING RECURSIVE DEBUGGER")
+        self.prompt = old_prompt
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
 
     def do_quit(self, arg):
         """q(uit) or exit - Quit from the debugger.
-The program being executed is aborted."""
+        The program being executed is aborted."""
         self._user_requested_quit = True
         self.set_quit()
         return 1
@@ -1377,7 +1380,7 @@ The program being executed is aborted."""
     def do_EOF(self, arg):
         """EOF
 Handles the receipt of EOF as a command."""
-        print
+        self.msg("")
         self._user_requested_quit = True
         self.set_quit()
         return 1
@@ -1389,9 +1392,9 @@ This command is useful after a "return" command or stepping just after a return
 statement.
         """
         if '__return__' in self.curframe.f_locals:
-            print self.curframe.f_locals['__return__']
+            self.msg(self.curframe.f_locals['__return__'])
         else:
-            errmg('Not yet returned!')
+            self.errmg('Not yet returned!')
     do_rv = do_retval
 
     def _getval(self, arg):
@@ -1408,17 +1411,17 @@ statement.
 
     def do_p(self, arg):
         """p expression
-Print the value of the expression."""
+        Print the value of the expression."""
         try:
-            print repr(self._getval(arg))
+            self.msg(repr(self._getval(arg)))
         except:
             pass
 
     def do_pp(self, arg):
         """pp expression
-Pretty-print the value of the expression."""
+        Pretty-print the value of the expression."""
         try:
-            pprint.pprint(self._getval(arg))
+            self.msg(pprint.pformat(self._getval(arg)))
         except:
             pass
 
@@ -1436,18 +1439,18 @@ Pretty-print the value of the expression."""
             return
         if inspect.isfunction(obj):
             # For functions we print the fn(args) and doc if it exists
-            print "def %s%s:" % \
-                  (arg, inspect.formatargspec(inspect.getargspec(obj)[0]))
+            self.msg("def %s%s:" % 
+                     (arg, inspect.formatargspec(inspect.getargspec(obj)[0])))
             doc=inspect.getdoc(obj)
             if doc != None and doc != '': 
-                print doc
-            print repr(obj)
+                self.msg(doc)
+            self.msg(repr(obj))
         elif inspect.ismodule(obj) or inspect.isbuiltin(obj) \
                 or inspect.isclass(obj):
-            print repr(obj)
+            self.msg(repr(obj))
             doc=inspect.getdoc(obj)
             if doc != None and doc != '': 
-                print doc
+                self.msg(doc)
         else:
             self.do_whatis(arg)
             self.do_pp(arg)
@@ -1455,12 +1458,12 @@ Pretty-print the value of the expression."""
 
     def do_list(self, arg):
         """l(ist) [first [,last]]
-List source code for the current file.
-Without arguments, list 11 lines around the current line
-or continue the previous listing.
-With one argument, list 11 lines starting at that line.
-With two arguments, list the given range;
-if the second argument is less than the first, it is a count."""
+        List source code for the current file.
+        Without arguments, list 11 lines around the current line
+        or continue the previous listing.
+        With one argument, list 11 lines starting at that line.
+        With two arguments, list the given range;
+        if the second argument is less than the first, it is a count."""
         self.lastcmd = 'list'
         last = None
         if arg:
@@ -1490,7 +1493,7 @@ if the second argument is less than the first, it is a count."""
             for lineno in range(first, last+1):
                 line = linecache.getline(filename, lineno)
                 if not line:
-                    print '[EOF]'
+                    self.msg('[EOF]')
                     break
                 else:
                     s = repr(lineno).rjust(3)
@@ -1499,7 +1502,7 @@ if the second argument is less than the first, it is a count."""
                     else: s = s + ' '
                     if lineno == self.curframe.f_lineno:
                         s = s + '->'
-                    print s + '\t' + line,
+                    self.msg_nocr(s + '\t' + line)
                     self.lineno = lineno
         except KeyboardInterrupt:
             pass
@@ -1516,23 +1519,23 @@ Prints the type of the argument which can be a Python expression."""
             if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            print '***', exc_type_name + ':', repr(v)
+            self.errmsg("%s:%s" % (exc_type_name, repr(v)))
             return
         code = None
         # Is it a function?
         try: code = value.func_code
         except: pass
         if code:
-            print 'Function', code.co_name
+            self.msg('Function %s' % code.co_name)
             return
         # Is it an instance method?
         try: code = value.im_func.func_code
         except: pass
         if code:
-            print 'Method', code.co_name
+            self.msg('Method %s' % code.co_name)
             return
         # None of the above...
-        print type(value)
+        self.msg(type(value))
 
     def do_alias(self, arg):
         """alias [name [command [parameter parameter ...] ]]
@@ -1562,10 +1565,10 @@ alias ps pi self
             keys = self.aliases.keys()
             keys.sort()
             for alias in keys:
-                print "%s = %s" % (alias, self.aliases[alias])
+                self.msg("%s = %s" % (alias, self.aliases[alias]))
             return
         if args[0] in self.aliases and len(args) == 1:
-            print "%s = %s" % (args[0], self.aliases[args[0]])
+            self.msg("%s = %s" % (args[0], self.aliases[args[0]]))
         else:
             self.aliases[args[0]] = ' '.join(args[1:])
 
@@ -1612,10 +1615,10 @@ Deletes the specified alias."""
     def print_stack_entry(self, frame_lineno, prompt_prefix=line_prefix):
         frame, lineno = frame_lineno
         if frame is self.curframe:
-            print '>',
+            self.msg_nocr('>')
         else:
-            print ' ',
-        print self.format_stack_entry(frame_lineno, prompt_prefix)
+            self.msg_nocr(' ')
+        self.msg(self.format_stack_entry(frame_lineno, prompt_prefix))
 
 
     def format_stack_entry_gdb(self, frame_lineno):
@@ -1672,22 +1675,22 @@ Deletes the specified alias."""
         frame_lineno = self.stack[len(self.stack)-i_stack-1]
         frame, lineno = frame_lineno
         if frame is self.curframe:
-            print '->', 
+            self.msg_nocr('->')
         else:
-            print '##',
-        print "%d " % i_stack,
-        print self.format_stack_entry_gdb(frame_lineno)
+            self.msg_nocr('##')
+        self.msg("%d %s" %
+                 (i_stack, self.format_stack_entry_gdb(frame_lineno)))
 
 
 
     # Help methods (derived from pydb.doc or vice versa)
 
     def help_h(self):
-        print """h(elp)
-Without argument, print the list of available commands.
-With a command name as argument, print help about that command
-"help %s" pipes the full documentation file to the $PAGER
-"help exec" gives help on the ! command"""
+        self.msg("""h(elp)
+        Without argument, print the list of available commands.
+        With a command name as argument, print help about that command
+        'help *cmd*' pipes the full documentation file to the $PAGER
+        'help exec gives help on the ! command""")
     help_help = help_h
 
     for fn in ('EOF',    'L',         'alias',       'break',
@@ -1698,7 +1701,7 @@ With a command name as argument, print help about that command
                'next',   'p',         'pp',          'quit', 'run',
                'set',    'show',      'source',      'step', 
                'tbreak', 'unalias',   'up',          'whatis', 'where'):
-        exec 'def help_%s(self): print getattr(self.do_%s, "__doc__")' \
+        exec 'def help_%s(self): self.msg(getattr(self.do_%s, "__doc__"))' \
              % (fn, fn)
 
     # Is this the right way to do this? 
@@ -1716,15 +1719,15 @@ With a command name as argument, print help about that command
     help_u = help_up
 
     def help_exec(self):
-        print """(!) statement
-Execute the (one-line) statement in the context of
-the current stack frame.
-The exclamation point can be omitted unless the first word
-of the statement resembles a debugger command.
-To assign to a global variable you must always prefix the
-command with a 'global' command, e.g.:
-%sglobal list_options; list_options = ['-l']
-%s""" % (self.prompt, self.prompt)
+        self.msg("""(!) statement
+        Execute the (one-line) statement in the context of
+        the current stack frame.
+        The exclamation point can be omitted unless the first word
+        of the statement resembles a debugger command.
+        To assign to a global variable you must always prefix the
+        command with a 'global' command, e.g.:
+        %sglobal list_options; list_options = ['-l']
+        %s""" % (self.prompt, self.prompt))
 
     def help_pdb(self):
         help()
@@ -1821,8 +1824,8 @@ def help():
             if sts: self.errmsg('Pager exit status: %s' % str(sts))
             break
     else:
-        print 'Sorry, can\'t find the help file "%s" along the Python search path' \
-        % doc_file
+        print ("Sorry, can't find the help file '%s' along the "
+                  + "Python search path") % doc_file
 
 def main():
     """Routine which gets run if we were invoked directly"""
