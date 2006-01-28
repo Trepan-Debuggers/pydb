@@ -3,132 +3,16 @@
 \declaremodule{standard}{pydb}
 \modulesynopsis{The Extended Python debugger for interactive interpreters.}
 
-
-The module \module{pydb} defines an interactive source code
-debugger\index{debugging} for Python programs.  It supports setting
-(conditional) breakpoints and single stepping at the source line
-level, inspection of stack frames, source code listing, and evaluation
-of arbitrary Python code in the context of any stack frame.  It also
-supports disassembly of code and post-mortem debugging and can be
-called under program control.
-
-The debugger is extensible --- it is actually defined as the class
-\class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.
-This is currently undocumented but easily understood by reading the
-source.  The extension interface uses the modules
-\module{bdb}\refstmodindex{bdb} (undocumented) and
-\refmodule{cmd}\refstmodindex{cmd}.
-
-The debugger's prompt is \samp{(Pydb) }.
-Typical usage to run a program under control of the debugger is:
-
-\begin{verbatim}
->>> import pydb
->>> import mymodule
->>> pydb.run('mymodule.test()')
-> <string>(0)?()
-(Pydb) continue
-> <string>(1)?()
-(Pydb) continue
-NameError: 'spam'
-> <string>(1)?()
-(Pydb) 
-\end{verbatim}
-
-\file{pydb.py} can also be invoked as
-a script to debug other scripts.  For example:
-
-\begin{verbatim}
-python -m pydb myscript.py
-\end{verbatim}
-
-On systems that support it, pydb is a symbolic link to pydb.py which
-has been arranged to be executable and contains the proper python
-``magic''. So here, instead of the above, one can simply run:
-
-\begin{verbatim}
-pydb myscript.py
-\end{verbatim}
-
-When invoked as a script, pydb will automatically enter post-mortem debugging
-if the program being debugged exits abnormally. After post-mortem debugging
-(or after normal exit of the program), pydb will restart the program.
-Automatic restarting preserves pydb's state (such as breakpoints) and in most
-cases is more useful than quitting the debugger upon program's exit.
-\versionadded[Restarting post-mortem behavior added]{2.4}
-
-Typical usage to inspect a crashed program is:
-
-\begin{verbatim}
->>> import pydb
->>> import mymodule
->>> mymodule.test()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-  File "./mymodule.py", line 4, in test
-    test2()
-  File "./mymodule.py", line 3, in test2
-    print spam
-NameError: spam
->>> pydb.pm()
-> ./mymodule.py(3)test2()
--> print spam
-(Pydb) 
-\end{verbatim}
-
-The module defines the following functions; each enters the debugger
-in a slightly different way:
-
-\begin{funcdesc}{run}{statement\optional{, globals\optional{, locals}}}
-Execute the \var{statement} (given as a string) under debugger
-control.  The debugger prompt appears before any code is executed; you
-can set breakpoints and type \samp{continue}, or you can step through
-the statement using \samp{step} or \samp{next} (all these commands are
-explained below).  The optional \var{globals} and \var{locals}
-arguments specify the environment in which the code is executed; by
-default the dictionary of the module \refmodule[main]{__main__} is
-used.  (See the explanation of the \keyword{exec} statement or the
-\function{eval()} built-in function.)
-\end{funcdesc}
-
-\begin{funcdesc}{runeval}{expression\optional{, globals\optional{, locals}}}
-Evaluate the \var{expression} (given as a string) under debugger
-control.  When \function{runeval()} returns, it returns the value of the
-expression.  Otherwise this function is similar to
-\function{run()}.
-\end{funcdesc}
-
-\begin{funcdesc}{runcall}{function\optional{, argument, ...}}
-Call the \var{function} (a function or method object, not a string)
-with the given arguments.  When \function{runcall()} returns, it returns
-whatever the function call returned.  The debugger prompt appears as
-soon as the function is entered.
-\end{funcdesc}
-
-\begin{funcdesc}{set_trace}{}
-Enter the debugger at the calling stack frame.  This is useful to
-hard-code a breakpoint at a given point in a program, even if the code
-is not otherwise being debugged (e.g. when an assertion fails).
-\end{funcdesc}
-
-\begin{funcdesc}{post_mortem}{traceback}
-Enter post-mortem debugging of the given \var{traceback} object.
-\end{funcdesc}
-
-\begin{funcdesc}{pm}{}
-Enter post-mortem debugging of the traceback found in
-\code{sys.last_traceback}.
-\end{funcdesc}
-
-
 \section{Debugger Commands \label{debugger-commands}}
 
-The debugger recognizes the following commands.  Most commands can be
-abbreviated to one or two letters; e.g. \samp{h(elp)} means that
-either \samp{h} or \samp{help} can be used to enter the help
-command (but not \samp{he} or \samp{hel}, nor \samp{H} or
-\samp{Help} or \samp{HELP}).  Arguments to commands must be
-separated by whitespace (spaces or tabs).  Optional arguments are
+In this section we describe debugger commands which can be used when
+the debugger is run as a standalone program.
+
+Most commands can be abbreviated to one or two letters;
+e.g. \samp{h(elp)} means that either \samp{h} or \samp{help} can be
+used to enter the help command (but not \samp{he} or \samp{hel}, nor
+\samp{H} or \samp{Help} or \samp{HELP}).  Arguments to commands must
+be separated by whitespace (spaces or tabs).  Optional arguments are
 enclosed in square brackets (\samp{[]}) in the command syntax; the
 square brackets must not be typed.  Alternatives in the command syntax
 are separated by a vertical bar (\samp{|}).
@@ -369,6 +253,125 @@ Quit from the debugger.
 The program being executed is aborted.
 
 \end{description}
+
+\section{The Debugger Module (\module{pydb}) and Class (\class{Pdb})
+  \label{debugger-module}}
+
+The module \module{pydb} defines an interactive source code
+debugger\index{debugging} for Python programs.  It supports setting
+(conditional) breakpoints and single stepping at the source line
+level, inspection of stack frames, source code listing, and evaluation
+of arbitrary Python code in the context of any stack frame.  It also
+supports disassembly of code and post-mortem debugging and can be
+called under program control.
+
+The debugger is extensible --- it is actually defined as the class
+\class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.
+This is currently undocumented but easily understood by reading the
+source.  The extension interface uses the modules
+\module{bdb}\refstmodindex{bdb} (undocumented) and
+\refmodule{cmd}\refstmodindex{cmd}.
+
+The debugger's prompt is \samp{(Pydb) }.
+Typical usage to run a program under control of the debugger is:
+
+\begin{verbatim}
+>>> import pydb
+>>> import mymodule
+>>> pydb.run('mymodule.test()')
+> <string>(0)?()
+(Pydb) continue
+> <string>(1)?()
+(Pydb) continue
+NameError: 'spam'
+> <string>(1)?()
+(Pydb) 
+\end{verbatim}
+
+\file{pydb.py} can also be invoked as
+a script to debug other scripts.  For example:
+
+\begin{verbatim}
+python -m pydb myscript.py
+\end{verbatim}
+
+On systems that support it, pydb is a symbolic link to pydb.py which
+has been arranged to be executable and contains the proper python
+``magic''. So here, instead of the above, one can simply run:
+
+\begin{verbatim}
+pydb myscript.py
+\end{verbatim}
+
+When invoked as a script, pydb will automatically enter post-mortem debugging
+if the program being debugged exits abnormally. After post-mortem debugging
+(or after normal exit of the program), pydb will restart the program.
+Automatic restarting preserves pydb's state (such as breakpoints) and in most
+cases is more useful than quitting the debugger upon program's exit.
+\versionadded[Restarting post-mortem behavior added]{2.4}
+
+Typical usage to inspect a crashed program is:
+
+\begin{verbatim}
+>>> import pydb
+>>> import mymodule
+>>> mymodule.test()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+  File "./mymodule.py", line 4, in test
+    test2()
+  File "./mymodule.py", line 3, in test2
+    print spam
+NameError: spam
+>>> pydb.pm()
+> ./mymodule.py(3)test2()
+-> print spam
+(Pydb) 
+\end{verbatim}
+
+The module defines the following functions; each enters the debugger
+in a slightly different way:
+
+\begin{funcdesc}{run}{statement\optional{, globals\optional{, locals}}}
+Execute the \var{statement} (given as a string) under debugger
+control.  The debugger prompt appears before any code is executed; you
+can set breakpoints and type \samp{continue}, or you can step through
+the statement using \samp{step} or \samp{next} (all these commands are
+explained below).  The optional \var{globals} and \var{locals}
+arguments specify the environment in which the code is executed; by
+default the dictionary of the module \refmodule[main]{__main__} is
+used.  (See the explanation of the \keyword{exec} statement or the
+\function{eval()} built-in function.)
+\end{funcdesc}
+
+\begin{funcdesc}{runeval}{expression\optional{, globals\optional{, locals}}}
+Evaluate the \var{expression} (given as a string) under debugger
+control.  When \function{runeval()} returns, it returns the value of the
+expression.  Otherwise this function is similar to
+\function{run()}.
+\end{funcdesc}
+
+\begin{funcdesc}{runcall}{function\optional{, argument, ...}}
+Call the \var{function} (a function or method object, not a string)
+with the given arguments.  When \function{runcall()} returns, it returns
+whatever the function call returned.  The debugger prompt appears as
+soon as the function is entered.
+\end{funcdesc}
+
+\begin{funcdesc}{set_trace}{}
+Enter the debugger at the calling stack frame.  This is useful to
+hard-code a breakpoint at a given point in a program, even if the code
+is not otherwise being debugged (e.g. when an assertion fails).
+\end{funcdesc}
+
+\begin{funcdesc}{post_mortem}{traceback}
+Enter post-mortem debugging of the given \var{traceback} object.
+\end{funcdesc}
+
+\begin{funcdesc}{pm}{}
+Enter post-mortem debugging of the traceback found in
+\code{sys.last_traceback}.
+\end{funcdesc}
 
 \section{How It Works \label{debugger-hooks}}
 

@@ -53,7 +53,6 @@
 
 # This Makefile only includes information on how to perform builds; for
 # dependency information, see Makefile.deps.
-
 srcdir=@srcdir@
 DISTFILES=lib/lib.tex lib/libpydb.tex Makefile.in Makefile.deps \
 	html
@@ -67,6 +66,8 @@ PYTHON_DOC=@srcdir@
 PAPER=letter
 
 # Ideally, you shouldn't need to edit beyond this point
+.PHONY: realclean distclean clobber
+
 
 INFODIR=	$(srcdir)/info
 TOOLSDIR=	$(srcdir)/tools
@@ -710,6 +711,7 @@ distfiles:	paperdist edist
 # - useful results: .dvi, .pdf, .ps, .texi, .info
 clean:
 	-rm -f html-$(RELEASE).tar
+	-rm -f $(INDEXFILES)
 #	cd $(INFODIR) && $(MAKE) clean
 
 # Remove temporaries as well as final products
@@ -722,14 +724,6 @@ clobber:
 	-rm -f $(DVIFILES) $(PSFILES) $(PDFFILES)
 	-rm -f paper-$(PAPER)/*.tex paper-$(PAPER)/*.ind paper-$(PAPER)/*.idx
 	-rm -f paper-$(PAPER)/*.l2h paper-$(PAPER)/*.how paper-$(PAPER)/README
-	-rm -rf html/index.html html/modindex.html html/acks.html
-	-rm -rf html/api/ html/doc/ html/ext/ html/lib/ html/mac/
-	-rm -rf html/ref/ html/tut/ html/inst/ html/dist/
-	-rm -rf html/whatsnew/
-	-rm -rf isilo/api/ isilo/doc/ isilo/ext/ isilo/lib/ isilo/mac/
-	-rm -rf isilo/ref/ isilo/tut/ isilo/inst/ isilo/dist/
-	-rm -rf isilo/whatsnew/
-	-rm -f isilo/python-*.pdb isilo-$(RELEASE).zip
 #	cd $(INFODIR) && $(MAKE) clobber
 
 realclean distclean:  clobber
