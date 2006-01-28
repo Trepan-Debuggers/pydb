@@ -1,12 +1,15 @@
+Many more regression tests need to be written. They expose errors that
+are in there and maintain quality. And Some large changes may be in
+the works.
+
 A great deal of help has been added, but a great more needs to be
-added.  Probably a full manual using Python documentation conventions
-will be done.
+added.  A manual using Python documentation conventions
+will has been started. More work is needed.
+
+Add gdb return command. (Pretty straightforward)
 
 To internal debugger help, we will probably get help categories such as
 exist in gdb. And the debugger manual will probably follow that.
-
-Switching help between gdb and python doesn't update the help list or
-commands. 
 
 There seem to be weirdnesses in the debugger that I don't fully
 comprehend and I think they exist in pydb.py as well. 
@@ -19,4 +22,8 @@ The debugger code is growing too large. It needs to be split out.
 
 The examine command needs to deal with arbitrary objects better.
 
-$Id: TODO,v 1.1 2006/01/12 07:11:44 rockyb Exp $
+Revise to use inspect module
+
+Use a better readline if that's available.
+
+$Id: TODO,v 1.2 2006/01/28 04:58:20 rockyb Exp $

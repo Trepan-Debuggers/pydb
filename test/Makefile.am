@@ -3,6 +3,8 @@ check_DATA = \
 	brkpt1.right \
 	cmdparse.cmd \
 	cmdparse.right
+	filebug.cmd \
+	filebug.right \
 	test.in
 
 TESTS = test.py

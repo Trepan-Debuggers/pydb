@@ -1,0 +1,8 @@
++ #############################################
++ ## Test to see that __file__ is set.
++ ## Just run the program and it does the work.
++ #############################################
++ continue
+__file__: filebug.py
+The program finished and will be restarted
++ quit

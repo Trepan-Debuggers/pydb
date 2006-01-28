@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.32 2006/01/28 03:42:07 rockyb Exp $
+"""$Id: pydb.py.in,v 1.33 2006/01/28 04:58:23 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1605,7 +1605,7 @@ Deletes the specified alias."""
             frame_lineno = self.stack[i_stack]
             i_stack -= 1
             frame, lineno = frame_lineno
-            self.msg('>%s' %
+            self.msg('> %s' %
                      self.format_stack_entry(frame_lineno, prompt_prefix))
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.
@@ -1615,7 +1615,7 @@ Deletes the specified alias."""
     def print_stack_entry(self, frame_lineno, prompt_prefix=line_prefix):
         frame, lineno = frame_lineno
         if frame is self.curframe:
-            self.msg_nocr('>')
+            self.msg_nocr('> ')
         else:
             self.msg_nocr(' ')
         self.msg(self.format_stack_entry(frame_lineno, prompt_prefix))
@@ -1759,12 +1759,6 @@ Deletes the specified alias."""
         return None
 
     def _runscript(self, filename):
-        # Start with fresh empty copy of globals and locals and tell the script
-        # that it's being run as __main__ to avoid scripts being able to access
-        # the pydb.py namespace.
-        globals_ = {"__name__" : "__main__"}
-        locals_ = globals_
-
         # When bdb sets tracing, a number of call and line events happens
         # BEFORE debugger even reaches user's code (and the exact sequence of
         # events depends on python version). So we take special measures to
@@ -1773,6 +1767,16 @@ Deletes the specified alias."""
         self._wait_for_mainpyfile = True
         self.mainpyfile = self.canonic(filename)
         self._user_requested_quit = False
+
+        # Start with fresh empty copy of globals and locals and tell the script
+        # that it's being run as __main__ to avoid scripts being able to access
+        # the pydb.py namespace.
+        globals_ = {"__name__" : "__main__",
+                    "__file__" : self.mainpyfile
+                    }
+        locals_ = globals_
+
+
         statement = 'execfile( "%s")' % filename
         self.run(statement, globals=globals_, locals=locals_)
 
