@@ -2,7 +2,7 @@ check_DATA = \
 	brkpt1.cmd \
 	brkpt1.right \
 	cmdparse.cmd \
-	cmdparse.right
+	cmdparse.right \
 	filebug.cmd \
 	filebug.right \
 	test.in
