@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.30 2006/01/28 02:00:58 rockyb Exp $
+"""$Id: pydb.py.in,v 1.31 2006/01/28 03:10:39 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -253,7 +253,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if (bp.hits > 1): ss = 's'
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
-                     (self.hits, ss))
+                     (bp.hits, ss))
 
     def filename(self, filename=None):
         if filename is None:
@@ -454,6 +454,9 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             return
         if self.stop_here(frame):
             self.msg('--Call--')
+            if self.linetrace:
+                self.__print_location_if_linetrace(frame)
+                if not self.break_here(frame): return
             self.interaction(frame, None)
 
     def user_line(self, frame):
@@ -1599,8 +1602,8 @@ Deletes the specified alias."""
             frame_lineno = self.stack[i_stack]
             i_stack -= 1
             frame, lineno = frame_lineno
-            print '>',
-            print self.format_stack_entry(frame_lineno, prompt_prefix)
+            self.msg('>%s' %
+                     self.format_stack_entry(frame_lineno, prompt_prefix))
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.
             if not is_exec_stmt(frame):
@@ -1855,29 +1858,30 @@ def main():
             if pydb.noninteractive: break
             print "The program finished and will be restarted"
         except Restart:
-            print "Restarting "+mainpyfile+" with arguments:\n\t" \
-                  +" ".join(sys.argv[1:])
+            pydb.msg("Restarting "+mainpyfile+" with arguments:\n\t"
+                     +" ".join(sys.argv[1:]))
         except SystemExit:
             # In most cases SystemExit does not warrant a post-mortem session.
-            print "The program exited via sys.exit(). Exit status: ",
-            print sys.exc_info()[1]
+            pydb.msg("The program exited via sys.exit(). Exit status: %s" %
+                     str(sys.exc_info()[1]))
             if pydb.noninteractive: break
         except:
             traceback.print_exc()
             if pydb.noninteractive:
-                print "Uncaught exception."
+                pydb.errmsg("Uncaught exception.")
                 break
-            print "Uncaught exception. Entering post mortem debugging"
-            print "Running 'cont' or 'step' will restart the program"
+            pydb.errmsg("Uncaught exception. Entering post mortem debugging")
+            pydb.errmsg( "Running 'cont' or 'step' will restart the program")
             t = sys.exc_info()[2]
             while t.tb_next is not None:
                 t = t.tb_next
             try:
                 pydb.interaction(t.tb_frame,t)
             except Restart:
-                print "Restarting "+mainpyfile+" with arguments:\n\t" \
-                      +" ".join(sys.argv[1:])
-            print "Post mortem debugger finished. The "+mainpyfile+" will be restarted"
+                pydb.msg("Restarting "+mainpyfile+" with arguments:\n\t"
+                         +" ".join(sys.argv[1:]))
+            pydb.msg("Post mortem debugger finished. The "+mainpyfile
+                     + " will be restarted")
         global step_ignore_count
         step_ignore_count = 0
 
