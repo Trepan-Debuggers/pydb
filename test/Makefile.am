@@ -1,10 +1,14 @@
 check_DATA = \
-	brkpt1.cmd \
-	brkpt1.right \
-	cmdparse.cmd \
+	brkpt1.cmd     \
+	brkpt1.right   \
+	cmdparse.cmd   \
 	cmdparse.right \
-	filebug.cmd \
-	filebug.right \
+	hanoi.py       \
+	filebug.cmd    \
+	filebug.py     \
+	filebug.right  \
+	run.cmd        \
+	run.right      \
 	test.py.in
 
 TESTS = test.py

@@ -20,7 +20,7 @@ pydb_path    = "%s%s" % (pydir, pydb)
 
 def run_debugger(testname, pythonfile):
     global srcdir, builddir, pydir
-    cmdfile     = "%s%s.cmd"     % (builddir, testname)
+    cmdfile     = "%s%s.cmd"     % (srcdir, testname)
     outfile     = "%s.out"       % (testname)
     rightfile   = "%s%s.right" % (srcdir, testname)
     # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
@@ -54,22 +54,26 @@ class PdbTests(unittest.TestCase):
     
     def test_cmdparse(self):
         """Test command parsing"""
-        result=run_debugger(testname='cmdparse', pythonfile='hanoi.py')
+        result=run_debugger(testname='cmdparse',
+                            pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "cmdparse")
 
     def test_break(self):
         """Test breakpoint setting/display"""
-        result=run_debugger(testname='brkpt1', pythonfile='hanoi.py')
+        result=run_debugger(testname='brkpt1',
+                            pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "brkpt1")
 
     def test_run(self):
         """Test run/restart"""
-        result=run_debugger(testname='run', pythonfile='hanoi.py')
+        result=run_debugger(testname='run',
+                            pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "run")
 
     def test_filebug(self):
         """Test __file__"""
-        result=run_debugger(testname='filebug', pythonfile='filebug.py')
+        result=run_debugger(testname='filebug',
+                            pythonfile='%sfilebug.py' %srcdir)
         self.assertEqual(True, result, "filebug")
         
         

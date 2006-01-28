@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.34 2006/01/28 07:13:51 rockyb Exp $
+"""$Id: pydb.py.in,v 1.35 2006/01/28 07:41:16 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1875,8 +1875,8 @@ def main():
             if pydb.noninteractive: break
             print "The program finished and will be restarted"
         except Restart:
-            pydb.msg("Restarting "+mainpyfile+" with arguments:\n\t"
-                     +" ".join(sys.argv[1:]))
+            pydb.msg("Restarting %s with arguments:\n\t%s"
+                     % (pydb.filename(mainpyfile), " ".join(sys.argv[1:])))
         except SystemExit:
             # In most cases SystemExit does not warrant a post-mortem session.
             pydb.msg("The program exited via sys.exit(). Exit status: %s" %
