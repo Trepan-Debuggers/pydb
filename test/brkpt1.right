@@ -33,13 +33,6 @@ Num Type          Disp Enb    Where
 + L
 Num Type          Disp Enb    Where
 1   breakpoint    keep no  at hanoi.py:29
-+ #### Try deleting breakpoints...
-+ delete 10
-++ i 10, num 2
-*** No breakpoint numbered 10.
-+ delete 1
-++ i 1, num 2
-Deleted breakpoint 1
 + ###############################################################
 + ### *** Test using file:line format on break...
 + break hanoi.py:22
@@ -52,23 +45,37 @@ Breakpoint 3 at hanoi.py:22
 *** './dbg-test1.sh' not found from sys.path
 + info break
 Num Type          Disp Enb    Where
+1   breakpoint    keep no  at hanoi.py:29
 2   breakpoint    keep yes at hanoi.py:22
 3   breakpoint    keep yes at hanoi.py:22
++ #### Try deleting breakpoints...
++ delete 10
+*** No breakpoint numbered 10.
++ delete 1
+Deleted breakpoint 1
++ ### FIXME: currently we have a basename problem.
++ ### clear 10
++ clear 22
++ info break
++ break 22
+Breakpoint 4 at hanoi.py:22
 + ###############################################################
 + ### *** Test breakpoints with conditions...
 + condition 1 x==0
-+ condition 2 y > 25
++ ### FIXME: there is no condition 2!
++ ### condition 2 y > 25
++ condition 4 y > 25
 + info break
 Num Type          Disp Enb    Where
-2   breakpoint    keep yes at hanoi.py:22
+4   breakpoint    keep yes at hanoi.py:22
 	stop only if y > 25
-3   breakpoint    keep yes at hanoi.py:22
-+ condition 2
-Breakpoint 2 is now unconditional.
++ ### FIXME: there still is no condition 2
++ ### condition 2
++ condition 4
+Breakpoint 4 is now unconditional.
 + info break
 Num Type          Disp Enb    Where
-2   breakpoint    keep yes at hanoi.py:22
-3   breakpoint    keep yes at hanoi.py:22
+4   breakpoint    keep yes at hanoi.py:22
 + condition x==1
 *** condition command: Expecting a positive integer, got: x==1
 + condition bad
