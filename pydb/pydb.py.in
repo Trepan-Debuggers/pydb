@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.35 2006/01/28 07:41:16 rockyb Exp $
+"""$Id: pydb.py.in,v 1.36 2006/01/28 17:00:43 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -716,35 +716,42 @@ the .py suffix may be omitted."""
     do_b = do_break
 
     def do_set(self, arg):
+
         """With a subcommand, this command modifies parts of the
-  debugger environment.  You can see these environment settings with
-  the "show" command.
+        debugger environment.  You can see these environment settings
+        with the 'show' command.
 
-set args *arg*...
+        set args *arg*...
 
-  Set argument list to give program being debugged when it is started.
-  Follow this command with any number of args, to be passed to the
-  program.  Set number of source lines debugger will list by default.
+          Set argument list to give program being debugged when it is
+          started.  Follow this command with any number of args, to be
+          passed to the program.  Set number of source lines debugger
+          will list by default.
 
-set basename {on|1|off|0}
-  Set short filenames (the basename) in file locations. This is useful
-  in running regression tests.
+        set basename {on|1|off|0}
+          Set short filenames (the basename) in file locations. This
+          is useful in running regression tests.
 
-set linetrace {on|1|off|0}
-  Set line execution tracing. If 'on', lines will be shown before they
-  are run.
+        set cmdtrace {on|1|off|0}
+          Set to show lines as they are read from debugger command file
+          (source). This is useful in running regression tests.
 
-set linetrace delay *float*
-  Set delay after listing a line. This only has an effect if linetrace
-  is in effect. This is useful if tracing inside a GUI that is displaying
-  the position in the source text. A value like 0.5 probably sufficient.
+        set linetrace {on|1|off|0}
+          Set line execution tracing. If 'on', lines will be shown
+          before they are run.
 
-set listsize *int*
-  Set number of source lines the debugger will list by default.
+        set linetrace delay *float*
+          Set delay after listing a line. This only has an effect if
+          linetrace is in effect. This is useful if tracing inside a GUI that
+          is displaying the position in the source text. A value like 0.5
+          probably sufficient.
 
-set prompt *string*
-  Set debugger's prompt
-""" 
+        set listsize *int*
+          Set number of source lines the debugger will list by default.
+
+        set prompt *string*
+          Set debugger's prompt""" 
+
         args = arg.split()
         if len(args) < 2:
             self.errmsg("Expecting at least 2 arguments. Got %d" % len(args))

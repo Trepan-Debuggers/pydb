@@ -12,6 +12,7 @@ However in filling out the command set and functionality, we've used
 \ulink{the GNU debugger}{http://www.gnu.org/software/gdb} ({\tt gdb})
 as a guide.
 
+{\bf On \emph{not} inventing yet another interface}:\\
 There are many benefits. First the command set is likely to be
 complete, given its longevity. Also because of its longevity, and
 pervasiveness it is likely to be more helpful to users---especially
@@ -27,35 +28,35 @@ But it also has been helpful for other programs! I digress for a
 little parable.
 
 When I first thought about adding the bash debugger into the GUI
-interface \ulink{\tt ddd}{http://www.ddd.org}, basically all I had do
-do was tell {\tt ddd} that handling this construct (e.g. stepping) is like
-gdb. There were a few places where I told {\tt ddd} not to follow {\tt gdb} but
-Perl instead because the paradigm had to be more like a scripting
-language than a compiled language. But in the end, adding support for
-the bash debugger inside ddd was much more straightforward and
-required much less thought than if I had invented my own debugger
-command set.
+interface \ulink{\code{ddd}}{http://www.ddd.org}, basically all I had
+do do was tell \code{ddd} that handling this construct (e.g. stepping)
+is like gdb. There were a few places where I told \code{ddd} not to
+follow \code{gdb} but Perl instead because the paradigm had to be more
+like a scripting language than a compiled language. But in the end,
+adding support for the bash debugger inside ddd was much more
+straightforward and required much less thought than if I had invented
+my own debugger command set.
 
-After this was done and I fire up {\tt ddd}, I noticed that when my
+After this was done and I fire up \code{ddd}, I noticed that when my
 cursor was hovering over some of the buttons short descriptions for
 the command were given. Furthermore there was this button called
 ``customize bash'' added and in that there are all these setting
 variables. But I didn't remember adding a box widget for customization
-or remember modifying any code for using tool tips. How did {\tt ddd} do
+or remember modifying any code for using tool tips. How did \code{ddd} do
 this? I was very curious and had to find out.
 
 Because I even copied the output format of gdb's ``info'', ``set'' and
-``show'' commands, {\tt ddd} ran these commands on its own and parsed
+``show'' commands, \code{ddd} ran these commands on its own and parsed
 the output; it then used that output to form tool tips and create a
 customization boxes!
 
-In a preliminary posting to {\tt comp.lang.python} asking why the
+In a preliminary posting to \code{comp.lang.python} asking why the
 python debugger was different than other debuggers, a number of people
 indicated that it didn't matter as they did not use standard Python
 debugger, or use it much.  To some extent, I wonder if this is not a
 chicken-and-egg problem: is the debugger is lacking in usefulness
 because folks don't use it much or do people not use the is the
-debugger because it is lacking in usefulness. 
+debugger because it is lacking in usefulness.
 
 I'm not sure, but one I think does seem more clear. If the standard
 Python debugger is used little, keeping compatibility can't be all
@@ -63,19 +64,19 @@ that important---at least for those people who volunteered they don't
 use a debugger in Python.
 
 Thus in light of the above, in cases where the standard Python
-debugger was incompatible with {\tt gdb}, the {\tt gdb} commands have
-been used.
+debugger was incompatible with \code{gdb}, the \code{gdb} commands
+have been used.
 
 \section{Invoking the Debugger \label{debugger-switches}}
 
-There are two extension we've provided in running the debugger we have
-provided. First this debugger should installlitself somewhere in you
-command path, usually as \samp{pydb}, so you don't have to invoke it
-as an argument to the \samp{python} command. 
+There are two extensions over the standard Python debugger that we've
+provided. First, this debugger should install itself somewhere in your
+command path, usually as \code{pydb}. So you don't have to invoke it
+as an argument to the \code{python} command.
 
 Second the extended debugger supports command switches courtesy of
 \ulink{\module{optparse}}{http://docs.python.org/lib/module-optparse.html}.
-In particular \samp{pydb} has the two very common options
+In particular \code{pydb} has the two very common options
 \samp{--help} to show what options are available and \samp{--version}
 to show report the version that is use. 
 
@@ -86,60 +87,91 @@ script.
 
 Thus the general form of invoking the debugger is:
 
-\samp{ pydb} \optional{\var{debugger-options}\ldots} \var{python-script} \optional{\var{script-options}\ldots}
+\file{pydb} \optional{\var{debugger-options}\ldots} \var{python-script} \optional{\var{script-options}\ldots}
+
+A detailed list of options is given next.
+
+\subsection{Debugger Command Options\label{subsection:command-options}}
+
+Many options have both a short name version and a long name
+option. For example, \samp{--command} is the long command-name option
+while and \samp{-x} is the short command-name option.
 
 \begin{description} 
 
-\item[--batch]
+\item[--{}--batch]
 
 Normally the debugger is entered before the debugged script is
 executed. If you want to initally start the script running, use this
 option. For example, if you know that a script will terminate with an
 exception which causes the debugger to be entered at that point, you
-may want to use this option. The \samp{--linetrace} option implicitly
+may want to use this option. The \code{--linetrace} option implicitly
 sets this option.
 
-\item[--command=\var{filename}\code{\Large{|}}-x \var{filename}]
+\item[--{}--command=\var{filename}\code{\Large{|}}--x \var{filename}]\label{switch:command}
 
 Run debugger script \var{filename}. Note that this script is run
 \emph{after} the user's \file{.pydbrc} file.
 
-\item[--nx|\code{\Large{|}}]
+\item[--{}--nx\code{\Large{|}}]\label{switch:nx}
 
 Before execution is started, a debugger configuration file
 \file{.pydbrc} is run. In some situations, for example regression
 testing the debugger, one wants to make sure that such configuration
 files are \emph{not} run and this option will do that.
 
-\item[--output=\var{filename}]
+\item[--{}--output=\var{filename}]
 
 If you want to have the debugger write it's normal output
 (\samp{stdout}) to file \var{filename}, use this option. Useful in
 situations where is running a Python script but one doesn't have
 access to a terminal.
 
-\item[--error=\var{filename}]
+\item[--{}--error=\var{filename}]
 
 If you want to have the debugger write it's error output
 (\samp{stderr}) to file \var{filename}, use this option. Useful in
 situations where is running a Python script but one doesn't have
 access to a terminal.
 
-\item[--trace]
+\item[--{}--trace]\label{switch:trace}
 
 POSIX-style line tracing is available. In POSIX shells the short
-option for this is \samp{-x}; however since we follow \samp{gdb}
-conventions \samp{-x} is used as a short option for
-\samp{--command}. When line tracing is turned on, each location (file
+option for this is \code{-x}; however since we follow \code{gdb}
+conventions \code{-x} is used as a short option for
+\code{--command}. When line tracing is turned on, each location (file
 name and linenumber) is printed before the command is executed. This
-option can be used in conjuntion with the \samp{--output} and
-\samp{--error} options described above situations where a terminal is
+option can be used in conjuntion with the \code{--output} and
+\code{--error} options described above situations where a terminal is
 not available or where one interactive attendence is unavailable or
-not desired.
+not desired. The corresponding debugger command is \samp{set linetrace
+on}. See \ref{command:linetrace} for more information.
 
 \end{description}
 
-\section{Debugger Commands \label{debugger-commands}}
+\subsection{Startup files\label{subsection:startup-files}}
+
+If a file \file{.pydbrc}
+\indexii{.pydbrc}{file}\indexiii{debugger}{configuration}{file} exists
+in the user's home directory or in the current directory, it is read
+in and executed as if it had been typed at the debugger prompt.  This
+is particularly useful for aliases.  If both files exist, the one in
+the home directory is read first and aliases defined there can be
+overridden by the local file. Finally one can specify a command file
+to be read when invoking \code{pydb} and this is run last. See
+\ref{switch:command} for information how to run a command file.
+
+Sometimes you may \emph{not} want startup files are run. For example,
+you may have a special installation script that uses the debugger and
+want to make sure a user's profile doesn't get in the way. Here you
+may want to refer to the \samp{--nx} command option when starting
+\code{pydb}. See \ref{switch:nx}.
+
+For tracking down problems with command files, the \samp{set
+cmdtrace on} debugger command may be of interest. See
+\ref{command:cmdtrace} for details on that.
+
+\section{Debugger Commands \label{command:debuggers}}
 
 In this section we describe debugger commands which can be used when
 the debugger is run as a standalone program.
@@ -165,6 +197,23 @@ debugged; it is even possible to change a variable or call a function.
 When an exception occurs in such a statement, the exception name is
 printed but the debugger's state is not changed.
 
+{\bf Debugger Prompt}:\label{debugger-prompt}\\
+By default the debugger's prompt string is \samp{(Pydb) }. There
+is a trailing space in there. Recursive invocations using the
+\samp{debug} command, strip off the trailing blanks, add a layer of
+parenthesis around the string and add a trailing blank. For example,
+for the default prompt the first debug invocation will be
+\samp{((Pydb)) }.
+
+\emph{There's currently a bug in the code where trailing blanks
+specified are chopped. Furthermore the prompt may change in the future
+to add a history number. Unless you have good reason to, it is
+generally not advisable to change to prompt.}
+
+Having said this, if you do need to change the prompt see
+\ref{command:prompt}.
+
+
 Multiple commands may be entered on a single line, separated by
 \samp{;;}.  (A single \samp{;} is not used as it is
 the separator for multiple commands in a line that is passed to
@@ -177,18 +226,120 @@ The debugger supports aliases.  Aliases can have parameters which
 allows one a certain level of adaptability to the context under
 examination.
 
-If a file \file{.pydbrc}
-\indexii{.pydbrc}{file}\indexiii{debugger}{configuration}{file}
-exists in the user's home directory or in the current directory, it is
-read in and executed as if it had been typed at the debugger prompt.
-This is particularly useful for aliases.  If both files exist, the one
-in the home directory is read first and aliases defined there can be
-overridden by the local file.
+\subsection{Status and Debugger Settings ({\tt set}, {\tt show}, {\tt info})}
+
+\subsubsection{Set ({\tt set})\label{subsubsection:set}}
+
+In all of the set options decscribed below that take ``on'' or ``off''
+parameters, you can also use 1 for ``on'' and 0 for ``off''
+
+\begin{description}
+
+\item[set basename on\code{\Large{|}}off]
+
+When showing filenames just print the basename. This option is useful
+in regression testing where the the ``base'' file names are the same
+on different installations even though the actually directory path may
+be different. It is possible you may want to use this in other
+situtations as well, such as showing a debugger session in a manual
+such as this one. 
+
+\item[set cmdtrace on\code{\Large{|}}off]\label{command:cmdtrace}
+ 
+Set to show lines as they are read from debugger command file (or
+\samp{source} debugger command). This is useful in running
+regression tests, but it may be helpful in tracking down a problem in
+one's \file{.pydbrc} file.
+
+\item[set linetrace on\code{\Large{|}}off]\label{command:linetrace}
+
+If this is set on the position (file ane linenumber) is shown before
+executing a statement. By default this is off. Using the command-line
+option \samp{--trace} when invoking \code{pydb} implicitly sets this
+on.  For infomration on \samp{--trace}, see \ref{switch:trace}.
+
+You may notice that using this option will slow down your
+program. Unless single stepping through a program, normally the
+debugger is only called on breakpoints or at the call and return of a
+function or method. However when line tracing is turned on, the
+debugger is called on execution of every statement. 
+
+That said, execution may still be pretty fast and there are times when
+you may want to slow slow down execution \emph{further}\/! For this
+see \samp{set linetrace delay} described next.
+
+\item[set linetrace delay \var{time}]
+
+One of the cool things you can do with this debugger if you run it via
+a front-end GUI is watch your program as it executes. To do this you
+turn on line tracing described previously \samp{set linetrace on} and
+that arranges for the location to be printed before each Python
+statement is run. Many front-end GUIs like the one in GNU Emacs and
+\code{ddd} will read the location and arrange the display to get
+updated accordingly. 
+
+There is however one catch---Python runs to fast! So by using this
+option you can set a delay after each statement is run in order for
+the GNU and your eyes to catch up with Python. You specify a floating
+point indicating the number of seconds to wait. For example: 
+
+\begin{verbatim}
+set linetrace delay 0.5 # 1/2 a second
+\end{verbatim}
+
+In my experience half a second is about right.
+
+\item[set listsize \var{lines}]
+
+This option sets how many lines are shown the list command.
+
+\item[set prompt \var{prompt-string}]\label{command:prompt}
+
+Set debugger's prompt string. By default it is \samp{(Pydb) }. There
+is a trailing space in there. For information on how the prompt
+changes, see \ref{debugger-prompt}.
+
+\emph{There's currently a bug in the code where trailing blanks
+specified are chopped. Furthermore the prompt may change in the future
+to add a history number. Unless you have good reason to, it is
+generally not advisable to change to prompt.}
+
+\end{description}
+
+\subsubsection{Show ({\tt show})\label{subsubsection:show}}
+
+\begin{verbatim}
+show args -- Show argument list to give program being debugged when it is started
+show basename -- Show if we are to show short of long filenames
+show cmdtrace -- Show if we are to show debugger commands before running
+show linetrace -- Show the line tracing status
+show linetrace delay -- Delay after tracing each line
+show listsize -- Show number of source lines gdb will list by default
+show prompt -- Show the current debugger prompt
+show version -- Show what version of this is
+\end{verbatim}
+
+\emph{to be finished}
+
+\subsubsection{Info ({\tt info})}
+
+\begin{verbatim}
+	Without argument, print the list of available info commands.
+	With an argument, print info about that command. Suboptions follow:
+
+        info args -- Argument variables of current stack frame
+        info break -- Status of user-settable breakpoints
+        info line -- Current line number in source fiel
+        info locals -- Local variables of current stack frame
+        info source -- Information about the current Python file
+\end{verbatim}
+
+\emph{to be continued}
 
 \subsection{Examining the Stack}
 
 \begin{description}
-\item[w(here)]
+\item[where\code{\Large{|}}T\code{\Large{|}}bt]
 
 Print a stack trace, with the most recent frame at the bottom.  An
 arrow indicates the current frame, which determines the context of
@@ -238,20 +389,34 @@ ignore count, and the associated condition if any.
 Temporary breakpoint, which is removed automatically when it is
 first hit.  The arguments are the same as break.
 
-\item[cl(ear) \optional{\var{bpnumber} \optional{\var{bpnumber ...}}}]
+\item[cl(ear) \optional{\var{file:} \optional{\var{linenumber}}}]
+
+Clear breakpoint at specified line or function.  Argument may be line
+number, function name, or '*' and an address.  If line number is
+specified, all breakpoints in that line are cleared.  If function is
+specified, breakpoints at beginning of function are cleared.  If an
+address is specified, breakpoints at that address are cleared.
+
+With no argument, clears all breakpoints in the line that the selected
+frame is executing in.
+
+See also the \samp{delete} command below which clears breakpoints by
+number.
+
+\item[delete \optional{\var{bpnumber} \optional{\var{bpnumber \ldots}}}]
 
 With a space separated list of breakpoint numbers, clear those
 breakpoints.  Without argument, clear all breaks (but first
 ask confirmation).
 
-\item[disable \optional{\var{bpnumber} \optional{\var{bpnumber ...}}}]
+\item[disable \optional{\var{bpnumber} \optional{\var{bpnumber \ldots}}}]
 
 Disables the breakpoints given as a space separated list of
 breakpoint numbers.  Disabling a breakpoint means it cannot cause
 the program to stop execution, but unlike clearing a breakpoint, it
 remains in the list of breakpoints and can be (re-)enabled.
 
-\item[enable \optional{\var{bpnumber} \optional{\var{bpnumber ...}}}]
+\item[enable \optional{\var{bpnumber} \optional{\var{bpnumber \ldots}}}]
 
 Enables the breakpoints specified.
 
@@ -323,10 +488,6 @@ one argument, list 11 lines around at that line.  With two arguments,
 list the given range; if the second argument is less than the first,
 it is interpreted as a count.
 
-\item[a(rgs)]
-
-Print the argument list of the current function.
-
 \item[p \var{expression}]
 
 Evaluate the \var{expression} in the current context and print its
@@ -389,8 +550,7 @@ The program being executed is aborted.
 
 \end{description}
 
-\section{The Debugger Module (\module{pydb}) and Class (\class{Pdb})
-  \label{debugger-module}}
+\section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{debugger-module}}
 
 The module \module{pydb} defines an interactive source code
 debugger\index{debugging} for Python programs.  It supports setting
@@ -427,7 +587,7 @@ NameError: 'spam'
 a script to debug other scripts.  For example:
 
 \begin{verbatim}
-python -m pydb myscript.py
+python -m pydb \var{python-script}
 \end{verbatim}
 
 On systems that support it, pydb is a symbolic link to pydb.py which
@@ -438,11 +598,12 @@ has been arranged to be executable and contains the proper python
 pydb myscript.py
 \end{verbatim}
 
-When invoked as a script, pydb will automatically enter post-mortem debugging
-if the program being debugged exits abnormally. After post-mortem debugging
-(or after normal exit of the program), pydb will restart the program.
-Automatic restarting preserves pydb's state (such as breakpoints) and in most
-cases is more useful than quitting the debugger upon program's exit.
+When invoked as a script, \code{pydb} will automatically enter
+post-mortem debugging if the program being debugged exits
+abnormally. After post-mortem debugging (or after normal exit of the
+program), pydb will restart the program.  Automatic restarting
+preserves pydb's state (such as breakpoints) and in most cases is more
+useful than quitting the debugger upon program's exit.
 \versionadded[Restarting post-mortem behavior added]{2.4}
 
 Typical usage to inspect a crashed program is:
