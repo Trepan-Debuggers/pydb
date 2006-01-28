@@ -43,6 +43,8 @@
 
 * output routines can be subclassed
 
+* __file__ is set before debugging script. (Bug in 2.4.2 pdb.py)
+
 0.10
 2006-01-12
 
