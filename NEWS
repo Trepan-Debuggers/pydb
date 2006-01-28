@@ -1,6 +1,9 @@
 0.11cvs
 
-* Add line tracing via "set linetrace". Allow a delay in linetracing:
+* Add regression tests! As a result more of the debugger has been
+  tested and a number of bugs in pdb.py have been found and fixed.
+
+* Add line tracing. Allow a delay in linetracing:
    "set linetrace delay *float*" (delay is useful in front-end GUIs)
 
 * Add debugger command options:
@@ -8,10 +11,15 @@
     --trace (-x)   - non-interactive line tracing a la POSIX shells
     --output (-o)  - redirect stdout to a file 
     --error        - redirect stderr to a file
+    --command      - run a debugger command script
 
 * New debugger commands:
-   disassemble  - disassemble python instructions
-   source       - run a debugger script
+   disassemble          - disassemble python instructions
+   source               - run a debugger script
+   set basename         - show long/short filenames
+   set linetrace        - line tracing
+   set linetrace delay  - see above
+   set cmdtrace         - show debugger script commands before running
 
 * step/next can now take a count. E.g. step 2 or next 3.
 
@@ -20,7 +28,7 @@
 * Stack trace now reports exec positions a little bit better - 
   it doesn't call it a file.
 
-* pydb.el updated for expanded commands
+* Emacs interface (pydb.el) updated for expanded commands
 
 * set prompt allows embedded blanks and punctiation. Still have problems
   with trailing blanks.
@@ -30,6 +38,10 @@
 * Class name back to Pdb to make interaction with other programs like 
   ipython more transparent. The *module* name is Pydb, so one must either
   "import pydb" or import "pdb" (stock debugger).
+
+* Error message output made more uniform
+
+* output routines can be subclassed
 
 0.10
 2006-01-12

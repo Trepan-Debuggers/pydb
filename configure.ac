@@ -31,7 +31,7 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ## Check for Python interpreter and make we have a recent version.
 ##
 AM_PATH_PYTHON(2.3.5,, :)
-AC_REVISION([$Id: configure.ac,v 1.10 2006/01/26 10:29:39 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.11 2006/01/28 02:04:12 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog
@@ -88,6 +88,8 @@ fi
 ##
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([emacs/Makefile])
+AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([pydb/pydb.py],[chmod +x pydb/pydb.py])
+AC_CONFIG_FILES([test/test.py],[chmod +x test/test.py])
 
 AC_OUTPUT

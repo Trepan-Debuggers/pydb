@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.10 2006/01/26 10:29:39 rockyb Exp $
+#$Id: Makefile.am,v 1.11 2006/01/28 02:04:12 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# SUBDIRS = test emacs
-SUBDIRS := emacs
+SUBDIRS := test emacs
 
 if BUILD_DOC
 SUBDIRS +=  Doc
@@ -46,6 +45,8 @@ PHONY := $(DEBUGGER)
 EXTRA_DIST = ChangeLog TODO \
 	     pydb/pydb.doc pydb/Makefile \
 	     setup.py site-packages-path.py
+
+check: pydb/pydb.py
 
 # 
 # For the executable, we make a symbolic link to the python program,
