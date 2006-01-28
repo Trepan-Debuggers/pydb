@@ -66,6 +66,12 @@ class PdbTests(unittest.TestCase):
         """Test run/restart"""
         result=run_debugger(testname='run', pythonfile='hanoi.py')
         self.assertEqual(True, result, "run")
+
+    def test_filebug(self):
+        """Test __file__"""
+        result=run_debugger(testname='filebug', pythonfile='filebug.py')
+        self.assertEqual(True, result, "filebug")
+        
         
 if __name__ == "__main__":
     unittest.main()
