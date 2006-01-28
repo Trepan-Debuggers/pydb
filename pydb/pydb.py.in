@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.33 2006/01/28 04:58:23 rockyb Exp $
+"""$Id: pydb.py.in,v 1.34 2006/01/28 07:13:51 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -52,7 +52,8 @@ def process_options(pydb):
 
        Runs the extended python debugger""" % (program)
 
-    optparser = OptionParser(usage=usage_str)
+    optparser = OptionParser(usage=usage_str,
+                             version="%prog @PACKAGE_VERSION@")
 
     optparser.add_option("-X", "--trace", dest="linetrace",
                          action="store_true", default=False, 
@@ -969,7 +970,7 @@ show version -- Show what version of this is
         """disassemble [arg]
         With no argument disassemble at the current frame location.
         With a numeric argument, disassemble at the frame location at that
-        line number. With a class, method, function or code argument
+        line number. With a class, method, function, code or string argument
         disassemble that.
         """
         if not arg:
@@ -1057,7 +1058,7 @@ show version -- Show what version of this is
 
         With no argument, clears all breakpoints in the line that the
         selected frame is executing in.
-10
+
         See also the 'delete' command which clears breakpoints by number.
         """
 
@@ -1208,8 +1209,8 @@ show version -- Show what version of this is
         Without argument, list info about all breakpoints.  With an
         integer argument, list info on that breakpoint.
 
-"info break" does the same thing.
-"""
+        The short command name is L."""
+
         if self.breaks:  # There's at least one
             self.msg("Num Type          Disp Enb    Where")
             for bp in bdb.Breakpoint.bpbynumber:
@@ -1289,9 +1290,11 @@ With an integer argument, perform that many times."""
 
     def do_run(self, arg):
         """ru(n) [args...]
-Restart the debugged Python program. If a string is supplied that 
-becomes the new command arguments.
-History, breakpoints, actions and debugger options are preserved."""
+
+        Restart the debugged Python program. If a string is supplied
+        that becomes the new command arguments.  History, breakpoints,
+        actions and debugger options are preserved."""
+
         if arg:
             argv_start = sys.argv[0:1]
             sys.argv = arg.split(" ")
@@ -1303,7 +1306,9 @@ History, breakpoints, actions and debugger options are preserved."""
 
     def do_finish(self, arg):
         """finish
-Continue execution until the current function returns."""
+
+        Continue execution until the current function returns."""
+
         self.set_return(self.curframe)
         if self.linetrace:
             global step_ignore_count
@@ -1313,7 +1318,10 @@ Continue execution until the current function returns."""
 
     def do_continue(self, arg):
         """c(ont(inue))
-Continue execution, only stop when a breakpoint is encountered."""
+
+        Continue execution, only stop when a breakpoint is
+        encountered."""
+
         if self.linetrace:
             # linetracing is like stepping, but we just don't stop. If
             # we were to calling set_continue, it  *might* remove all
@@ -1328,7 +1336,9 @@ Continue execution, only stop when a breakpoint is encountered."""
 
     def do_jump(self, arg):
         """j(ump) lineno
-Set the next line that will be executed."""
+
+        Set the next line that will be executed."""
+
         if self.curindex + 1 != len(self.stack):
             self.errmsg("You can only jump within the bottom frame")
             return
