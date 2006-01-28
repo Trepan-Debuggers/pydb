@@ -96,16 +96,17 @@ frame position
 
 b(reak) [ ([filename:]lineno | function) [, condition] ]
 
-	Without an argument, use the current point stopped in the program.
+	Without an argument, use the current point stopped in the
+	program.
 
         With a filename:line number argument, set a break there.  If
         filename is omitted, use the current file.  With a function
         name, set a break at the first executable line of that
-        function.  
+        function.
 
-        Each breakpoint is assigned a number to which all the other breakpoint
-        commands refer. Multiple breakpoints at one place are
-	permitted, and useful with conditional arguments.
+        Each breakpoint is assigned a number to which all the other
+        breakpoint commands refer. Multiple breakpoints at one place
+        are permitted, and useful with conditional arguments.
 
         The condition argument, if present, is a string which must
         evaluate to true in order for the breakpoint to be honored.
@@ -114,10 +115,30 @@ tbreak [ ([filename:]lineno | function) [, condition] ]
         Temporary breakpoint, which is removed automatically when it
         is first hit.  The arguments are the same as break.
 
-cl(ear) [bpnumber [bpnumber ...] ]
-        With a space separated list of breakpoint numbers, clear those
-        breakpoints.  Without argument, clear all breaks (but first
-        ask confirmation).
+cl(ear) [[file:]linenumber]
+
+       	Clear breakpoint at specified line or function.
+
+       	Argument may be line number, function name, or "*" and an
+	address.  If line number is specified, all breakpoints in that
+	line are cleared.  If function is specified, breakpoints at
+	beginning of function are cleared.  If an address is
+	specified, breakpoints at what address are cleared.
+
+        With no argument, clears all breakpoints in the line that the
+        selected frame is executing in.
+
+	See also the 'delete' command which clears breakpoints by number.
+
+delete [bpnumber [bpnumber...]]
+
+        Delete some breakpoints.  Arguments are breakpoint numbers
+        with spaces in between.  To delete all breakpoints, give no
+        argument.  those breakpoints.  Without argument, clear all
+        breaks (but first ask confirmation).
+
+        See also the 'clear' command which clears breakpoints by
+        line/file number..
 
 disable bpnumber [bpnumber ...]
         Disables the breakpoints given as a space separated list of
@@ -199,8 +220,6 @@ pp expression
 examine expression
         Print the type of the expression and prettyprint its value.
 	
-	The short command name is x.
-
 (!) statement
         Execute the (one-line) statement in the context of the current
         stack frame.  The exclamation point can be omitted unless the
