@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.15 2006/01/28 17:02:33 rockyb Exp $
+#$Id: Makefile.am,v 1.16 2006/01/28 22:00:50 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,10 +16,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 SUBDIRS := test emacs
-
-if BUILD_DOC
-# SUBDIRS +=  Doc
-endif
 
 # Basename of debugger, used to form help doc, python script and script
 # installed in an executable directory.
@@ -67,6 +63,31 @@ install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 MAINTAINERCLEANFILES = ChangeLog
 
 if MAINTAINER_MODE
+
+SUBDIRS +=  Doc
+
+EXTRA_DIST +=  \
+	Doc/Makefile.deps \
+	Doc/Makefile.in \
+	Doc/lib/Makefile \
+	Doc/lib/lib.tex \
+	Doc/lib/libpydb.tex \
+	Doc/paper-letter/lib.ps \
+	Doc/perl/SynopsisTable.pm \
+	Doc/perl/l2hinit.perl \
+	Doc/perl/manual.perl \
+	Doc/perl/python.perl \
+	Doc/texinputs/fncychap.sty \
+	Doc/texinputs/manual.cls \
+	Doc/texinputs/pypaper.sty \
+	Doc/texinputs/python.ist \
+	Doc/texinputs/underscore.sty \
+	Doc/tools/getversioninfo \
+	Doc/tools/indfix.py \
+	Doc/tools/mkhowto \
+	Doc/tools/node2label.pl \
+	Doc/tools/patchlevel.h \
+	Doc/tools/toc2bkm.py
 
 PHONY += ChangeLog
 ChangeLog:

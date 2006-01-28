@@ -159,7 +159,7 @@ COMMONPERL= $(PYTHON_DOC)/perl/manual.perl $(PYTHON_DOC)/perl/python.perl $(PYTH
 
 ANNOAPI=api/refcounts.dat tools/anno-api.py
 
-include Makefile.deps
+include @srcdir@/Makefile.deps
 
 # These must be declared phony since there
 # are directories with matching names:
