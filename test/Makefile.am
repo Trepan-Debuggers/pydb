@@ -1,4 +1,6 @@
 check_DATA = \
+	brkpt1.cmd \
+	brkpt1.right \
 	cmdparse.cmd \
 	cmdparse.right
 	test.in
@@ -6,6 +8,3 @@ check_DATA = \
 TESTS = test.py
 
 EXTRA_DIST = $(TESTS) $(check_DATA)
-
-test.py: test.py.in
-	(cd .. && make test/$@)

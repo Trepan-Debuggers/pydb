@@ -41,7 +41,8 @@ def run_debugger(testname, pythonfile):
     
     diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
                                      tofile, fromdate, todate))
-    if len(diff) != 0:
+    if len(diff) == 0:
+        os.unlink(outfile)
         for line in diff:
             print line,
     return len(diff) == 0
@@ -52,6 +53,11 @@ class PdbTests(unittest.TestCase):
         """Test command parsing"""
         result=run_debugger(testname='cmdparse', pythonfile='hanoi.py')
         self.assertEqual(True, result, "cmdparse")
+
+    def test_break(self):
+        """Test breakpoint setting/display"""
+        result=run_debugger(testname='brkpt1', pythonfile='hanoi.py')
+        self.assertEqual(True, result, "brkpt1")
         
 if __name__ == "__main__":
     unittest.main()

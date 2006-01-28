@@ -1,34 +1,82 @@
-********************************
-***   Set/show commands     ***
-*******************************
-  test args and baseneme...
-*** Argument list to give program being debugged when it is started is
-*** "this is a test"
-*** basename is on
++ ### *******************************
++ ### ***   Set/show commands     ***
++ ### *******************************
++ ########################################
++ ###   test args and baseneme...
++ ########################################
++ set args this is a test
++ show args
+Argument list to give program being debugged when it is started is
+"this is a test"
++ show basename
+basename is on
++ set basename foo
 *** Expecting 'on', 1, 'off', or 0. Got: foo.
-*** basename is on
-*** basename is off
-*** basename is off
-*** basename is on
-  test listsize tests...
-*** Number of source lines pydb will list by default is 10.
-*** Number of source lines pydb will list by default is 20.
++ show basename
+basename is on
++ set basename off
++ show basename
+basename is off
++ set basename 0
++ show basename
+basename is off
++ set basename 1
++ show basename
+basename is on
++ ########################################
++ ###   test listsize tests...
++ ########################################
++ show listsize
+Number of source lines pydb will list by default is 10.
++ set listsize 20
++ show listsize
+Number of source lines pydb will list by default is 20.
++ set listsize abc
 *** Expecting an integer, got: abc
-  test linetrace...
++ set listsize -20
++ set listsize 20 forever
++ ########################################
++ ###  test linetrace...
++ ########################################
++ set linetrace delay
 *** Need a 3rd floating-point number
-*** line trace delay is 2.0 seconds
-*** line trace delay is 0.5 seconds
++ set linetrace delay 2
++ show linetrace delay
+line trace delay is 2.0 seconds
++ set linetrace delay 0.5
++ show linetrace delay
+line trace delay is 0.5 seconds
++ set linetrace delay foo
 *** 3rd argument foo is not a floating-point number
-*** line trace delay is 0.5 seconds
-*** line tracing is on
-*** line tracing is off
-  test prompt, misc...
-*** pydb's prompt is "(Pydb) ".
++ show linetrace delay
+line trace delay is 0.5 seconds
++ set linetrace on
++ show linetrace
+line tracing is on
++ set linetrace off
++ show linetrace
+line tracing is off
++ ########################################
++ ###  test prompt, misc...
++ ########################################
++ show prompt
+pydb's prompt is "(Pydb) ".
++ show foo
 *** unknown show subcommand "foo"
-  test numeric argument syntax 
++ ########################################
++ ###   test numeric argument syntax 
++ ########################################
++ up fdsafdsa
 *** up command: Expecting an integer, got: fdsafdsa
++ u=foo
 *** up command: Expecting an integer, got: =foo
++ down 1 b c
 *** down command: Expecting an integer, got: 1 b c
++ frame foo
 *** The 'frame' command requires a frame number. Got: foo
++ step -1
 *** step command: Expecting a positive integer at least 0, got: -1
++ next -1
 *** next command: Expecting a positive integer at least 0, got: -1
++ ### 
++ quit

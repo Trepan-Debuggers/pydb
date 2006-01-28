@@ -1,0 +1,78 @@
++ info break
++ break 29
+Breakpoint 1 at hanoi.py:29
++ info break
+Num Type          Disp Enb    Where
+1   breakpoint    keep yes at hanoi.py:29
++ ###############################################################
++ ### Test enable/disable...
++ enable
+*** No breakpoint number given
++ enable 1
++ info break
+Num Type          Disp Enb    Where
+1   breakpoint    keep yes at hanoi.py:29
++ enable foo
+Breakpoint index 'foo' is not a number
++ disable 1
++ disable
+*** No breakpoint number given
++ info break
+Num Type          Disp Enb    Where
+1   breakpoint    keep no  at hanoi.py:29
++ ################################################################
++ ### Try setting breakpoints outside of the file range...
++ break 0
+*** End of file
++ break 1
+*** Blank or comment
++ break 99
+*** End of file
++ # 
++ # list breakpoints
++ L
+Num Type          Disp Enb    Where
+1   breakpoint    keep no  at hanoi.py:29
++ #### Try deleting breakpoints...
++ delete 10
+++ i 10, num 2
+*** No breakpoint numbered 10.
++ delete 1
+++ i 1, num 2
+Deleted breakpoint 1
++ ###############################################################
++ ### *** Test using file:line format on break...
++ break hanoi.py:22
+Breakpoint 2 at hanoi.py:22
++ break ./hanoi.py:22
+Breakpoint 3 at hanoi.py:22
++ break ./hanoi.py:0
+*** End of file
++ break ./dbg-test1.sh:1955
+*** './dbg-test1.sh' not found from sys.path
++ info break
+Num Type          Disp Enb    Where
+2   breakpoint    keep yes at hanoi.py:22
+3   breakpoint    keep yes at hanoi.py:22
++ ###############################################################
++ ### *** Test breakpoints with conditions...
++ condition 1 x==0
++ condition 2 y > 25
++ info break
+Num Type          Disp Enb    Where
+2   breakpoint    keep yes at hanoi.py:22
+	stop only if y > 25
+3   breakpoint    keep yes at hanoi.py:22
++ condition 2
+Breakpoint 2 is now unconditional.
++ info break
+Num Type          Disp Enb    Where
+2   breakpoint    keep yes at hanoi.py:22
+3   breakpoint    keep yes at hanoi.py:22
++ condition x==1
+*** condition command: Expecting a positive integer, got: x==1
++ condition bad
+*** condition command: Expecting a positive integer, got: bad
++ condition 30 y==1
+*** No breakpoint number 30.
++ quit
