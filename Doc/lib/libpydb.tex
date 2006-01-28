@@ -6,48 +6,64 @@
 
 The ``extended'' Python debugger builds on work done in the standard
 \ulink{\module{Python
-Debugger}}{http://docs.python.org/lib/module-pdb.html} (\tt{pdb.py}).
+Debugger}}{http://docs.python.org/lib/module-pdb.html} ({\tt pdb.py}).
 
 However in filling out the command set and functionality, we've used
-the GNU debugger (\tt{gdb}) as a guide. 
+\ulink{the GNU debugger}{http://www.gnu.org/software/gdb} ({\tt gdb})
+as a guide.
 
-Following the gdb command sent has been helpful as a guide for how to
-structure the command set and helpful to users---especially those that
-know \tt{gdb} or my GNU Bash debugger \tt{bashdb} or to some extent my
-GNU Make debugger. For These pepole the learning curve is reduced and
-they don't need to learn yet another debugger command interface or get
-confused when switching between debuggers. But it also has been
-helpful for other programs!
+There are many benefits. First the command set is likely to be
+complete, given its longevity. Also because of its longevity, and
+pervasiveness it is likely to be more helpful to users---especially
+those that know {\tt gdb} or my \ulink{GNU Bash
+debugger}{http://bashdb.sourceforge.net} {\tt bashdb} or to some
+extent my \ulink{GNU Make
+debugger}{http://bashdb.sourceforge.net/remake}. All of these also
+follow that command interface and for folks that know one of these,
+the learning curve is reduced, and are less likely to get confused
+when switching between debuggers.
 
-When I first thought about adding bash into the GUI interface ddd,
-basically all I had do do was tell ddd that handling this construct
-(e.g. stepping) is like gdb. There were a few places where I told ddd
-not to follow gdb but Perl instead because the paradigm needed had to
-be more like a scripting language than a compiled language. But in the
-end, adding support for bash inside ddd was much more straightforward
-and required much less thought than if I had invented my own debugger
+But it also has been helpful for other programs! I digress for a
+little parable.
+
+When I first thought about adding the bash debugger into the GUI
+interface \ulink{\tt ddd}{http://www.ddd.org}, basically all I had do
+do was tell {\tt ddd} that handling this construct (e.g. stepping) is like
+gdb. There were a few places where I told {\tt ddd} not to follow {\tt gdb} but
+Perl instead because the paradigm had to be more like a scripting
+language than a compiled language. But in the end, adding support for
+the bash debugger inside ddd was much more straightforward and
+required much less thought than if I had invented my own debugger
 command set.
 
-After this was done and I fire up ddd, I notice that when my cursor is
-hovering over some of the buttons I see short descriptions for what
-that command does. And there is this button called ``customize bash''
-and in that there are all these setting variables. But I don't
-remember adding a box widget for customization or remember any code
-that I modified using tool tips. How did it do this? I was very
-curious and had to find out.
+After this was done and I fire up {\tt ddd}, I noticed that when my
+cursor was hovering over some of the buttons short descriptions for
+the command were given. Furthermore there was this button called
+``customize bash'' added and in that there are all these setting
+variables. But I didn't remember adding a box widget for customization
+or remember modifying any code for using tool tips. How did {\tt ddd} do
+this? I was very curious and had to find out.
 
 Because I even copied the output format of gdb's ``info'', ``set'' and
-``show'' commands, what ddd is doing is running these commands on its
-own and parsing the output; it then uses that output to form tool tips
-and create a customization boxes.
+``show'' commands, {\tt ddd} ran these commands on its own and parsed
+the output; it then used that output to form tool tips and create a
+customization boxes!
 
-In a preliminary posting to \tt{comp.lang.python}, a number of people
-indicated that they did not standard Python debugger, or use it much.
-Consequently keeping compatibility can't be all that important---at
-least for these people.
+In a preliminary posting to {\tt comp.lang.python} asking why the
+python debugger was different than other debuggers, a number of people
+indicated that it didn't matter as they did not use standard Python
+debugger, or use it much.  To some extent, I wonder if this is not a
+chicken-and-egg problem: is the debugger is lacking in usefulness
+because folks don't use it much or do people not use the is the
+debugger because it is lacking in usefulness. 
 
-Thus In light of the above, in cases where the standard Python
-debugger was incompatible with \tt{gdb}, the \tt{gdb} commands have
+I'm not sure, but one I think does seem more clear. If the standard
+Python debugger is used little, keeping compatibility can't be all
+that important---at least for those people who volunteered they don't
+use a debugger in Python.
+
+Thus in light of the above, in cases where the standard Python
+debugger was incompatible with {\tt gdb}, the {\tt gdb} commands have
 been used.
 
 \section{Debugger Commands \label{debugger-commands}}
