@@ -1,12 +1,18 @@
 #!@PYTHON@
 "Unit test for Extended Python debugger "
-import difflib, os, pprint, pydb, time, sys, unittest
+import difflib, os, pprint, time, sys, unittest
+top_builddir  = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
 
-builddir     ="@builddir@"
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+import pydb                
+
+builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:
     builddir += os.path.sep
 
-top_builddir ="@top_builddir@"
+top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
     top_builddir += os.path.sep
 
@@ -14,15 +20,15 @@ srcdir = "@srcdir@"
 if srcdir[-1] != os.path.sep:
     srcdir += os.path.sep
 
-pydir        = "%s%s%s" %  (top_builddir, "pydb", os.path.sep)
+pydir        = os.path.join(top_builddir, "pydb")
 pydb         = "pydb.py"
-pydb_path    = "%s%s" % (pydir, pydb)
+pydb_path    = os.path.join(pydir, pydb)
 
 def run_debugger(testname, pythonfile):
     global srcdir, builddir, pydir
-    cmdfile     = "%s%s.cmd"     % (srcdir, testname)
-    outfile     = "%s.out"       % (testname)
-    rightfile   = "%s%s.right" % (srcdir, testname)
+    cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
+    rightfile   = os.path.join(srcdir, "%s.right" % testname)
+    outfile     = "%s.out" % testname
     # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
     # (builddir, cmdfile, outfile, rightfile)
 
