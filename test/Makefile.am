@@ -5,8 +5,8 @@ check_DATA = \
 	cmdparse.right \
 	filebug.cmd \
 	filebug.right \
-	test.in
+	test.py.in
 
 TESTS = test.py
 
-EXTRA_DIST = $(TESTS) $(check_DATA)
+EXTRA_DIST = $(check_DATA)
