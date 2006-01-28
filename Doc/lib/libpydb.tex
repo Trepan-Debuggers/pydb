@@ -91,7 +91,8 @@ Thus the general form of invoking the debugger is:
 
 A detailed list of options is given next.
 
-\subsection{Debugger Command Options\label{subsection:command-options}}
+\subsection{Debugger Command Options ({\tt --linetrace}, {\tt
+    --output}, {\tt --command}, {\tt --nx}, \ldots)\label{subsection:command-options}}
 
 Many options have both a short name version and a long name
 option. For example, \samp{--command} is the long command-name option
@@ -149,7 +150,7 @@ on}. See \ref{command:linetrace} for more information.
 
 \end{description}
 
-\subsection{Startup files\label{subsection:startup-files}}
+\subsection{Startup files ({\tt .pydbrc})\label{subsection:startup-files}}
 
 If a file \file{.pydbrc}
 \indexii{.pydbrc}{file}\indexiii{debugger}{configuration}{file} exists
@@ -197,6 +198,10 @@ debugged; it is even possible to change a variable or call a function.
 When an exception occurs in such a statement, the exception name is
 printed but the debugger's state is not changed.
 
+The debugger supports aliases.  Aliases can have parameters which
+allows one a certain level of adaptability to the context under
+examination. See \ref{command:aliases}.
+
 {\bf Debugger Prompt}:\label{debugger-prompt}\\
 By default the debugger's prompt string is \samp{(Pydb) }. There
 is a trailing space in there. Recursive invocations using the
@@ -221,10 +226,6 @@ the Python parser.)
 No intelligence is applied to separating the commands;
 the input is split at the first \samp{;;} pair, even if it is in
 the middle of a quoted string.
-
-The debugger supports aliases.  Aliases can have parameters which
-allows one a certain level of adaptability to the context under
-examination.
 
 \subsection{Status and Debugger Settings ({\tt set}, {\tt show}, {\tt info})}
 
@@ -308,63 +309,99 @@ generally not advisable to change to prompt.}
 
 \subsubsection{Show ({\tt show})\label{subsubsection:show}}
 
-\begin{verbatim}
-show args -- Show argument list to give program being debugged when it is started
-show basename -- Show if we are to show short of long filenames
-show cmdtrace -- Show if we are to show debugger commands before running
-show linetrace -- Show the line tracing status
-show linetrace delay -- Delay after tracing each line
-show listsize -- Show number of source lines gdb will list by default
-show prompt -- Show the current debugger prompt
-show version -- Show what version of this is
-\end{verbatim}
-
-\emph{to be finished}
-
-\subsubsection{Info ({\tt info})}
-
-\begin{verbatim}
-	Without argument, print the list of available info commands.
-	With an argument, print info about that command. Suboptions follow:
-
-        info args -- Argument variables of current stack frame
-        info break -- Status of user-settable breakpoints
-        info line -- Current line number in source fiel
-        info locals -- Local variables of current stack frame
-        info source -- Information about the current Python file
-\end{verbatim}
-
-\emph{to be continued}
-
-\subsection{Examining the Stack}
-
 \begin{description}
-\item[where\code{\Large{|}}T\code{\Large{|}}bt]
 
-Print a stack trace, with the most recent frame at the bottom.  An
-arrow indicates the current frame, which determines the context of
-most commands.
+\item[show args]
 
-\item[d(own) \optional{\var{count}}]
+Show argument list to give program being debugged when it is started
 
-Move the current frame one level down in the stack trace
-(to a newer frame). With a count, which can be a positive
-or a negative value, move that many positions.
+\item[show basename]
 
-\item[u(p) \optional{\var{count}}]
+Show if we are to show short of long filenames
 
-Move the current frame one level up in the stack trace (to an older
-frame). With a count, which can be a positive or a negative value,
-move that many positions.
+\item[show cmdtrace]
 
-\item[frame \optional{\var{position}}]
-Move the current frame to the specified frame number. A negative
-number indicates position from the end, so "frame -1" moves to 
-the newest frame, and \code{frame 0} moves to the oldest frame.
+Show if we are to show debugger commands before running
+
+\item[show linetrace]
+
+Show the line tracing status
+
+\item[show linetrace delay]
+
+Show delay after tracing each line
+
+\item[listsize]
+
+Show number of source lines gdb will list by default
+
+\item[show prompt]
+
+Show the current debugger prompt
+
+\item[show version]
+
+Show the debugger version number.
 
 \end{description}
 
-\subsection{Stopping and continuing}
+\subsubsection{Info ({\tt info})}
+
+Running this command without parameter will print the list of
+available info commands. Below is a description of the individual
+commands.
+
+\begin{description}
+
+\item[info args]
+
+See function/method parameters. See \ref{command:info-args}.
+
+\item[info break]
+
+Show the list of breakpoints. 
+
+\item[info globals]
+
+Show global variables. See \ref{command:info-locals}. 
+
+\item[info line]
+
+Current line number in source file
+
+\item[info locals]
+
+Show local variables. See \ref{command:info-locals}. 
+
+\item[info source]
+
+Information about the current Python file.
+
+\end{description}
+
+\subsection{Breakpoints ({\tt break}, {\tt tbreak}, {\tt clear},
+  {\tt delete}, {\tt disable}, {\tt
+  ignore})\label{subsubsection:brkpts}}
+
+\index{breakpoints}
+A ``breakpoint'' makes your program stop whenever a certain point in
+the program is reached.  For each breakpoint, you can add conditions
+to control in finer detail whether your program stops.  You can set
+breakpoints with the `break' command and its variants. You specify the
+place where your program should stop by file and line number or
+function name.
+
+The debugger assigns a number to each breakpoint when you create it;
+these numbers are successive integers starting with one.  In many of
+the commands for controlling various features of breakpoints you use
+the breakpoint number to say which breakpoint you want to change.
+Each breakpoint may be "enabled" or "disabled"; if disabled, it has no
+effect on your program until you enable it again.
+
+The debugger allows you to set any number of breakpoints at the same
+place in your program.  There is nothing unusual about this because
+different breakpoints can have differnt conditions associated with them.
+
 \begin{description}
 \item[b(reak) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}\optional{, \var{condition}}}]
 
@@ -435,6 +472,19 @@ Condition is an expression which must evaluate to true before
 the breakpoint is honored.  If condition is absent, any existing
 condition is removed; i.e., the breakpoint is made unconditional.
 
+\end{description}
+
+\subsection{Resuming Execution ({\tt step}, {\tt next}, {\tt
+    finish}, {\tt continue}, {\tt jump})\label{subsubsection:resume}}
+
+``Continuing'' means resuming program execution until your program
+completes normally.  In contrast, ``stepping'' means executing just
+one statement of your program. Either when continuing or when
+stepping, your program may stop even sooner, due to a breakpoint or an
+exception.
+
+\begin{description}
+
 \item[s(tep) \optional{\var{count}}]
 
 Execute the current line, stop at the first possible occasion
@@ -466,27 +516,110 @@ again, or jump forward to skip code that you don't want to run.
 It should be noted that not all jumps are allowed --- for instance it
 is not possible to jump into the middle of a \keyword{for} loop or out
 of a \keyword{finally} clause.
+
 \end{description}
 
-\subsection{Miscellaneous Commands}
+\subsection{Examining Call Frames ({\tt info args}, {\tt info
+    locals}, {\tt info globals}, {\tt up}, {\tt down}, {\tt frame})\label{subsection:frames}}
+
+Each line in the backtrace shows the frame number and the function
+name, if it exists and the place in a file where the statement is
+located.
+
+Here is an example of a backtrace from a sample Towers of Hanoi
+program that is used in regression testing:
+
+\begin{verbatim}
+## 0 hanoi() called from file '/tmp/pydb/test/hanoi.py' at line 5
+-> 1 hanoi() called from file '/tmp/pydb/test/hanoi.py' at line 6
+## 2 in file '/tmp/pydb/test/hanoi.py' at line 29
+## 3 in file '<string>' at line 1
+## 4 run() called from file '/usr/lib/python2.4/bdb.py' at line 366
+\end{verbatim}
+
+The {\tt->} arrow indicates the focus that we are currently
+examining. In the above example, I issued an \samp{up} command which
+is why the focus is on 1 rather than 0 as it would normally be after a
+stop takes place. 
+
+Note that there are two ``hanoi'' frames listed because this is a
+hanoi called itself recursively. Note that in frame 2 and 3 we don't
+have a function name listed. That's because there is none. Furthermore
+in frame 3 we have this funny ``in file '<string>' at line 1''. That's
+because there isn't even a file assocated with the command. The
+command issued:
+
+\begin{verbatim}
+   exec cmd in globals, locals
+\end{verbatim}
+
+This statement can be seen in frame 4. This is a bug which I hope to
+fix some day with a more informative messages.
+
+Finally, I'll note that frames 2 and 3 really are not part of the
+program to be debugged but are part of the internal workings of the
+debugger. It's possible to hide this, but in the open spirit of Python
+for now it hasn't been.
+
 \begin{description}
 
-\item[h(elp) \optional{\var{command}}]
+\item[info args]\label{command:info-args}
 
-Without argument, print the list of available commands.  With a
-\var{command} as argument, print help about that command.  \samp{help
-pydb} displays the full documentation file; if the environment variable
-\envvar{PAGER} is defined, the file is piped through that command
-instead.  Since the \var{command} argument must be an identifier,
-\samp{help exec} must be entered to get help on the \samp{!} command.
+Show the method or function parameters and their values. 
 
-\item[l(ist) \optional{\var{first}\optional{, \var{last}}}]
+Here is an example of the output for the backtrace of the hanoi
+program shown at the beginning of this section:
 
-List source code for the current file.  Without arguments, list 11
-lines around the current line or continue the previous listing.  With
-one argument, list 11 lines around at that line.  With two arguments,
-list the given range; if the second argument is less than the first,
-it is interpreted as a count.
+\begin{verbatim}
+(Pydb) info args
+n= 3
+a= a
+b= b
+c= c
+(Pydb) 
+\end{verbatim}
+
+\item[info locals]\label{command:info-locals}
+
+Show all local variables for the given stack frame. This will include
+the variables that would be shown by \samp{info args}. For 
+
+\item[where\code{\Large{|}}T\code{\Large{|}}bt]
+
+Print a ballback trace, with the most recent frame at the top.  An
+arrow indicates the current frame, which determines the context of
+most commands.
+
+An example of a backtrace is given at the beginning of this section.
+
+\item[retval{\Large{|}}rv]
+
+Show the value that will be returned by the current function. This
+command is only meaningful just before a return (such as you'd get
+using the \samp{finish} command.
+
+\item[d(own) \optional{\var{count}}]
+
+Move the current frame one level down in the stack trace
+(to a newer frame). With a count, which can be a positive
+or a negative value, move that many positions.
+
+\item[u(p) \optional{\var{count}}]
+
+Move the current frame one level up in the stack trace (to an older
+frame). With a count, which can be a positive or a negative value,
+move that many positions.
+
+\item[frame \optional{\var{position}}]
+Move the current frame to the specified frame number. A negative
+number indicates position from the end, so "frame -1" moves to 
+the newest frame, and \code{frame 0} moves to the oldest frame.
+
+\end{description}
+
+\subsection{Examining Data ({\tt print}, {\tt pprint}, {\tt examine})\label{subsection:data}}
+
+\begin{description}
 
 \item[p \var{expression}]
 
@@ -499,7 +632,85 @@ command --- this executes the Python \keyword{print} statement.}
 Like the \samp{p} command, except the value of the expression is
 pretty-printed using the \module{pprint} module.
 
-\item[alias \optional{\var{name} \optional{command}}]
+\item[examine \var{expression}]
+
+Print the type of the expression and prettyprint its value.  For
+functions, methods, classes and modules we print out the documentation
+string if any.  For functions we also show the argument list.
+
+The intent here was to be like the examine debugger command in
+Perl. However much more work is needed here. Note that \samp{x} is not
+a short name for ``expression'' (as it is in Perl's debugger),
+although one could easily make it be via an alias. I use the variable
+name x too often.
+
+\end{description}
+
+\subsection{Running arbitrary Python commands ({\tt debug}, {\tt !})}
+
+\begin{description}
+
+\item[\optional{!}\var{statement}]
+
+Execute the (one-line) \var{statement} in the context of
+the current stack frame.
+The exclamation point can be omitted unless the first word
+of the statement resembles a debugger command.
+To set a global variable, you can prefix the assignment
+command with a \samp{global} command on the same line, e.g.:
+
+\begin{verbatim}
+(Pydb) global list_options; list_options = ['-l']
+(Pydb)
+\end{verbatim}
+
+\item[debug \var{statement}]
+
+Enter a recursive debugger that steps through the code argument (which
+is an arbitrary expression or statement to be executed in the current
+environment). The prompt is changed to indicate nested behavior. See
+\ref{debugger-prompt}
+
+\end{description}
+
+\subsection{Listing Program Code ({\tt list}, {\tt disassemble})}
+
+\begin{description}
+
+\item[disassemble \optional{\var{arg}}]
+
+With no argument, disassemble at the current frame location.  With a
+numeric argument, disassemble at the frame location at that line
+number. With a class, method, function, code or string argument,
+disassemble that.
+
+\item[l(ist) \optional{\var{first}\optional{, \var{last}}}]
+
+List source code for the current file.  Without arguments, list
+\emph{n} lines around the current line or continue the previous
+listing, where \emph{n} is the value set by \samp{set listsize} or
+shown by \samp{show listsize}.  The default value is 10.
+
+With one argument, list \emph{n} lines around at that line.  With
+two arguments, list the given range; if the second argument is less
+than the first, it is interpreted as a count.
+
+\end{description}
+
+\subsection{Miscellaneous Commands}
+
+\begin{description}
+
+\item[h(elp) \optional{\var{command}}]
+
+Without argument, print the list of available commands.  With a
+\var{command} as argument, print help about that command.  \samp{help
+pydb} displays the full documentation file; if the environment variable
+\envvar{PAGER} is defined, the file is piped through that command
+instead.  Since the \var{command} argument must be an identifier,
+\samp{help exec} must be entered to get help on the \samp{!} command.
+
+\item[alias \optional{\var{name} \optional{command}}]\label{command:aliases}
 
 Creates an alias called \var{name} that executes \var{command}.  The
 command must \emph{not} be enclosed in quotes.  Replaceable parameters
@@ -529,20 +740,6 @@ alias ps pi self
 
 Deletes the specified alias.
 
-\item[\optional{!}\var{statement}]
-
-Execute the (one-line) \var{statement} in the context of
-the current stack frame.
-The exclamation point can be omitted unless the first word
-of the statement resembles a debugger command.
-To set a global variable, you can prefix the assignment
-command with a \samp{global} command on the same line, e.g.:
-
-\begin{verbatim}
-(Pydb) global list_options; list_options = ['-l']
-(Pydb)
-\end{verbatim}
-
 \item[q(uit)]
 
 Quit from the debugger.
@@ -567,7 +764,23 @@ source.  The extension interface uses the modules
 \module{bdb}\refstmodindex{bdb} (undocumented) and
 \refmodule{cmd}\refstmodindex{cmd}.
 
-The debugger's prompt is \samp{(Pydb) }.
+All of the methods intended for outside use are documented. In fact
+the help documentation for commands comes from the document strings of
+the corresponding methods.
+
+One class methods that may be useful to subclass are the output
+methods \method{errmsg}, \method{msg}, \method{msg_nocr}. In early
+regression development I subclassed these so that I could capture
+debugger output. (In turned out however that there were far too many
+tests that I needed to make and working this way although very precise
+would not scale to the vast number of tests I envision.)
+
+All of the debugger commands listed \ref{command:debugger} are methods
+of a Pdb object. The method names are the command name prefixed by
+\code{do_}. For example the method handling the \samp{step} command is
+\code{do_step}, and the command handling the \samp{frame} command is
+\code{do_frame}. 
+
 Typical usage to run a program under control of the debugger is:
 
 \begin{verbatim}
@@ -669,7 +882,7 @@ Enter post-mortem debugging of the traceback found in
 \code{sys.last_traceback}.
 \end{funcdesc}
 
-\section{How It Works \label{debugger-hooks}}
+\section{How the Debugger Works \label{debugger-hooks}}
 
 Some changes were made to the interpreter:
 
@@ -737,5 +950,5 @@ Note that as an exception is propagated down the chain of callers, an
 \code{'exception'} event is generated at each level.
 
 For more information on code and frame objects, refer to the
-Python Reference Manual.
-%\citetitle[../ref/ref.html]{Python Reference Manual}.
+\ulink{Python Reference
+Manual}{http://docs.python.org/ref/ref.html}.

@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.36 2006/01/28 17:00:43 rockyb Exp $
+"""$Id: pydb.py.in,v 1.37 2006/01/28 21:27:23 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1136,7 +1136,7 @@ show version -- Show what version of this is
     def do_where(self, arg):
         """where
 
-        Print a stack trace, with the most recent frame at the bottom.
+        Print a stack trace, with the most recent frame at the top.
         An arrow indicates the 'current frame', which determines the
         context of most commands.  'bt' and 'T' are short command
         names for this."""
@@ -1232,8 +1232,9 @@ show version -- Show what version of this is
 
         info args -- Argument variables of current stack frame
         info break -- Status of user-settable breakpoints
-        info line -- Current line number in source fiel
+        info line -- Current line number in source file
         info locals -- Local variables of current stack frame
+        info globals -- Global variables of current stack frame
         info source -- Information about the current Python file"""
 
         if not arg:
@@ -1254,6 +1255,10 @@ show version -- Show what version of this is
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self._getval(l)))
                                 for l in frame.f_locals]))
+        elif "globals" == arg:
+            self.msg("\n".join(["%s = %s"
+                                % (l, pprint.pformat(self._getval(l)))
+                                for l in frame.f_globals]))
         elif "source" == arg:
             self.msg('Current Python file is %s' % 
                      self.filename(self.canonic(frame.f_code.co_filename)))
