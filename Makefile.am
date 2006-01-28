@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.14 2006/01/28 08:25:57 rockyb Exp $
+#$Id: Makefile.am,v 1.15 2006/01/28 17:02:33 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ noinst_SCRIPTS := $(python_PYTHON)
 
 bin_SCRIPTS := $(DEBUGGER)
 
-PHONY := $(DEBUGGER)
+PHONY := $(DEBUGGER) test
 
 EXTRA_DIST = ChangeLog TODO \
 	     pydb/pydb.doc pydb/Makefile \
@@ -49,6 +49,7 @@ EXTRA_DIST = ChangeLog TODO \
 clean-generic: 
 	-rm $(top_builddir)/pydb/pydb.pyc
 
+test: check
 check: pydb/pydb.py test/test.py
 
 # 
