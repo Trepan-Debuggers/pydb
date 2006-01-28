@@ -6,3 +6,5 @@ Makefile
 *.l2h
 *.log
 *.toc
+html-*.tar
+html-*.tgz
