@@ -1,0 +1,52 @@
++ continue
+Move disk a to b
+Move disk a to c
+Move disk b to c
+Move disk a to b
+Move disk c to a
+Move disk c to b
+Move disk a to b
+The program finished and will be restarted
++ ######################################
++ ### Now restart with a breakpoint
++ break hanoi
+Breakpoint 1 at hanoi.py:4
++ show args
+Argument list to give program being debugged when it is started is
+""
++ run
+Restarting hanoi.py with arguments:
+	
++ continue
++ info args
+n= 3
+a= a
+b= b
+c= c
++ where
+-> 0  hanoi() called from file 'hanoi.py' at line 5
+## 1  in file 'hanoi.py' at line 29
+## 2  in file '<string>' at line 1
+## 3  run() called from file 'bdb.py' at line 366
++ ######################################
++ ### We should be at that breakpoint
++ ### delete it and run again 
++ ### this time changing a parameter
++ info break
+Num Type          Disp Enb    Where
+1   breakpoint    keep yes at hanoi.py:4
+	breakpoint already hit 2 times
++ delete 1
+Deleted breakpoint 1
++ run 1
+Restarting hanoi.py with arguments:
+	1
++ continue
+Move disk a to b
+The program finished and will be restarted
++ show args
+Argument list to give program being debugged when it is started is
+"1"
++ info args
++ ####
++ quit

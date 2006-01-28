@@ -49,6 +49,9 @@ def run_debugger(testname, pythonfile):
     
 class PdbTests(unittest.TestCase):
 
+    ## Don't use assertTrue to be compatible with older version of
+    ## unittest
+    
     def test_cmdparse(self):
         """Test command parsing"""
         result=run_debugger(testname='cmdparse', pythonfile='hanoi.py')
@@ -58,6 +61,11 @@ class PdbTests(unittest.TestCase):
         """Test breakpoint setting/display"""
         result=run_debugger(testname='brkpt1', pythonfile='hanoi.py')
         self.assertEqual(True, result, "brkpt1")
+
+    def test_run(self):
+        """Test run/restart"""
+        result=run_debugger(testname='run', pythonfile='hanoi.py')
+        self.assertEqual(True, result, "run")
         
 if __name__ == "__main__":
     unittest.main()

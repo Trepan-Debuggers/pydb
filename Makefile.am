@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.11 2006/01/28 02:04:12 rockyb Exp $
+#$Id: Makefile.am,v 1.12 2006/01/28 03:11:01 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ EXTRA_DIST = ChangeLog TODO \
 	     pydb/pydb.doc pydb/Makefile \
 	     setup.py site-packages-path.py
 
-check: pydb/pydb.py
+check: pydb/pydb.py test/test.py
 
 # 
 # For the executable, we make a symbolic link to the python program,
