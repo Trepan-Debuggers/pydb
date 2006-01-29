@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.38 2006/01/29 02:18:10 rockyb Exp $
+"""$Id: pydb.py.in,v 1.39 2006/01/29 18:44:26 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -696,6 +696,9 @@ the .py suffix may be omitted."""
         line = self.checkline(filename, lineno)
         if line:
             # now set the break point
+            # Python 2.3.5 takes 5 args rather than 6.
+            # There's probably a way in configure to test for the version,
+            # but this works too.
 	    try:
 	       err = self.set_break(filename, line, temporary, cond, funcname)
 	    except TypeError:
