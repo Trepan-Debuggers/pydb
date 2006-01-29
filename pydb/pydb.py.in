@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.37 2006/01/28 21:27:23 rockyb Exp $
+"""$Id: pydb.py.in,v 1.38 2006/01/29 02:18:10 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -696,7 +696,11 @@ the .py suffix may be omitted."""
         line = self.checkline(filename, lineno)
         if line:
             # now set the break point
-            err = self.set_break(filename, line, temporary, cond, funcname)
+	    try:
+	       err = self.set_break(filename, line, temporary, cond, funcname)
+	    except TypeError:
+	       err = self.set_break(filename, line, temporary, cond)
+
             if err: self.errmsg(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
