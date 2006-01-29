@@ -1,4 +1,5 @@
-0.11cvs
+0.11
+2006-01-29
 
 * Add regression tests! As a result more of the debugger has been
   tested and a number of bugs in pdb.py have been found and fixed.

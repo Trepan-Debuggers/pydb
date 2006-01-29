@@ -25,23 +25,6 @@ Changes from pdb.py:
 
 -  Stepping skips over "def" statements.
 
-For now, there are two slight dialects of debugger command set: python
-and gdb
-
-  For the gdb dialect, stack traces look more like they do in gdb and
-  so does frame numbering. "up" and "down" function gdb's does. In
-  the python mode, stack traces should be the same.
-
-  In the gdb dialect, some commands have been removed: 
-  
-  - "return": this is reserved for a gdb-style return and it's short
-     name "r" can be confused with "run". The gdb equivalent is "finish"
-
-  - "args": the gdb equivalent is "info args" and the short name "a" 
-     has been removed.
-
-  Aliases could be added in one's .pydbrc for these.
-
 Coexistence: 
   For now, we try not to conflict with pdb.py. After all, Python 
   developers made provision of multiple debuggers so we'll make use of

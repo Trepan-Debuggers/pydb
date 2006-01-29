@@ -1,0 +1,13 @@
+This debugger is an extension of the Python debugger pdb which
+did much of the heavy lifting.
+
+The manual also was taken from the Python debugger. But it also draws
+on my bashdb debugger reference and both of these at time use some of
+the organization and phrases from the GNU Debugger Manual (gdb).
+
+Stuart Frankel, Ph. Mad. did some amazing proof reading and editing of
+the manual. (I may have mucked it up some since then though.)
+
+
+$Id: THANKS,v 1.1 2006/01/29 18:45:17 rockyb Exp $
+

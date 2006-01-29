@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.16 2006/01/28 22:00:50 rockyb Exp $
+#$Id: Makefile.am,v 1.17 2006/01/29 18:45:17 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ bin_SCRIPTS := $(DEBUGGER)
 
 PHONY := $(DEBUGGER) test
 
-EXTRA_DIST = ChangeLog TODO \
+EXTRA_DIST = ChangeLog TODO THANKS \
 	     pydb/pydb.doc pydb/Makefile \
 	     setup.py site-packages-path.py
 
@@ -72,6 +72,7 @@ EXTRA_DIST +=  \
 	Doc/lib/Makefile \
 	Doc/lib/lib.tex \
 	Doc/lib/libpydb.tex \
+	Doc/paper-letter/lib.pdf \
 	Doc/paper-letter/lib.ps \
 	Doc/perl/SynopsisTable.pm \
 	Doc/perl/l2hinit.perl \

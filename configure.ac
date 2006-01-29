@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_INIT([pydb],[0.11cvs],[bashdb-pydb-devel@lists.sourceforge.net])
+AC_INIT([pydb],[0.11],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
 ##
@@ -31,7 +31,7 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ## Check for Python interpreter and make we have a recent version.
 ##
 AM_PATH_PYTHON(2.3.5,, :)
-AC_REVISION([$Id: configure.ac,v 1.13 2006/01/28 22:00:50 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.14 2006/01/29 18:45:17 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog
