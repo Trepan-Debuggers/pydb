@@ -1,8 +1,15 @@
-\chapter{The Extended Python Debugger \label{extdebugger}}
+% $Id: libpydb.tex,v 1.9 2006/01/30 12:18:42 rockyb Exp $
 
-\declaremodule{standard}{pydb}
-\modulesynopsis{The Extended Python debugger for interactive
-  interpreters.}
+% A note on labels. First, labels get used has HTML names if they don't
+% have colons in them. Second, the last label inside a (sub)section will
+% get used as a (sub)section head. Consequently we use colons for
+% labels that aren't sections head and don't use colons if they are
+% in a section head.
+
+\chapter{The Extended Python Debugger \label{chapter-pydb}}
+
+\declaremodule{standard}{pydb} \modulesynopsis{The Extended Python
+debugger for interactive interpreters.}
 
 The extended Python debugger builds on work done in the standard
 \ulink{\module{Python
@@ -63,7 +70,7 @@ So, in cases where the standard Python
 debugger was incompatible with \code{gdb}, the \code{gdb} commands
 have been used.
 
-\section{Invoking the Debugger \label{debugger-switches}}
+\section{Invoking the Debugger \label{pydb-invocation}}
 
 Of the many additions to the standard Python debugger, two will be
 mentioned here. First, this debugger should install itself somewhere
@@ -88,7 +95,7 @@ Thus the general form of invoking the debugger is:
 A detailed list of options is given next.
 
 \subsection{Debugger Command Options ({\tt --linetrace}, {\tt
-    --output}, {\tt --command}, {\tt --nx}, \ldots)\label{subsection:command-options}}
+    --output}, {\tt --command}, {\tt --nx}, \ldots)\label{subsection-switches}}
 
 Many options have both a short and a long version. For example,
 \samp{-x} is the short version while \samp{--command} is the long
@@ -145,7 +152,7 @@ debugger command is \samp{set linetrace on}. See
 
 \end{description}
 
-\subsection{Startup files ({\tt .pydbrc})\label{subsection:startup-files}}
+\subsection{Startup files ({\tt .pydbrc})\label{subsection-startup-files}}
 
 If a file \code{.pydbrc}
 \indexii{.pydbrc}{file}\indexiii{debugger}{configuration}{file} exists
@@ -165,7 +172,7 @@ the \samp{--nx} command option, \ref{switch:nx}.
 For tracking down problems with command files, see the \samp{set
 cmdtrace on} debugger command, \ref{command:cmdtrace}.
 
-\section{Debugger Commands \label{command:debugger}}
+\section{Debugger Commands \label{pydb-commands}}
 
 In this section we describe debugger commands which can be used when
 the debugger is run as a standalone program.
@@ -195,7 +202,7 @@ The debugger supports aliases.  Aliases can have parameters which
 allow a certain level of adaptability to the context under
 examination. See \ref{command:aliases}.
 
-{\bf Debugger Prompt}:\label{debugger-prompt}\\
+{\bf Debugger Prompt}:\label{debugger:prompt}\\
 By default the debugger's prompt string is \samp{(Pydb) } with 
 a trailing blank. Recursive invocations using the
 \samp{debug} command strip off the trailing blanks, add a layer of
@@ -220,15 +227,15 @@ No intelligence is applied to separating the commands;
 the input is split at the first \samp{;;} pair, even if it is in
 the middle of a quoted string.
 
-\subsection{Status and Debugger Settings ({\tt set}, {\tt show}, {\tt info})}
+\subsection{Status and Debugger Settings ({\tt set}, {\tt show}, {\tt info})\label{subsection-status}}
 
-\subsubsection{Set ({\tt set})\label{subsubsection:set}}
+\subsubsection{Set ({\tt set})\label{subsubsection-set}}
 
 In all of the set options that take ``on'' or ``off'' parameters, you
 can also use 1 for ``on'' and 0 for ``off.''
 
 Each command has a corresponding ``show'' command to show the current
-value. See \ref{subsubsection:show} for the ``show'' counterparts.
+value. See \ref{subsubsection-show} for the ``show'' counterparts.
 
 
 \begin{description}
@@ -294,7 +301,7 @@ Sets how many lines are shown by the \code{list} command. See
 
 Set debugger's prompt string. By default it is \samp{(Pydb) } with
 a trailing space. For information on how the prompt
-changes, see \ref{debugger-prompt}.
+changes, see \ref{debugger:prompt}.
 
 \emph{There's currently a bug in the code where specified trailing
 blanks specified. Furthermore the prompt may change in the future to
@@ -303,11 +310,11 @@ prompt.}
 
 \end{description}
 
-\subsubsection{Show ({\tt show})\label{subsubsection:show}}
+\subsubsection{Show ({\tt show}) \label{subsubsection-show}}
 
 All of the ``show'' commands report some sort of status and all have a
 corresponding ``set'' command to change the value. See
-\ref{subsubsection:set} for the ``set'' counterparts.
+\ref{subsubsection-set} for the ``set'' counterparts.
 
 \begin{description}
 
@@ -346,7 +353,7 @@ Show the debugger version number
 
 \end{description}
 
-\subsubsection{Info ({\tt info})}
+\subsubsection{Info ({\tt info})\label{subsubsection-info}}
 
 Running this command without parameters will print the list of
 available info commands. Below is a description of the individual
@@ -364,7 +371,7 @@ Show the list of breakpoints.
 
 \item[info globals]
 
-Show the global variables. See \ref{command:info-locals}. 
+Show the global variables. See \ref{command:info-globals}. 
 
 \item[info line]
 
@@ -382,7 +389,7 @@ Information about the current Python file.
 
 \subsection{Breakpoints ({\tt break}, {\tt tbreak}, {\tt clear},
   {\tt delete}, {\tt disable}, {\tt
-  ignore})\label{subsubsection:brkpts}}
+  ignore})\label{subsubsection-brkpts}}
 
 \index{breakpoints} A breakpoint makes your program stop at that
 point. You can add conditions for each breakpoint.  You can set
@@ -471,7 +478,7 @@ condition is removed; i.e., the breakpoint is made unconditional.
 \end{description}
 
 \subsection{Resuming Execution ({\tt step}, {\tt next}, {\tt
-    finish}, {\tt continue}, {\tt jump})\label{subsubsection:resume}}
+    finish}, {\tt continue}, {\tt jump})\label{subsubsection-resume}}
 
 ``Continuing'' means resuming program execution until the program
 completes normally.  In contrast, ``stepping'' means executing just
@@ -515,7 +522,7 @@ of a \keyword{finally} clause.
 \end{description}
 
 \subsection{Examining Call Frames ({\tt info args}, {\tt info
-    locals}, {\tt info globals}, {\tt up}, {\tt down}, {\tt frame})\label{subsection:frames}}
+    locals}, {\tt up}, {\tt down}, {\tt frame})\label{subsection-frames}}
 
 Each line in the backtrace shows the frame number and the function
 name, if it exists and the place in a file where the statement is
@@ -585,7 +592,7 @@ most commands.
 
 An example of a backtrace is given at the beginning of this section.
 
-\item[retval{\Large{|}}rv]
+\item[retval\code{\Large{|}}rv]
 
 Show the value that will be returned by the current function. This
 command is meaningful only just before a return (such as you'd get
@@ -610,7 +617,7 @@ the newest frame, and \code{frame 0} moves to the oldest frame.
 
 \end{description}
 
-\subsection{Examining Data ({\tt print}, {\tt pprint}, {\tt examine})\label{subsection:data}}
+\subsection{Examining Data ({\tt print}, {\tt pprint}, {\tt examine}, {\tt info globals})\label{subsection-data}}
 
 \begin{description}
 
@@ -638,7 +645,7 @@ easily make it be via an alias.
 
 \end{description}
 
-\subsection{Running arbitrary Python commands ({\tt debug}, {\tt !})}
+\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !})\label{subsection-commands}}
 
 \begin{description}
 
@@ -661,11 +668,17 @@ command with a \samp{global} command on the same line, e.g.:
 Enter a recursive debugger that steps through the code argument (which
 is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
-\ref{debugger-prompt}
+\ref{debugger:prompt}
+
+\item[info globals]\label{command:info-globals}
+
+Show all global variables. These variables are not just the variables
+that a programs sees via a \code{global} statement, but all of them
+that can be accessible.
 
 \end{description}
 
-\subsection{Listing Program Code ({\tt list}, {\tt disassemble})}
+\subsection{Listing Program Code ({\tt list}, {\tt disassemble})\label{subsection-listing}}
 
 \begin{description}
 
@@ -689,7 +702,8 @@ than the first, it is interpreted as a count.
 
 \end{description}
 
-\subsection{Miscellaneous Commands}
+\subsection{Miscellaneous Commands ({\tt help}, {\tt quit}, {\tt
+    alias}, {\tt unalias})\label{subsection-misc}}
 
 \begin{description}
 
@@ -739,7 +753,7 @@ The program being executed is aborted.
 
 \end{description}
 
-\section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{debugger-module}}
+\section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 
 The module \module{pydb} defines an interactive source code
 debugger\index{debugging} for Python programs.  It supports setting

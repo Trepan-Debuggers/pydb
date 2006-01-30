@@ -112,11 +112,6 @@ MKHTML=	   $(MKHOWTO) --html --about html/stdabout.dat \
 		--address $(PYTHONDOCS) --up-link ../index.html \
 		--up-title "Python Documentation Index" \
 		--global-module-index "../modindex.html" --dvips-safe
-MKISILOHTML=$(MKHOWTO) --html --about html/stdabout.dat \
-		--iconserver ../icons \
-		--l2h-init perl/isilo.perl --numeric --split 1 \
-		--dvips-safe
-MKISILO=   iSilo386 -U -y -rCR -d0
 MKPDF=	   $(MKHOWTO) --paper=$(PAPER) --pdf
 MKPS=	   $(MKHOWTO) --paper=$(PAPER) --ps
 
@@ -169,7 +164,7 @@ include @srcdir@/Makefile.deps
 
 # Main target
 default:	html
-all:		html dvi ps pdf
+all:		html info dvi ps pdf
 
 dvi:	$(DVIFILES)
 pdf:	$(PDFFILES)
@@ -576,8 +571,10 @@ clobber: clean
 	-rm -f latex-$(RELEASE).tgz html-$(RELEASE).zip
 	-rm -f pdf-$(RELEASE).zip postscript-$(RELEASE).zip
 	-rm -f $(DVIFILES) $(PSFILES) $(PDFFILES)
+	cd $(INFODIR) && $(MAKE) clobber
 	-rm -f paper-$(PAPER)/*.tex paper-$(PAPER)/*.ind paper-$(PAPER)/*.idx
 	-rm -f paper-$(PAPER)/*.l2h paper-$(PAPER)/*.how paper-$(PAPER)/README
+	-rm -rf html/index.html html/lib/
 
 realclean distclean:  clobber
 
