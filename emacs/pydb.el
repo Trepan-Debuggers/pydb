@@ -112,18 +112,48 @@ and source-file directory for your debugger."
 		   'gud-pydb-marker-filter 'gud-pydb-find-file)
   (set (make-local-variable 'gud-minor-mode) 'pydb)
 
-  (gud-def gud-break  "break %l"     "\C-b" "Set breakpoint at current line.")
-  (gud-def gud-tbreak "tbreak %f:%l" "\C-t" "Set temporary breakpoint at current line.")
-  (gud-def gud-remove "clear %f:%l"  "\C-d" "Remove breakpoint at current line")
-  (gud-def gud-step   "step %p"      "\C-s" "Step one source line with display.")
-  (gud-def gud-next   "next %p"      "\C-n" "Step one line (skip functions).")
-  (gud-def gud-cont   "cont"         "\C-r" "Continue with display.")
-  (gud-def gud-finish "finish"       "\C-f" "Finish executing current function.")
-  (gud-def gud-up     "up %p"        "<" "Up N stack frames (numeric arg).")
-  (gud-def gud-down   "down %p"      ">" "Down N stack frames (numeric arg).")
-  (gud-def gud-print  "p %e"         "\C-p" "Evaluate Python expression at point.")
-  ;; Is this right?
-  (gud-def gud-statement "! %e"	     "\C-e" "Execute Python statement at point.")
+  (gud-def gud-args   "info args" "a"
+	   "Show arguments of current stack.")
+  (gud-def gud-break  "break %f:%l""\C-b"
+	   "Set breakpoint at current line.")
+  (gud-def gud-cont   "continue"   "\C-r" 
+	   "Continue with display.")
+  (gud-def gud-down   "down %p"     ">"
+	   "Down N stack frames (numeric arg).")
+  (gud-def gud-finish "finish"      "f\C-f"
+	   "Finish executing current function.")
+  (gud-def gud-next   "next %p"     "\C-n"
+	   "Step one line (skip functions).")
+  (gud-def gud-print  "p %e"        "\C-p"
+	   "Evaluate bash expression at point.")
+  (gud-def gud-remove "clear %f:%l" "\C-d"
+	   "Remove breakpoint at current line")
+  (gud-def gud-run    "run"       "R"
+	   "Restart the Python script.")
+  (gud-def gud-statement "eval %e" "\C-e"
+	   "Execute Python statement at point.")
+  (gud-def gud-step   "step %p"       "\C-s"
+	   "Step one source line with display.")
+  (gud-def gud-tbreak "tbreak %f:%l"  "\C-t"
+	   "Set temporary breakpoint at current line.")
+  (gud-def gud-up     "up %p"
+	   "<" "Up N stack frames (numeric arg).")
+  (gud-def gud-where   "where"
+	   "T" "Show stack trace.")
+
+  ;; Update GUD menu bar
+  (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
+					 gud-args))
+  (define-key gud-menu-map [down]      '("Down Stack" . gud-down))
+  (define-key gud-menu-map [eval]      '("Execute Python statement at point" 
+					 . gud-statement))
+  (define-key gud-menu-map [finish]    '("Finish Function" . gud-finish))
+  (define-key gud-menu-map [run]       '("Restart the Python Script" . 
+					 gud-run))
+  (define-key gud-menu-map [stepi]     'undefined)
+  (define-key gud-menu-map [tbreak]    '("Temporary break" . gud-tbreak))
+  (define-key gud-menu-map [up]        '("Up Stack" . gud-up))
+  (define-key gud-menu-map [where]     '("Show stack trace" . gud-where))
 
   (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
   (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))

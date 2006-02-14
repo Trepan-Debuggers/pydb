@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.9 2006/01/30 12:18:42 rockyb Exp $
+% $Id: libpydb.tex,v 1.10 2006/02/14 11:42:44 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -501,9 +501,11 @@ is reached or the function returns.  The difference between \samp{next} and
 \samp{next} executes called functions at (nearly) full speed, 
 stopping only at the next line in the current function.
 
-\item[finish]
+\item[finish]\label{command:finish}
 
 Continue execution until the current function returns.
+that point the \samp{retval} command can be used to show the
+return value. See also \ref{command:retval}.
 
 \item[c(ont(inue))]
 
@@ -592,11 +594,12 @@ most commands.
 
 An example of a backtrace is given at the beginning of this section.
 
-\item[retval\code{\Large{|}}rv]
+\item[retval\code{\Large{|}}rv]\label{command:retval}
 
 Show the value that will be returned by the current function. This
 command is meaningful only just before a return (such as you'd get
-using the \samp{finish} command).
+using the \samp{finish} command) or stepping after a return statement.
+See also \ref{command:finish}.
 
 \item[d(own) \optional{\var{count}}]
 
@@ -643,9 +646,16 @@ more work is needed. Note that \samp{x} is not a short name for
 ``expression'' (as it is in Perl's debugger), although you could
 easily make it be via an alias.
 
+\item[info globals]\label{command:info-globals}
+
+Show all global variables. These variables are not just the variables
+that a programs sees via a \code{global} statement, but all of them
+that can be accessible.
+
 \end{description}
 
-\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !})\label{subsection-commands}}
+\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !},
+  {\tt shell})\label{subsection-commands}}
 
 \begin{description}
 
@@ -670,11 +680,9 @@ is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
 \ref{debugger:prompt}
 
-\item[info globals]\label{command:info-globals}
+\item[shell \var{statement}]
 
-Show all global variables. These variables are not just the variables
-that a programs sees via a \code{global} statement, but all of them
-that can be accessible.
+Execute the rest of the line as a shell command.
 
 \end{description}
 

@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.39 2006/01/29 18:44:26 rockyb Exp $
+"""$Id: pydb.py.in,v 1.40 2006/02/14 11:42:44 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -815,6 +815,10 @@ the .py suffix may be omitted."""
         else:
             self.errmsg("unknown set subcommand %s" %  args[0])
 
+    def do_shell(self, arg):
+        """Execute the rest of the line as a shell command."""
+        os.system(arg)
+
     def do_show(self, arg):
         """Generic command for showing things about the debugger.
 
@@ -1417,7 +1421,7 @@ Handles the receipt of EOF as a command."""
     def do_retval(self, arg):
         """retval
 Show the value that is to be returned from a function.        
-This command is useful after a "return" command or stepping just after a return
+This command is useful after a "finish" command or stepping just after a return
 statement.
         """
         if '__return__' in self.curframe.f_locals:

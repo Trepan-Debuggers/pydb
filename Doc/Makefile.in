@@ -66,7 +66,7 @@ PYTHON_DOC:=$(shell cd @srcdir@ && pwd)
 PAPER=letter
 
 # Ideally, you shouldn't need to edit beyond this point
-.PHONY: realclean distclean clean clobber
+.PHONY: realclean distclean clean clobber test check
 
 
 INFODIR=	$(srcdir)/info
@@ -172,6 +172,9 @@ ps:	$(PSFILES)
 
 # For now, we don't install anything.
 install:
+
+# For now, we don't test/check anything.
+test check:
 
 world:	ps pdf html distfiles
 
