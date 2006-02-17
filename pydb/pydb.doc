@@ -160,6 +160,15 @@ disassemble [arg]
         line number. With a class, method, function or code argument
         disassemble that.
 
+display [format] EXP
+	Print value of expression EXP each time the program stops.
+	FMT may be used before EXP and may be one of 'c' for char, 
+	'x' for hex, 'o' for ocatl, 'f' for float or 's' for string.
+
+	With no argument, display all currently requested auto-display
+	expressions.  Use "undisplay" to cancel display requests previously
+	made.
+
 d(own) [count]
         Move the current frame one level down in the stack trace
         (to a newer frame). With a count, which can be a positive
@@ -190,11 +199,17 @@ i(nfo) [suboption]
 	Without argument, print the list of available info commands.
 	With an argument, print info about that command. Suboptions follow:
 
+	Without argument, print the list of available info commands.
+	With an argument, print info about that command. Suboptions follow:
+
 info args -- Argument variables of current stack frame
 info break -- Status of user-settable breakpoints
-info line -- Current line number in source fiel
+info display -- Expressions to display when program stops,
+                with code numbers.
+info globals -- Global variables of current stack frame
+info line -- Current line number in source file
 info locals -- Local variables of current stack frame
-info source -- Information about the current Python file
+info source -- Information about the current Python file"""
 
 ignore bpnumber count
         Sets the ignore count for the given breakpoint number.  If
@@ -309,6 +324,13 @@ tbreak  [ ([filename:]lineno | function) [, condition] ]
         so it will be deleted when hit.  
 unalias name
         Deletes the specified alias.
+
+undisplay 
+        Cancel some expressions to be displayed when program stops.
+        Arguments are the code numbers of the expressions to stop displaying.
+        No argument means cancel all automatic-display expressions.
+        "delete display" has the same effect as this command.
+        Do "info display" to see current list of code numbers.
 
 u(p) [count]
         Move the current frame one level up in the stack trace

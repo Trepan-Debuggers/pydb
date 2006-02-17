@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.11 2006/02/17 02:31:17 rockyb Exp $
+% $Id: libpydb.tex,v 1.12 2006/02/17 04:27:36 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -623,6 +623,25 @@ the newest frame, and \code{frame 0} moves to the oldest frame.
 \subsection{Examining Data ({\tt print}, {\tt pprint}, {\tt examine}, {\tt info globals})\label{subsection-data}}
 
 \begin{description}
+
+\item[display \optional{\var{format}} \var{expression}]
+
+Print value of expression \var{expression} each time the program
+stops.  \var{format} may be used before \var{expression} as in the
+"print" command.  \var{format} "i" or "s" or including a size-letter
+is allowed, and then \var{expression} is used to get the address to
+examine.
+
+With no argument, display all currently requested auto-display
+expressions.  Use "undisplay" to cancel display requests previously
+made.
+
+\item[undisplay \optional{\var{format}} \var{expression}]
+
+Evaluate the \var{expression} in the current context and print its
+value.  \note{\samp{print} can also be used, but is not a debugger
+command---it executes the Python \keyword{print} statement.}
+
 
 \item[p \var{expression}]
 

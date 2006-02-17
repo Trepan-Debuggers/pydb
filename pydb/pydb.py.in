@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.41 2006/02/17 02:31:19 rockyb Exp $
+"""$Id: pydb.py.in,v 1.42 2006/02/17 04:27:36 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -10,6 +10,7 @@ _version = '@PACKAGE_VERSION@'
 import bdb, cmd, dis, inspect, linecache, os, pprint
 import re, sys, time, traceback, types
 from optparse import OptionParser
+from pydbsupt import Display, DisplayNode
 from repr import Repr
 
 class Restart(Exception):
@@ -226,6 +227,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.listsize        = 10
         self.mainpyfile      = ''
         self.noninteractive  = False
+        self.currentbp       = None     # for "info program"
         self.prompt = '(Pydb) '
         self.rcLines = []
         self.__init_gdb_dialect()
@@ -527,8 +529,13 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         do_loop = self.setup(frame, traceback) != 1
         if do_loop:
             self.print_location()
+            self.display.displayAny(self.curframe)
             if not self.noninteractive:
-                self.cmdloop()
+                try:
+                    self.cmdloop()
+                except KeyboardInterrupt:
+                    self.do_kill(None)
+        self.currentbp = None    # Can forget it now that we're moving on
         self.forget()
         if not do_loop:
             return 1
@@ -629,6 +636,16 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             filename = self.mainpyfile
         return filename
 
+    def display_enable(self, arg, flag):
+        # arg is list of display points
+        for i in arg:
+            try:
+                i = int(i)
+                self.display.enable(i, flag)
+            except ValueError:
+                self.msg('index %r is not a number' % i)
+                continue
+
     def lineinfo(self, identifier):
         failed = (None, None, None)
         # Input is identifier, may be in single quotes
@@ -685,6 +702,41 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     # Return true to exit from the command loop
 
     do_h = cmd.Cmd.do_help
+
+    def do_alias(self, arg):
+        """alias [name [command [parameter parameter ...] ]]
+Creates an alias called 'name' the executes 'command'.  The command
+must *not* be enclosed in quotes.  Replaceable parameters are
+indicated by %1, %2, and so on, while %* is replaced by all the
+parameters.  If no command is given, the current alias for name
+is shown. If no name is given, all aliases are listed.
+
+Aliases may be nested and can contain anything that can be
+legally typed at the debugger prompt.  Note!  You *can* override
+internal debugger commands with aliases!  Those internal commands
+are then hidden until the alias is removed.  Aliasing is recursively
+applied to the first word of the command line; all other words
+in the line are left alone.
+
+Some useful aliases (especially when placed in the .%src file) are:
+
+#Print instance variables (usage "pi classInst")
+alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
+
+#Print instance variables in self
+alias ps pi self
+""" % _debugger_name
+        args = arg.split()
+        if len(args) == 0:
+            keys = self.aliases.keys()
+            keys.sort()
+            for alias in keys:
+                self.msg("%s = %s" % (alias, self.aliases[alias]))
+            return
+        if args[0] in self.aliases and len(args) == 1:
+            self.msg("%s = %s" % (args[0], self.aliases[args[0]]))
+        else:
+            self.aliases[args[0]] = ' '.join(args[1:])
 
     def do_break(self, arg, temporary = 0):
         """b(reak) ([file:]lineno | function) [, condition]
@@ -888,7 +940,8 @@ the .py suffix may be omitted."""
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
         p = Pdb()
-        p.prompt = "(%s) " % self.prompt.strip()
+        p.prompt  = "(%s) " % self.prompt.strip()
+        p.display = Display()
         self.msg("ENTERING RECURSIVE DEBUGGER")
         old_prompt = self.prompt
         self.prompt.strip()
@@ -943,7 +996,7 @@ the .py suffix may be omitted."""
                 self.msg('Deleted breakpoint %d' % i)
 
     def do_disable(self, arg):
-        """disable bpnumber [bpnumber ...]
+        """disable [display] bpnumber [bpnumber ...]
 
         Disables the breakpoints given as a space separated list of bp
         numbers."""
@@ -951,6 +1004,9 @@ the .py suffix may be omitted."""
         args = arg.split()
         if len(args) == 0:
             self.errmsg('No breakpoint number given')
+            return
+        if args[0] == 'display':
+            self.display_enable(args[1:], 0)
             return
         for i in args:
             try:
@@ -987,6 +1043,33 @@ the .py suffix may be omitted."""
                 except NameError:
                     pass
         
+    def do_display(self, arg):
+        """display [format] EXP
+
+	Print value of expression EXP each time the program stops.
+	FMT may be used before EXP and may be one of 'c' for char, 
+	'x' for hex, 'o' for ocatl, 'f' for float or 's' for string.
+
+        With no argument, display all currently requested auto-display
+        expressions.  Use "undisplay" to cancel display requests previously
+        made."""
+
+        if not arg:
+            # Display anything active
+            self.display.displayAny(self.curframe)
+        else:
+            # Set up a display
+            arglist = arg.split()
+            if len(arglist) == 2:
+               format, variable = arglist
+            else:
+               format = ""
+               variable = arglist[0]
+            dp = DisplayNode(self.curframe, variable, format)
+            res = dp.checkValid(self.curframe)
+            print res
+        return
+    
     def do_down(self, arg):
         """d(own) [count]
 
@@ -1008,7 +1091,7 @@ the .py suffix may be omitted."""
 
     def do_enable(self, arg):
 
-        """enable bpnumber [bpnumber ...]
+        """enable [display] bpnumber [bpnumber ...]]
 
         Enables the breakpoints given as a space separated list of bp
         numbers."""
@@ -1017,6 +1100,11 @@ the .py suffix may be omitted."""
         if len(args) == 0:
             self.errmsg('No breakpoint number given')
             return
+
+        if args[0] == 'display':
+            self.display_enable(args[1:], True)
+            return
+
         for i in args:
             try:
                 i = int(i)
@@ -1106,10 +1194,12 @@ the .py suffix may be omitted."""
 	With an argument, print info about that command. Suboptions follow:
 
         info args -- Argument variables of current stack frame
+        info display -- Expressions to display when program stops,
+                        with code numbers.
         info break -- Status of user-settable breakpoints
+        info globals -- Global variables of current stack frame
         info line -- Current line number in source file
         info locals -- Local variables of current stack frame
-        info globals -- Global variables of current stack frame
         info source -- Information about the current Python file"""
 
         if not arg:
@@ -1122,7 +1212,22 @@ the .py suffix may be omitted."""
         elif "break" == arg:
             # FIXME: Should split out the "info" part in args
             self.do_L(None)
+        elif 'display' == arg:
+            if not self.display.displayAll():
+                print 'There are no auto-display expressions now.'
+        elif "globals" == arg:
+            self.msg("\n".join(["%s = %s"
+                                % (l, pprint.pformat(self._getval(l)))
+                                for l in frame.f_globals]))
         elif "line" == arg:
+            #info line identifier
+            if len(arglist) == 2:
+                # lineinfo returns (item, file, lineno) or (None,)
+                answer = self.lineinfo(arglist[1])
+                if answer[0]:
+                    print 'Lineinfo <%s> at %s:%s' % answer
+                return
+            #info line
             self.msg('Line %d of \"%s\"' % 
                      (frame.f_lineno,
                       self.filename(self.canonic(frame.f_code.co_filename))))
@@ -1130,10 +1235,14 @@ the .py suffix may be omitted."""
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self._getval(l)))
                                 for l in frame.f_locals]))
-        elif "globals" == arg:
-            self.msg("\n".join(["%s = %s"
-                                % (l, pprint.pformat(self._getval(l)))
-                                for l in frame.f_globals]))
+#        elif 'program' == arg:
+#            if not self.running:
+#                print 'The program being debugged is not being run.'
+#            else:
+#                print 'Program stopped.\n'
+#                if self.currentbp:
+#                    print 'It stopped at breakpoint %d.' % self.currentbp
+#            return
         elif "source" == arg:
             self.msg('Current Python file is %s' % 
                      self.filename(self.canonic(frame.f_code.co_filename)))
@@ -1179,6 +1288,58 @@ the .py suffix may be omitted."""
                 self.errmsg('Jump failed: %s' % e)
 
     do_j = do_jump
+
+    def do_list(self, arg):
+        """l(ist) [first [,last]]
+        List source code for the current file.
+        Without arguments, list 11 lines around the current line
+        or continue the previous listing.
+        With one argument, list 11 lines starting at that line.
+        With two arguments, list the given range;
+        if the second argument is less than the first, it is a count."""
+        self.lastcmd = 'list'
+        last = None
+        if arg:
+            try:
+                x = eval(arg, {}, {})
+                if type(x) == type(()):
+                    first, last = x
+                    first = int(first)
+                    last = int(last)
+                    if last < first:
+                        # Assume it's a count
+                        last = first + last
+                else:
+                    first = max(1, int(x) - 5)
+            except:
+                self.errmsg('Error in argument: %s' % repr(arg))
+                return
+        elif self.lineno is None:
+            first = max(1, self.curframe.f_lineno - 5)
+        else:
+            first = self.lineno + 1
+        if last is None:
+            last = first + self.listsize
+        filename = self.curframe.f_code.co_filename
+        breaklist = self.get_file_breaks(filename)
+        try:
+            for lineno in range(first, last+1):
+                line = linecache.getline(filename, lineno)
+                if not line:
+                    self.msg('[EOF]')
+                    break
+                else:
+                    s = repr(lineno).rjust(3)
+                    if len(s) < 4: s = s + ' '
+                    if lineno in breaklist: s = s + 'B'
+                    else: s = s + ' '
+                    if lineno == self.curframe.f_lineno:
+                        s = s + '->'
+                    self.msg_nocr(s + '\t' + line)
+                    self.lineno = lineno
+        except KeyboardInterrupt:
+            pass
+    do_l = do_list
 
     def do_next(self, arg):
         """n(ext) [count]
@@ -1434,6 +1595,40 @@ With an integer argument, step that many times."""
         so it will be deleted when hit."""
         self.do_break(arg, 1)
 
+    def do_unalias(self, arg):
+        """unalias name
+Deletes the specified alias."""
+        args = arg.split()
+        if len(args) == 0: return
+        if args[0] in self.aliases:
+            del self.aliases[args[0]]
+
+    # Print a traceback starting at the top stack frame.
+    # The most recently entered frame is printed last;
+    # this is different from dbx and gdb, but consistent with
+    # the Python interpreter's stack trace.
+    # It is also consistent with the up/down commands (which are
+    # compatible with dbx and gdb: up moves towards 'main()'
+    # and down moves towards the most recent stack frame).
+
+    def do_undisplay(self, arg):
+        """Cancel some expressions to be displayed when program stops.
+        Arguments are the code numbers of the expressions to stop displaying.
+        No argument means cancel all automatic-display expressions.
+        "delete display" has the same effect as this command.
+        Do "info display" to see current list of code numbers."""
+
+        if arg:
+            args = arg.split()
+            for i in args:
+                try:
+                    i = int(i)
+                    self.display.deleteOne(i)
+                except ValueError:
+                    self.errmsg('indeex %r is not a number' % i)
+        else:
+            self.display.deleteAll()
+
     def do_up(self, arg):
         """u(p) [count]
         Move the current frame one level up in the stack trace
@@ -1451,6 +1646,35 @@ With an integer argument, step that many times."""
             count = -count
         self.__adjust_frame(pos=count, absolute_pos=False)
     do_u = do_up
+
+    def do_whatis(self, arg):
+        """whatis arg
+Prints the type of the argument which can be a Python expression."""
+        try:
+            value = eval(arg, self.curframe.f_globals,
+                         self.curframe.f_locals)
+        except:
+            t, v = sys.exc_info()[:2]
+            if type(t) == types.StringType:
+                exc_type_name = t
+            else: exc_type_name = t.__name__
+            self.errmsg("%s:%s" % (exc_type_name, repr(v)))
+            return
+        code = None
+        # Is it a function?
+        try: code = value.func_code
+        except: pass
+        if code:
+            self.msg('Function %s' % code.co_name)
+            return
+        # Is it an instance method?
+        try: code = value.im_func.func_code
+        except: pass
+        if code:
+            self.msg('Method %s' % code.co_name)
+            return
+        # None of the above...
+        self.msg(type(value))
 
     def do_where(self, arg):
         """where
@@ -1503,140 +1727,6 @@ Handles the receipt of EOF as a command."""
         else:
             self.do_whatis(arg)
             self.do_pp(arg)
-    
-
-    def do_list(self, arg):
-        """l(ist) [first [,last]]
-        List source code for the current file.
-        Without arguments, list 11 lines around the current line
-        or continue the previous listing.
-        With one argument, list 11 lines starting at that line.
-        With two arguments, list the given range;
-        if the second argument is less than the first, it is a count."""
-        self.lastcmd = 'list'
-        last = None
-        if arg:
-            try:
-                x = eval(arg, {}, {})
-                if type(x) == type(()):
-                    first, last = x
-                    first = int(first)
-                    last = int(last)
-                    if last < first:
-                        # Assume it's a count
-                        last = first + last
-                else:
-                    first = max(1, int(x) - 5)
-            except:
-                self.errmsg('Error in argument: %s' % repr(arg))
-                return
-        elif self.lineno is None:
-            first = max(1, self.curframe.f_lineno - 5)
-        else:
-            first = self.lineno + 1
-        if last is None:
-            last = first + self.listsize
-        filename = self.curframe.f_code.co_filename
-        breaklist = self.get_file_breaks(filename)
-        try:
-            for lineno in range(first, last+1):
-                line = linecache.getline(filename, lineno)
-                if not line:
-                    self.msg('[EOF]')
-                    break
-                else:
-                    s = repr(lineno).rjust(3)
-                    if len(s) < 4: s = s + ' '
-                    if lineno in breaklist: s = s + 'B'
-                    else: s = s + ' '
-                    if lineno == self.curframe.f_lineno:
-                        s = s + '->'
-                    self.msg_nocr(s + '\t' + line)
-                    self.lineno = lineno
-        except KeyboardInterrupt:
-            pass
-    do_l = do_list
-
-    def do_whatis(self, arg):
-        """whatis arg
-Prints the type of the argument which can be a Python expression."""
-        try:
-            value = eval(arg, self.curframe.f_globals,
-                         self.curframe.f_locals)
-        except:
-            t, v = sys.exc_info()[:2]
-            if type(t) == types.StringType:
-                exc_type_name = t
-            else: exc_type_name = t.__name__
-            self.errmsg("%s:%s" % (exc_type_name, repr(v)))
-            return
-        code = None
-        # Is it a function?
-        try: code = value.func_code
-        except: pass
-        if code:
-            self.msg('Function %s' % code.co_name)
-            return
-        # Is it an instance method?
-        try: code = value.im_func.func_code
-        except: pass
-        if code:
-            self.msg('Method %s' % code.co_name)
-            return
-        # None of the above...
-        self.msg(type(value))
-
-    def do_alias(self, arg):
-        """alias [name [command [parameter parameter ...] ]]
-Creates an alias called 'name' the executes 'command'.  The command
-must *not* be enclosed in quotes.  Replaceable parameters are
-indicated by %1, %2, and so on, while %* is replaced by all the
-parameters.  If no command is given, the current alias for name
-is shown. If no name is given, all aliases are listed.
-
-Aliases may be nested and can contain anything that can be
-legally typed at the debugger prompt.  Note!  You *can* override
-internal debugger commands with aliases!  Those internal commands
-are then hidden until the alias is removed.  Aliasing is recursively
-applied to the first word of the command line; all other words
-in the line are left alone.
-
-Some useful aliases (especially when placed in the .%src file) are:
-
-#Print instance variables (usage "pi classInst")
-alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
-
-#Print instance variables in self
-alias ps pi self
-""" % _debugger_name
-        args = arg.split()
-        if len(args) == 0:
-            keys = self.aliases.keys()
-            keys.sort()
-            for alias in keys:
-                self.msg("%s = %s" % (alias, self.aliases[alias]))
-            return
-        if args[0] in self.aliases and len(args) == 1:
-            self.msg("%s = %s" % (args[0], self.aliases[args[0]]))
-        else:
-            self.aliases[args[0]] = ' '.join(args[1:])
-
-    def do_unalias(self, arg):
-        """unalias name
-Deletes the specified alias."""
-        args = arg.split()
-        if len(args) == 0: return
-        if args[0] in self.aliases:
-            del self.aliases[args[0]]
-
-    # Print a traceback starting at the top stack frame.
-    # The most recently entered frame is printed last;
-    # this is different from dbx and gdb, but consistent with
-    # the Python interpreter's stack trace.
-    # It is also consistent with the up/down commands (which are
-    # compatible with dbx and gdb: up moves towards 'main()'
-    # and down moves towards the most recent stack frame).
-
     def print_stack_trace(self):
         try:
             for frame_lineno in self.stack:
@@ -1742,14 +1832,15 @@ Deletes the specified alias."""
         'help exec gives help on the ! command""")
     help_help = help_h
 
-    for fn in ('EOF',    'L',         'alias',       'break',
-               'cd',     'clear',     'condition',   'continue',
-               'debug',  'disable',   'delete'  ,    'disassemble', 'down',
-               'enable', 'examine',
-               'finish', 'frame',     'ignore',      'info',   'jump', 'list',
-               'next',   'p',         'pp',          'pwd',    'quit', 'run',
-               'set',    'show',      'shell',       'source', 'step', 
-               'tbreak', 'unalias',   'up',          'whatis', 'where'):
+    for fn in ('EOF',     'L',         'alias',       'break',
+               'cd',      'clear',     'condition',   'continue',
+               'debug',   'disable',   'delete'   ,   'disassemble',
+               'display', 'down',      'enable',      'examine',
+               'finish',  'frame',     'ignore',      'info',   'jump', 'list',
+               'next',    'p',         'pp',          'pwd',    'quit', 'run',
+               'set',     'show',      'shell',       'source', 'step', 
+               'tbreak',  'unalias',   'undisplay',   'up',
+               'whatis',  'where'):
         exec 'def help_%s(self): self.msg(getattr(self.do_%s, "__doc__"))' \
              % (fn, fn)
 
@@ -1884,6 +1975,7 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
+    pydb.display = Display()
     process_options(pydb)
 
     # process_options has munged sys.argv to remove any options that
