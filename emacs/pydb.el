@@ -26,15 +26,15 @@
 (defun gud-pydb-massage-args (file args)
   args)
 
-;; Last group is for return value, e.g. "> test.py(2)foo()->None"
-;; Either file or function name may be omitted: "> <string>(0)?()"
+;; Format of line looks like this:
+;;   (/usr/bin/zonetab2pot.py:8):
+;; but we also allow DOS drive letters
+;;   (d:/usr/bin/zonetab2pot.py:8):
 (defvar gud-pydb-marker-regexp
-  "^> \\([-a-zA-Z0-9_/.]*\\|<string>\\)(\\([0-9]+\\))\\([a-zA-Z0-9_]*\\|\\?\\)()\\(->[^\n]*\\)?\n")
-(defvar gud-pydb-marker-regexp-file-group 1)
-(defvar gud-pydb-marker-regexp-line-group 2)
-(defvar gud-pydb-marker-regexp-fnname-group 3)
-
-(defvar gud-pydb-marker-regexp-start "^> ")
+  "\\(^\\|\n\\)(\\(\\([a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\)):[ \t]\\(.*\n\\)")
+(defvar gud-pydb-marker-regexp-file-group 2)
+(defvar gud-pydb-marker-regexp-line-group 4)
+(defvar gud-pydb-marker-regexp-fnname-group 5)
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
@@ -47,26 +47,27 @@
   (let ((output ""))
 
     ;; Process all the complete markers in this chunk.
+    ;; Format of line looks like this:
+    ;;   (/etc/init.d/ntp.init:16):
+    ;; but we also allow DOS drive letters
+    ;;   (d:/etc/init.d/ntp.init:16):
     (while (string-match gud-pydb-marker-regexp gud-marker-acc)
       (setq
 
        ;; Extract the frame position from the marker.
        gud-last-frame
-       (let ((file (match-string gud-pydb-marker-regexp-file-group
-				 gud-marker-acc))
-	     (line (string-to-int
-		    (match-string gud-pydb-marker-regexp-line-group
-				  gud-marker-acc))))
-	 (if (string-equal file "<string>")
-	     gud-last-frame
-	   (cons file line)))
+       (cons (substring gud-marker-acc 
+			(match-beginning gud-pydb-marker-regexp-file-group) 
+			(match-end gud-pydb-marker-regexp-file-group))
+	     (string-to-int 
+	      (substring gud-marker-acc
+			 (match-beginning gud-pydb-marker-regexp-line-group)
+			 (match-end gud-pydb-marker-regexp-line-group))))
 
-       ;; Output everything instead of the below
-       output (concat output (substring gud-marker-acc 0 (match-end 0)))
-;;        ;; Append any text before the marker to the output we're going
-;;        ;; to return - we don't include the marker in this text.
-;;        output (concat output
-;; 		      (substring gud-marker-acc 0 (match-beginning 0)))
+       ;; Append any text before the marker to the output we're going
+       ;; to return - we don't include the marker in this text.
+       output (concat output
+		      (substring gud-marker-acc 0 (match-beginning 0)))
 
        ;; Set the accumulator to the remaining text.
        gud-marker-acc (substring gud-marker-acc (match-end 0))))
@@ -76,7 +77,7 @@
     ;; gud-marker-acc until we receive the rest of it.  Since we
     ;; know the full marker regexp above failed, it's pretty simple to
     ;; test for marker starts.
-    (if (string-match gud-pydb-marker-regexp-start gud-marker-acc)
+    (if (string-match "\032.*\\'" gud-marker-acc)
 	(progn
 	  ;; Everything before the potential marker start can be output.
 	  (setq output (concat output (substring gud-marker-acc

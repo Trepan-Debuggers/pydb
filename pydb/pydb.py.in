@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.43 2006/02/17 18:07:03 rockyb Exp $
+"""$Id: pydb.py.in,v 1.44 2006/02/17 20:19:55 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1795,8 +1795,16 @@ Handles the receipt of EOF as a command."""
             frame_lineno = self.stack[i_stack]
             i_stack -= 1
             frame, lineno = frame_lineno
-            self.msg('> %s' %
-                     self.format_stack_entry(frame_lineno, prompt_prefix))
+            filename = self.canonic(frame.f_code.co_filename)
+            if self.basename:
+                filename = os.path.basename(filename)
+            self.msg_nocr('(%s:%s):' % (filename, lineno))
+            fn_name = frame.f_code.co_name
+            if fn_name and fn_name != '?':
+                self.msg(" %s" % frame.f_code.co_name)
+            else:
+                self.msg("")
+
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.
             if not is_exec_stmt(frame):
