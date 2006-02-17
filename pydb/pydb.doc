@@ -108,6 +108,11 @@ b(reak) [ ([filename:]lineno | function) [, condition] ]
         The condition argument, if present, is a string which must
         evaluate to true in order for the breakpoint to be honored.
 
+cd DIRECTORY
+
+	Set working directory to DIRECTORY for debugger and program
+	being debugged.
+
 cl(ear) [[file:]linenumber]
 
        	Clear breakpoint at specified line or function.
@@ -219,6 +224,9 @@ p expression
 
 pp expression
         Prettyprint the value of the expression.
+
+pwd
+        Print working directory.
 
 q(uit)
         Quit from the debugger.

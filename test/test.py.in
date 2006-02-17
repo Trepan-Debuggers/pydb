@@ -1,12 +1,39 @@
 #!@PYTHON@
+# $Id: test.py.in,v 1.8 2006/02/17 02:31:20 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
+
 top_builddir  = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
     top_builddir += os.path.sep
 
 sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
 import pydb                
+
+class PdbTest(pydb.Pdb):
+    def __init__(self):
+        pydb.Pdb.__init__(self)
+        self.errLines = []
+        self.msgLines = []
+        self.msg_last_nocr = False
+
+    def errmsg(self, msg):
+        self.errLines.append(msg)
+
+    def msg(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = False
+
+    def msg_nocr(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = True
+
 
 builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:
@@ -21,8 +48,8 @@ if srcdir[-1] != os.path.sep:
     srcdir += os.path.sep
 
 pydir        = os.path.join(top_builddir, "pydb")
-pydb         = "pydb.py"
-pydb_path    = os.path.join(pydir, pydb)
+pydb_short   = "pydb.py"
+pydb_path    = os.path.join(pydir, pydb_short)
 
 def run_debugger(testname, pythonfile):
     global srcdir, builddir, pydir
@@ -32,7 +59,7 @@ def run_debugger(testname, pythonfile):
     # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
     # (builddir, cmdfile, outfile, rightfile)
 
-    if  os.path.exists(outfile): os.unlink(outfile)
+    if os.path.exists(outfile): os.unlink(outfile)
 
     cmd = "%s --command %s --output=%s %s" % \
           (pydb_path, cmdfile, outfile, pythonfile)
@@ -88,6 +115,29 @@ class PdbTests(unittest.TestCase):
         result=run_debugger(testname='filebug',
                             pythonfile='%sfilebug.py' %srcdir)
 	self.assertEqual(True, result, "filebug")
+        
+    def test_pwd_cd(self):
+        """Test pwd and cd commands"""
+        pdb = PdbTest()
+        pdb.noninteractive = True
+
+        # Run pwd
+        pdb.msgLines=[]; pdb.errLines=[]
+        pdb.do_pwd("")
+        self.assertEqual(True, len(pdb.errLines) == 0,
+                         "pwd gave error: " + str(pdb.errLines))
+        self.assertEqual(True, len(pdb.msgLines) == 1)
+        my_cd = pdb.msgLines[0]
+
+        # Run cd
+        pdb.msgLines=[]; pdb.errLines=[]
+        pdb.do_cd(".")
+        self.assertEqual(True, len(pdb.errLines) == 0,
+                         "cd gave error: " + str(pdb.errLines))
+        self.assertEqual(True, len(pdb.msgLines) == 0)
+        pdb.msgLines=[]; pdb.errLines=[]
+        pdb.do_pwd("")
+	self.assertEqual(True, pdb.msgLines[0] == my_cd)
         
         
 if __name__ == "__main__":

@@ -63,6 +63,8 @@ line tracing is off
 pydb's prompt is "(Pydb) ".
 + show foo
 *** unknown show subcommand "foo"
++ cd
+*** Argument required (new working directory).
 + ########################################
 + ###   test numeric argument syntax 
 + ########################################

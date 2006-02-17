@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.10 2006/02/14 11:42:44 rockyb Exp $
+% $Id: libpydb.tex,v 1.11 2006/02/17 02:31:17 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -680,9 +680,26 @@ is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
 \ref{debugger:prompt}
 
+\end{description}
+
+\subsection{Interfacing to the OS ({\tt shell}, {\tt pwd},
+  {\tt cd})\label{subsection-os}}
+
+\begin{description}
+
+\item[cd \var{directory}]
+
+Set working directory to \var{directory} for debugger and program
+being debugged.
+
+\item[pwd]
+
+Print working directory.  
+
 \item[shell \var{statement}]
 
 Execute the rest of the line as a shell command.
+
 
 \end{description}
 

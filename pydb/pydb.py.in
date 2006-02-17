@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.40 2006/02/14 11:42:44 rockyb Exp $
+"""$Id: pydb.py.in,v 1.41 2006/02/17 02:31:19 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -607,6 +607,79 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.print_location()
         self.lineno = None
 
+    def _getval(self, arg):
+        try:
+            return eval(arg, self.curframe.f_globals,
+                        self.curframe.f_locals)
+        except:
+            t, v = sys.exc_info()[:2]
+            if isinstance(t, str):
+                exc_type_name = t
+            else: exc_type_name = t.__name__
+            self.errmsg(str("%s: %s" % (exc_type_name, arg)))
+            raise
+
+    # To be overridden in derived debuggers
+    def defaultFile(self):
+        """Produce a reasonable default."""
+        filename = self.curframe.f_code.co_filename
+        # Consider using is_exec_stmt(). I just don't understand
+        # the conditions under which the below test is true.
+        if filename == '<string>' and self.mainpyfile:
+            filename = self.mainpyfile
+        return filename
+
+    def lineinfo(self, identifier):
+        failed = (None, None, None)
+        # Input is identifier, may be in single quotes
+        idstring = identifier.split("'")
+        if len(idstring) == 1:
+            # not in single quotes
+            id = idstring[0].strip()
+        elif len(idstring) == 3:
+            # quoted
+            id = idstring[1].strip()
+        else:
+            return failed
+        if id == '': return failed
+        parts = id.split('.')
+        # Protection for derived debuggers
+        if parts[0] == 'self':
+            del parts[0]
+            if len(parts) == 0:
+                return failed
+        # Best first guess at file to look at
+        fname = self.defaultFile()
+        if len(parts) == 1:
+            item = parts[0]
+        else:
+            # More than one part.
+            # First is module, second is method/class
+            f = self.lookupmodule(parts[0])
+            if f:
+                fname = f
+            item = parts[1]
+        answer = find_function(item, fname)
+        return answer or failed
+
+    def checkline(self, filename, lineno):
+        """Check whether specified line seems to be executable.
+
+        Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
+        line or EOF). Warning: testing is not comprehensive.
+        """
+        line = linecache.getline(filename, lineno)
+        if not line:
+            self.errmsg('End of file')
+            return 0
+        line = line.strip()
+        # Don't allow setting breakpoint at a blank line
+        if (not line or (line[0] == '#') or
+             (line[:3] == '"""') or line[:3] == "'''"):
+            self.errmsg('Blank or comment')
+            return 0
+        return lineno
+
     # Command definitions, called by cmdloop()
     # The argument is the remaining string on the command line
     # Return true to exit from the command loop
@@ -710,17 +783,477 @@ the .py suffix may be omitted."""
                 self.msg("Breakpoint %d at %s:%d"
                          % (bp.number, self.filename(bp.file), bp.line))
 
-    # To be overridden in derived debuggers
-    def defaultFile(self):
-        """Produce a reasonable default."""
-        filename = self.curframe.f_code.co_filename
-        # Consider using is_exec_stmt(). I just don't understand
-        # the conditions under which the below test is true.
-        if filename == '<string>' and self.mainpyfile:
-            filename = self.mainpyfile
-        return filename
-
     do_b = do_break
+
+    def do_cd(self, arg):
+        """Set working directory to DIRECTORY for debugger and program
+	being debugged. """
+
+        if not arg:
+            self.errmsg("Argument required (new working directory).")
+        else:
+           os.chdir(arg)
+
+    def do_clear(self, arg):
+        """cl(ear) [[file:]linenumber]
+
+        Clear breakpoint at specified line or function.  Argument may
+        be line number, function name, or '*' and an address.  If line
+        number is specified, all breakpoints in that line are cleared.
+        If function is specified, breakpoints at beginning of function
+        are cleared.  If an address is specified, breakpoints at that
+        address are cleared.
+
+        With no argument, clears all breakpoints in the line that the
+        selected frame is executing in.
+
+        See also the 'delete' command which clears breakpoints by number.
+        """
+
+        if not arg:
+            self.error("Sorry - not implemented yet")
+
+        if ':' in arg:
+            # Make sure it works for "clear C:\foo\bar.py:12"
+            i = arg.rfind(':')
+            filename = arg[:i]
+            arg = arg[i+1:]
+        else:
+            frame=self.curframe
+            filename = self.canonic(frame.f_code.co_filename)
+        try:
+            lineno = int(arg)
+        except:
+            err = "Invalid line number (%s)" % arg
+        else:
+            err = self.clear_break(filename, lineno)
+        if err: self.errmsg(err)
+        return
+    do_cl = do_clear
+
+    def do_condition(self, arg):
+        """condition bpnumber str_condition
+
+        str_condition is a string specifying an expression which must
+        evaluate to true before the breakpoint is honored.  If
+        str_condition is absent, any existing condition is removed;
+        i.e., the breakpoint is made unconditional."""
+
+        args = arg.split(' ', 1)
+        try:
+            bpnum = self.__get_pos_int(args[0].strip(), min=1,
+                                       cmdname='condition')
+        except ValueError:
+            return
+        except IndexError:
+            self.errmsg("Breakpoint number required.")
+        try:
+            cond = args[1]
+        except:
+            cond = None
+        try:
+            bp = bdb.Breakpoint.bpbynumber[bpnum]
+        except IndexError:
+            self.errmsg("No breakpoint number %d." % bpnum)
+            return
+        if bp:
+            bp.cond = cond
+            if not cond:
+                self.msg('Breakpoint %d is now unconditional.' % bpnum)
+
+    def do_continue(self, arg):
+        """c(ont(inue))
+
+        Continue execution, only stop when a breakpoint is
+        encountered."""
+
+        if self.linetrace:
+            # linetracing is like stepping, but we just don't stop. If
+            # we were to calling set_continue, it  *might* remove all
+            # stopping if there were no breakpoints.
+            global step_ignore_count
+            step_ignore_count = -1
+            self.set_step()
+        else:
+            self.set_continue()
+        return 1
+    do_c = do_cont = do_continue
+
+    def do_debug(self, arg):
+        """debug code
+        Enter a recursive debugger that steps through the code argument
+        (which is an arbitrary expression or statement to be executed
+        in the current environment)."""
+        sys.settrace(None)
+        globals = self.curframe.f_globals
+        locals = self.curframe.f_locals
+        p = Pdb()
+        p.prompt = "(%s) " % self.prompt.strip()
+        self.msg("ENTERING RECURSIVE DEBUGGER")
+        old_prompt = self.prompt
+        self.prompt.strip()
+        self.prompt = '(%s) ' % self.prompt
+        sys.call_tracing(p.run, (arg, globals, locals))
+        self.msg("LEAVING RECURSIVE DEBUGGER")
+        self.prompt = old_prompt
+        sys.settrace(self.trace_dispatch)
+        self.lastcmd = p.lastcmd
+
+    def do_delete(self, arg):
+
+        """delete [bpnumber [bpnumber...]]  Delete some breakpoints.
+        Arguments are breakpoint numbers with spaces in between.  To
+        delete all breakpoints, give no argument.  those breakpoints.
+        Without argument, clear all breaks (but first ask
+        confirmation).
+        
+        See also the 'clear' command which clears breakpoints by
+        line/file number.."""
+        
+        if not arg:
+            while True:
+                try:
+                    reply = raw_input('Delete all breakpoints (y or n)? ')
+                except EOFError:
+                    reply = 'no'
+                    reply = reply.strip().lower()
+                if reply in ('y', 'yes'):
+                    self.clear_all_breaks()
+                    break
+                elif reply in ('n', 'no'):
+                    return
+                else:
+                    self.msg("Please answer y or n.")
+
+        numberlist = arg.split()
+        for arg in numberlist:
+            try:
+                i = self.__get_pos_int(arg, min=1, default=None,
+                                       cmdname='delete')
+            except ValueError:
+                continue
+
+            if not (i < len(bdb.Breakpoint.bpbynumber)):
+                self.errmsg('No breakpoint numbered %d.' % i)
+                continue
+            err = self.clear_bpbynumber(i)
+            if err:
+                self.errmsg(err)
+            else:
+                self.msg('Deleted breakpoint %d' % i)
+
+    def do_disable(self, arg):
+        """disable bpnumber [bpnumber ...]
+
+        Disables the breakpoints given as a space separated list of bp
+        numbers."""
+
+        args = arg.split()
+        if len(args) == 0:
+            self.errmsg('No breakpoint number given')
+            return
+        for i in args:
+            try:
+                i = int(i)
+            except ValueError:
+                self.msg('Breakpoint index %r is not a number' % i)
+                continue
+
+            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
+                self.msg('No breakpoint numbered', i)
+                continue
+
+            bp = bdb.Breakpoint.bpbynumber[i]
+            if bp:
+                bp.disable()
+
+    def do_disassemble(self, arg):
+        """disassemble [arg]
+        With no argument disassemble at the current frame location.
+        With a numeric argument, disassemble at the frame location at that
+        line number. With a class, method, function, code or string argument
+        disassemble that.
+        """
+        if not arg:
+            dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
+        else:
+            try:
+                i = int(arg)
+                dis.disassemble(self.curframe.f_code, i)
+            except ValueError:
+                try: 
+                    obj=self._getval(arg)
+                    dis.dis(obj)
+                except NameError:
+                    pass
+        
+    def do_down(self, arg):
+        """d(own) [count]
+
+        Move the current frame one level down in the stack trace
+        (to a newer frame).
+
+        If using gdb dialect up matches the gdb: 0 is the most recent
+        frame.  Otherwise we match Python's stack: 0 is the oldest
+        frame.  """
+
+        try:
+            count = self.__get_int(arg, cmdname="down")
+        except ValueError:
+            return
+        if self.gdb_dialect:
+            count = -count
+        self.__adjust_frame(pos=-count, absolute_pos=False)
+    do_d = do_down
+
+    def do_enable(self, arg):
+
+        """enable bpnumber [bpnumber ...]
+
+        Enables the breakpoints given as a space separated list of bp
+        numbers."""
+
+        args = arg.split()
+        if len(args) == 0:
+            self.errmsg('No breakpoint number given')
+            return
+        for i in args:
+            try:
+                i = int(i)
+            except ValueError:
+                self.msg('Breakpoint index %r is not a number' % i)
+                continue
+
+            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
+                self.errmsg('No breakpoint numbered', i)
+                continue
+
+            bp = bdb.Breakpoint.bpbynumber[i]
+            if bp:
+                bp.enable()
+
+    def do_finish(self, arg):
+        """finish
+
+        Continue execution until the current function returns."""
+
+        self.set_return(self.curframe)
+        if self.linetrace:
+            global step_ignore_count
+            step_ignore_count = -1
+            self.stopframe = None
+        return 1
+
+    def do_frame(self, arg):
+        """frame frame-number
+	Move the current frame to the specified frame number. 
+
+	If using gdb dialect up matches the gdb: 0 is the most recent
+	frame.  Otherwise we match Python's stack: 0 is the oldest
+	frame.
+
+	A negative number indicates position from the other end.
+	So 'frame -1' moves when gdb dialect is in effect moves
+	to the oldest frame, and 'frame 0' moves to the newest frame."""
+
+        try:
+            arg = int(arg)
+        except ValueError:
+            self.errmsg(("The 'frame' command requires a frame number."+
+                         " Got: %s") % arg)
+            return
+
+        i_stack = len(self.stack)
+        if arg < -i_stack or arg > i_stack-1:
+            self.errmsg('Frame number has to be in the range %d to %d' \
+                  % (-i_stack, i_stack-1))
+        else:
+            self.__adjust_frame(pos=arg, absolute_pos=True)
+            
+    def do_ignore(self,arg):
+
+        """ignore bpnumber count
+
+        Sets the ignore count for the given breakpoint number.  A
+        breakpoint becomes active when the ignore count is zero.  When
+        non-zero, the count is decremented each time the breakpoint is
+        reached and the breakpoint is not disabled and any associated
+        condition evaluates to true."""
+
+        args = arg.split()
+        bpnum = int(args[0].strip())
+        try:
+            count = int(args[1].strip())
+        except:
+            count = 0
+        bp = bdb.Breakpoint.bpbynumber[bpnum]
+        if bp:
+            bp.ignore = count
+            if count > 0:
+                reply = 'Will ignore next '
+                if count > 1:
+                    reply = reply + '%d crossings' % count
+                else:
+                    reply = reply + '1 crossing'
+                self.msg('%s of breakpoint %d.' % (reply, bpnum))
+            else:
+                self.msg('Will stop next time breakpoint %d is reached.' %
+                         bpnum)
+
+    def do_info(self, arg):
+        """i(nfo) [suboption]
+	Without argument, print the list of available info commands.
+	With an argument, print info about that command. Suboptions follow:
+
+        info args -- Argument variables of current stack frame
+        info break -- Status of user-settable breakpoints
+        info line -- Current line number in source file
+        info locals -- Local variables of current stack frame
+        info globals -- Global variables of current stack frame
+        info source -- Information about the current Python file"""
+
+        if not arg:
+            self.msg(self.do_info.__doc__)
+            return
+
+        frame=self.curframe
+        if "args" == arg:
+            self.__info_args(None)
+        elif "break" == arg:
+            # FIXME: Should split out the "info" part in args
+            self.do_L(None)
+        elif "line" == arg:
+            self.msg('Line %d of \"%s\"' % 
+                     (frame.f_lineno,
+                      self.filename(self.canonic(frame.f_code.co_filename))))
+        elif "locals" == arg:
+            self.msg("\n".join(["%s = %s"
+                                % (l, pprint.pformat(self._getval(l)))
+                                for l in frame.f_locals]))
+        elif "globals" == arg:
+            self.msg("\n".join(["%s = %s"
+                                % (l, pprint.pformat(self._getval(l)))
+                                for l in frame.f_globals]))
+        elif "source" == arg:
+            self.msg('Current Python file is %s' % 
+                     self.filename(self.canonic(frame.f_code.co_filename)))
+
+    def do_info_break(self, arg):
+        """info break
+
+        Without argument, list info about all breakpoints.  With an
+        integer argument, list info on that breakpoint.
+
+        The short command name is L."""
+
+        if self.breaks:  # There's at least one
+            self.msg("Num Type          Disp Enb    Where")
+            for bp in bdb.Breakpoint.bpbynumber:
+                if bp:
+                    self.bpprint(bp)
+        else:
+            self.msg("No breakpoints.")
+
+    do_L = do_info_break
+
+    def do_jump(self, arg):
+        """j(ump) lineno
+
+        Set the next line that will be executed."""
+
+        if self.curindex + 1 != len(self.stack):
+            self.errmsg("You can only jump within the bottom frame")
+            return
+        try:
+            arg = int(arg)
+        except ValueError:
+            self.errmsg("The 'jump' command requires a line number.")
+        else:
+            try:
+                # Do the jump, fix up our copy of the stack, and display the
+                # new position
+                self.curframe.f_lineno = arg
+                self.stack[self.curindex] = self.stack[self.curindex][0], arg
+                self.print_stack_entry(self.stack[self.curindex])
+            except ValueError, e:
+                self.errmsg('Jump failed: %s' % e)
+
+    do_j = do_jump
+
+    def do_next(self, arg):
+        """n(ext) [count]
+Continue execution until the next line in the current function
+is reached or it returns.
+
+With an integer argument, perform that many times."""
+        global step_ignore_count
+        try:
+            # 0 means stop now or step 1, so we subtract 1.
+            step_ignore_count = self.__get_pos_int(arg, default=1,
+                                                   cmdname='next') - 1
+        except ValueError:
+            return
+
+        self.set_next(self.curframe)
+        return 1
+    do_n = do_next
+
+    def do_p(self, arg):
+        """p expression
+        Print the value of the expression."""
+        try:
+            self.msg(repr(self._getval(arg)))
+        except:
+            pass
+
+    def do_pp(self, arg):
+        """pp expression
+        Pretty-print the value of the expression."""
+        try:
+            self.msg(pprint.pformat(self._getval(arg)))
+        except:
+            pass
+
+    def do_pwd(self, arg):
+        "Print working directory."
+        self.msg('Working directory ' + os.getcwd() + '.')
+
+    def do_quit(self, arg):
+        """q(uit) or exit - Quit from the debugger.
+        The program being executed is aborted."""
+        self._user_requested_quit = True
+        self.set_quit()
+        return 1
+
+    do_q = do_quit
+
+    def do_retval(self, arg):
+        """retval
+Show the value that is to be returned from a function.        
+This command is useful after a "finish" command or stepping just after a return
+statement.
+        """
+        if '__return__' in self.curframe.f_locals:
+            self.msg(self.curframe.f_locals['__return__'])
+        else:
+            self.errmg('Not yet returned!')
+    do_rv = do_retval
+
+    def do_run(self, arg):
+        """ru(n) [args...]
+
+        Restart the debugged Python program. If a string is supplied
+        that becomes the new command arguments.  History, breakpoints,
+        actions and debugger options are preserved."""
+
+        if arg:
+            argv_start = sys.argv[0:1]
+            sys.argv = arg.split(" ")
+            sys.argv[:0] = argv_start
+
+        raise Restart
+
+    do_R = do_ru = do_restart = do_run
 
     def do_set(self, arg):
 
@@ -875,405 +1408,6 @@ show version -- Show what version of this is
         rc = self.execRcLines() 
         if rc == 1:  return rc
 
-    def do_tbreak(self, arg):
-        """tbreak  [ ([filename:]lineno | function) [, condition] ]
-        Set a temporary breakpoint. Arguments are like the "break" command.
-        Like "break" except the breakoint is only temporary, 
-        so it will be deleted when hit."""
-        self.do_break(arg, 1)
-
-    def lineinfo(self, identifier):
-        failed = (None, None, None)
-        # Input is identifier, may be in single quotes
-        idstring = identifier.split("'")
-        if len(idstring) == 1:
-            # not in single quotes
-            id = idstring[0].strip()
-        elif len(idstring) == 3:
-            # quoted
-            id = idstring[1].strip()
-        else:
-            return failed
-        if id == '': return failed
-        parts = id.split('.')
-        # Protection for derived debuggers
-        if parts[0] == 'self':
-            del parts[0]
-            if len(parts) == 0:
-                return failed
-        # Best first guess at file to look at
-        fname = self.defaultFile()
-        if len(parts) == 1:
-            item = parts[0]
-        else:
-            # More than one part.
-            # First is module, second is method/class
-            f = self.lookupmodule(parts[0])
-            if f:
-                fname = f
-            item = parts[1]
-        answer = find_function(item, fname)
-        return answer or failed
-
-    def checkline(self, filename, lineno):
-        """Check whether specified line seems to be executable.
-
-        Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
-        line or EOF). Warning: testing is not comprehensive.
-        """
-        line = linecache.getline(filename, lineno)
-        if not line:
-            self.errmsg('End of file')
-            return 0
-        line = line.strip()
-        # Don't allow setting breakpoint at a blank line
-        if (not line or (line[0] == '#') or
-             (line[:3] == '"""') or line[:3] == "'''"):
-            self.errmsg('Blank or comment')
-            return 0
-        return lineno
-
-    def do_enable(self, arg):
-
-        """enable bpnumber [bpnumber ...]
-
-        Enables the breakpoints given as a space separated list of bp
-        numbers."""
-
-        args = arg.split()
-        if len(args) == 0:
-            self.errmsg('No breakpoint number given')
-            return
-        for i in args:
-            try:
-                i = int(i)
-            except ValueError:
-                self.msg('Breakpoint index %r is not a number' % i)
-                continue
-
-            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.errmsg('No breakpoint numbered', i)
-                continue
-
-            bp = bdb.Breakpoint.bpbynumber[i]
-            if bp:
-                bp.enable()
-
-    def do_disable(self, arg):
-        """disable bpnumber [bpnumber ...]
-
-        Disables the breakpoints given as a space separated list of bp
-        numbers."""
-
-        args = arg.split()
-        if len(args) == 0:
-            self.errmsg('No breakpoint number given')
-            return
-        for i in args:
-            try:
-                i = int(i)
-            except ValueError:
-                self.msg('Breakpoint index %r is not a number' % i)
-                continue
-
-            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.msg('No breakpoint numbered', i)
-                continue
-
-            bp = bdb.Breakpoint.bpbynumber[i]
-            if bp:
-                bp.disable()
-
-    def do_disassemble(self, arg):
-        """disassemble [arg]
-        With no argument disassemble at the current frame location.
-        With a numeric argument, disassemble at the frame location at that
-        line number. With a class, method, function, code or string argument
-        disassemble that.
-        """
-        if not arg:
-            dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
-        else:
-            try:
-                i = int(arg)
-                dis.disassemble(self.curframe.f_code, i)
-            except ValueError:
-                try: 
-                    obj=self._getval(arg)
-                    dis.dis(obj)
-                except NameError:
-                    pass
-        
-    def do_condition(self, arg):
-        """condition bpnumber str_condition
-
-        str_condition is a string specifying an expression which must
-        evaluate to true before the breakpoint is honored.  If
-        str_condition is absent, any existing condition is removed;
-        i.e., the breakpoint is made unconditional."""
-
-        args = arg.split(' ', 1)
-        try:
-            bpnum = self.__get_pos_int(args[0].strip(), min=1,
-                                       cmdname='condition')
-        except ValueError:
-            return
-        except IndexError:
-            self.errmsg("Breakpoint number required.")
-        try:
-            cond = args[1]
-        except:
-            cond = None
-        try:
-            bp = bdb.Breakpoint.bpbynumber[bpnum]
-        except IndexError:
-            self.errmsg("No breakpoint number %d." % bpnum)
-            return
-        if bp:
-            bp.cond = cond
-            if not cond:
-                self.msg('Breakpoint %d is now unconditional.' % bpnum)
-
-    def do_ignore(self,arg):
-
-        """ignore bpnumber count
-
-        Sets the ignore count for the given breakpoint number.  A
-        breakpoint becomes active when the ignore count is zero.  When
-        non-zero, the count is decremented each time the breakpoint is
-        reached and the breakpoint is not disabled and any associated
-        condition evaluates to true."""
-
-        args = arg.split()
-        bpnum = int(args[0].strip())
-        try:
-            count = int(args[1].strip())
-        except:
-            count = 0
-        bp = bdb.Breakpoint.bpbynumber[bpnum]
-        if bp:
-            bp.ignore = count
-            if count > 0:
-                reply = 'Will ignore next '
-                if count > 1:
-                    reply = reply + '%d crossings' % count
-                else:
-                    reply = reply + '1 crossing'
-                self.msg('%s of breakpoint %d.' % (reply, bpnum))
-            else:
-                self.msg('Will stop next time breakpoint %d is reached.' %
-                         bpnum)
-
-    def do_clear(self, arg):
-        """cl(ear) [[file:]linenumber]
-
-        Clear breakpoint at specified line or function.  Argument may
-        be line number, function name, or '*' and an address.  If line
-        number is specified, all breakpoints in that line are cleared.
-        If function is specified, breakpoints at beginning of function
-        are cleared.  If an address is specified, breakpoints at that
-        address are cleared.
-
-        With no argument, clears all breakpoints in the line that the
-        selected frame is executing in.
-
-        See also the 'delete' command which clears breakpoints by number.
-        """
-
-        if not arg:
-            self.error("Sorry - not implemented yet")
-
-        if ':' in arg:
-            # Make sure it works for "clear C:\foo\bar.py:12"
-            i = arg.rfind(':')
-            filename = arg[:i]
-            arg = arg[i+1:]
-        else:
-            frame=self.curframe
-            filename = self.canonic(frame.f_code.co_filename)
-        try:
-            lineno = int(arg)
-        except:
-            err = "Invalid line number (%s)" % arg
-        else:
-            err = self.clear_break(filename, lineno)
-        if err: self.errmsg(err)
-        return
-    do_cl = do_clear
-
-    def do_delete(self, arg):
-
-        """delete [bpnumber [bpnumber...]]  Delete some breakpoints.
-        Arguments are breakpoint numbers with spaces in between.  To
-        delete all breakpoints, give no argument.  those breakpoints.
-        Without argument, clear all breaks (but first ask
-        confirmation).
-        
-        See also the 'clear' command which clears breakpoints by
-        line/file number.."""
-        
-        if not arg:
-            while True:
-                try:
-                    reply = raw_input('Delete all breakpoints (y or n)? ')
-                except EOFError:
-                    reply = 'no'
-                    reply = reply.strip().lower()
-                if reply in ('y', 'yes'):
-                    self.clear_all_breaks()
-                    break
-                elif reply in ('n', 'no'):
-                    return
-                else:
-                    self.msg("Please answer y or n.")
-
-        numberlist = arg.split()
-        for arg in numberlist:
-            try:
-                i = self.__get_pos_int(arg, min=1, default=None,
-                                       cmdname='delete')
-            except ValueError:
-                continue
-
-            if not (i < len(bdb.Breakpoint.bpbynumber)):
-                self.errmsg('No breakpoint numbered %d.' % i)
-                continue
-            err = self.clear_bpbynumber(i)
-            if err:
-                self.errmsg(err)
-            else:
-                self.msg('Deleted breakpoint %d' % i)
-
-    def do_where(self, arg):
-        """where
-
-        Print a stack trace, with the most recent frame at the top.
-        An arrow indicates the 'current frame', which determines the
-        context of most commands.  'bt' and 'T' are short command
-        names for this."""
-
-        if self.gdb_dialect:
-            self.print_stack_trace_gdb()
-        else:
-            self.print_stack_trace()
-    do_T = do_bt = do_where
-
-    def do_up(self, arg):
-        """u(p) [count]
-        Move the current frame one level up in the stack trace
-        (to an older frame).
-        
-        If using gdb dialect up matches the gdb: 0 is the most recent
-        frame.  Otherwise we match Python's stack: 0 is the oldest
-        frame.  """
-
-        try:
-            count = self.__get_int(arg, cmdname="up")
-        except ValueError:
-            return
-        if self.gdb_dialect:
-            count = -count
-        self.__adjust_frame(pos=count, absolute_pos=False)
-    do_u = do_up
-
-    def do_down(self, arg):
-        """d(own) [count]
-
-        Move the current frame one level down in the stack trace
-        (to a newer frame).
-
-        If using gdb dialect up matches the gdb: 0 is the most recent
-        frame.  Otherwise we match Python's stack: 0 is the oldest
-        frame.  """
-
-        try:
-            count = self.__get_int(arg, cmdname="down")
-        except ValueError:
-            return
-        if self.gdb_dialect:
-            count = -count
-        self.__adjust_frame(pos=-count, absolute_pos=False)
-    do_d = do_down
-
-    def do_frame(self, arg):
-        """frame frame-number
-	Move the current frame to the specified frame number. 
-
-	If using gdb dialect up matches the gdb: 0 is the most recent
-	frame.  Otherwise we match Python's stack: 0 is the oldest
-	frame.
-
-	A negative number indicates position from the other end.
-	So 'frame -1' moves when gdb dialect is in effect moves
-	to the oldest frame, and 'frame 0' moves to the newest frame."""
-
-        try:
-            arg = int(arg)
-        except ValueError:
-            self.errmsg(("The 'frame' command requires a frame number."+
-                         " Got: %s") % arg)
-            return
-
-        i_stack = len(self.stack)
-        if arg < -i_stack or arg > i_stack-1:
-            self.errmsg('Frame number has to be in the range %d to %d' \
-                  % (-i_stack, i_stack-1))
-        else:
-            self.__adjust_frame(pos=arg, absolute_pos=True)
-            
-    def do_info_break(self, arg):
-        """info break
-
-        Without argument, list info about all breakpoints.  With an
-        integer argument, list info on that breakpoint.
-
-        The short command name is L."""
-
-        if self.breaks:  # There's at least one
-            self.msg("Num Type          Disp Enb    Where")
-            for bp in bdb.Breakpoint.bpbynumber:
-                if bp:
-                    self.bpprint(bp)
-    do_L = do_info_break
-
-    def do_info(self, arg):
-        """i(nfo) [suboption]
-	Without argument, print the list of available info commands.
-	With an argument, print info about that command. Suboptions follow:
-
-        info args -- Argument variables of current stack frame
-        info break -- Status of user-settable breakpoints
-        info line -- Current line number in source file
-        info locals -- Local variables of current stack frame
-        info globals -- Global variables of current stack frame
-        info source -- Information about the current Python file"""
-
-        if not arg:
-            self.msg(self.do_info.__doc__)
-            return
-
-        frame=self.curframe
-        if "args" == arg:
-            self.__info_args(None)
-        elif "break" == arg:
-            # FIXME: Should split out the "info" part in args
-            self.do_L(None)
-        elif "line" == arg:
-            self.msg('Line %d of \"%s\"' % 
-                     (frame.f_lineno,
-                      self.filename(self.canonic(frame.f_code.co_filename))))
-        elif "locals" == arg:
-            self.msg("\n".join(["%s = %s"
-                                % (l, pprint.pformat(self._getval(l)))
-                                for l in frame.f_locals]))
-        elif "globals" == arg:
-            self.msg("\n".join(["%s = %s"
-                                % (l, pprint.pformat(self._getval(l)))
-                                for l in frame.f_globals]))
-        elif "source" == arg:
-            self.msg('Current Python file is %s' % 
-                     self.filename(self.canonic(frame.f_code.co_filename)))
-
     def do_step(self, arg):
         """s(tep) [count]
 Execute the current line, stop at the first possible occasion
@@ -1293,122 +1427,44 @@ With an integer argument, step that many times."""
         return 1
     do_s = do_step
 
-    def do_next(self, arg):
-        """n(ext) [count]
-Continue execution until the next line in the current function
-is reached or it returns.
+    def do_tbreak(self, arg):
+        """tbreak  [ ([filename:]lineno | function) [, condition] ]
+        Set a temporary breakpoint. Arguments are like the "break" command.
+        Like "break" except the breakoint is only temporary, 
+        so it will be deleted when hit."""
+        self.do_break(arg, 1)
 
-With an integer argument, perform that many times."""
-        global step_ignore_count
+    def do_up(self, arg):
+        """u(p) [count]
+        Move the current frame one level up in the stack trace
+        (to an older frame).
+        
+        If using gdb dialect up matches the gdb: 0 is the most recent
+        frame.  Otherwise we match Python's stack: 0 is the oldest
+        frame.  """
+
         try:
-            # 0 means stop now or step 1, so we subtract 1.
-            step_ignore_count = self.__get_pos_int(arg, default=1,
-                                                   cmdname='next') - 1
+            count = self.__get_int(arg, cmdname="up")
         except ValueError:
             return
+        if self.gdb_dialect:
+            count = -count
+        self.__adjust_frame(pos=count, absolute_pos=False)
+    do_u = do_up
 
-        self.set_next(self.curframe)
-        return 1
-    do_n = do_next
+    def do_where(self, arg):
+        """where
 
-    def do_run(self, arg):
-        """ru(n) [args...]
+        Print a stack trace, with the most recent frame at the top.
+        An arrow indicates the 'current frame', which determines the
+        context of most commands.  'bt' and 'T' are short command
+        names for this."""
 
-        Restart the debugged Python program. If a string is supplied
-        that becomes the new command arguments.  History, breakpoints,
-        actions and debugger options are preserved."""
-
-        if arg:
-            argv_start = sys.argv[0:1]
-            sys.argv = arg.split(" ")
-            sys.argv[:0] = argv_start
-
-        raise Restart
-
-    do_R = do_ru = do_restart = do_run
-
-    def do_finish(self, arg):
-        """finish
-
-        Continue execution until the current function returns."""
-
-        self.set_return(self.curframe)
-        if self.linetrace:
-            global step_ignore_count
-            step_ignore_count = -1
-            self.stopframe = None
-        return 1
-
-    def do_continue(self, arg):
-        """c(ont(inue))
-
-        Continue execution, only stop when a breakpoint is
-        encountered."""
-
-        if self.linetrace:
-            # linetracing is like stepping, but we just don't stop. If
-            # we were to calling set_continue, it  *might* remove all
-            # stopping if there were no breakpoints.
-            global step_ignore_count
-            step_ignore_count = -1
-            self.set_step()
+        if self.gdb_dialect:
+            self.print_stack_trace_gdb()
         else:
-            self.set_continue()
-        return 1
-    do_c = do_cont = do_continue
-
-    def do_jump(self, arg):
-        """j(ump) lineno
-
-        Set the next line that will be executed."""
-
-        if self.curindex + 1 != len(self.stack):
-            self.errmsg("You can only jump within the bottom frame")
-            return
-        try:
-            arg = int(arg)
-        except ValueError:
-            self.errmsg("The 'jump' command requires a line number.")
-        else:
-            try:
-                # Do the jump, fix up our copy of the stack, and display the
-                # new position
-                self.curframe.f_lineno = arg
-                self.stack[self.curindex] = self.stack[self.curindex][0], arg
-                self.print_stack_entry(self.stack[self.curindex])
-            except ValueError, e:
-                self.errmsg('Jump failed: %s' % e)
-
-    do_j = do_jump
-
-    def do_debug(self, arg):
-        """debug code
-        Enter a recursive debugger that steps through the code argument
-        (which is an arbitrary expression or statement to be executed
-        in the current environment)."""
-        sys.settrace(None)
-        globals = self.curframe.f_globals
-        locals = self.curframe.f_locals
-        p = Pdb()
-        p.prompt = "(%s) " % self.prompt.strip()
-        self.msg("ENTERING RECURSIVE DEBUGGER")
-        old_prompt = self.prompt
-        self.prompt.strip()
-        self.prompt = '(%s) ' % self.prompt
-        sys.call_tracing(p.run, (arg, globals, locals))
-        self.msg("LEAVING RECURSIVE DEBUGGER")
-        self.prompt = old_prompt
-        sys.settrace(self.trace_dispatch)
-        self.lastcmd = p.lastcmd
-
-    def do_quit(self, arg):
-        """q(uit) or exit - Quit from the debugger.
-        The program being executed is aborted."""
-        self._user_requested_quit = True
-        self.set_quit()
-        return 1
-
-    do_q = do_quit
+            self.print_stack_trace()
+    do_T = do_bt = do_where
 
     def do_EOF(self, arg):
         """EOF
@@ -1417,46 +1473,6 @@ Handles the receipt of EOF as a command."""
         self._user_requested_quit = True
         self.set_quit()
         return 1
-
-    def do_retval(self, arg):
-        """retval
-Show the value that is to be returned from a function.        
-This command is useful after a "finish" command or stepping just after a return
-statement.
-        """
-        if '__return__' in self.curframe.f_locals:
-            self.msg(self.curframe.f_locals['__return__'])
-        else:
-            self.errmg('Not yet returned!')
-    do_rv = do_retval
-
-    def _getval(self, arg):
-        try:
-            return eval(arg, self.curframe.f_globals,
-                        self.curframe.f_locals)
-        except:
-            t, v = sys.exc_info()[:2]
-            if isinstance(t, str):
-                exc_type_name = t
-            else: exc_type_name = t.__name__
-            self.errmsg(str("%s: %s" % (exc_type_name, arg)))
-            raise
-
-    def do_p(self, arg):
-        """p expression
-        Print the value of the expression."""
-        try:
-            self.msg(repr(self._getval(arg)))
-        except:
-            pass
-
-    def do_pp(self, arg):
-        """pp expression
-        Pretty-print the value of the expression."""
-        try:
-            self.msg(pprint.pformat(self._getval(arg)))
-        except:
-            pass
 
     def do_examine(self, arg):
         """examine expression
@@ -1727,12 +1743,12 @@ Deletes the specified alias."""
     help_help = help_h
 
     for fn in ('EOF',    'L',         'alias',       'break',
-               'clear',  'condition', 'continue',
+               'cd',     'clear',     'condition',   'continue',
                'debug',  'disable',   'delete'  ,    'disassemble', 'down',
                'enable', 'examine',
-               'finish', 'frame',     'ignore',      'info', 'jump', 'list',
-               'next',   'p',         'pp',          'quit', 'run',
-               'set',    'show',      'source',      'step', 
+               'finish', 'frame',     'ignore',      'info',   'jump', 'list',
+               'next',   'p',         'pp',          'pwd',    'quit', 'run',
+               'set',    'show',      'shell',       'source', 'step', 
                'tbreak', 'unalias',   'up',          'whatis', 'where'):
         exec 'def help_%s(self): self.msg(getattr(self.do_%s, "__doc__"))' \
              % (fn, fn)

@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.3 2006/01/28 01:38:06 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.4 2006/02/17 02:31:20 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -48,6 +48,7 @@ show linetrace
 ########################################
 show prompt
 show foo
+cd
 ########################################
 ###   test numeric argument syntax 
 ########################################
