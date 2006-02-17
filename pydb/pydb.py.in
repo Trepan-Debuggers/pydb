@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.42 2006/02/17 04:27:36 rockyb Exp $
+"""$Id: pydb.py.in,v 1.43 2006/02/17 18:07:03 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -218,7 +218,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         bdb.Bdb.__init__(self)
         cmd.Cmd.__init__(self)
         self._wait_for_mainpyfile = False
-        self.aliases          = {}
+        self.aliases         = {}
         self.basename        = False
         self.cmdtrace        = False
         self.gdb_dialect     = True
@@ -226,6 +226,8 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.linetrace_delay = 0
         self.listsize        = 10
         self.mainpyfile      = ''
+        self.originalpath    = sys.path[:]
+        self.moduletodebug   = ""
         self.noninteractive  = False
         self.currentbp       = None     # for "info program"
         self.prompt = '(Pydb) '
@@ -943,12 +945,19 @@ the .py suffix may be omitted."""
         p.prompt  = "(%s) " % self.prompt.strip()
         p.display = Display()
         self.msg("ENTERING RECURSIVE DEBUGGER")
-        old_prompt = self.prompt
-        self.prompt.strip()
-        self.prompt = '(%s) ' % self.prompt
+
+        # Inherit some values from current environemnt
+        p.aliases         = self.aliases
+        p.basename        = self.basename
+        p.cmdtrace        = self.cmdtrace
+        p.gdb_dialect     = self.gdb_dialect
+        p.linetrace       = self.linetrace
+        p.linetrace_delay = self.linetrace_delay
+        p.listsize        = self.listsize
+        p.noninteractive  = self.noninteractive
+        
         sys.call_tracing(p.run, (arg, globals, locals))
         self.msg("LEAVING RECURSIVE DEBUGGER")
-        self.prompt = old_prompt
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
 
@@ -1120,6 +1129,46 @@ the .py suffix may be omitted."""
             if bp:
                 bp.enable()
 
+    def do_file(self, fname):
+
+        """ Use FILE as program to be debugged.  It is compiled and
+        becomes is the program executed when you use the `run'
+        command.  If FILE cannot be found as specified, your execution
+        directory path ($PATH) is searched for a command of that name.
+        No arg means to have no executable file and no symbols."""
+
+        if fname == "":
+            if self.mainpyfile == "":
+                print 'No exec file now.\nNo symbol file now.'
+                return
+            else:
+                # should confirm this per
+                #Discard symbol table from `/work/.../ddd/cxxtest'? (y or n) n
+                # XXX 
+                # del module
+                sys.path = self.originalpath[:]
+                self.mainpyfile == ""
+        else:
+            path, module = os.path.split(fname)
+            module = module.split('.')[0]
+            sys.path = self.originalpath[:]
+            sys.path.insert(0, path)
+            # XXX how to clean up name space ??
+            if self.moduletodebug:
+                try:
+                    # del self.moduletodebug
+                    self.moduletodebug = ''
+                except:
+                    pass
+            line = "import " + module + '\n'
+            code = compile(line, '<stdin>', 'single')
+            globals = self.curframe.f_globals
+            locals = self.curframe.f_locals
+            exec code in globals, locals
+            # Could print 'Reading symbols from fname...done.' for gdb conformance
+            self.mainpyfile = fname
+            self.moduletodebug = module
+
     def do_finish(self, arg):
         """finish
 
@@ -1206,6 +1255,8 @@ the .py suffix may be omitted."""
             self.msg(self.do_info.__doc__)
             return
 
+        arglist = arg.split()
+        arg = arglist[0]
         frame=self.curframe
         if "args" == arg:
             self.__info_args(None)
@@ -1386,7 +1437,7 @@ With an integer argument, perform that many times."""
         self.set_quit()
         return 1
 
-    do_q = do_quit
+    do_kill = do_q = do_quit
 
     def do_retval(self, arg):
         """retval
@@ -1994,7 +2045,7 @@ def main():
     # Replace pydb's dir with script's dir in front of module search path.
     sys.path[0] = os.path.dirname(mainpyfile)
 
-    while 1:
+    while True:
 
         # Run the debugged script over and over again until you get it
         # right.

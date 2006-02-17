@@ -80,5 +80,10 @@ pydb's prompt is "(Pydb) ".
 *** step command: Expecting a positive integer at least 0, got: -1
 + next -1
 *** next command: Expecting a positive integer at least 0, got: -1
++ ########################################
++ ###   test info
++ ########################################
++ info line
+Line 2 of "hanoi.py"
 + ### 
 + quit
