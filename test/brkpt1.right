@@ -1,10 +1,10 @@
 + info break
 No breakpoints.
 + break 29
-Breakpoint 1 at hanoi.py:29
+Breakpoint 1 set in file hanoi.py, line 29.
 + info break
 Num Type          Disp Enb    Where
-1   breakpoint    keep yes at hanoi.py:29
+1   breakpoint    keep y   at hanoi.py:29
 + ###############################################################
 + ### Test enable/disable...
 + enable
@@ -12,7 +12,7 @@ Num Type          Disp Enb    Where
 + enable 1
 + info break
 Num Type          Disp Enb    Where
-1   breakpoint    keep yes at hanoi.py:29
+1   breakpoint    keep y   at hanoi.py:29
 + enable foo
 Breakpoint index 'foo' is not a number
 + disable 1
@@ -20,7 +20,7 @@ Breakpoint index 'foo' is not a number
 *** No breakpoint number given
 + info break
 Num Type          Disp Enb    Where
-1   breakpoint    keep no  at hanoi.py:29
+1   breakpoint    keep n   at hanoi.py:29
 + ################################################################
 + ### Try setting breakpoints outside of the file range...
 + break 0
@@ -33,22 +33,22 @@ Num Type          Disp Enb    Where
 + # list breakpoints
 + L
 Num Type          Disp Enb    Where
-1   breakpoint    keep no  at hanoi.py:29
+1   breakpoint    keep n   at hanoi.py:29
 + ###############################################################
 + ### *** Test using file:line format on break...
 + break hanoi.py:22
-Breakpoint 2 at hanoi.py:22
+Breakpoint 2 set in file hanoi.py, line 22.
 + break ./hanoi.py:22
-Breakpoint 3 at hanoi.py:22
+Breakpoint 3 set in file hanoi.py, line 22.
 + break ./hanoi.py:0
 *** End of file
 + break ./dbg-test1.sh:1955
 *** './dbg-test1.sh' not found from sys.path
 + info break
 Num Type          Disp Enb    Where
-1   breakpoint    keep no  at hanoi.py:29
-2   breakpoint    keep yes at hanoi.py:22
-3   breakpoint    keep yes at hanoi.py:22
+1   breakpoint    keep n   at hanoi.py:29
+2   breakpoint    keep y   at hanoi.py:22
+3   breakpoint    keep y   at hanoi.py:22
 + #### Try deleting breakpoints...
 + delete 10
 *** No breakpoint numbered 10.
@@ -60,7 +60,7 @@ Deleted breakpoint 1
 + info break
 No breakpoints.
 + break 22
-Breakpoint 4 at hanoi.py:22
+Breakpoint 4 set in file hanoi.py, line 22.
 + ###############################################################
 + ### *** Test breakpoints with conditions...
 + condition 1 x==0
@@ -69,7 +69,7 @@ Breakpoint 4 at hanoi.py:22
 + condition 4 y > 25
 + info break
 Num Type          Disp Enb    Where
-4   breakpoint    keep yes at hanoi.py:22
+4   breakpoint    keep y   at hanoi.py:22
 	stop only if y > 25
 + ### FIXME: there still is no condition 2
 + ### condition 2
@@ -77,7 +77,7 @@ Num Type          Disp Enb    Where
 Breakpoint 4 is now unconditional.
 + info break
 Num Type          Disp Enb    Where
-4   breakpoint    keep yes at hanoi.py:22
+4   breakpoint    keep y   at hanoi.py:22
 + condition x==1
 *** condition command: Expecting a positive integer, got: x==1
 + condition bad

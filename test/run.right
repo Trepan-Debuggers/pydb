@@ -10,7 +10,7 @@ The program finished and will be restarted
 + ######################################
 + ### Now restart with a breakpoint
 + break hanoi
-Breakpoint 1 at hanoi.py:4
+Breakpoint 1 set in file hanoi.py, line 4.
 + show args
 Argument list to give program being debugged when it is started is
 ""
@@ -34,7 +34,7 @@ c= c
 + ### this time changing a parameter
 + info break
 Num Type          Disp Enb    Where
-1   breakpoint    keep yes at hanoi.py:4
+1   breakpoint    keep y   at hanoi.py:4
 	breakpoint already hit 2 times
 + delete 1
 Deleted breakpoint 1

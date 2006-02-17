@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.44 2006/02/17 20:19:55 rockyb Exp $
+"""$Id: pydb.py.in,v 1.45 2006/02/17 22:44:06 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -245,9 +245,9 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         else:
             disp = 'keep '
         if bp.enabled:
-            disp = disp + 'yes'
+            disp = disp + 'y  '
         else:
-            disp = disp + 'no '
+            disp = disp + 'n  '
         self.msg('%-4dbreakpoint    %s at %s:%d' %
                  (bp.number, disp, self.filename(bp.file), bp.line))
         if bp.cond:
@@ -834,7 +834,7 @@ the .py suffix may be omitted."""
             if err: self.errmsg(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
-                self.msg("Breakpoint %d at %s:%d"
+                self.msg("Breakpoint %d set in file %s, line %d."
                          % (bp.number, self.filename(bp.file), bp.line))
 
     do_b = do_break
