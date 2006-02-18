@@ -28,13 +28,11 @@
 
 ;; Format of line looks like this:
 ;;   (/usr/bin/zonetab2pot.py:8):
-;; but we also allow DOS drive letters
-;;   (d:/usr/bin/zonetab2pot.py:8):
 (defvar gud-pydb-marker-regexp
-  "\\(^\\|\n\\)(\\(\\([a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\)):[ \t]\\(.*\n\\)")
-(defvar gud-pydb-marker-regexp-file-group 2)
-(defvar gud-pydb-marker-regexp-line-group 4)
-(defvar gud-pydb-marker-regexp-fnname-group 5)
+  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)")
+(defconst gud-pydb-marker-regexp-file-group 1)
+(defconst gud-pydb-marker-regexp-line-group 2)
+(defconst gud-pydb-marker-regexp-fnname-group 3)
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We

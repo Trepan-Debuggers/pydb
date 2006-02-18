@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.45 2006/02/17 22:44:06 rockyb Exp $
+"""$Id: pydb.py.in,v 1.46 2006/02/18 02:03:36 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -221,17 +221,18 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.aliases         = {}
         self.basename        = False
         self.cmdtrace        = False
+        self.currentbp       = None     # for "info program"
         self.gdb_dialect     = True
         self.linetrace       = False
         self.linetrace_delay = 0
         self.listsize        = 10
         self.mainpyfile      = ''
-        self.originalpath    = sys.path[:]
         self.moduletodebug   = ""
         self.noninteractive  = False
-        self.currentbp       = None     # for "info program"
-        self.prompt = '(Pydb) '
-        self.rcLines = []
+        self.originalpath    = sys.path[:]
+        self.prompt          = '(Pydb) '
+        self.rcLines         = []
+        self.running         = False
         self.__init_gdb_dialect()
         # Try to load readline if it exists
         try:
@@ -1265,7 +1266,7 @@ the .py suffix may be omitted."""
             self.do_L(None)
         elif 'display' == arg:
             if not self.display.displayAll():
-                print 'There are no auto-display expressions now.'
+                self.msg('There are no auto-display expressions now.')
         elif "globals" == arg:
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self._getval(l)))
@@ -1276,7 +1277,9 @@ the .py suffix may be omitted."""
                 # lineinfo returns (item, file, lineno) or (None,)
                 answer = self.lineinfo(arglist[1])
                 if answer[0]:
-                    print 'Lineinfo <%s> at %s:%s' % answer
+                    item, file, lineno = answer
+                    self.msg('Line %s of "%s" <%s>' %
+                             (lineno, file, item))
                 return
             #info line
             self.msg('Line %d of \"%s\"' % 
@@ -1286,17 +1289,19 @@ the .py suffix may be omitted."""
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self._getval(l)))
                                 for l in frame.f_locals]))
-#        elif 'program' == arg:
-#            if not self.running:
-#                print 'The program being debugged is not being run.'
-#            else:
-#                print 'Program stopped.\n'
-#                if self.currentbp:
-#                    print 'It stopped at breakpoint %d.' % self.currentbp
-#            return
+        elif 'program' == arg:
+            if not self.running:
+                self.msg('The program being debugged is not being run.')
+            else:
+                self.msg('Program stopped.')
+                if self.currentbp:
+                    self.msg('It stopped at breakpoint %d.' % self.currentbp)
+            return
         elif "source" == arg:
             self.msg('Current Python file is %s' % 
                      self.filename(self.canonic(frame.f_code.co_filename)))
+        else:
+            self.errmsg("Unknown info subcommand %s" % arg)
 
     def do_info_break(self, arg):
         """info break
@@ -1365,7 +1370,7 @@ the .py suffix may be omitted."""
             except:
                 self.errmsg('Error in argument: %s' % repr(arg))
                 return
-        elif self.lineno is None:
+        elif self.lineno is None or not self.running:
             first = max(1, self.curframe.f_lineno - 5)
         else:
             first = self.lineno + 1
@@ -1434,6 +1439,7 @@ With an integer argument, perform that many times."""
         """q(uit) or exit - Quit from the debugger.
         The program being executed is aborted."""
         self._user_requested_quit = True
+        self.running              = False
         self.set_quit()
         return 1
 
@@ -1676,7 +1682,7 @@ Deletes the specified alias."""
                     i = int(i)
                     self.display.deleteOne(i)
                 except ValueError:
-                    self.errmsg('indeex %r is not a number' % i)
+                    self.errmsg('index %r is not a number' % i)
         else:
             self.display.deleteAll()
 
@@ -1977,6 +1983,7 @@ Handles the receipt of EOF as a command."""
 
 
         statement = 'execfile( "%s")' % filename
+        self.running = True
         self.run(statement, globals=globals_, locals=locals_)
 
 # Simplified interface
@@ -2002,6 +2009,7 @@ def set_trace():
 def post_mortem(t):
     p = Pdb()
     p.reset()
+    p.running = False
     while t.tb_next is not None:
         t = t.tb_next
     p.interaction(t.tb_frame, t)
@@ -2063,7 +2071,7 @@ def main():
             if pydb._user_requested_quit:
                 break
             if pydb.noninteractive: break
-            print "The program finished and will be restarted"
+            pydb.msg("The program finished and will be restarted")
         except Restart:
             pydb.msg("Restarting %s with arguments:\n\t%s"
                      % (pydb.filename(mainpyfile), " ".join(sys.argv[1:])))
@@ -2071,6 +2079,7 @@ def main():
             # In most cases SystemExit does not warrant a post-mortem session.
             pydb.msg("The program exited via sys.exit(). Exit status: %s" %
                      str(sys.exc_info()[1]))
+            pydb.running = False;
             if pydb.noninteractive: break
         except:
             traceback.print_exc()
@@ -2079,6 +2088,7 @@ def main():
                 break
             pydb.errmsg("Uncaught exception. Entering post mortem debugging")
             pydb.errmsg( "Running 'cont' or 'step' will restart the program")
+            pydb.running = False;
             t = sys.exc_info()[2]
             while t.tb_next is not None:
                 t = t.tb_next
@@ -2087,8 +2097,9 @@ def main():
             except Restart:
                 pydb.msg("Restarting "+mainpyfile+" with arguments:\n\t"
                          +" ".join(sys.argv[1:]))
-            pydb.msg("Post mortem debugger finished. The "+mainpyfile
-                     + " will be restarted")
+            else:
+                pydb.msg("Post mortem debugger finished.")
+                pydb.msg(mainpyfile + " will be restarted")
         global step_ignore_count
         step_ignore_count = 0
 
