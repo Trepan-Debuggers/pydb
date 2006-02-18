@@ -1,8 +1,9 @@
 # Test of restart and linetracing 
-# $Id: run.cmd,v 1.1 2006/01/28 03:11:01 rockyb Exp $
+# $Id: run.cmd,v 1.2 2006/02/18 02:12:36 rockyb Exp $
 #
 set basename on
 set cmdtrace on
+info program
 continue
 ######################################
 ### Now restart with a breakpoint
@@ -11,6 +12,7 @@ show args
 run
 continue
 info args
+info program
 where
 ######################################
 ### We should be at that breakpoint

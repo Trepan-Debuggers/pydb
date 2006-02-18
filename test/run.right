@@ -1,3 +1,5 @@
++ info program
+Program stopped.
 + continue
 Move disk a to b
 Move disk a to c
@@ -23,6 +25,9 @@ n= 3
 a= a
 b= b
 c= c
++ info program
+Program stopped.
+It stopped at breakpoint 1.
 + where
 -> 0 hanoi() called from file 'hanoi.py' at line 5
 ## 1 in file 'hanoi.py' at line 29
