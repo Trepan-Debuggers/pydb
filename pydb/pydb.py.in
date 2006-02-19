@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.47 2006/02/19 10:51:25 rockyb Exp $
+"""$Id: pydb.py.in,v 1.48 2006/02/19 11:44:26 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -93,7 +93,7 @@ def process_options(pydb):
     # So we'll change sys.argv to look like the program were invoked
     # directly
     global sys_argv
-    sys_argv = sys.argv   # Well, we'll save the original just in case
+    sys_argv = list(sys.argv)   # Well, we'll save the original just in case
     (opts, sys.argv) = optparser.parse_args()
 
     if opts.linetrace: opts.noninteractive = True
@@ -1523,9 +1523,9 @@ to the variable __return__."""
         actions and debugger options are preserved."""
 
         if arg:
-            argv_start = sys.argv[0:1]
-            sys.argv = arg.split(" ")
-            sys.argv[:0] = argv_start
+            argv_start = self._program_sys_argv[0:1]
+            self._program_sys_argv = arg.split(" ")
+            self._program_sys_argv[:0] = argv_start
 
         raise Restart
 
@@ -1573,12 +1573,12 @@ to the variable __return__."""
             self.errmsg("Expecting at least 2 arguments. Got %d" % len(args))
             return
         if args[0] == 'args':
-            argv_start = sys.argv[0:1]
+            argv_start = self._program_sys_argv[0:1]
             if arg:
-                sys.argv = arg.split(" ")[1:]
+                self._program_sys_argv = arg.split(" ")[1:]
             else:
-                sys.argv = []
-            sys.argv[:0] = argv_start
+                self._program_sys_argv = []
+            self._program_sys_argv[:0] = argv_start
 
         elif args[0] == 'basename':
             try:
@@ -1651,7 +1651,7 @@ show version -- Show what version of this is
         if arg == 'args':
             self.msg("Argument list to give program being debugged " +
                       "when it is started is")
-            self.msg('"%s"' % " ".join(sys.argv[1:]))
+            self.msg('"%s"' % " ".join(self._program_sys_argv[1:]))
         elif arg == 'basename':
             self.msg("basename is %s" % self.__show_onoff(self.basename))
         elif arg == 'cmdtrace':
@@ -2111,7 +2111,12 @@ def main():
         print 'Error: you need to give a script name to debug'
         sys.exit(1)
 
-    mainpyfile =  sys.argv[0] # Get script filename. 
+    # Save the DEBUGGED programs arguments. This is in case
+    # the debugged script munges these, we have a good copy to use
+    # for restart
+    pydb._program_sys_argv = list(sys.argv)
+
+    mainpyfile = pydb._program_sys_argv[0] # Get script filename. 
     if not os.path.exists(mainpyfile):
         print 'Error:', mainpyfile, 'does not exist'
         sys.exit(1)
@@ -2131,6 +2136,7 @@ def main():
             if pydb.noninteractive: break
             pydb.msg("The program finished and will be restarted")
         except Restart:
+            sys.argv = list(pydb._program_sys_argv)
             pydb.msg("Restarting %s with arguments:\n\t%s"
                      % (pydb.filename(mainpyfile), " ".join(sys.argv[1:])))
         except SystemExit:
@@ -2153,6 +2159,7 @@ def main():
             try:
                 pydb.interaction(t.tb_frame,t)
             except Restart:
+                sys.argv = list(pydb._program_sys_argv)
                 pydb.msg("Restarting "+mainpyfile+" with arguments:\n\t"
                          +" ".join(sys.argv[1:]))
             else:
