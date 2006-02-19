@@ -23,16 +23,16 @@
 ;;; History of argument lists passed to pydb.
 (defvar gud-pydb-history nil)
 
-(defun gud-pydb-massage-args (file args)
-  args)
-
-;; Format of line looks like this:
+;; The debugger outputs program-location lines that look like this:
 ;;   (/usr/bin/zonetab2pot.py:8):
-(defvar gud-pydb-marker-regexp
+(defconst gud-pydb-marker-regexp
   "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)")
 (defconst gud-pydb-marker-regexp-file-group 1)
 (defconst gud-pydb-marker-regexp-line-group 2)
 (defconst gud-pydb-marker-regexp-fnname-group 3)
+
+(defun gud-pydb-massage-args (file args)
+  args)
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We

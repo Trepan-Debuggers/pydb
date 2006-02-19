@@ -207,9 +207,11 @@ info break -- Status of user-settable breakpoints
 info display -- Expressions to display when program stops,
                 with code numbers.
 info globals -- Global variables of current stack frame
-info line -- Current line number in source file
+info line -- Current line number in source file. If a function name is
+               given the starting line of the function is reported.
 info locals -- Local variables of current stack frame
-info source -- Information about the current Python file"""
+info program -- Execution status of the program
+info source -- Information about the current Python file
 
 ignore bpnumber count
         Sets the ignore count for the given breakpoint number.  If
@@ -247,12 +249,24 @@ q(uit)
         Quit from the debugger.
         The program being executed is aborted.
 
+return
+        Make selected stack frame return to its caller. Control
+        remains in the debugger, but when you continue execution will
+        resume at the return statement found inside the subroutine or
+        method.  At present we are only able to perform this if we are
+        in a subroutine that has a 'return' statement in it.
+
+	See also retval and finish.
+
 retval
         Show the value that is to be returned from a function.
-	This command is useful after a "return" command or stepping just 
-	after a return statement.
+	This command is useful after a "finish" command or stepping just 
+	after a "return" statement. To change the value, make an
+	assignment to the variable __return__.
 	
 	The short command name is rv.
+
+	See also finish and return.
 
 run     [args...]
         Restart the debugged python program. If a string is supplied that 

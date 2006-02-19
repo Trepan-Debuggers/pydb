@@ -1,5 +1,16 @@
 0.12cvs
-  Add "shell" command
+  Add gdb commands: 
+    - "cd" command
+    - "display", "undisplay"
+    - "info program"
+    - "pwd" command
+    - "return" (early exit from a function)
+    - "shell" command
+    - Extend "info line" to allow a function name.
+
+  File location reporting changed. Is now like mdb, bashdb, or (or perldb)
+  Changes to make more compatible with ddd.
+
   Doc fixes, add more GNU Emacs debugger commands
 
 0.11

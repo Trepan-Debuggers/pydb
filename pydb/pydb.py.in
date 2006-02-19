@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.46 2006/02/18 02:03:36 rockyb Exp $
+"""$Id: pydb.py.in,v 1.47 2006/02/19 10:51:25 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -164,9 +164,9 @@ def find_function(funcname, filename):
     return answer
 
 from opcode import opname
-def op_at_frame(frame):
+def op_at_frame(frame, pos=None):
     code = frame.f_code.co_code
-    pos  = frame.f_lasti
+    if pos is None: pos = frame.f_lasti
     op = ord(code[pos])
     # print "+++ %s" % opname[op]
     return opname[op]
@@ -555,7 +555,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            self.errmsg('%s:%s' % (str(exc_type_name), str(v)))
+            self.errmsg('%s: %s' % (str(exc_type_name), str(v)))
 
     def precmd(self, line):
         """Handle alias expansion and ';;' separator."""
@@ -974,7 +974,7 @@ the .py suffix may be omitted."""
         line/file number.."""
         
         if not arg:
-            while True:
+            while True and not self.noninteractive:
                 try:
                     reply = raw_input('Delete all breakpoints (y or n)? ')
                 except EOFError:
@@ -1026,7 +1026,7 @@ the .py suffix may be omitted."""
                 continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.msg('No breakpoint numbered', i)
+                self.msg('No breakpoint numbered %d' % i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
@@ -1123,52 +1123,52 @@ the .py suffix may be omitted."""
                 continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.errmsg('No breakpoint numbered', i)
+                self.errmsg('No breakpoint numbered %d' % i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
             if bp:
                 bp.enable()
 
-    def do_file(self, fname):
-
-        """ Use FILE as program to be debugged.  It is compiled and
-        becomes is the program executed when you use the `run'
-        command.  If FILE cannot be found as specified, your execution
-        directory path ($PATH) is searched for a command of that name.
-        No arg means to have no executable file and no symbols."""
-
-        if fname == "":
-            if self.mainpyfile == "":
-                print 'No exec file now.\nNo symbol file now.'
-                return
-            else:
-                # should confirm this per
-                #Discard symbol table from `/work/.../ddd/cxxtest'? (y or n) n
-                # XXX 
-                # del module
-                sys.path = self.originalpath[:]
-                self.mainpyfile == ""
-        else:
-            path, module = os.path.split(fname)
-            module = module.split('.')[0]
-            sys.path = self.originalpath[:]
-            sys.path.insert(0, path)
-            # XXX how to clean up name space ??
-            if self.moduletodebug:
-                try:
-                    # del self.moduletodebug
-                    self.moduletodebug = ''
-                except:
-                    pass
-            line = "import " + module + '\n'
-            code = compile(line, '<stdin>', 'single')
-            globals = self.curframe.f_globals
-            locals = self.curframe.f_locals
-            exec code in globals, locals
-            # Could print 'Reading symbols from fname...done.' for gdb conformance
-            self.mainpyfile = fname
-            self.moduletodebug = module
+#    def do_file(self, fname):
+#
+#        """ Use FILE as program to be debugged.  It is compiled and
+#        becomes is the program executed when you use the `run'
+#        command.  If FILE cannot be found as specified, your execution
+#        directory path ($PATH) is searched for a command of that name.
+#        No arg means to have no executable file and no symbols."""
+#
+#        if fname == "":
+#            if self.mainpyfile == "":
+#                print 'No exec file now.\nNo symbol file now.'
+#                return
+#            else:
+#                # should confirm this per
+#                #Discard symbol table from `/work/.../ddd/cxxtest'? (y or n) n
+#                # XXX 
+#                # del module
+#                sys.path = self.originalpath[:]
+#                self.mainpyfile == ""
+#        else:
+#            path, module = os.path.split(fname)
+#            module = module.split('.')[0]
+#            sys.path = self.originalpath[:]
+#            sys.path.insert(0, path)
+#            # XXX how to clean up name space ??
+#            if self.moduletodebug:
+#                try:
+#                    # del self.moduletodebug
+#                    self.moduletodebug = ''
+#                except:
+#                    pass
+#            line = "import " + module + '\n'
+#            code = compile(line, '<stdin>', 'single')
+#            globals = self.curframe.f_globals
+#            locals = self.curframe.f_locals
+#            exec code in globals, locals
+#            # Could print 'Reading symbols from fname...done.' for gdb conformance
+#            self.mainpyfile = fname
+#            self.moduletodebug = module
 
     def do_finish(self, arg):
         """finish
@@ -1250,6 +1250,7 @@ the .py suffix may be omitted."""
         info globals -- Global variables of current stack frame
         info line -- Current line number in source file
         info locals -- Local variables of current stack frame
+        info program -- Execution status of the program
         info source -- Information about the current Python file"""
 
         if not arg:
@@ -1321,7 +1322,7 @@ the .py suffix may be omitted."""
 
     do_L = do_info_break
 
-    def do_jump(self, arg):
+    def do_jump(self, arg, cmdname='Jump'):
         """j(ump) lineno
 
         Set the next line that will be executed."""
@@ -1339,9 +1340,9 @@ the .py suffix may be omitted."""
                 # new position
                 self.curframe.f_lineno = arg
                 self.stack[self.curindex] = self.stack[self.curindex][0], arg
-                self.print_stack_entry(self.stack[self.curindex])
+                self.print_location()
             except ValueError, e:
-                self.errmsg('Jump failed: %s' % e)
+                self.errmsg('%s failed: %s' % (cmdname, e))
 
     do_j = do_jump
 
@@ -1445,12 +1446,69 @@ With an integer argument, perform that many times."""
 
     do_kill = do_q = do_quit
 
+    def do_return(self, arg):
+
+        """Make selected stack frame return to its caller. Control
+        remains in the debugger, but when you continue execution will
+        resume at the return statement found inside the subroutine or
+        method.  At present we are only able to perform this if we are
+        in a subroutine that has a 'return' statement in it.  """
+
+        frame = self.curframe
+
+        if '?' == frame.f_code.co_name and not '__args__' in frame.f_locals:
+            self.errmsg("I don't see that we are in a subroutine.")
+            return
+
+        while True and not self.noninteractive:
+            try:
+                # reply = raw_input('Make %s return now? (y or n) ')
+                reply = raw_input('Return now? (y or n) ')
+            except EOFError:
+                reply = 'no'
+                reply = reply.strip().lower()
+            if reply in ('y', 'yes'):
+                break
+            elif reply in ('n', 'no'):
+                return
+            else:
+                self.msg("Please answer y or n.")
+
+        co = frame.f_code
+        code = co.co_code
+        labels = dis.findlabels(code)
+        linestarts = dict(dis.findlinestarts(co))
+
+        i=frame.f_lasti
+        last_stmt = i
+        last_line = frame.f_lineno
+        # print "++i: %d, len(code): %d" % (i, len(code))
+        while i < len(code):
+            i += 1
+            if i in labels:
+                # print "++last_stmt %d" % i
+                last_stmt = i
+                last_line = None
+            if i in linestarts and i > 0:
+                # print "++last_line %d" % linestarts[i]
+                last_line = linestarts[i]
+            if 'RETURN_VALUE' == op_at_frame(frame, i):
+                break
+
+        if i == len(self.stack) or last_line is None:
+            self.msg("Sorry; a return statement was not found.")
+            return
+
+        # print "++i: %d, last_stmt %d, line: %d " % (i, last_stmt, last_line)
+        self.do_jump(last_line, "Return")
+
     def do_retval(self, arg):
-        """retval
-Show the value that is to be returned from a function.        
-This command is useful after a "finish" command or stepping just after a return
-statement.
-        """
+
+        """retval Show the value that is to be returned from a
+function.  This command is useful after a "finish" command or stepping
+just after a "return" statement. To change the value, make an assignment
+to the variable __return__."""
+
         if '__return__' in self.curframe.f_locals:
             self.msg(self.curframe.f_locals['__return__'])
         else:
@@ -1715,7 +1773,7 @@ Prints the type of the argument which can be a Python expression."""
             if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            self.errmsg("%s:%s" % (exc_type_name, repr(v)))
+            self.errmsg("%s: %s" % (exc_type_name, repr(v)))
             return
         code = None
         # Is it a function?

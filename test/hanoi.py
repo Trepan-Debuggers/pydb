@@ -13,7 +13,7 @@ if i_args != 1 and i_args != 2:
     print "*** Need number of disks or no parameter"
     sys.exit(1)
 
-n=3;
+n=3
 
 if i_args > 1:
   try: 

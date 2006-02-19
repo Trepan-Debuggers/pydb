@@ -57,6 +57,17 @@ line tracing is on
 + show linetrace
 line tracing is off
 + ########################################
++ ###  bad enable disable
++ ########################################
++ enable 10
+*** No breakpoint numbered 10
++ disable 10
+No breakpoint numbered 10
++ enable foo
+Breakpoint index 'foo' is not a number
++ disable foo
+Breakpoint index 'foo' is not a number
++ ########################################
 + ###  test prompt, misc...
 + ########################################
 + show prompt
