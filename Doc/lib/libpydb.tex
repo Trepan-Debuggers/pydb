@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.14 2006/02/21 15:30:37 rockyb Exp $
+% $Id: libpydb.tex,v 1.15 2006/02/21 21:31:20 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -376,7 +376,7 @@ Show the global variables. See \ref{command:info-globals}.
 \item[info line]
 
 Show the current line number in source file. If a function name is
-given the starting line of the function is reported.
+given, the starting line of the function is reported.
 
 \item[info locals]
 
@@ -729,7 +729,7 @@ environment). The prompt is changed to indicate nested behavior. See
 
 \item[restart \var{args...}]
 
-Restart debugger and program via an \cdoe{exec} call. All state
+Restart debugger and program via an \code{exec} call. All state
 is lost, and new copy of the debugger is used.
 
 \item[run \var{args...}]
@@ -791,7 +791,7 @@ than the first, it is interpreted as a count.
 
 \begin{description}
 
-\item[h(elp) \optional{\var{command}}]
+\item[h(elp) \optional{\var{command} \optional{subcommand}}]
 
 Without argument, print the list of available commands.  With
 \var{command} as argument, print help about that command.  \samp{help
@@ -799,6 +799,11 @@ pydb} displays the full documentation file; if the environment
 variable \envvar{PAGER} is defined, the file is piped through that
 command.  Since the \var{command} argument must be an identifier,
 \samp{help exec} must be entered to get help on the \samp{!} command.
+
+Some commands, \code{info}, \code{set}, and \code{show} can accept an
+additional subcommand to give help just about that particular
+subcommand. For example \code{help info line} give help about the
+\code{info line} command.
 
 \item[alias \optional{\var{name} \optional{command}}]\label{command:aliases}
 
