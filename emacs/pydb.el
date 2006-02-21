@@ -26,10 +26,9 @@
 ;; The debugger outputs program-location lines that look like this:
 ;;   (/usr/bin/zonetab2pot.py:8):
 (defconst gud-pydb-marker-regexp
-  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)")
+  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?")
 (defconst gud-pydb-marker-regexp-file-group 1)
 (defconst gud-pydb-marker-regexp-line-group 2)
-(defconst gud-pydb-marker-regexp-fnname-group 3)
 
 (defun gud-pydb-massage-args (file args)
   args)
@@ -158,6 +157,6 @@ and source-file directory for your debugger."
   (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
   (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
   ;; (setq comint-prompt-regexp "^(.*pydb[+]?) *")
-  (setq comint-prompt-regexp "^[(]+Pydb[)]+ *")
+  (setq comint-prompt-regexp "^(+Pydb)+ *")
   (setq paragraph-start comint-prompt-regexp)
   (run-hooks 'pydb-mode-hook))

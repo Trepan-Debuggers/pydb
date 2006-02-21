@@ -30,11 +30,12 @@ def gcd(a,b):
        
     if a <= 0:
         return None
-    if a == 1:
+    if a == 1 or b-a == 0:
         return b
     return gcd(b-a, a)
 
 check_args()
 
-print gcd(sys.argv[1], sys.argv[2])
+(a, b) = sys.argv[1:3]
+print "The GCD of %d and %d is %d" % (a, b, gcd(a, b))
 

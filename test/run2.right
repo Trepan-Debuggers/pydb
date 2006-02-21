@@ -54,7 +54,7 @@ It stopped at breakpoint 2.
 (gcd.py:32):  gcd
 + where
 -> 0 gcd(a=5, b=10) called from file 'gcd.py' at line 32
-## 1 in file 'gcd.py' at line 39
+## 1 in file 'gcd.py' at line 40
 ## 2 in exec cmd in globals, locals at line 1
 ## 3 run(self=<__main__.Pdb instance a...) called from file 'bdb.py' at line 366
 + quit
