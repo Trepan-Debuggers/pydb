@@ -6,31 +6,64 @@ function they have in gdb.
 
 Changes from pdb.py:
 
-- Add run (restart)
+- non-interactive POSIX-shell like line tracing.
+
+- Restart program saving settings (gdb's "run") or a pure "exec"
+  restart (reloads the entire debugger)
+
+- Add "display" expressions
+
+- Some gdb "set"/"show" commands:
+   args, listsize, version (no set here), and some new ones
+  basename, cmdtrace, interactive, linetrace, 
+
+- Some gdb "info" commands:
+   args break, display, globals, line, locals, program, and source
+
+- Other gdb commands: cd, display, disassemble, frame, pwd, return
+  (immediate return, not finish), run, shell, source, undisplay
+
+- debugger is installed in binary directory; i.e. one runs "pydb script..."
+  rather than "python pdb script..."
+
+- debugger accepts debugger options; e.g. redirecting output or setting 
+  line tracing
 
 - Add Perl's "examine" to show info about a symbol.  For functions,
   methods, classes and modules the documentation string if any is printed.
   For functions, we also show the argument list. More work is needed here
   to recurse fields of an arbitrary object and show that.
 
-- add gdb's "frame" command
+- add gdb's "frame" command and stack order. Cleaner display of
+  call stack; for example "exec" calls are marked as such.
 
-- Add some "set"/"show" commands:
-    args, listsize, version (no set here), dialect
+- gdb-like help with subcomamnd-specific help available on 
+  info, set, or show subcommands;  e.g. "help info line" works
 
-- Add some "info" commands:
-   args break, line, locals, source
+- More extensive and complete documentation. See
+  http://bashdb.sourceforge.net/pydb/pydb/lib/index.html
 
 - up/down can take a number of frames to move.
 
--  Stepping skips over "def" statements.
+- Stepping skips over "def" statements.
+
+- Comes with regression tests. Can also be subclassed to capture
+  debugger output.
+
+- Works with GUI frontend ddd. (For now a testing version of ddd is
+  required. See
+  http://sourceforge.net/project/showfiles.php?group_id=61395&package_id=65341
+  version 3.3.12-test3 or greater.
+
+- Miscellaneous pdb bugs fixed. (See ChangeLog for details)
 
 Coexistence: 
   For now, we try not to conflict with pdb.py. After all, Python 
   developers made provision of multiple debuggers so we'll make use of
   that!
 
-  So whereever there was a pdb, use pydb. Where Pdb use Pydb. So, as
-  hinted above, the debugger initialization script is .pydbrc for this
+  So whereever there was a pdb, use pydb. The class name is still
+  Pdb. So the debugger initialization script is .pydbrc for this
   debugger rather than .pdbrc for the one that comes with Python.
 
+$Id: README,v 1.6 2006/02/21 21:12:57 rockyb Exp $
