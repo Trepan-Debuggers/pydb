@@ -158,6 +158,6 @@ and source-file directory for your debugger."
   (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
   (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
   ;; (setq comint-prompt-regexp "^(.*pydb[+]?) *")
-  (setq comint-prompt-regexp "^(Pydb) *")
+  (setq comint-prompt-regexp "^[(]+Pydb[)]+ *")
   (setq paragraph-start comint-prompt-regexp)
   (run-hooks 'pydb-mode-hook))
