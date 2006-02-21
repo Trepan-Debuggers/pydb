@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.13 2006/02/19 10:51:24 rockyb Exp $
+% $Id: libpydb.tex,v 1.14 2006/02/21 15:30:37 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -437,7 +437,7 @@ ignore count, and the associated condition if any.
 Temporary breakpoint, which is removed automatically when it is
 first hit.  The arguments are the same as those for \code{break}.
 
-\item[cl(ear) \optional{\var{file:} \optional{\var{linenumber}}}]
+\item[cl(ear) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}}]
 
 Clear breakpoint at specified line or function.  Argument may be line
 number, function name, or `*' and an address.  If a line number is
@@ -696,8 +696,7 @@ that can be accessible.
 
 \end{description}
 
-\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !},
-  {\tt shell})\label{subsection-commands}}
+\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !})\label{subsection-commands}}
 
 \begin{description}
 
@@ -721,6 +720,24 @@ Enter a recursive debugger that steps through the code argument (which
 is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
 \ref{debugger:prompt}
+
+\end{description}
+
+\subsection{Debugging a Python Script ({\tt restart}, {\tt run})\label{subsection-restart}}
+
+\begin{description}
+
+\item[restart \var{args...}]
+
+Restart debugger and program via an \cdoe{exec} call. All state
+is lost, and new copy of the debugger is used.
+
+\item[run \var{args...}]
+
+Run or restart the debugged Python program. If a string is supplied
+that becomes the new command arguments.  History, breakpoints, actions
+and debugger options are preserved.  \code{R} is a short command alias
+for run.
 
 \end{description}
 

@@ -1,0 +1,41 @@
++ ###############################################################
++ ### Clear nonexist break; 
++ ###############################################################
++ clear
+*** No breakpoint at gcd.py:10.
++ ###############################################################
++ ### Multiple breakpoints on a line and clearing all
++ ###############################################################
++ break 28
+Breakpoint 1 set in file gcd.py, line 28.
++ break gcd.py:28
+Breakpoint 2 set in file gcd.py, line 28.
++ info break
+Num Type          Disp Enb    Where
+1   breakpoint    keep y   at gcd.py:28
+2   breakpoint    keep y   at gcd.py:28
++ clear 28
+Deleted breakpoints 1 2
++ ###############################################################
++ ### Clear by current line number
++ ###############################################################
++ break 28
+Breakpoint 3 set in file gcd.py, line 28.
++ cont
++ clear
+Deleted breakpoint 3
++ info break
+No breakpoints.
++ ###############################################################
++ ### Test Delete: invalid/valid number.
++ ###############################################################
++ delete 1
+*** Breakpoint (1) already deleted
++ break 11
+Breakpoint 4 set in file gcd.py, line 11.
++ info break
+Num Type          Disp Enb    Where
+4   breakpoint    keep y   at gcd.py:11
++ delete 4
+Deleted breakpoint 4
++ quit

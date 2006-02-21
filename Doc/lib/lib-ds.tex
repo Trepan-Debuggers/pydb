@@ -1,0 +1,54 @@
+\documentclass{manual}
+
+% NOTE: this file controls which chapters/sections of the library
+% manual are actually printed.  It is easy to customize your manual
+% by commenting out sections that you're not interested in.
+
+\title{Python Library Reference for the Extended Python Debugger}
+
+\input{boilerplate}
+
+\makeindex                      % tell \index to actually write the
+                                % .idx file
+\makemodindex                   % ... and the module index as well.
+
+ 
+\begin{document}
+
+\maketitle
+
+\ifhtml
+\chapter*{Front Matter\label{front}}
+\fi
+
+\input{copyright}
+
+\begin{abstract}
+
+\noindent
+Python is an extensible, interpreted, object-oriented programming
+language.  It supports a wide range of applications, from simple text
+processing scripts to interactive Web browsers.
+
+We describe here only the Extended Python Debugger. The rest of the The
+\ulink{\module{Python Reference Manual}}
+{http://docs.python.org/lib/lib.html} should be consulted for other
+standard Python modules including the original \ulink{\module{Python
+Debugger}}{http://docs.python.org/lib/module-pdb.html} (\tt{pdb.py}).
+
+\end{abstract}
+
+\tableofcontents
+
+                                % Chapter title:
+
+% =============
+% DEVELOPMENT TOOLS
+% =============
+%                                % Software development support
+
+\renewcommand{\baselinestretch}{3.0}\normalsize
+\input{libpydb}                  % The Python Debugger
+
+
+\end{document}

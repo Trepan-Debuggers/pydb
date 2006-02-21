@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.18 2006/02/17 04:27:34 rockyb Exp $
+#$Id: Makefile.am,v 1.19 2006/02/21 15:30:35 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,9 @@ DEBUGGER := pydb
 
 # The Python debugger script
 python_debugger_script := $(DEBUGGER).py
-python_PYTHON := $(DEBUGGER)/$(python_debugger_script) $(DEBUGGER)/pydbsupt.py
+python_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/pydbdisp.py \
+	$(DEBUGGER)/pydbfns.py
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
 pkgdatadir = $(pythondir)
@@ -38,12 +40,15 @@ bin_SCRIPTS := $(DEBUGGER)
 
 PHONY := $(DEBUGGER) test
 
-EXTRA_DIST = ChangeLog TODO THANKS \
-	     pydb/pydb.doc pydb/Makefile \
+EXTRA_DIST = ChangeLog TODO THANKS        \
+	     Doc/Makefile.deps            \
+	     pydb/pydb.doc pydb/Makefile  \
 	     setup.py site-packages-path.py
 
 clean-generic: 
-	-rm $(top_builddir)/pydb/pydb.pyc $(top_builddir)/pydb/pydbsupt.pyc
+	-rm $(top_builddir)/pydb/pydb.pyc \
+	$(top_builddir)/pydb/pydbdisp.pyc \
+	$(top_builddir)/pydb/pydbfns.pyc
 
 test: check
 check: pydb/pydb.py test/test.py

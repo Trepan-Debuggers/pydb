@@ -1,15 +1,18 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt1.cmd,v 1.2 2006/01/28 01:58:20 rockyb Exp $
+# $Id: brkpt1.cmd,v 1.3 2006/02/21 15:30:37 rockyb Exp $
 #
-# Test the simplest of breakpoints
 set basename on
 set cmdtrace on
+###############################################################
+# Test the breakpoint by line number
+###############################################################
 info break
-break 29
+break 30
 info break
 ###############################################################
 ### Test enable/disable...
+###############################################################
 enable
 enable 1
 info break
@@ -19,6 +22,7 @@ disable
 info break
 ################################################################
 ### Try setting breakpoints outside of the file range...
+###############################################################
 break 0
 break 1
 break 99
@@ -27,6 +31,7 @@ break 99
 L
 ###############################################################
 ### *** Test using file:line format on break...
+###############################################################
 break hanoi.py:22
 break ./hanoi.py:22
 break ./hanoi.py:0
@@ -35,13 +40,12 @@ info break
 #### Try deleting breakpoints...
 delete 10
 delete 1
-### FIXME: currently we have a basename problem.
-### clear 10
 clear 22
 info break
 break 22
 ###############################################################
 ### *** Test breakpoints with conditions...
+###############################################################
 condition 1 x==0
 ### FIXME: there is no condition 2!
 ### condition 2 y > 25
@@ -54,4 +58,9 @@ info break
 condition x==1
 condition bad
 condition 30 y==1
+###############################################################
+### *** Test breakpoints by function name
+###############################################################
+break hanoi
+clear hanoi
 quit

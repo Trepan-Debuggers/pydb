@@ -6,23 +6,23 @@
 + ########################################
 + set args this is a test
 + show args
-Argument list to give program being debugged when it is started is
-"this is a test"
+Argument list to give program being debugged when it is started is 
+"this is a test".
 + show basename
-basename is on
+basename is on.
 + set basename foo
 *** Expecting 'on', 1, 'off', or 0. Got: foo.
 + show basename
-basename is on
+basename is on.
 + set basename off
 + show basename
-basename is off
+basename is off.
 + set basename 0
 + show basename
-basename is off
+basename is off.
 + set basename 1
 + show basename
-basename is on
+basename is on.
 + ########################################
 + ###   test listsize tests...
 + ########################################
@@ -42,20 +42,20 @@ Number of source lines pydb will list by default is 20.
 *** Need a 3rd floating-point number
 + set linetrace delay 2
 + show linetrace delay
-line trace delay is 2.0 seconds
+line trace delay is 2.0. (In seconds)
 + set linetrace delay 0.5
 + show linetrace delay
-line trace delay is 0.5 seconds
+line trace delay is 0.5. (In seconds)
 + set linetrace delay foo
 *** 3rd argument foo is not a floating-point number
 + show linetrace delay
-line trace delay is 0.5 seconds
+line trace delay is 0.5. (In seconds)
 + set linetrace on
 + show linetrace
-line tracing is on
+line tracing is on.
 + set linetrace off
 + show linetrace
-line tracing is off
+line tracing is off.
 + ########################################
 + ###  bad enable disable
 + ########################################
@@ -95,6 +95,70 @@ pydb's prompt is "(Pydb) ".
 + ###   test info
 + ########################################
 + info line
-Line 2 of "hanoi.py"
-+ ### 
+Line 2 of "hanoi.py" at instruction 0
++ info source
+Current Python file is hanoi.py
++ ########################################
++ ###   help/info stuff
++ ########################################
++ help nogood
+Undefined command: "nogood". Try "help".
+
++ help restart
+restart
+        Restart debugger and program via an exec call. All state
+        is lost, and new copy of the debugger is used.
++ help run
+run [args...]
+
+        Run/Restart the debugged Python program. If a string is
+        supplied that becomes the new command arguments.  History,
+        breakpoints, actions and debugger options are preserved.
++ help set
+This command modifies parts of the debugger environment.
+You can see these environment settings with the 'show' command.
+
+List of set subcommands:
+
+set args -- Set argument list to give program being debugged when it is started
+set basename -- Set short filenames (the basename) in debug output
+set cmdtrace -- Set to show lines read from the debugger command file
+set interactive -- Set whether we are interactive
+set linetrace -- Set line execution tracing and delay on tracing
+set listsize -- Set number of source lines the debugger will list by default
+set prompt -- Set debugger's prompt
++ help set linesize
+*** Unknown 'help set' subcommand linesize
++ help set listsize
+Set number of source lines the debugger will list by default
++ help show
+Generic command for showing things about the debugger.
+
+List of show subcommands:
+
+show args -- Show argument list to give debugged program on start
+show basename -- Show if we are to show short of long filenames
+show cmdtrace -- Show if we are to show debugger commands before running
+show interactive -- Show whether we are interactive
+show linetrace -- Show the line tracing status. Can also add 'delay'
+show listsize -- Show number of source lines the debugger will list by default
+show prompt -- Show debugger's prompt
+show version -- Show what version of this is
++ help show listsize
+Show number of source lines the debugger will list by default
++ help info
+Generic command for showing things about the program being debugged.
+
+List of info subcommands:
+
+info args -- Argument variables of current stack frame
+info break -- Status of user-settable breakpoints
+info display -- Expressions to display when program stops, with code numbers.
+info globals -- Global variables of current stack frame
+info line -- Current line number in source file
+info locals -- Local variables of current stack frame
+info program -- Execution status of the program
+info source -- Information about the current Python file
++ help info program
+Execution status of the program
 + quit

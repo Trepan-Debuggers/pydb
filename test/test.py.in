@@ -1,13 +1,17 @@
 #!@PYTHON@
-# $Id: test.py.in,v 1.8 2006/02/17 02:31:20 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.9 2006/02/21 15:30:37 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
-top_builddir  = "@top_builddir@"
+top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
     top_builddir += os.path.sep
-
 sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
 import pydb                
 
 class PdbTest(pydb.Pdb):
@@ -51,7 +55,7 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
-def run_debugger(testname, pythonfile):
+def run_debugger(testname, pythonfile, args=''):
     global srcdir, builddir, pydir
     cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
     rightfile   = os.path.join(srcdir, "%s.right" % testname)
@@ -61,8 +65,8 @@ def run_debugger(testname, pythonfile):
 
     if os.path.exists(outfile): os.unlink(outfile)
 
-    cmd = "%s --command %s --output=%s %s" % \
-          (pydb_path, cmdfile, outfile, pythonfile)
+    cmd = "%s --command %s --output=%s %s %s" % \
+          (pydb_path, cmdfile, outfile, pythonfile, args)
     
     os.system(cmd)
     fromfile  = rightfile
@@ -91,11 +95,18 @@ class PdbTests(unittest.TestCase):
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "cmdparse")
 
-    def test_break(self):
+    def test_brkpt(self):
         """Test breakpoint setting/display"""
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "brkpt1")
+
+    def test_brkpt2(self):
+        """Test breakpoint setting/display"""
+        result=run_debugger(testname='brkpt2',
+                            pythonfile='%sgcd.py' % srcdir,
+                            args='3 5')
+        self.assertEqual(True, result, "brkpt2")
 
     def test_run(self):
         """Test run/restart"""
@@ -109,6 +120,17 @@ class PdbTests(unittest.TestCase):
         # stringent test.
 	if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
 	    self.assertEqual(True, result, "run")
+
+    def test_return(self):
+        """Test of run with return"""
+        print
+        print "**********************************************************"
+        print "***                   NOTE                             ***"
+        print "*** The traceback 'Need to give two numbers' is right  ***"
+        print "**********************************************************"
+        result=run_debugger(testname='run2',
+                            pythonfile='%sgcd.py' % srcdir)
+        self.assertEqual(True, result, "run2")
 
     def test_filebug(self):
         """Test __file__"""

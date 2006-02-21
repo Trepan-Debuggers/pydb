@@ -113,7 +113,7 @@ cd DIRECTORY
 	Set working directory to DIRECTORY for debugger and program
 	being debugged.
 
-cl(ear) [[file:]linenumber]
+cl(ear) {[file:]linenumber | function}
 
        	Clear breakpoint at specified line or function.
 
@@ -195,6 +195,14 @@ h(elp)
         a command name as argument, print help about that command
         (this is currently not implemented).
 
+ignore bpnumber count
+        Sets the ignore count for the given breakpoint number.  If
+        count is omitted, the ignore count is set to 0.  A breakpoint
+        becomes active when the ignore count is zero.  When non-zero,
+        the count is decremented each time the breakpoint is reached
+        and the breakpoint is not disabled and any associated
+        condition evaluates to true.
+
 i(nfo) [suboption]
 	Without argument, print the list of available info commands.
 	With an argument, print info about that command. Suboptions follow:
@@ -212,14 +220,6 @@ info line -- Current line number in source file. If a function name is
 info locals -- Local variables of current stack frame
 info program -- Execution status of the program
 info source -- Information about the current Python file
-
-ignore bpnumber count
-        Sets the ignore count for the given breakpoint number.  If
-        count is omitted, the ignore count is set to 0.  A breakpoint
-        becomes active when the ignore count is zero.  When non-zero,
-        the count is decremented each time the breakpoint is reached
-        and the breakpoint is not disabled and any associated
-        condition evaluates to true.
 
 l(ist) [first [,last]]
         List source code for the current file.
@@ -249,6 +249,10 @@ q(uit)
         Quit from the debugger.
         The program being executed is aborted.
 
+restart 
+        Restart debugger and program via an exec call. All state
+        is lost, and new copy of the debugger is used.
+
 return
         Make selected stack frame return to its caller. Control
         remains in the debugger, but when you continue execution will
@@ -269,10 +273,11 @@ retval
 	See also finish and return.
 
 run     [args...]
-        Restart the debugged python program. If a string is supplied that 
-        becomes the new command arguments.
+
+        Run (or restart the debugged python program. If a string is
+	supplied that becomes the new command arguments.
         History, breakpoints, actions and debugger options are preserved.
-	'R' is a short command alias for restart.
+	'R' is a short command alias for run.
 
 set *subcommand*
     With a subcommand, this command modifies parts of the debugger
@@ -307,6 +312,10 @@ show *subcommand*
 
     show args -- Show argument list to give program being debugged when
 	it is started
+
+    show cmdtrace -- Show if we are to show debugger commands before running
+
+    show interactive -- Show if we are interactive or not
 
     show dialect -- Show what style of debugger interface is in effect.
 

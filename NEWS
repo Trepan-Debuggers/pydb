@@ -1,17 +1,28 @@
 0.12cvs
-  Add gdb commands: 
+* Add gdb commands: 
     - "cd" command
     - "display", "undisplay"
-    - "info program"
+    - help subcommands for "show", "info", and "set"
+    - info: "display", "line" "source" and "program"
     - "pwd" command
     - "return" (early exit from a function)
     - "shell" command
     - Extend "info line" to allow a function name.
 
-  File location reporting changed. Is now like mdb, bashdb, or (or perldb)
-  Changes to make more compatible with ddd.
+* Use inspect module. Argument parameters and values are now shown.
 
-  Doc fixes, add more GNU Emacs debugger commands
+* Break out debugger into more files 
+
+* File location reporting changed. Is now like mdb, bashdb, or (or perldb)
+
+* Changes to make more compatible with ddd.
+
+* Doc fixes, add more GNU Emacs debugger commands
+
+* "clear" command now accepts a function name
+
+* Bugfixes:
+  - allow debugged program to mangle sys.argv (we save our own copy)
 
 0.11
 2006-01-29
@@ -59,7 +70,8 @@
 
 * output routines can be subclassed
 
-* __file__ is set before debugging script. (Bug in 2.4.2 pdb.py)
+* Bugfixes:
+  - __file__ is set before debugging script. (Bug in 2.4.2 pdb.py)
 
 0.10
 2006-01-12

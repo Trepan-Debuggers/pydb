@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.6 2006/02/19 10:51:25 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.7 2006/02/21 15:30:37 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -69,5 +69,18 @@ next -1
 ###   test info
 ########################################
 info line
-### 
+info source
+########################################
+###   help/info stuff
+########################################
+help nogood
+help restart
+help run
+help set
+help set linesize
+help set listsize
+help show
+help show listsize
+help info
+help info program
 quit

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+"""Towers of Hanoi"""
 import sys,os
 
 def hanoi(n,a,b,c):
