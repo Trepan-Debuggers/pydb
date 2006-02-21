@@ -1,29 +1,30 @@
-Many more regression tests need to be written. They expose errors that
-are in there and maintain quality. And Some large changes may be in
-the works.
+The debugger code is growing too large. It needs to be split out.
+The current thought is to split out the customization code of 
+cmd and bdb into their own modules/classes. 
 
-A great deal of help has been added, but a great more needs to be
-added.  A manual using Python documentation conventions
-will has been started. More work is needed.
+Also installation should to into a pydb directory. Need to figure out
+how to get autotools to do this.
 
-Add gdb return command. (Pretty straightforward)
+Some more regression tests should to be written. They've been
+invaluable so far and maintain quality. Especially for large changes.
+in the works.
 
-To internal debugger help, we will probably get help categories such as
-exist in gdb. And the debugger manual will probably follow that.
+gdb return command relies on the existance of a return statement in
+the code.
+
+Add online debugger concept help and in LaTeX? 
 
 There seem to be weirdnesses in the debugger that I don't fully
-comprehend and I think they exist in pydb.py as well. 
+comprehend and I think they exist in pydb.py as well.
 
 Should check into getting this integrated with ipython's "run -d".  It
 has a history mechanism and pydb should too. If it is possible to use
 a class form ipython or a class that's out there, that should be done.
 
-The debugger code is growing too large. It needs to be split out.
-
 The examine command needs to deal with arbitrary objects better.
-
-Revise to use inspect module
 
 Use a better readline if that's available.
 
-$Id: TODO,v 1.2 2006/01/28 04:58:20 rockyb Exp $
+Use inspect module get_stack rather than bdb's?
+
+$Id: TODO,v 1.3 2006/02/21 21:53:52 rockyb Exp $
