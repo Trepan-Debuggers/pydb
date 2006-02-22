@@ -17,37 +17,72 @@ Pydb - Extended Python Debugger
 </H3>
 <P>
 <HR>
-<P><tt>pydb</tt> is an expanded version of the Python debugger, pdb.py
+<P><tt>pydb</tt> is an expanded version of the Python debugger,
+<tt>pdb.py</tt> and a merger with <tt>pydb.py</tt> that was used in
+the debugger GUI <a href="http://www.gnu.org">ddd</a>.
 
+<p>
 We follow gdb's command set unless there's good reason. So new or
 modified command names generally refer to the function they have in
 gdb.
 
-Some of the commands added from gdb:
+<p>
+Changes from pdb.py:
 <ul>
-<li> <kbd>run</kbd> (restart)
-<li> <kbd>frame</kbd>  (Set frame by absolute number)
-<li> <kbd>set</kbd>, <kbd>show</kdb> for 
-     <kbd>listsize<kbd>, 
-<li> <kbd>info</kbd> for: <kbd>args</kbd>, <kbd>break</kbd>, 
-     <kbd>line</kbd>, <kbd>locals</kbd>, <kbd>globals</kbd>, <kbd>source</kbd>
-<li> <kbd>disassemble</kbd>
-<li> <kbd>delete</kbd> (delete a breakpoint by number)
-</ul>
 
-Many commands that were gdb-like have been expanded:
-<ul>
-<li> <kbd>up</kbd>, <kbd>down</kbd>
-     now accept an optional numeric position argument 
-<li><kbd>next</kbd>, <kbd>step</kbd>
-     now accept an optional numeric count. Step skips
-     over "def" statements that are not calls
-<li> <kbd>clear</kbd>  (Set frame by absolute number)
-</ul>
+<li> non-interactive POSIX-shell like line tracing.
 
-Also added are line tracing, regression testing (for quality), proper
-installation as a standalone program. And this just scratches the
-surface of the improvements.
+<li>Restart program saving settings (gdb's <tt>run</tt>) or a pure
+<tt>exec</tt> restart (reloads the entire debugger)
+
+<li>Add "display" expressions
+
+<li>Some of gdb <tt>set</tt>/<tt>show</tt> commands:
+   <tt>args</tt>, <tt>listsize</tt>, <tt>version</tt> (no set here),
+   and some new ones basename, cmdtrace, interactive, linetrace,
+
+<li>Some gdb <tt>info</tt> commands: <tt>args</tt>, <tt>break</tt>,
+   <tt>display</tt>, <tt>globals</tt>, <tt>line</tt>, <tt>locals</tt>,
+   <tt>program</tt>, and <tt>source</tt>
+
+<li>Other gdb commands: <tt>cd</tt>, <tt>display</tt>,
+  <tt>disassemble</tt>, <tt>finish</tt>,<tt>frame</tt>, <tt>pwd</tt>,
+  <tt>return</tt> (immediate return, not <tt>finish</tt>),
+  <tt>run</tt>, <tt>shell</tt>, <tt>source</tt>, <tt>undisplay</tt>
+
+<li> debugger is installed in binary directory; i.e. one runs "pydb script..."
+  rather than "python pdb script..."
+
+<li> debugger accepts debugger options; e.g. redirecting output or setting 
+  line tracing
+
+<li> Add Perl's "examine" to show info about a symbol.  For functions,
+  methods, classes and modules the documentation string if any is printed.
+  For functions, we also show the argument list. More work is needed here
+  to recurse fields of an arbitrary object and show that.
+
+<li> add gdb's "frame" command and stack order. Cleaner display of
+  call stack; for example "exec" calls are marked as such.
+
+<li> gdb-like help with subcomamnd-specific help available on 
+  info, set, or show subcommands;  e.g. "help info line" works
+
+<li> More <a href="http://bashdb.sourceforge.net/pydb/pydb/lib/index.html">
+extensive and complete documentation</a>.
+
+<li> up/down can take a number of frames to move.
+
+<li> Stepping skips over "def" statements.
+
+<li> Comes with regression tests. Can also be subclassed to capture
+  debugger output.
+
+<li> Works with GUI frontend ddd. (For now a <a
+href="http://sourceforge.net/project/showfiles.php?group_id=61395&package_id=65341">testing
+version</a> of ddd is required.
+
+<li>Miscellaneous pdb bugs fixed. (See ChangeLog for details)
+</ul>
 
 <center>
 <table WIDTH="80%" BORDER=0 CELLPADDING=10 CELLSPACING=0>
@@ -106,6 +141,6 @@ surface of the improvements.
 src="http://sourceforge.net/sflogo.php?group_id=61395&amp;type=1"
 alt="SourceForge Logo" border="0" height="31" width="88">></a>
 
-<i>$Id: index.html,v 1.2 2006/01/30 10:48:54 rockyb Exp $</i>
+<i>$Id: index.html,v 1.3 2006/02/22 23:44:37 rockyb Exp $</i>
 </body>
 </html>
