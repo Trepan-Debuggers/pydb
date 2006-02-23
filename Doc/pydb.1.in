@@ -1,0 +1,52 @@
+.TH pydb 1 
+.SH NAME
+pydb \- enhanced Python debugger
+.SH SYNOPSIS
+.B pydb 
+[debugger-options] 
+python-script 
+[script-options...]
+.SH "DESCRIPTION"
+This manual page documents briefly the
+.BR pydb
+command.
+This manual page was written for the Debian GNU/Linux distribution
+because the original program does not have a manual page.
+.PP
+.B pydb
+is an enhanced debugger for Python. It extends the Python standard
+debugger pdb and is suited for use with the graphical debugger DDD.
+.SH OPTIONS
+.PP
+.TP 10
+.B \-\-version
+show the version number and exit
+.TP
+.B \-\-nx
+Don't execute commands found in any initialization files
+.TP
+.B \-\-batch
+Don't run interactive commands on debugger entry
+.TP
+.B \-\-command=FILE
+Execute commands from FILE
+.TP
+.B \-\-error=FILE
+Write debugger's error output (stderr) to FILE
+.TP
+.B \-\-output=FILE
+Write debugger's output (stdout) to FILE
+.TP
+.B \-\-trace
+Show lines before executing them. This option also sets --batch.
+.PD
+.SH "SEE ALSO"
+@pythondir@/pdb.doc http://bashdb.sourceforge.net/pydb/
+.SH AUTHOR
+pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
+based on the standard Python debugger pdb.py. In the years pdb.py and
+pydb.py have diverged. It was subsequently revised and
+expanded to be more like gdb by Rocky Bernstein <rocky@panix.com>
+
+This manual page was written by Gregor Hoffleit <flight@debian.org>
+for the Debian project (but may be used by others).
