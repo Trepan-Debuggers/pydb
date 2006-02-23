@@ -12,6 +12,7 @@ Move disk a to b
 The program finished and will be restarted
 + ######################################
 + ### Now restart with a breakpoint
++ ######################################
 + break hanoi
 Breakpoint 1 set in file hanoi.py, line 5.
 + show args
@@ -38,6 +39,7 @@ It stopped at breakpoint 1.
 + ### We should be at that breakpoint
 + ### delete it and run again 
 + ### this time changing a parameter
++ ######################################
 + info break
 Num Type          Disp Enb    Where
 1   breakpoint    keep y   at hanoi.py:5
