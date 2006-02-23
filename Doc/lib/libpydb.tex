@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.15 2006/02/21 21:31:20 rockyb Exp $
+% $Id: libpydb.tex,v 1.16 2006/02/23 10:52:59 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -94,7 +94,7 @@ Thus the general form of invoking the debugger is:
 
 A detailed list of options is given next.
 
-\subsection{Debugger Command Options ({\tt --linetrace}, {\tt
+\subsection{Debugger Command Options ({\tt --trace}, {\tt
     --output}, {\tt --command}, {\tt --nx}, \ldots)\label{subsection-switches}}
 
 Many options have both a short and a long version. For example,
@@ -111,7 +111,7 @@ through the program. However, if you want to start the script running
 without any interactive behavior from the debugger, use this option
 for example, if you know that a script will terminate with an
 exception which causes the debugger to be entered at that point. The
-\code{--linetrace} option implicitly sets this option.
+\code{--trace} option implicitly sets this option.
 
 \item[--{}--command=\var{filename}\code{\Large{|}}--x \var{filename}]\label{switch:command}
 
@@ -229,14 +229,17 @@ the middle of a quoted string.
 
 \subsection{Status and Debugger Settings ({\tt set}, {\tt show}, {\tt info})\label{subsection-status}}
 
+A {\tt set} command modifies parts of the debugger environment.  can
+see these environment settings with the {\tt show} command.  An {\tt
+info} command shows things about the program being debugged.
+
 \subsubsection{Set ({\tt set})\label{subsubsection-set}}
 
 In all of the set options that take ``on'' or ``off'' parameters, you
 can also use 1 for ``on'' and 0 for ``off.''
 
-Each command has a corresponding ``show'' command to show the current
-value. See \ref{subsubsection-show} for the ``show'' counterparts.
-
+Each command has a corresponding {\tt show} command to show the current
+value. See \ref{subsubsection-show} for these counterparts.
 
 \begin{description}
 
