@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.49 2006/02/21 15:30:37 rockyb Exp $
+"""$Id: pydb.py.in,v 1.50 2006/02/23 02:06:51 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -62,6 +62,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.basename        = False
         self.cmdtrace        = False
         self.currentbp       = None   # for "info program"
+        self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
         self.linetrace       = False
         self.linetrace_delay = 0
@@ -1011,7 +1012,6 @@ the .py suffix may be omitted."""
         locals = self.curframe.f_locals
         p = Pdb()
         p.prompt  = "(%s) " % self.prompt.strip()
-        p.display = Display()
         self.msg("ENTERING RECURSIVE DEBUGGER")
 
         # Inherit some values from current environemnt
@@ -2067,6 +2067,22 @@ def runcall(*args, **kwds):
 def set_trace():
     Pdb().set_trace(sys._getframe().f_back)
 
+def debugger():
+    """Use this to in your program to invoke the interactive command
+loop of the debugger."""
+    try:
+        raise Exception
+    except:
+        frame=inspect.currentframe()
+        p = Pdb()
+        p.reset()
+        p._program_sys_argv = list(sys.argv)
+        p._sys_argv = list(sys.argv)
+        try:
+            p.interaction(frame, sys.exc_traceback)
+        except Restart:
+            p.do_restart(None)
+
 # Post-Mortem interface
 
 def post_mortem(t):
@@ -2105,7 +2121,6 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    pydb.display = Display()
     process_options(pydb, _debugger_name, program)
 
     # process_options has munged sys.argv to remove any options that
