@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.50 2006/02/23 02:06:51 rockyb Exp $
+"""$Id: pydb.py.in,v 1.51 2006/02/23 12:10:14 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -18,8 +18,10 @@ class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
 
-__all__ = ["run", "pm", "Pdb", "runeval", "runctx", "runcall", "set_trace",
-           "post_mortem", "help"]
+__all__ = ["Pdb",     "debugger",    "help",
+           "pm",      "post_mortem", "run",
+           "runcall", "runctx",      "runeval",
+           "set_trace"]
 
 def init():
     global program, _repr, _saferepr, step_ignore_count
@@ -1028,6 +1030,7 @@ the .py suffix may be omitted."""
         self.msg("LEAVING RECURSIVE DEBUGGER")
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
+        self.print_location()
 
     def do_delete(self, arg):
 
@@ -2049,12 +2052,27 @@ You can see these environment settings with the 'show' command."""
         self.running = True
         self.run(statement, globals=globals_, locals=locals_)
 
-# Simplified interface
+# Alternative top-level calls
 
 def run(statement, globals=None, locals=None):
+
+    """Execute the statement (given as a string) under debugger
+    control. The debugger prompt appears before any code is executed;
+    you can set breakpoints and type 'continue', or you can step
+    through the statement using 'step' or 'next'
+
+    The optional globals and locals arguments specify the environment
+    in which the code is executed; by default the dictionary of the
+    module __main__ is used."""
+    
     Pdb().run(statement, globals, locals)
 
 def runeval(expression, globals=None, locals=None):
+
+    """Evaluate the expression (given as a string) under debugger
+    control.  When runeval() returns, it returns the value of the
+    expression.  Otherwise this function is similar to run()."""
+
     return Pdb().runeval(expression, globals, locals)
 
 def runctx(statement, globals, locals):
@@ -2062,26 +2080,44 @@ def runctx(statement, globals, locals):
     run(statement, globals, locals)
 
 def runcall(*args, **kwds):
+
+    """ Call the function (a function or method object, not a string)
+    with the given arguments.  When runcall() returns, it returns
+    whatever the function call returned.  The debugger prompt appears
+    as soon as the function is entered."""
+
     return Pdb().runcall(*args, **kwds)
 
 def set_trace():
-    Pdb().set_trace(sys._getframe().f_back)
+    """Enter the debugger at the calling stack frame.  This is useful to
+    hard-code a breakpoint at a given point in a program, even if the code
+    is not otherwise being debugged (e.g., when an assertion fails).
+    Leaving this the debugger terminates the program.
+    """
+    p = Pdb()
+    p.reset()
+    p._program_sys_argv = list(sys.argv)
+    p._sys_argv = list(sys.argv)
+    p.set_trace(sys._getframe().f_back)
 
 def debugger():
-    """Use this to in your program to invoke the interactive command
-loop of the debugger."""
+
+    """Enter the debugger at the calling stack frame.  Like set_trace
+    but leaving the debugger does not terminate the program. One other
+    difference is that the call stack will show this routine rather
+    than some point in the program being debugged, so you may want to
+    set the stack frame to the next most-recent frame.
+    """
+
+    p = Pdb()
+    p.reset()
+    p._program_sys_argv = list(sys.argv)
+    p._sys_argv = list(sys.argv)
     try:
-        raise Exception
-    except:
-        frame=inspect.currentframe()
-        p = Pdb()
-        p.reset()
-        p._program_sys_argv = list(sys.argv)
-        p._sys_argv = list(sys.argv)
-        try:
-            p.interaction(frame, sys.exc_traceback)
-        except Restart:
-            p.do_restart(None)
+        p.set_trace(sys._getframe().f_back)
+        p.interaction(frame, sys.exc_traceback)
+    except Restart:
+        p.do_restart(None)
 
 # Post-Mortem interface
 
