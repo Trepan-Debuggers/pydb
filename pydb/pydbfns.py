@@ -1,4 +1,4 @@
-"""$Id: pydbfns.py,v 1.1 2006/02/21 15:30:37 rockyb Exp $
+"""$Id: pydbfns.py,v 1.2 2006/02/23 02:05:29 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import os, sys, re, traceback
@@ -79,7 +79,8 @@ def process_options(pydb, debugger_name, program):
 
     optparser.add_option("-X", "--trace", dest="linetrace",
                          action="store_true", default=False, 
-                         help="Show lines before executing them")
+                         help="Show lines before executing them. " +
+                         "This option also sets --batch")
     optparser.add_option("-n", "--nx", dest="noexecute",
                          action="store_true", default=False, 
                          help="Don't execute commands found in any " +
@@ -87,13 +88,13 @@ def process_options(pydb, debugger_name, program):
     optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
                          help="Don't run interactive commands shell on "+
-                         "stops. This option also sets --batch")
+                         "stops.")
     optparser.add_option("-x", "--command", dest="command",
                          action="store", type='string', metavar='FILE',
                          help="Execute commands from FILE")
     optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
-                         help="Write debugger's output (stdout)" +
+                         help="Write debugger's output (stdout) " +
                          "to FILE")
     optparser.add_option("--error", dest="errors", metavar='FILE',
                          action="store", type='string',
