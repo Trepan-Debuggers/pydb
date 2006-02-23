@@ -10,12 +10,12 @@ python-script
 This manual page documents briefly the
 .BR pydb
 command.
-This manual page was written for the Debian GNU/Linux distribution
-because the original program does not have a manual page.
 .PP
 .B pydb
-is an enhanced debugger for Python. It extends the Python standard
+is an extended Python debugger. It extends the Python standard
 debugger pdb and is suited for use with the graphical debugger DDD.
+.PP
+We follow gdb's command set unless there's good reason not to.
 .SH OPTIONS
 .PP
 .TP 10
