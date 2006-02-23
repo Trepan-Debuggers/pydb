@@ -1,0 +1,50 @@
+--- python-mode.el	2005-12-02 11:30:11.000000000 -0500
++++ /usr/local/share/emacs/site-lisp/python-mode.el	2006-02-23 04:39:51.000000000 -0500
+@@ -578,7 +578,23 @@
+   "^> \\(.*\\)(\\([0-9]+\\))\\([?a-zA-Z0-9_]+\\)()"
+   "Regular expression pdbtrack uses to find a stack trace entry.")
+ 
+-(defconst py-pdbtrack-input-prompt "\n[(<]*[Pp]db[>)]+ "
++(defconst py-pydbtrack-stack-entry-regexp
++  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
++  "Regular expression pdbtrack uses to find a stack trace entry for pydb.
++
++The debugger outputs program-location lines that look like this:
++   (/usr/bin/zonetab2pot.py:15): makePOT")
++
++(defconst py-pdbtrack-marker-regexp-file-group 1
++  "Group position in gud-pydb-marker-regexp that matches the file name.")
++
++(defconst py-pbdtrack-marker-regexp-line-group 2
++  "Group position in gud-pydb-marker-regexp that matches the line number.")
++
++(defconst py-pbdtrack-marker-regexp-funcname-group 3
++  "Group position in gud-pydb-marker-regexp that matches the function name.")
++
++(defconst py-pdbtrack-input-prompt "\n[(<]*[Pp]y?db[>)]+ "
+   "Regular expression pdbtrack uses to recognize a pdb prompt.")
+ 
+ (defconst py-pdbtrack-track-range 10000
+@@ -1444,13 +1460,18 @@
+ If we're unable find the source code we return a string describing the
+ problem as best as we can determine."
+ 
+-  (if (not (string-match py-pdbtrack-stack-entry-regexp block))
++  (if (and (not (string-match py-pdbtrack-stack-entry-regexp block))
++	   (not (string-match py-pydbtrack-stack-entry-regexp block)))
+ 
+       "Traceback cue not found"
+ 
+-    (let* ((filename (match-string 1 block))
+-           (lineno (string-to-int (match-string 2 block)))
+-           (funcname (match-string 3 block))
++    (let* ((filename (match-string 
++		      py-pdbtrack-marker-regexp-file-group block))
++           (lineno (string-to-int (match-string 
++				   py-pbdtrack-marker-regexp-line-group
++				   block)))
++           (funcname (match-string py-pbdtrack-marker-regexp-funcname-group
++				   block))
+            funcbuffer)
+ 
+       (cond ((file-exists-p filename)

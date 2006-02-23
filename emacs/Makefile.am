@@ -13,9 +13,9 @@
 #   You should have received a copy of the GNU General Public License along
 #   with Bash; see the file COPYING.  If not, write to the Free Software
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-#$Id: Makefile.am,v 1.1 2006/01/12 04:23:42 rockyb Exp $
+#$Id: Makefile.am,v 1.2 2006/02/23 10:50:24 rockyb Exp $
 
-EXTRA_DIST := pydb.el
+EXTRA_DIST := pydb.el python-mode.el.diff
 ELCFILES   := pydb.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = pydb.el 

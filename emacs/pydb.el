@@ -20,15 +20,21 @@
 
 (require 'gud)
 
-;;; History of argument lists passed to pydb.
-(defvar gud-pydb-history nil)
+(defvar gud-pydb-history nil
+  "History of argument lists passed to pydb.")
 
-;; The debugger outputs program-location lines that look like this:
-;;   (/usr/bin/zonetab2pot.py:8):
 (defconst gud-pydb-marker-regexp
-  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?")
-(defconst gud-pydb-marker-regexp-file-group 1)
-(defconst gud-pydb-marker-regexp-line-group 2)
+  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?"
+  "Regular expression used to find a file location given by pydb.
+
+The debugger outputs program-location lines that look like this:
+   (/usr/bin/zonetab2pot.py:15): makePOT")
+
+(defconst gud-pydb-marker-regexp-file-group 1
+  "Group position in gud-pydb-marker-regexp that matches the file name.")
+
+(defconst gud-pydb-marker-regexp-line-group 2
+  "Group position in gud-pydb-marker-regexp that matches the line number.")
 
 (defun gud-pydb-massage-args (file args)
   args)
