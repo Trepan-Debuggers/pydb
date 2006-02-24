@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.51 2006/02/23 12:10:14 rockyb Exp $
+"""$Id: pydb.py.in,v 1.52 2006/02/24 00:57:13 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -18,7 +18,7 @@ class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
 
-__all__ = ["Pdb",     "debugger",    "help",
+__all__ = ["Pdb",     "help",
            "pm",      "post_mortem", "run",
            "runcall", "runctx",      "runeval",
            "set_trace"]
@@ -59,6 +59,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         bdb.Bdb.__init__(self)
         cmd.Cmd.__init__(self)
 
+        self._user_requested_quit = False
         self._wait_for_mainpyfile = False
         self.aliases         = {}
         self.basename        = False
@@ -2037,7 +2038,6 @@ You can see these environment settings with the 'show' command."""
         # user_call for details).
         self._wait_for_mainpyfile = True
         self.mainpyfile = self.canonic(filename)
-        self._user_requested_quit = False
 
         # Start with fresh empty copy of globals and locals and tell the script
         # that it's being run as __main__ to avoid scripts being able to access
@@ -2094,30 +2094,23 @@ def set_trace():
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
     """
-    p = Pdb()
-    p.reset()
-    p._program_sys_argv = list(sys.argv)
-    p._sys_argv = list(sys.argv)
-    p.set_trace(sys._getframe().f_back)
-
-def debugger():
-
-    """Enter the debugger at the calling stack frame.  Like set_trace
-    but leaving the debugger does not terminate the program. One other
-    difference is that the call stack will show this routine rather
-    than some point in the program being debugged, so you may want to
-    set the stack frame to the next most-recent frame.
-    """
-
-    p = Pdb()
-    p.reset()
-    p._program_sys_argv = list(sys.argv)
-    p._sys_argv = list(sys.argv)
+    global _pydb_trace
     try:
-        p.set_trace(sys._getframe().f_back)
-        p.interaction(frame, sys.exc_traceback)
-    except Restart:
-        p.do_restart(None)
+        if not isinstance(_pydb_trace, Pdb):
+            print "Your program should not use _pydb_trace"
+            return
+    except NameError:
+        _pydb_trace = Pdb()
+        _pydb_trace.reset()
+        _pydb_trace._program_sys_argv = list(sys.argv)
+        _pydb_trace._sys_argv = list(sys.argv)
+    except:
+        print "Unknown error"
+        return
+    # We don't support "run" so we'll make "run" and "R" be "restart"
+    _pydb_trace.do_R = _pydb_trace.do_run = _pydb_trace.do_restart
+    frame=inspect.currentframe()
+    _pydb_trace.set_trace(frame)
 
 # Post-Mortem interface
 
@@ -2157,7 +2150,7 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    process_options(pydb, _debugger_name, program)
+    opts = process_options(pydb, _debugger_name, program)
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
@@ -2182,7 +2175,7 @@ def main():
 
     while True:
 
-        # Run the debugged script over and over again until you get it
+        # Run the debugged script over and over again until we get it
         # right.
 
         try:

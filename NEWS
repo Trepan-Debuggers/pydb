@@ -1,3 +1,10 @@
+1.13cvs
+
+* Add MAN page (from Debian)
+* Bump revision to 0.12 to 1.13 to be compatible with Debian pydb package.
+* Work on set_trace() in light of recent changes
+* Document alternative invocation methods and how to call from a program.
+
 0.12
 2006-02-21
 * Add gdb commands: 

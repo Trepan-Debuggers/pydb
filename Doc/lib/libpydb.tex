@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.17 2006/02/23 12:09:55 rockyb Exp $
+% $Id: libpydb.tex,v 1.18 2006/02/24 00:57:13 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -896,7 +896,7 @@ present I don't know how to fix or else I would.)
 
 So another approach which doesn't have this complexity or drawback is
 too add a call to the debugger at special places. For this, the
-\code{pydb} function \code{debugger()} can be used. For example:
+\code{pydb} function \code{set_trace()} can be used. For example:
 
 \begin{verbatim}
 import pydb
@@ -907,24 +907,12 @@ more_code() # debugger will show this line to be executed
 \end{verbatim}
 
 When \code{pydb.set_trace()} function is called, the program stops
-before the next statement. However in contrast to \code{pydb.debugger}
-quitting causes the program to be terminated.
+before the next statement. 
 
-If you don't want the program to be stopped when the debugger is
-exited you can use the \code{pydb.debugger()} function instead. But
-here the program will be stopped inside the \code{debugger}
-function. The stack frame will show \code{pydb.debugger} as the most
-recent entry and below that will be the program that it was called
-from.
+To continue running the program, issue a debugger \code{next},
+\code{step} or a \code{continue} command.
 
-To continue running the program, issue a debugger \code{quit} or
-\code{continue} command or give a termanal EOF.
-
-A downside of this approache is that debugger session information
-can't be saved between calls---each call is a new instance of the
-debugger and when the debugger is left via \code{quit} the instance is
-destroyed. (In the case of \code{pydb.set_trace()} the issue never
-comes up because the program is terminated on exit.
+The exit the program use the \code{quit} or a termanal EOF.
 
 \subsection{Other alternative methods of invocation}
 
@@ -987,17 +975,6 @@ NameError: spam
 
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
-
-\begin{funcdesc}{debugger}{}
-Enter the debugger at the calling stack frame.  This is useful to
-hard-code a breakpoint at a given point in a program, even if the code
-is not otherwise being debugged (e.g., when an assertion fails).
-
-The call stack will show \code{debugger} as the most recent call and
-the next most-recent entry will be the program being debugged. See
-also \code{set_trace}.
-
-\end{funcdesc}
 
 \begin{funcdesc}{pm}{}
 Enter post-mortem debugging of the traceback found in

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.19 2006/02/21 15:30:35 rockyb Exp $
+#$Id: Makefile.am,v 1.20 2006/02/24 00:57:11 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,9 @@ python_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
 pkgdatadir = $(pythondir)
 
+# Section 1 are general commands
+EXT=1
+man1_MANS = Doc/$(DEBUGGER).$(EXT)
 
 # We in fact do install python_PYTHON, just not in the executable directory.
 # Instead it's installed with other python programs. The noinst however
@@ -44,6 +47,8 @@ EXTRA_DIST = ChangeLog TODO THANKS        \
 	     Doc/Makefile.deps            \
 	     pydb/pydb.doc pydb/Makefile  \
 	     setup.py site-packages-path.py
+
+MOSTLYCLEANFILES = $(man1_MANS) 
 
 clean-generic: 
 	-rm $(top_builddir)/pydb/pydb.pyc \

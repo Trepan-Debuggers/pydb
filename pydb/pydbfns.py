@@ -1,4 +1,4 @@
-"""$Id: pydbfns.py,v 1.2 2006/02/23 02:05:29 rockyb Exp $
+"""$Id: pydbfns.py,v 1.3 2006/02/24 00:57:13 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import os, sys, re, traceback
@@ -148,7 +148,7 @@ def process_options(pydb, debugger_name, program):
             print "Unexpected error in opening debugger output file %s" % \
                   opts.output
             print sys.exc_info()[0]
-            raise
+            sys.exit(2)
 
     if opts.errors:
         try: 
@@ -162,7 +162,7 @@ def process_options(pydb, debugger_name, program):
             print "Unexpected error in opening debugger output file %s" % \
                   opts.errors
             print sys.exc_info()[0]
-            raise
+            sys.exit(2)
 
 def show_onoff(bool):
     """Return 'on' for True and 'off' for False, and ?? for anything
