@@ -9,3 +9,5 @@ Makefile
 html-*.tar
 html-*.tgz
 info
+pydb.1
+
