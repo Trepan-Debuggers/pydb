@@ -4,6 +4,8 @@
 * Bump revision to 0.12 to 1.13 to be compatible with Debian pydb package.
 * Work on set_trace() in light of recent changes
 * Document alternative invocation methods and how to call from a program.
+* Break out cmds into a separate module
+* add optional count on "where"
 
 0.12
 2006-02-21
