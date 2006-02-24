@@ -1,5 +1,5 @@
-"""$Id: pydbdisp.py,v 1.1 2006/02/21 15:30:37 rockyb Exp $
-Classes to suport display/undisplay for pydb, the Extended Python
+"""$Id: pydbdisp.py,v 1.2 2006/02/24 18:58:51 rockyb Exp $
+Classes to support display/undisplay for pydb, the Extended Python
 debugger"""
 
 class Display:

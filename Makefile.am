@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.20 2006/02/24 00:57:11 rockyb Exp $
+#$Id: Makefile.am,v 1.21 2006/02/24 18:58:49 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ DEBUGGER := pydb
 # The Python debugger script
 python_debugger_script := $(DEBUGGER).py
 python_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/pydbcmd.py \
 	$(DEBUGGER)/pydbdisp.py \
 	$(DEBUGGER)/pydbfns.py
 
@@ -52,6 +53,7 @@ MOSTLYCLEANFILES = $(man1_MANS)
 
 clean-generic: 
 	-rm $(top_builddir)/pydb/pydb.pyc \
+	$(top_builddir)/pydb/pydbcmd.pyc \
 	$(top_builddir)/pydb/pydbdisp.pyc \
 	$(top_builddir)/pydb/pydbfns.pyc
 
