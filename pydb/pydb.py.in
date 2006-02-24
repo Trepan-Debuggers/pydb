@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.55 2006/02/24 19:13:33 rockyb Exp $
+"""$Id: pydb.py.in,v 1.56 2006/02/24 22:07:10 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1661,20 +1661,15 @@ Prints the type of the argument which can be a Python expression."""
             if type(t) == types.StringType:
                 exc_type_name = t
             else: exc_type_name = t.__name__
-            self.errmsg("%s: %s" % (exc_type_name, repr(v)))
+            if exc_type_name == 'NameError':
+                self.errmsg("Name Error: %s" % arg)
+            else:
+                self.errmsg("%s: %s" % (exc_type_name, repr(v)))
             return
-        code = None
-        # Is it a function?
-        try: code = value.func_code
-        except: pass
-        if code:
-            self.msg('Function %s' % code.co_name)
-            return
-        # Is it an instance method?
-        try: code = value.im_func.func_code
-        except: pass
-        if code:
-            self.msg('Method %s' % code.co_name)
+        if inspect.isfunction(value):
+            self.msg('function %s%s' %
+                     (value.func_code.co_name,
+                       inspect.formatargspec(inspect.getargspec(value))))
             return
         # None of the above...
         self.msg(type(value))

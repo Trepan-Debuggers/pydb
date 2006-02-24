@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.2 2006/02/24 19:13:33 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.3 2006/02/24 22:07:10 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -6,7 +6,7 @@ generally (but not always) the are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
-import cmd
+import cmd, sys, types
 
 class Cmd(cmd.Cmd):
 
@@ -29,7 +29,7 @@ class Cmd(cmd.Cmd):
         locals = self.curframe.f_locals
         globals = self.curframe.f_globals
         try:
-            code = compile(line + '\n', '<stdin>', 'single')
+            code = compile(line + '\n', '"%s"' % line, 'single')
             exec code in globals, locals
         except:
             t, v = sys.exc_info()[:2]
