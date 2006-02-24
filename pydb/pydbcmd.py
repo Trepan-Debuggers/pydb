@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.1 2006/02/24 18:58:51 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.2 2006/02/24 19:13:33 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -13,6 +13,8 @@ class Cmd(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self._user_requested_quit = False
+        self.aliases              = {}
+        self.cmdtrace             = False
         self.nohelp               = 'Undefined command: \"%s\". Try \"help\".'
         self.prompt               = '(Pydb) '
         self.rcLines              = []

@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.54 2006/02/24 18:58:51 rockyb Exp $
+"""$Id: pydb.py.in,v 1.55 2006/02/24 19:13:33 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -62,9 +62,7 @@ class Pdb(bdb.Bdb, Cmd):
         pydbcmd.Cmd.__init__(self)
 
         self._wait_for_mainpyfile = False
-        self.aliases         = {}
         self.basename        = False
-        self.cmdtrace        = False
         self.currentbp       = None   # for "info program"
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
