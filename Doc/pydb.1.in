@@ -14,39 +14,152 @@ command.
 .B pydb
 is an extended Python debugger. It extends the Python standard
 debugger pdb and is suited for use with the graphical debugger DDD.
+The purpose of a debugger such as this one is to allow you to see what is
+going on ``inside'' another program while it executes\(em\&or what another
+program was doing at the moment it crashed.
+
 .PP
 We follow gdb's command set unless there's good reason not to.
+
+.PP
+pydb can do four main kinds of things (plus other things in support of
+these) to help you catch bugs in the act:
+
+.TP
+\ \ \ \(bu
+Start or restart your Python script, specifying arguments that might
+affect its behavior.
+
+.TP
+\ \ \ \(bu
+Make your program stop at various points possibly determined by
+specified conditions.
+
+.TP
+\ \ \ \(bu
+Examine what has happened when your program has stopped.
+
+.TP
+\ \ \ \(bu
+Change things in your program, so you can experiment with correcting the
+effects of one bug and go on to learn about another.
+.PP
+
+Here are some of the most frequently-needed commands:
+.TP
+.B break \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
+\&
+Set a breakpoint at \c
+.I function\c
+\& or at the specified file and line.
+.TP
+.B bt
+Backtrace: display the program stack.
+.TP
+.B clear \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
+\&
+Clear a breakpoint at \c
+.I function\c
+\& or at the specified file and line.
+.TP
+.TP
+.B continue
+Continue running your program (after stopping, e.g. at a breakpoint).
+.TP
+.BI delete \fR[\fIbreakpoint-numbers\fR]
+\&
+Delete breakpoints by number.
+.TP
+.BI examine " expr"\c
+\&
+Give type/object and value information about expression.
+.TP
+.B help \fR[\|\fIname\fR\|]
+Show information about pydb command \c
+.I name\c
+\&, or general information
+about using pydb.
+.TP
+.B info \fR[\|\fIname\fR\|]
+Get the various information usually about the debugged program.
+.TP
+.B list \fR[\|\fIfile\fB:\fIline\fR|\fIfunction]
+type the text of the program in the vicinity of where it is presently stopped
+or at the specified function or file and line.
+.TP
+.B next \fR[\|\fIcount\fR\|]
+Execute next program line(s) (after stopping); step \c
+.I over\c
+\& any
+function calls in the line.
+.TP
+.BI pp " expr"\c
+\&
+Pretty print the value of an expression.
+.TP
+.BI print " expr"\c
+\&
+Display the value of an expression.
+.TP
+.B quit
+Exit from the debugger.
+.TP
+.B run \fR[\|\fIarglist\fR\|]
+(Re)start your program (with \c
+.I arglist\c
+\&, if specified). If you want the debugger to get reloaded, use
+.B restart
+instead.
+.TP
+.B set
+Modify parts of the debugger environment.
+.TP
+.B show
+See the debugger environment settings
+.TP
+.B step \fR[\|\fIcount\fR\|]
+Execute next program line(s) (after stopping); step \c
+.I into\c
+\& any
+function calls in the line.
+.PP
+For full details on pydb, see \c
+http://bashdb.sourceforge.net/pydb/pydb/index.html
 .SH OPTIONS
 .PP
 .TP 10
+.B \-h | \-\-help
+show invocation help and exit
+.TP
 .B \-\-version
 show the version number and exit
 .TP
-.B \-\-nx
+.B \-n | \-\-nx
 Don't execute commands found in any initialization files
 .TP
 .B \-\-batch
 Don't run interactive commands on debugger entry
 .TP
-.B \-\-command=FILE
+.B \-x | \-\-command=FILE
 Execute commands from FILE
 .TP
 .B \-\-error=FILE
 Write debugger's error output (stderr) to FILE
 .TP
-.B \-\-output=FILE
+.B \-o | \-\-output=FILE
 Write debugger's output (stdout) to FILE
 .TP
-.B \-\-trace
+.B \-X | \-\-trace
 Show lines before executing them. This option also sets --batch.
 .PD
 .SH "SEE ALSO"
-@pythondir@/pdb.doc http://bashdb.sourceforge.net/pydb/
+@pythondir@/pdb.doc and http://bashdb.sourceforge.net/pydb/
 .SH AUTHOR
 pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
-based on the standard Python debugger pdb.py. In the years pdb.py and
+based on the standard Python debugger pdb.py. Over the many years, pdb.py and
 pydb.py have diverged. It was subsequently revised and
 expanded to be more like gdb by Rocky Bernstein <rocky@panix.com>
 
-This manual page was written by Gregor Hoffleit <flight@debian.org>
-for the Debian project (but may be used by others).
+The first version of this manual page was written by Gregor Hoffleit
+<flight@debian.org> for the Debian project (but may be used by
+others).
