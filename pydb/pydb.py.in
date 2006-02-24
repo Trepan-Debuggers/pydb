@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.52 2006/02/24 00:57:13 rockyb Exp $
+"""$Id: pydb.py.in,v 1.53 2006/02/24 09:44:33 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -657,10 +657,14 @@ List of %s subcommands:
         self.msg("%d %s" %
                  (i_stack, self.format_stack_entry(frame_lineno)))
 
-    def print_stack_trace(self):
-        i=len(self.stack)
+    def print_stack_trace(self, count=None):
+        "Print count entries of the stack trace"
+        if count is None:
+            n=len(self.stack)
+        else:
+            n=min(len(self.stack), count)
         try:
-            for i in range(len(self.stack)):
+            for i in range(n):
                 self.print_stack_entry(i)
         except KeyboardInterrupt:
             pass
@@ -1925,14 +1929,20 @@ Prints the type of the argument which can be a Python expression."""
         self.msg(type(value))
 
     def do_where(self, arg):
-        """where
+        """where [count]
 
         Print a stack trace, with the most recent frame at the top.
+	With a positive number, print at most many entries.
         An arrow indicates the 'current frame', which determines the
         context of most commands.  'bt' and 'T' are short command
         names for this."""
 
-        self.print_stack_trace()
+        try:
+            count = self.__get_pos_int(arg, default=None, cmdname="where")
+        except ValueError:
+            return
+
+        self.print_stack_trace(count)
 
     do_T = do_bt = do_where
 

@@ -1,5 +1,5 @@
 # Test of restart and linetracing 
-# $Id: run.cmd,v 1.3 2006/02/23 10:51:04 rockyb Exp $
+# $Id: run.cmd,v 1.4 2006/02/24 09:44:33 rockyb Exp $
 #
 set basename on
 set cmdtrace on
@@ -15,6 +15,7 @@ continue
 info args
 info program
 where
+where 2
 ######################################
 ### We should be at that breakpoint
 ### delete it and run again 

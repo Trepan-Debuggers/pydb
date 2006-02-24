@@ -53,9 +53,6 @@ Set a breakpoint at \c
 .I function\c
 \& or at the specified file and line.
 .TP
-.B bt
-Backtrace: display the program stack.
-.TP
 .B clear \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
 \&
 Clear a breakpoint at \c
@@ -122,6 +119,9 @@ Execute next program line(s) (after stopping); step \c
 .I into\c
 \& any
 function calls in the line.
+.TP
+.B where \fR[\|\fIcount\fR\|]
+Display all or \fIcount\fR items of the program stack.
 .PP
 For full details on pydb, see \c
 http://bashdb.sourceforge.net/pydb/pydb/index.html
