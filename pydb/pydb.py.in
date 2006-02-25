@@ -1,5 +1,5 @@
 #!@PYTHON@
-"""$Id: pydb.py.in,v 1.56 2006/02/24 22:07:10 rockyb Exp $
+"""$Id: pydb.py.in,v 1.57 2006/02/25 00:49:06 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1360,7 +1360,7 @@ With an integer argument, perform that many times."""
         self.set_quit()
         return 1
 
-    do_q = do_quit
+    do_kill = do_q = do_quit
 
     def do_restart(self, arg):
 
