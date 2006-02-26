@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.21 2006/02/24 18:58:49 rockyb Exp $
+#$Id: Makefile.am,v 1.22 2006/02/26 05:05:00 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,13 +23,14 @@ DEBUGGER := pydb
 
 # The Python debugger script
 python_debugger_script := $(DEBUGGER).py
-python_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
+pkgpython_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/pydbbdb.py \
 	$(DEBUGGER)/pydbcmd.py \
 	$(DEBUGGER)/pydbdisp.py \
 	$(DEBUGGER)/pydbfns.py
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
-pkgdatadir = $(pythondir)
+pkgdatadir = $(pkgpythondir)
 
 # Section 1 are general commands
 EXT=1
@@ -68,8 +69,8 @@ check: pydb/pydb.py test/test.py
 install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
 	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
-	chmod +x "$(DESTDIR)$(pythondir)/$(python_debugger_script)"
-	$(LN_S) "$(DESTDIR)$(pythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
+	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
+	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
