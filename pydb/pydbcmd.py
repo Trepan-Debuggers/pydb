@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.3 2006/02/24 22:07:10 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.4 2006/02/26 12:46:33 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -190,27 +190,6 @@ class Cmd(cmd.Cmd):
             self.errmsg(str("%s: %s" % (exc_type_name, arg)))
             raise
 
-    # Note: format of help is compatible with ddd.
-    def help_subcommand(self, cmd, doc, subcmds, help_prog, args):
-        """Generic command for showing things about the program being debugged."""
-        if len(args) == 0:
-            self.msg(doc)
-            self.msg("""
-List of %s subcommands:
-""" % (cmd))
-            for subcmd in subcmds:
-                help_prog(subcmd, True)
-            return
-        if len(args) == 1:
-            subcmd = args[0]
-            if subcmd in subcmds:
-                help_prog(subcmd)
-            else:
-                self.errmsg("Unknown 'help %s' subcommand %s" % (cmd, subcmd))
-        else:
-            self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
-                        % (cmd, cmd))
-
     def errmsg(self, msg):
         """Common routine for reporting debugger error messages.
            Derived classed may want to override this to capture output.
@@ -257,3 +236,24 @@ List of %s subcommands:
                 self.cmdqueue.append(next)
                 line = line[:marker].rstrip()
         return line
+
+    # Note: format of help is compatible with ddd.
+    def subcommand_help(self, cmd, doc, subcmds, help_prog, args):
+        """Generic command for showing things about the program being debugged."""
+        if len(args) == 0:
+            self.msg(doc)
+            self.msg("""
+List of %s subcommands:
+""" % (cmd))
+            for subcmd in subcmds:
+                help_prog(subcmd, True)
+            return
+        if len(args) == 1:
+            subcmd = args[0]
+            if subcmd in subcmds:
+                help_prog(subcmd)
+            else:
+                self.errmsg("Unknown 'help %s' subcommand %s" % (cmd, subcmd))
+        else:
+            self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
+                        % (cmd, cmd))

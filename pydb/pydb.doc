@@ -247,8 +247,8 @@ pwd
         Print working directory.
 
 q(uit)
-        Quit from the debugger.
-        The program being executed is aborted.
+        Quit the debugger. The program being executed is aborted. For
+	now, kill is a synonym 	for quit.
 
 restart 
         Restart debugger and program via an exec call. All state

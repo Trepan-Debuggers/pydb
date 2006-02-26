@@ -1,5 +1,5 @@
-#!@PYTHON@
-"""$Id: pydb.py.in,v 1.58 2006/02/26 05:05:02 rockyb Exp $
+#!@PYTHON@ -t
+"""$Id: pydb.py.in,v 1.59 2006/02/26 12:46:33 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -78,12 +78,10 @@ class Pdb(Bdb, Cmd):
         """Adjust stack frame by pos positions. If absolute_pos then
         pos is an absolute number. Otherwise it is a relative number.
 
-        If self.gdb_dialect is True, the 0 position is the newest entry and
-        doesn't match Python's indexing. Otherwise it does.
+        If self.gdb_dialect is True, the 0 position is the newest
+        entry and doesn't match Python's indexing. Otherwise it does.
 
-        A negative number indexes from the other end.
-        """
-
+        A negative number indexes from the other end."""
         # Below we remove any negativity. At the end, pos will be
         # the new value of self.curindex.
         if absolute_pos:
@@ -111,11 +109,9 @@ class Pdb(Bdb, Cmd):
 
     def __get_brkpt_lineno(self, arg):
         """__get_brkpt_lineno(self,arg)->(fn, file, lineno)
-        See if arg is a line number or a function name.
-        Return what we've found. None can be returned as a value
-        in the triple.
-        """
 
+        See if arg is a line number or a function name.  Return what
+        we've found. None can be returned as a value in the triple."""
         funcname, filename = (None, None)
         try:
             # First try as an integer
@@ -459,7 +455,6 @@ The line number may be prefixed with a filename and a colon,
 to specify a breakpoint in another file (probably one that
 hasn't been loaded yet).  The file is searched for on sys.path;
 the .py suffix may be omitted."""
-
         cond = None
         funcname = None
         if not arg:
@@ -512,10 +507,10 @@ the .py suffix may be omitted."""
             # Python 2.3.5 takes 5 args rather than 6.
             # There's probably a way in configure to test for the version,
             # but this works too.
-	    try:
-	       err = self.set_break(filename, line, temporary, cond, funcname)
-	    except TypeError:
-	       err = self.set_break(filename, line, temporary, cond)
+            try:
+               err = self.set_break(filename, line, temporary, cond, funcname)
+            except TypeError:
+               err = self.set_break(filename, line, temporary, cond)
 
             if err: self.errmsg(err)
             else:
@@ -527,8 +522,7 @@ the .py suffix may be omitted."""
 
     def do_cd(self, arg):
         """Set working directory to DIRECTORY for debugger and program
-	being debugged. """
-
+        being debugged. """
         if not arg:
             self.errmsg("Argument required (new working directory).")
         else:
@@ -624,7 +618,6 @@ the .py suffix may be omitted."""
         """c(ont(inue))
 
         Continue execution; only stop when a breakpoint is encountered."""
-
         if self.linetrace:
             # linetracing is like stepping, but we just don't stop. If
             # we were to calling set_continue, it  *might* remove all
@@ -665,8 +658,7 @@ the .py suffix may be omitted."""
         self.print_location()
 
     def do_delete(self, arg):
-
-        """delete [bpnumber [bpnumber...]]  Delete some breakpoints.
+        """delete [bpnumber [bpnumber...]]  - Delete some breakpoints.
         Arguments are breakpoint numbers with spaces in between.  To
         delete all breakpoints, give no argument.  those breakpoints.
         Without argument, clear all breaks (but first ask
@@ -674,7 +666,6 @@ the .py suffix may be omitted."""
         
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
-        
         if not arg:
             while True and not self.noninteractive:
                 try:
@@ -740,8 +731,7 @@ the .py suffix may be omitted."""
         With no argument disassemble at the current frame location.
         With a numeric argument, disassemble at the frame location at that
         line number. With a class, method, function, code or string argument
-        disassemble that.
-        """
+        disassemble that."""
         if not arg:
             dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
         else:
@@ -758,9 +748,9 @@ the .py suffix may be omitted."""
     def do_display(self, arg):
         """display [format] EXP
 
-	Print value of expression EXP each time the program stops.
-	FMT may be used before EXP and may be one of 'c' for char, 
-	'x' for hex, 'o' for ocatl, 'f' for float or 's' for string.
+        Print value of expression EXP each time the program stops.
+        FMT may be used before EXP and may be one of 'c' for char, 
+        'x' for hex, 'o' for ocatl, 'f' for float or 's' for string.
 
         With no argument, display all currently requested auto-display
         expressions.  Use "undisplay" to cancel display requests previously
@@ -802,12 +792,10 @@ the .py suffix may be omitted."""
     do_d = do_down
 
     def do_enable(self, arg):
-
         """enable [display] bpnumber [bpnumber ...]]
 
         Enables the breakpoints given as a space separated list of bp
         numbers."""
-
         args = arg.split()
         if len(args) == 0:
             self.errmsg('No breakpoint number given')
@@ -833,13 +821,11 @@ the .py suffix may be omitted."""
                 bp.enable()
 
     def do_examine(self, arg):
-        """examine expression
-        Print the type of the expression and prettyprint its value.
-	For functions, methods, classes and modules we print out the
-	documentation string if any.
+        """examine expression - Print the type of the expression and
+        prettyprint its value.  For functions, methods, classes and
+        modules we print out the documentation string if any.
 
-	For functions we also show the argument list."""
-
+        For functions we also show the argument list."""
         try: 
             obj = self.getval(arg)
         except:
@@ -906,7 +892,6 @@ the .py suffix may be omitted."""
         """finish
 
         Continue execution until the current function returns."""
-
         self.set_return(self.curframe)
         if self.linetrace:
             self.step_ignore = -1
@@ -915,15 +900,15 @@ the .py suffix may be omitted."""
 
     def do_frame(self, arg):
         """frame frame-number
-	Move the current frame to the specified frame number. 
+        Move the current frame to the specified frame number. 
 
-	If using gdb dialect up matches the gdb: 0 is the most recent
-	frame.  Otherwise we match Python's stack: 0 is the oldest
-	frame.
+        If using gdb dialect up matches the gdb: 0 is the most recent
+        frame.  Otherwise we match Python's stack: 0 is the oldest
+        frame.
 
-	A negative number indicates position from the other end.
-	So 'frame -1' moves when gdb dialect is in effect moves
-	to the oldest frame, and 'frame 0' moves to the newest frame."""
+        A negative number indicates position from the other end.
+        So 'frame -1' moves when gdb dialect is in effect moves
+        to the oldest frame, and 'frame 0' moves to the newest frame."""
 
         try:
             arg = int(arg)
@@ -940,7 +925,6 @@ the .py suffix may be omitted."""
             self.__adjust_frame(pos=arg, absolute_pos=True)
 
     def do_ignore(self,arg):
-
         """ignore bpnumber count
 
         Sets the ignore count for the given breakpoint number.  A
@@ -948,7 +932,6 @@ the .py suffix may be omitted."""
         non-zero, the count is decremented each time the breakpoint is
         reached and the breakpoint is not disabled and any associated
         condition evaluates to true."""
-
         args = arg.split()
         bpnum = int(args[0].strip())
         try:
@@ -1039,7 +1022,6 @@ the .py suffix may be omitted."""
         integer argument, list info on that breakpoint.
 
         The short command name is L."""
-
         if self.breaks:  # There's at least one
             self.msg("Num Type          Disp Enb    Where")
             for bp in bdb.Breakpoint.bpbynumber:
@@ -1163,8 +1145,8 @@ With an integer argument, perform that many times."""
         self.msg('Working directory ' + os.getcwd() + '.')
 
     def do_quit(self, arg):
-        """q(uit) or exit - Quit from the debugger.
-        The program being executed is aborted."""
+        """q(uit) or exit - Quit the debugger.  The program being
+        executed is aborted. For now, kill is a synonym for quit."""
         self._user_requested_quit = True
         self.running              = False
         self.set_quit()
@@ -1173,22 +1155,19 @@ With an integer argument, perform that many times."""
     do_kill = do_q = do_quit
 
     def do_restart(self, arg):
-
-        """restart
-        Restart debugger and program via an exec call. All state
-        is lost, and new copy of the debugger is used."""
+        """restart - Restart debugger and program via an exec
+        call. All state is lost, and new copy of the debugger is used."""
 
         self.msg("Re exec'ing\n\t%s" % self._sys_argv)
         os.execvp(self._sys_argv[0], self._sys_argv)
         
 
     def do_return(self, arg):
-
         """Make selected stack frame return to its caller. Control
         remains in the debugger, but when you continue execution will
         resume at the return statement found inside the subroutine or
         method.  At present we are only able to perform this if we are
-        in a subroutine that has a 'return' statement in it.  """
+        in a subroutine that has a 'return' statement in it."""
 
         frame = self.curframe
 
@@ -1239,13 +1218,10 @@ With an integer argument, perform that many times."""
         self.do_jump(last_line, "Return")
 
     def do_retval(self, arg):
-
-        """retval
-Show the value that is to be returned from a
-function.  This command is useful after a "finish" command or stepping
-just after a "return" statement. To change the value, make an assignment
-to the variable __return__."""
-
+        """retval - Show the value that is to be returned from a
+function.  This command is useful after a 'finish' command or stepping
+just after a 'return' statement. To change the value, make an
+assignment to the variable __return__."""
         if '__return__' in self.curframe.f_locals:
             self.msg(self.curframe.f_locals['__return__'])
         else:
@@ -1258,7 +1234,6 @@ to the variable __return__."""
         Run/Restart the debugged Python program. If a string is
         supplied that becomes the new command arguments.  History,
         breakpoints, actions and debugger options are preserved."""
-
         if arg:
             argv_start = self._program_sys_argv[0:1]
             self._program_sys_argv = arg.split(" ")
@@ -1487,7 +1462,7 @@ Prints the type of the argument which can be a Python expression."""
         """where [count]
 
         Print a stack trace, with the most recent frame at the top.
-	With a positive number, print at most many entries.
+        With a positive number, print at most many entries.
         An arrow indicates the 'current frame', which determines the
         context of most commands.  'bt' and 'T' are short command
         names for this."""
@@ -1548,7 +1523,7 @@ Handles the receipt of EOF as a command."""
         """Generic command for showing things about the program being debugged."""
         subcmds=("args", "break", "display", "globals", "line",
                  "locals", "program", "source")
-        self.help_subcommand('info', getattr(self, 'help_info').__doc__,
+        self.subcommand_help('info', getattr(self, 'help_info').__doc__,
                              subcmds, self.__help_info, args[0])
 
     def help_pydb(self, *arg):
@@ -1560,7 +1535,7 @@ Handles the receipt of EOF as a command."""
 You can see these environment settings with the 'show' command."""
         subcmds=("args", "basename", "cmdtrace", "interactive",
                  "linetrace", "listsize", "prompt")
-        self.help_subcommand('set', getattr(self, 'help_set').__doc__,
+        self.subcommand_help('set', getattr(self, 'help_set').__doc__,
                              subcmds, self.__help_set, args[0])
 
     # Note: format of help is compatible with ddd.
@@ -1568,7 +1543,7 @@ You can see these environment settings with the 'show' command."""
         """Generic command for showing things about the debugger."""
         subcmds=("args", "basename", "cmdtrace", "interactive",
                  "linetrace", "listsize", "prompt", "version")
-        self.help_subcommand('show', getattr(self, 'help_show').__doc__,
+        self.subcommand_help('show', getattr(self, 'help_show').__doc__,
                              subcmds, self.__help_show, args[0])
 
     ####### End of help section ########
@@ -1683,16 +1658,23 @@ def set_trace():
 
 # Post-Mortem interface
 
-def post_mortem(t):
+def post_mortem(t, opts=None):
+    """post_mortem(t, opts=None)
+    Enter debugger read loop after your program has crashed.
+    Opts are debugger variables you want set."""
     p = Pdb()
     p.reset()
+    for item in opts.items():
+        exec "p.%s=%s" % item
     p.running = False
     while t.tb_next is not None:
         t = t.tb_next
     p.interaction(t.tb_frame, t)
 
-def pm():
-    post_mortem(sys.last_traceback)
+def pm(opts=None):
+    """Set up post-mortem debugging using the last traceback.
+    Opts are debugger variables you want set."""
+    post_mortem(sys.last_traceback, opts)
 
 
 TESTCMD = 'import x; x.main()'
@@ -1704,7 +1686,7 @@ def test():
 def help():
     doc_file='%s.doc' % _debugger_name
     for dirname in sys.path:
-        fullname = os.path.join(dirname, doc_file)
+        fullname = os.path.join(dirname, _debugger_name, doc_file)
         if os.path.exists(fullname):
             sts = os.system('${PAGER-more} '+fullname)
             if sts: self.errmsg('Pager exit status: %s' % str(sts))

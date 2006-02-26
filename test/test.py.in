@@ -1,5 +1,5 @@
-#!@PYTHON@
-# $Id: test.py.in,v 1.9 2006/02/21 15:30:37 rockyb Exp $ -*- Python -*-
+#!@PYTHON@ -t
+# $Id: test.py.in,v 1.10 2006/02/26 12:46:33 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -112,14 +112,14 @@ class PdbTests(unittest.TestCase):
         """Test run/restart"""
         result=run_debugger(testname='run',
                             pythonfile='%shanoi.py' % srcdir)
-	# Python 2.3.5 stack traces look different and I 
-	# don't know enough about what version changes what. So for
-	# now, we run the test and if it doesn't crash on anything
-	# that is less than version 2.4.2 we'll call it a success.
+        # Python 2.3.5 stack traces look different and I 
+        # don't know enough about what version changes what. So for
+        # now, we run the test and if it doesn't crash on anything
+        # that is less than version 2.4.2 we'll call it a success.
         # For version 2.4.2 (and above?) we'll assume a more 
         # stringent test.
-	if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
-	    self.assertEqual(True, result, "run")
+        if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
+            self.assertEqual(True, result, "run")
 
     def test_return(self):
         """Test of run with return"""
@@ -136,7 +136,7 @@ class PdbTests(unittest.TestCase):
         """Test __file__"""
         result=run_debugger(testname='filebug',
                             pythonfile='%sfilebug.py' %srcdir)
-	self.assertEqual(True, result, "filebug")
+        self.assertEqual(True, result, "filebug")
         
     def test_pwd_cd(self):
         """Test pwd and cd commands"""
@@ -159,7 +159,7 @@ class PdbTests(unittest.TestCase):
         self.assertEqual(True, len(pdb.msgLines) == 0)
         pdb.msgLines=[]; pdb.errLines=[]
         pdb.do_pwd("")
-	self.assertEqual(True, pdb.msgLines[0] == my_cd)
+        self.assertEqual(True, pdb.msgLines[0] == my_cd)
         
         
 if __name__ == "__main__":

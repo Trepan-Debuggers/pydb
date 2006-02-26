@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.22 2006/02/26 05:05:00 rockyb Exp $
+#$Id: Makefile.am,v 1.23 2006/02/26 12:46:32 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,9 @@ DEBUGGER := pydb
 
 # The Python debugger script
 python_debugger_script := $(DEBUGGER).py
-pkgpython_PYTHON := $(DEBUGGER)/$(python_debugger_script) \
+pkgpython_PYTHON := \
+	$(DEBUGGER)/__init__.py \
+        $(DEBUGGER)/$(python_debugger_script) \
 	$(DEBUGGER)/pydbbdb.py \
 	$(DEBUGGER)/pydbcmd.py \
 	$(DEBUGGER)/pydbdisp.py \

@@ -105,9 +105,8 @@ Current Python file is hanoi.py
 Undefined command: "nogood". Try "help".
 
 + help restart
-restart
-        Restart debugger and program via an exec call. All state
-        is lost, and new copy of the debugger is used.
+restart - Restart debugger and program via an exec
+        call. All state is lost, and new copy of the debugger is used.
 + help run
 run [args...]
 
