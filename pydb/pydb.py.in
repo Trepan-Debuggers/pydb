@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.61 2006/02/26 14:29:11 rockyb Exp $
+"""$Id: pydb.py.in,v 1.62 2006/02/26 15:54:36 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -66,8 +66,10 @@ class Pdb(Bdb, Cmd):
         self.moduletodebug   = ""
         self.noninteractive  = False
         self.originalpath    = sys.path[:]
+        self._program_sys_argv = []   # sys.argv after pydb options stripped
         self.running         = False
         self.stop_reason     = None   # Why are we in the debugger?
+        self._sys_argv       = []     # exec sys.argv, e.g. may include pydb 
         # Try to load readline if it exists
         try:
             import readline
@@ -1663,22 +1665,60 @@ def post_mortem(t, opts=None):
     the variable in the pydb instance."""
     p = Pdb()
     p.reset()
+    p.running = False
+    re_bogus_file = re.compile("^<.+>$")
+
+    # t has least-recent traceback entry first. We want the most-recent
+    # entry. Also we'll pick out a mainpyfile name if it hasn't previously
+    # been set.
+    while t.tb_next is not None:
+        filename = t.tb_frame.f_code.co_filename
+        if 0 == len(p.mainpyfile) and not re_bogus_file.match(filename):
+            p.mainpyfile = filename
+        t = t.tb_next
+
+    # We put processing opts after the above traceback loop so we will
+    # smash p.mainpyfile if it is given as an option.
     if opts is not None:
         for item in opts.items(): exec "p.%s=%s" % item
-    p.running = False
-    while t.tb_next is not None:
-        t = t.tb_next
-    p.interaction(t.tb_frame, t)
+
+    if 0 == len(p._program_sys_argv):
+        p._program_sys_argv = list(sys.argv)
+        p._program_sys_argv[:0] = [p.mainpyfile]
+
+    if 0 == len(p._sys_argv):
+        p._sys_argv = list(p._program_sys_argv)
+        p._sys_argv[:0] = [_debugger_name]
+
+    try:
+        p.interaction(t.tb_frame, t)
+    except Restart:
+        while True:
+            sys.argv = list(p._program_sys_argv)
+            p.msg("Restarting %s with arguments:\n\t%s"
+                  % (p.filename(p.mainpyfile),
+                     " ".join(p._program_sys_argv[1:])))
+            try:
+                p._runscript(p.mainpyfile)
+                if p._user_requested_quit:
+                    break
+                if p.noninteractive: break
+            except Restart:
+                pass
 
 def pm(opts=None):
     """Set up post-mortem debugging using the last traceback.
     Opts is a dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the pydb instance."""
-    try: 
-        post_mortem(sys.last_traceback, opts)
+    try:
+        if not inspect.istraceback(sys.last_traceback):
+            print "*** sys.last_traceback is not a traceback?!"
+            return
     except AttributeError:
         print "*** Can't find exception to run a post-mortem over."
+        return
+    post_mortem(sys.last_traceback, opts)
 
 
 TESTCMD = 'import x; x.main()'
