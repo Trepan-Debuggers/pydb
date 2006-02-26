@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 app_name = 'Python Extended Debugger'
-version = '1.13cvs'
+version = '@PACKAGE_VERSION@'
 URL = 'http://bashdb.sourceforge.net/pydb/'
 HELP_URL = URL + 'pydb/index.html'
 

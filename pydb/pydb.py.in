@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.60 2006/02/26 13:47:28 rockyb Exp $
+"""$Id: pydb.py.in,v 1.61 2006/02/26 14:29:11 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1658,7 +1658,9 @@ def set_trace():
 def post_mortem(t, opts=None):
     """post_mortem(t, opts=None)
     Enter debugger read loop after your program has crashed.
-    Opts are debugger variables you want set."""
+    Opts is a dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the pydb instance."""
     p = Pdb()
     p.reset()
     if opts is not None:
@@ -1670,7 +1672,9 @@ def post_mortem(t, opts=None):
 
 def pm(opts=None):
     """Set up post-mortem debugging using the last traceback.
-    Opts are debugger variables you want set."""
+    Opts is a dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the pydb instance."""
     try: 
         post_mortem(sys.last_traceback, opts)
     except AttributeError:
