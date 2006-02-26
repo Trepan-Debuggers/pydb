@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.59 2006/02/26 12:46:33 rockyb Exp $
+"""$Id: pydb.py.in,v 1.60 2006/02/26 13:47:28 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1599,7 +1599,6 @@ You can see these environment settings with the 'show' command."""
 #########################################################
 
 def run(statement, globals=None, locals=None):
-
     """Execute the statement (given as a string) under debugger
     control. The debugger prompt appears before any code is executed;
     you can set breakpoints and type 'continue', or you can step
@@ -1612,7 +1611,6 @@ def run(statement, globals=None, locals=None):
     Pdb().run(statement, globals, locals)
 
 def runeval(expression, globals=None, locals=None):
-
     """Evaluate the expression (given as a string) under debugger
     control.  When runeval() returns, it returns the value of the
     expression.  Otherwise this function is similar to run()."""
@@ -1624,7 +1622,6 @@ def runctx(statement, globals, locals):
     run(statement, globals, locals)
 
 def runcall(*args, **kwds):
-
     """ Call the function (a function or method object, not a string)
     with the given arguments.  When runcall() returns, it returns
     whatever the function call returned.  The debugger prompt appears
@@ -1664,8 +1661,8 @@ def post_mortem(t, opts=None):
     Opts are debugger variables you want set."""
     p = Pdb()
     p.reset()
-    for item in opts.items():
-        exec "p.%s=%s" % item
+    if opts is not None:
+        for item in opts.items(): exec "p.%s=%s" % item
     p.running = False
     while t.tb_next is not None:
         t = t.tb_next
@@ -1674,7 +1671,10 @@ def post_mortem(t, opts=None):
 def pm(opts=None):
     """Set up post-mortem debugging using the last traceback.
     Opts are debugger variables you want set."""
-    post_mortem(sys.last_traceback, opts)
+    try: 
+        post_mortem(sys.last_traceback, opts)
+    except AttributeError:
+        print "*** Can't find exception to run a post-mortem over."
 
 
 TESTCMD = 'import x; x.main()'

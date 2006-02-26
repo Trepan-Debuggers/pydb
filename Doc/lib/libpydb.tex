@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.21 2006/02/26 12:46:33 rockyb Exp $
+% $Id: libpydb.tex,v 1.22 2006/02/26 13:47:27 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -929,19 +929,9 @@ Here's another way run a program under control of the debugger:
 >>> import pydb
 >>> import mymodule
 >>> pydb.run('mymodule.test()')
-> <string>(0)?()
+(<string>:1): 
+(/usr/lib/python2.4/bdb.py:366):  run
 (Pydb) continue
-> <string>(1)?()
-(Pydb) continue
-NameError: 'spam'
-> <string>(1)?()
-(Pydb) 
-\end{verbatim}
-
-And another way to invoke:
-
-\begin{verbatim}
-python -m pydb python-script
 \end{verbatim}
 
 \subsection{Post-Mortem Debugging}
@@ -954,10 +944,14 @@ preserves \code{pydb}'s state (such as breakpoints) and in most cases is more
 useful than quitting the debugger upon the program's exit.
 \versionadded[Restarting post-mortem behavior]{2.4}
 
-Usage to inspect a crashed program is:
+It is also possible to get post-mortem debugging even if \code{pydb}
+was not initially run as a script. 
+
+Here is an example of using \code{pydb} after program crashes and
+gives a traceback:
 
 \begin{verbatim}
->>> import pydb
+>>> import sys
 >>> import mymodule
 >>> mymodule.test()
 Traceback (most recent call last):
@@ -967,11 +961,20 @@ Traceback (most recent call last):
   File "./mymodule.py", line 3, in test2
     print spam
 NameError: spam
+>>> import pydb
 >>> pydb.pm()
-> ./mymodule.py(3)test2()
+> (./mymodule.py:3):  test2
 -> print spam
 (Pydb) 
 \end{verbatim}
+
+It is important to have \code{sys} imported so that the traceback is
+saved in \code{sys.last_traceback}. Alas, at present if you are using
+\code{ipython}, that captures the exception and
+\code{sys.last_traceback} will not be defined. 
+
+If you have a traceback stored say in variable \code{t}, instead of 
+\code{pydb.pm()} above, use \code{pydb.post_mortem(t)}.
 
 \subsection{debugger entry functions}
 
@@ -980,11 +983,24 @@ the debugger in a slightly different way:
 
 \begin{funcdesc}{pm}{}
 Enter post-mortem debugging of the traceback found in
-\code{sys.last_traceback}.
+\code{sys.last_traceback}. Note you may need to have \code{sys}
+imported priort to having the error raised to have sys.last_traceback
+set.
+
+To set debugger options, pass a dictionary of variable, value pairs
+that you want set in \var{opts-dictionary}. For example if you want
+the display listsize to be 20 by default on entry pass
+\code{@{listsize: 20@}}.
 \end{funcdesc}
 
-\begin{funcdesc}{post_mortem}{traceback}
+\begin{funcdesc}{post_mortem}{traceback\optional{opts-dictionary=None}}
 Enter post-mortem debugging of the given \var{traceback} object.
+
+To set debugger options, pass a dictionary of variable, value pairs
+that you want set in \var{opts-dictionary}. For example if you want
+the display listsize to be 20 by default on entry pass
+\code{@{listsize: 20@}}.
+
 \end{funcdesc}
 
 \begin{funcdesc}{run}{statement\optional{, globals\optional{, locals}}}
