@@ -1,9 +1,5 @@
-The debugger code is growing too large. It needs to be split out.
-The current thought is to split out the customization code of 
-cmd and bdb into their own modules/classes. 
-
-Also installation should to into a pydb directory. Need to figure out
-how to get autotools to do this.
+The main pydb.py file is a bit large. If we can break out into more
+files that might be nice.
 
 Some more regression tests should to be written. They've been
 invaluable so far and maintain quality. Especially for large changes.
@@ -27,4 +23,4 @@ Use a better readline if that's available.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.3 2006/02/21 21:53:52 rockyb Exp $
+$Id: TODO,v 1.4 2006/02/26 05:07:17 rockyb Exp $
