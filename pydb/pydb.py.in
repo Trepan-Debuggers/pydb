@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.62 2006/02/26 15:54:36 rockyb Exp $
+"""$Id: pydb.py.in,v 1.63 2006/02/26 16:31:03 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1657,9 +1657,8 @@ def set_trace():
 
 # Post-Mortem interface
 
-def post_mortem(t, opts=None):
-    """post_mortem(t, opts=None)
-    Enter debugger read loop after your program has crashed.
+def post_mortem(t, opts=None, cmdfile=None):
+    """Enter debugger read loop after your program has crashed.
     Opts is a dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the pydb instance."""
@@ -1683,13 +1682,18 @@ def post_mortem(t, opts=None):
         for item in opts.items(): exec "p.%s=%s" % item
 
     if 0 == len(p._program_sys_argv):
+        # Fake program (run command) args since we weren't called with any
         p._program_sys_argv = list(sys.argv)
         p._program_sys_argv[:0] = [p.mainpyfile]
 
     if 0 == len(p._sys_argv):
+        # Fake script invocation (restart) args since we don don't have any
         p._sys_argv = list(p._program_sys_argv)
         p._sys_argv[:0] = [_debugger_name]
 
+    if cmdfile is not None:
+        p.do_source(cmdfile)
+        
     try:
         p.interaction(t.tb_frame, t)
     except Restart:
@@ -1706,7 +1710,7 @@ def post_mortem(t, opts=None):
             except Restart:
                 pass
 
-def pm(opts=None):
+def pm(opts=None, cmdfile=None):
     """Set up post-mortem debugging using the last traceback.
     Opts is a dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
@@ -1718,7 +1722,7 @@ def pm(opts=None):
     except AttributeError:
         print "*** Can't find exception to run a post-mortem over."
         return
-    post_mortem(sys.last_traceback, opts)
+    post_mortem(sys.last_traceback, opts, cmdfile)
 
 
 TESTCMD = 'import x; x.main()'
