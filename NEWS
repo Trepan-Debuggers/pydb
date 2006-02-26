@@ -7,6 +7,10 @@
 * Break out cmds and bdb overrides into a separate module
 * add optional count on "where"
 * install in our own directory (e.g. site-packages/pydb)
+  NOTE: REMOVE OLD PYDB INSTALLTIONS BEFORE INSTALLING THIS PYDB.
+* As a result of the above add __init__.py to give package info.
+* Don't rely on tabs settings. Remove all tabs in programs and use -t 
+  to check that.
 
 0.12
 2006-02-21
