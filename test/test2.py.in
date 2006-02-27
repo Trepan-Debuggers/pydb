@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test2.py.in,v 1.1 2006/02/27 01:02:47 rockyb Exp $ -*- Python -*-
+# $Id: test2.py.in,v 1.2 2006/02/27 10:12:20 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -13,30 +13,6 @@ if top_srcdir[-1] != os.path.sep:
 sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
 import pydb                
-
-class PdbTest(pydb.Pdb):
-    def __init__(self):
-        pydb.Pdb.__init__(self)
-        self.errLines = []
-        self.msgLines = []
-        self.msg_last_nocr = False
-
-    def errmsg(self, msg):
-        self.errLines.append(msg)
-
-    def msg(self, msg):
-        if self.msg_last_nocr:
-            self.msgLines[-1] += msg
-        else:
-            self.msgLines.append(msg)
-        self.msg_last_nocr = False
-
-    def msg_nocr(self, msg):
-        if self.msg_last_nocr:
-            self.msgLines[-1] += msg
-        else:
-            self.msgLines.append(msg)
-        self.msg_last_nocr = True
 
 builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:

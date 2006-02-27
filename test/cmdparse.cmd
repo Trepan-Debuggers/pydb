@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.7 2006/02/21 15:30:37 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.8 2006/02/27 10:12:20 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -50,6 +50,16 @@ enable 10
 disable 10
 enable foo
 disable foo
+########################################
+###   test list by number
+########################################
+list
+list
+list 10, 15
+list 10, 3
+list 50
+set listsize 6
+list 5
 ########################################
 ###  test prompt, misc...
 ########################################

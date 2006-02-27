@@ -68,6 +68,65 @@ Breakpoint index 'foo' is not a number
 + disable foo
 Breakpoint index 'foo' is not a number
 + ########################################
++ ###   test list by number
++ ########################################
++ list
+  1  	#!/usr/bin/python
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys,os
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	i_args=len(sys.argv)
+ 13  	if i_args != 1 and i_args != 2:
+ 14  	    print "*** Need number of disks or no parameter"
+ 15  	    sys.exit(1)
+ 16  	
+ 17  	n=3
+ 18  	
+ 19  	if i_args > 1:
+ 20  	  try: 
+ 21  	    n = int(sys.argv[1])
++ list
+ 22  	  except ValueError, msg:
+ 23  	    print "** Expecting an integer, got: %s" % repr(sys.argv[1])
+ 24  	    sys.exit(2)
+ 25  	
+ 26  	if n < 1 or n > 100: 
+ 27  	    print "*** number of disks should be between 1 and 100" 
+ 28  	    sys.exit(2)
+ 29  	
+ 30  	hanoi(n, "a", "b", "c")
+[EOF]
++ list 10, 15
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	i_args=len(sys.argv)
+ 13  	if i_args != 1 and i_args != 2:
+ 14  	    print "*** Need number of disks or no parameter"
+ 15  	    sys.exit(1)
++ list 10, 3
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	i_args=len(sys.argv)
+ 13  	if i_args != 1 and i_args != 2:
++ list 50
+[EOF]
++ set listsize 6
++ list 5
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys,os
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
++ ########################################
 + ###  test prompt, misc...
 + ########################################
 + show prompt
