@@ -10,12 +10,14 @@ check_DATA = \
 	filebug.cmd    \
 	filebug.py     \
 	filebug.right  \
+	pm.cmd         \
 	run.cmd        \
 	run.right      \
 	run2.cmd       \
 	run2.right     \
 	test.py        \
-	test2.py
+	test2.py       \
+	test2.right
 
 TESTS = test.py test2.py
 
