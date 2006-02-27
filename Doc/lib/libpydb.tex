@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.23 2006/02/27 02:48:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.24 2006/02/27 10:18:45 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -885,13 +885,13 @@ of a Pdb object. The method names are the command name prefixed by
 \code{do_frame}. 
 
 
-\subsection{Calling the debugger from inside your program}\label{subsection-calling-pydb-inside-program}
+\subsection{Calling the Debugger from Inside your Program}\label{subsection-calling-pydb-inside-program}
 
 By issuing \code{pydb} you are actually running another program first
-which is then invokes your script. \code{pydb} tries hard to make
-itself transparent and does things such as resetting \code{sys.argv}
-and \code{__file__} to the values you would get by calling the
-debugged program directly.
+which then invokes your script. \code{pydb} tries hard to make itself
+transparent and thus strips its own program options and resets
+\code{sys.argv} and sets \code{__file__} to the values you would get by
+calling the debugged program directly.
 
 However there are times when this doesn't work right. (And clearly at
 present I don't know how to fix or else I would.)
