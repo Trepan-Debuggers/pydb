@@ -1,6 +1,6 @@
+*.out
 Makefile
 Makefile.in
-test.py
+gcd.pyc
 hanoi.pyc
-*.out
-
+test.py

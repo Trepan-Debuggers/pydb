@@ -1,3 +1,4 @@
-pydb.py
 *.pyc
+__init__.py
+pydb.py
 
