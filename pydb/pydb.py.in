@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.64 2006/02/27 01:02:47 rockyb Exp $
+"""$Id: pydb.py.in,v 1.65 2006/02/27 02:48:40 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1084,7 +1084,7 @@ the .py suffix may be omitted."""
                 self.errmsg('Error in argument: %s' % repr(arg))
                 return
         elif self.lineno is None or not self.running:
-            first = max(1, inpsect.getlineno(self.curframe) - 5)
+            first = max(1, inspect.getlineno(self.curframe) - 5)
         else:
             first = self.lineno + 1
         if last is None:
@@ -1102,7 +1102,7 @@ the .py suffix may be omitted."""
                     if len(s) < 4: s = s + ' '
                     if lineno in breaklist: s = s + 'B'
                     else: s = s + ' '
-                    if lineno == inpect.getlineno(self.curframe):
+                    if lineno == inspect.getlineno(self.curframe):
                         s = s + '->'
                     self.msg_nocr(s + '\t' + line)
                     self.lineno = lineno
@@ -1623,18 +1623,20 @@ def set_trace(cmdfile=None):
         _pydb_trace = Pdb()
         _pydb_trace.reset()
         _pydb_trace._program_sys_argv = list(sys.argv)
-        _pydb_trace._sys_argv = list(sys.argv)
+        _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
+        _pydb_trace._sys_argv[:0] = [_debugger_name]
     except:
         print "Unknown error"
         return
     # We don't support "run" so we'll make "run" and "R" be "restart"
     _pydb_trace.do_R = _pydb_trace.do_run = _pydb_trace.do_restart
-    frame=inspect.currentframe()
+    _pydb_trace.curframe=inspect.currentframe()
     _pydb_trace.running = True
 
     if cmdfile is not None: _pydb_trace.do_source(cmdfile)
 
-    _pydb_trace.set_trace(frame)  # There can be no other commands after this
+    # There can be no other commands after the following one:
+    _pydb_trace.set_trace(_pydb_trace.curframe)
 
 # Post-Mortem interface
 

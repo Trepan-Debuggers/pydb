@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.22 2006/02/26 13:47:27 rockyb Exp $
+% $Id: libpydb.tex,v 1.23 2006/02/27 02:48:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -488,7 +488,7 @@ condition is removed; i.e., the breakpoint is made unconditional.
 \end{description}
 
 \subsection{Resuming Execution ({\tt step}, {\tt next}, {\tt
-    finish}, {\tt return} {\tt continue}, {\tt jump})\label{subsubsection-resume}}
+    finish}, {\tt return}, {\tt continue}, {\tt jump})\label{subsubsection-resume}}
 
 ``Continuing'' means resuming program execution until the program
 completes normally.  In contrast, ``stepping'' means executing just
@@ -885,7 +885,7 @@ of a Pdb object. The method names are the command name prefixed by
 \code{do_frame}. 
 
 
-\subsection{Calling the debugger from inside your program}
+\subsection{Calling the debugger from inside your program}\label{subsection-calling-pydb-inside-program}
 
 By issuing \code{pydb} you are actually running another program first
 which is then invokes your script. \code{pydb} tries hard to make
@@ -898,30 +898,130 @@ present I don't know how to fix or else I would.)
 
 So another approach which doesn't have this complexity or drawback is
 too add a call to the debugger at special places. For this, the
-\code{pydb} function \code{set_trace()} can be used. For example:
-
-\begin{verbatim}
-import pydb
-... some code
-pydb.set_trace() 
-more_code() # debugger will show this line to be executed
-...
-\end{verbatim}
+\code{pydb} function \code{set_trace()} can be used. 
 
 When \code{pydb.set_trace()} function is called, the program stops
-before the next statement. 
-
-To continue running the program, issue a debugger \code{next},
-\code{step} or a \code{continue} command.
+before the next statement. To continue running the program, issue a
+debugger \code{next}, \code{step} or a \code{continue} command.
 
 The exit the program use the \code{quit} or a termanal EOF.
 
-\subsection{Other alternative methods of invocation}
+To make this more clear, let's give go through an example. Save this
+in a file called \code{hardtodebug.py}:
 
-With the caveat mentioned in the previous section, I think most people
-will probably use the \code{pydb} command described in
-\ref{pydb-invocation}. However for completeness here we give some
-other alternatives.
+
+\begin{verbatim}
+import pydb
+# some code here
+def test():
+    # Force a call to the debugger in running code here
+    pydb.set_trace()
+    # ...
+# ...
+test()
+x=5
+\end{verbatim}
+
+Now here's a sample run of the program:
+
+\begin{verbatim}
+python hardtodebug.py a b c
+--Return--
+--Return--
+(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:9):
+(Pydb) list
+  4         # Force a call to the debugger in running code here
+  5         pydb.set_trace()
+  6         # ...
+  7     # ...
+  8     test()
+  9  -> x=5
+(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:9): 
+(Pydb) restart
+Re exec'ing
+	['pydb', 'hardtodebug.py', 'a', 'b', 'c']
+(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:1): 
+(Pydb) 
+\end{verbatim}
+
+Note that we stopped \emph{after\/} the return from
+\code{test}. That's because that where is the next executable
+statement. If you want to stop inside \code{test()} put a statement
+after that like \code{return}. Furthermore, if the program had ended
+at line 8, then \emph{no\/} stopping would have occured becuase the
+end of the program is reached first.\footnote{Perhaps this is a
+deficiency of the debugger. I'm not sure what the right way to address
+though. One could have another routine to stop at a return which would
+then skip intervening statements. Another possibility is to add a
+routine to have debugger stop inside the call, e.g. \code{set_trace}
+above. This is not hard to code and I've done so, but I'm not sure
+that doesn't just confuse things more.}
+
+Also note that we can issue a \code{restart} which involves some
+hackery. But at least in this case it gets things right.
+
+\subsection{Entering the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
+
+It is also to possible enter the debugger after a crash or traceback
+even though the program was not started via \code{pydb}. This is
+called \emph{post-mortem debugging}.
+
+Basically all you do is \code{import pydb} (if that hasn't been done
+already), and call \code{pydb.pm()}.
+
+To make this more concrete we will give an example. We have the
+following text \code{mymodule.py}
+
+\begin{verbatim}
+def test():
+    print spam
+\end{verbatim}
+
+Now here's a sample session
+
+\begin{verbatim}
+>>> import mymodule
+>>> mymodule.test()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+  File "mymodule.py", line 2, in test
+    print spam
+NameError: global name 'spam' is not defined
+>>> import pydb
+>>> pydb.pm()
+(/home/src/external-cvs/pydb/test/mymodule.py:2):  test
+(Pydb) where
+-> 0 test() called from file '/tmp/mymodule.py' at line 2
+## 1 in file '<stdin>' at line 1
+(Pydb) list
+  1     def test():
+  2  ->     print spam
+[EOF]
+(Pydb) quit
+>>> 
+\end{verbatim}
+
+At present if you are using \code{ipython}, that captures the
+exception and \code{sys.last_traceback} will not be defined.
+
+If you have a traceback stored say in variable \code{t}, instead of 
+\code{pydb.pm()} above, use \code{pydb.post_mortem(t)}.
+
+When invoked as a script, \code{pydb} will automatically enter
+post-mortem debugging if the program being debugged exits
+abnormally. After post-mortem debugging (or after normal exit of the
+program), \code{pydb} will restart the program.  Automatic restarting
+preserves \code{pydb}'s state (such as breakpoints) and in most cases is more
+useful than quitting the debugger upon the program's exit.
+
+\subsection{Yet Another Method of Invocation}
+
+With the caveat mentioned in
+\ref{subsection-calling-pydb-inside-program} about problems with using
+\code{pydb} initially to run a script, I think most people will
+probably use the \code{pydb} command described in
+\ref{pydb-invocation}. However for completeness here we give another
+alternative.
 
 Here's another way run a program under control of the debugger:
 
@@ -934,54 +1034,12 @@ Here's another way run a program under control of the debugger:
 (Pydb) continue
 \end{verbatim}
 
-\subsection{Post-Mortem Debugging}
-
-When invoked as a script, \code{pydb} will automatically enter
-post-mortem debugging if the program being debugged exits
-abnormally. After post-mortem debugging (or after normal exit of the
-program), \code{pydb} will restart the program.  Automatic restarting
-preserves \code{pydb}'s state (such as breakpoints) and in most cases is more
-useful than quitting the debugger upon the program's exit.
-\versionadded[Restarting post-mortem behavior]{2.4}
-
-It is also possible to get post-mortem debugging even if \code{pydb}
-was not initially run as a script. 
-
-Here is an example of using \code{pydb} after program crashes and
-gives a traceback:
-
-\begin{verbatim}
->>> import sys
->>> import mymodule
->>> mymodule.test()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-  File "./mymodule.py", line 4, in test
-    test2()
-  File "./mymodule.py", line 3, in test2
-    print spam
-NameError: spam
->>> import pydb
->>> pydb.pm()
-> (./mymodule.py:3):  test2
--> print spam
-(Pydb) 
-\end{verbatim}
-
-It is important to have \code{sys} imported so that the traceback is
-saved in \code{sys.last_traceback}. Alas, at present if you are using
-\code{ipython}, that captures the exception and
-\code{sys.last_traceback} will not be defined. 
-
-If you have a traceback stored say in variable \code{t}, instead of 
-\code{pydb.pm()} above, use \code{pydb.post_mortem(t)}.
-
 \subsection{debugger entry functions}
 
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
 
-\begin{funcdesc}{pm}{}
+\begin{funcdesc}{pm}{\optional{opts-dictionary=None, cmdfile=None}}
 Enter post-mortem debugging of the traceback found in
 \code{sys.last_traceback}. Note you may need to have \code{sys}
 imported priort to having the error raised to have sys.last_traceback
@@ -990,10 +1048,11 @@ set.
 To set debugger options, pass a dictionary of variable, value pairs
 that you want set in \var{opts-dictionary}. For example if you want
 the display listsize to be 20 by default on entry pass
-\code{@{listsize: 20@}}.
+\code{\{listsize: 20\}}.
 \end{funcdesc}
 
-\begin{funcdesc}{post_mortem}{traceback\optional{opts-dictionary=None}}
+\begin{funcdesc}{post_mortem}{traceback\optional{opts-dictionary=None,
+  cmdfile=None}}
 Enter post-mortem debugging of the given \var{traceback} object.
 
 To set debugger options, pass a dictionary of variable, value pairs
@@ -1030,7 +1089,7 @@ expression.  Otherwise this function is similar to
 \function{run()}.
 \end{funcdesc}
 
-\begin{funcdesc}{set_trace}{}
+\begin{funcdesc}{set_trace}{\optional{cmdfile=None}}
 Enter the debugger at the calling stack frame.  This is useful to
 hard-code a breakpoint at a given point in a program, even if the code
 is not otherwise being debugged (e.g., when an assertion fails).

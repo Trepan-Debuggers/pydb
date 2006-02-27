@@ -2,7 +2,7 @@
 
 * Add MAN page (from Debian)
 * Bump revision to 0.12 to 1.13 to be compatible with Debian pydb package.
-* Work on set_trace() in light of recent changes
+* Improve set_trace(), post_mortem(), and pm()
 * Document alternative invocation methods and how to call from a program.
 * Break out cmds and bdb overrides into a separate module
 * add optional count on "where"
@@ -11,6 +11,7 @@
 * As a result of the above add __init__.py to give package info.
 * Don't rely on tabs settings. Remove all tabs in programs and use -t 
   to check that.
+* Various bug fixes and documentation corrections
 
 0.12
 2006-02-21
