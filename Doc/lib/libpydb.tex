@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.26 2006/02/27 10:26:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.27 2006/02/27 16:20:46 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -887,20 +887,21 @@ of a Pdb object. The method names are the command name prefixed by
 
 \subsection{Calling the Debugger from Inside your Program}\label{subsection-calling-pydb-inside-program}
 
-By issuing \code{pydb} you are actually running another program first
-which then invokes your script. \code{pydb} tries hard to make itself
-transparent and thus strips its own program options and resets
-\code{sys.argv} and sets \code{__file__} to the values you would get by
-calling the debugged program directly.
+Although it shouldn't come as any surprise, run issuing \code{pydb
+myscript.py} you are running \code{pydb} first which then invokes
+your script \code{myscript.py}. \code{pydb} tries hard to make itself
+transparent and thus strips its own program options, resets
+\code{sys.argv} and sets \code{__file__} to the values you would get
+by calling the debugged program directly.
 
-However there are times when this doesn't work right. (And clearly at
-present I don't know how to fix or else I would.)
+However there are times when this doesn't work right. (And at present
+I don't know how to fix better or else I would.)
 
 So another approach which doesn't have this complexity or drawback is
-too add a call to the debugger at special places. For this, the
+to add a call to the debugger at special places. For this, the
 \code{pydb} function \code{set_trace()} can be used. 
 
-When \code{pydb.set_trace()} function is called, the program stops
+When the \code{pydb.set_trace()} function is called, the program stops
 before the next statement. To continue running the program, issue a
 debugger \code{next}, \code{step} or a \code{continue} command.
 
@@ -908,7 +909,6 @@ The exit the program use the \code{quit} or a termanal EOF.
 
 To make this more clear, let's give go through an example. Save this
 in a file called \code{hardtodebug.py}:
-
 
 \begin{verbatim}
 import pydb
