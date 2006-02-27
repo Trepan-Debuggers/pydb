@@ -158,7 +158,7 @@ Show lines before executing them. This option also sets --batch.
 pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
 based on the standard Python debugger pdb.py. Over the many years, pdb.py and
 pydb.py have diverged. It was subsequently revised and
-expanded to be more like gdb by Rocky Bernstein <rocky@panix.com>
+expanded to be more like gdb by Rocky Bernstein <rockyb@users.sourceforge.net>
 
 The first version of this manual page was written by Gregor Hoffleit
 <flight@debian.org> for the Debian project (but may be used by

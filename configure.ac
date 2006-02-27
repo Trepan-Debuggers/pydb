@@ -1,4 +1,4 @@
-# Copyright (C) 2006 Rocky Bernstein <rocky@panix.com>
+# Copyright (C) 2006 Rocky Bernstein <rockyb@users.sourceforge.net>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 ## Check for Python interpreter and make we have a recent version.
 ##
 AM_PATH_PYTHON(2.4.0,, :)
-AC_REVISION([$Id: configure.ac,v 1.20 2006/02/27 10:15:37 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.21 2006/02/27 15:33:51 rockyb Exp $])dnl
 
 ##
 ## In maintainer mode we produce a ChangeLog

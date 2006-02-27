@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2006 Rocky Bernstein <rocky@panix.com>
+# Copyright (C) 2006 Rocky Bernstein <rockyb@users.sourceforge.net>
 #
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for any purpose with or without fee is hereby granted,
@@ -72,7 +72,7 @@ if False:
 
     setup(
         name = "pydb",
-        version = "0.1",
+        version = "1.13",
         description = "Improved Python Debugger",
         long_description = \
         """pydb is a slightly improved debugger Python. The command set
@@ -83,7 +83,7 @@ if False:
         """,
         
         author = "Rocky Bernstein",
-        author_email = "rocky@panix.com",
+        author_email = "rockyb@users.sourceforge.net",
         license = "BSD-like",
         url = "http://bashdb.sourceforge.net/pydb",
         packages = ['pydb']
