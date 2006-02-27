@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.65 2006/02/27 02:48:40 rockyb Exp $
+"""$Id: pydb.py.in,v 1.66 2006/02/27 10:15:37 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -1079,7 +1079,7 @@ the .py suffix may be omitted."""
                         # Assume it's a count
                         last = first + last
                 else:
-                    first = max(1, int(x) - 5)
+                    first = max(1, int(x) - (self.listsize/2))
             except:
                 self.errmsg('Error in argument: %s' % repr(arg))
                 return
