@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.24 2006/02/27 10:18:45 rockyb Exp $
+% $Id: libpydb.tex,v 1.25 2006/02/27 10:25:31 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -944,18 +944,21 @@ Re exec'ing
 (Pydb) 
 \end{verbatim}
 
-Note that we stopped \emph{after\/} the return from
-\code{test}. That's because that where is the next executable
-statement. If you want to stop inside \code{test()} put a statement
-after that like \code{return}. Furthermore, if the program had ended
-at line 8, then \emph{no\/} stopping would have occured becuase the
-end of the program is reached first.\footnote{Perhaps this is a
-deficiency of the debugger. I'm not sure what the right way to address
-though. One could have another routine to stop at a return which would
-then skip intervening statements. Another possibility is to add a
-routine to have debugger stop inside the call, e.g. \code{set_trace}
-above. This is not hard to code and I've done so, but I'm not sure
-that doesn't just confuse things more.}
+The first \code{--Return--} line printed is a result of the
+\code{set_trace} exiting. But note that we stopped \emph{after\/} the
+return from \code{test()}, which explains the \emph{second\/}
+\code{--Return--} line. Because the next executable statement is after
+the implicit return. If you want to stop inside \code{test()} put a
+statement after the \code{set_trace()}, such as a \code{return}
+statement. Furthermore, if the program had ended at line 8, then
+\emph{no\/} stopping would have occured becuase the end of the program
+is reached first.\footnote{Perhaps this is a deficiency of the
+debugger. I'm not sure what the right way to address though. One could
+have another routine to stop at a return which would then skip
+intervening statements. Another possibility is to add a routine to
+have debugger stop inside the call, e.g. \code{set_trace} above. This
+is not hard to code and I've done so, but I'm not sure that doesn't
+just confuse things more.}
 
 Also note that we can issue a \code{restart} which involves some
 hackery. But at least in this case it gets things right.
