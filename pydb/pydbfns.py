@@ -1,4 +1,4 @@
-"""$Id: pydbfns.py,v 1.3 2006/02/24 00:57:13 rockyb Exp $
+"""$Id: pydbfns.py,v 1.4 2006/02/27 01:02:47 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import os, sys, re, traceback
@@ -152,7 +152,7 @@ def process_options(pydb, debugger_name, program):
 
     if opts.errors:
         try: 
-            sys.stdout = open(opts.errors, 'w')
+            sys.stderr = open(opts.errors, 'w')
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.errors
             print "error(%s): %s" % (errno, strerror)

@@ -1,9 +1,12 @@
-The main pydb.py file is a bit large. If we can break out into more
-files that might be nice.
+The main pydb.py file size has been reduced but it is still bit
+large. If we can break out into more files that might be nice.
 
 Some more regression tests should to be written. They've been
-invaluable so far and maintain quality. Especially for large changes.
-in the works.
+invaluable so far and maintain quality. Especially for the large
+changes.
+
+Redo post_mortem, pm, set_step to funnel through parse_options rather
+than taking the optional cmdfile and opts paramaters.
 
 gdb return command relies on the existance of a return statement in
 the code.
@@ -23,4 +26,4 @@ Use a better readline if that's available.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.4 2006/02/26 05:07:17 rockyb Exp $
+$Id: TODO,v 1.5 2006/02/27 01:02:44 rockyb Exp $

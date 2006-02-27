@@ -14,10 +14,11 @@ check_DATA = \
 	run.right      \
 	run2.cmd       \
 	run2.right     \
-	test.py.in
+	test.py        \
+	test2.py
 
-TESTS = test.py
+TESTS = test.py test2.py
 
-EXTRA_DIST = $(check_DATA)
+EXTRA_DIST = $(check_DATA) test.py.in test2.py.in
 
 test: check

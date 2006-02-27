@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.1 2006/02/26 05:05:02 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.2 2006/02/27 01:02:47 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -21,6 +21,35 @@ class Bdb(bdb.Bdb):
             self.print_location()
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
+
+    def is_running(self):
+        if self.running: return True
+        self.msg('The program being debugged is not being run.')
+        return False
+
+    def lookupmodule(self, filename):
+        """Helper function for break/clear parsing -- may be overridden.
+
+        lookupmodule() translates (possibly incomplete) file or module name
+        into an absolute file name.
+        """
+        if os.path.isabs(filename) and  os.path.exists(filename):
+            return filename
+        f = os.path.join(sys.path[0], filename)
+        if  os.path.exists(f) and self.canonic(f) == self.mainpyfile:
+            return f
+        root, ext = os.path.splitext(filename)
+        if ext == '':
+            filename = filename + '.py'
+        if os.path.isabs(filename):
+            return filename
+        for dirname in sys.path:
+            while os.path.islink(dirname):
+                dirname = os.readlink(dirname)
+            fullname = os.path.join(dirname, filename)
+            if os.path.exists(fullname):
+                return fullname
+        return None
 
     # Override Bdb methods
 
