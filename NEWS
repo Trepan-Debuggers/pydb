@@ -1,6 +1,7 @@
 1.14
 2006-02-28
-* Fix bugs in configuration management.
+* Fix bugs in configuration management. Make distcheck works again
+  (sometimes)
 
 1.13
 2006-02-27
