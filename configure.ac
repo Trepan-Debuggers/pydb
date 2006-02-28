@@ -18,7 +18,8 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_INIT([pydb],[1.13],[bashdb-pydb-devel@lists.sourceforge.net])
+AC_REVISION([$Id: configure.ac,v 1.22 2006/02/28 17:13:10 rockyb Exp $])dnl
+AC_INIT([pydb],[1.14cvs],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
 ##
@@ -28,11 +29,55 @@ AM_PATH_LISPDIR
 AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
 
 ##
+## AM_PATH_PYTHON seems to use PACKAGE and AC_INIT sets PACKAGE_NAME.
+if test -z "$PACKAGE" ; then
+   PACKAGE=$PACKAGE_NAME
+fi
+
+##
+## Get user-specified Python site-packages location. This should
+## come before getting user-specified Python or looking for that.
+##
+find_pythondir=yes
+AC_ARG_WITH(site-packages,
+           AC_HELP_STRING([--with-site-packages], 
+	                  [place to install module]), 
+	   [pythondir=$withval; 
+	   pkgpythondir=${pythondir}/$PACKAGE_NAME
+	   find_pythondir=no])
+if test "$find_pythondir" != yes; then
+   am_cv_python_pythondir=$pythondir
+fi
+
+##
+## Get user-specified Python location
+##
+AM_PATH_LISPDIR
+AC_ARG_WITH(python,
+           AC_HELP_STRING([--with-python], 
+	                  [set path to Python]), 
+	   PYTHON=$withval)
+
+##
 ## Check for Python interpreter and make we have a recent version.
 ##
-AM_PATH_PYTHON(2.4.0,, :)
-AC_REVISION([$Id: configure.ac,v 1.21 2006/02/27 15:33:51 rockyb Exp $])dnl
+AM_PATH_PYTHON(2.4.0,, 
+   [AC_MSG_ERROR(Debugger known only to work with Python 2.4 or greater)])
 
+## Automake doesn't get Python's install path correct. So we 
+## figure it out and set it ourself.
+## This must come after looking for Python since we use that below.
+if test "$find_pythondir" = yes; then
+   AC_MSG_NOTICE([Trying to reset site-packages a the default often gets this wrong])
+   pythondir=$($PYTHON ${srcdir}/site-packages-path.py)
+   if test $? != 0 ; then
+      AC_MSG_ERROR([Didn't get Python site packages install path.
+      Set it with --with-site-packages])
+   fi
+   pkgpythondir=\${pythondir}/$PACKAGE_NAME
+fi
+
+##
 ##
 ## In maintainer mode we produce a ChangeLog
 ##
@@ -56,24 +101,6 @@ AM_MISSING_PROG(CVS2CL, cvs2cl, $missing_dir)
 ## script.
 ## 
 AC_PROG_LN_S
-
-##
-## Automake doesn't get Python's install path correct. So we 
-## figure it out and set it ourself.
-##
-AC_ARG_WITH(site-packages,
-           AC_HELP_STRING([--with-site-packages], 
-	                  [place to install module]), 
-	   PY_PKGDIR)
-
-if test -z "$PY_PKGDIR" ; then 
-   pythondir=$($PYTHON ${srcdir}/site-packages-path.py)
-   if test $? != 0 ; then
-      AC_MSG_ERROR([Didn't get Python site packages install path.
-      Set it with --with-site-packages])
-   fi
-   pkgpythondir=\${pythondir}/$PACKAGE
-fi
 
 ##
 ## Produced derived files.

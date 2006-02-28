@@ -1,5 +1,5 @@
 #!/usr/bin/python -t
-# $Id: test2.py,v 1.1 2006/02/27 15:40:39 rockyb Exp $ -*- Python -*-
+# $Id: test2.py,v 1.2 2006/02/28 17:13:12 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
