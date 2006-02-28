@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test2.py.in,v 1.2 2006/02/27 10:12:20 rockyb Exp $ -*- Python -*-
+# $Id: test2.py.in,v 1.3 2006/02/28 19:46:11 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -45,13 +45,14 @@ class PdbTests(unittest.TestCase):
         except FloatingPointError:
             t = sys.exc_info()[2]
             outfile    = 'test2.out'
-            rightfile  = 'test2.right'
+            rightfile  = os.path.join(srcdir, 'test2.right')
             errfile    = 'test2.err'
             old_stdout = sys.stdout
             old_stderr = sys.stderr
             sys.stdout = open(outfile, 'w')
             sys.stderr = open(errfile, 'w')
-            pydb.post_mortem(t=t, opts=None, cmdfile='pm.cmd')
+            pydb.post_mortem(t=t, opts=None,
+                             cmdfile=os.path.join(srcdir, 'pm.cmd'))
             sys.stdout = old_stdout
             sys.stderr = old_stderr
             fromfile  = rightfile
