@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.2 2006/02/27 01:02:47 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.3 2006/03/03 02:28:54 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -161,6 +161,7 @@ class Bdb(bdb.Bdb):
         """This function is called if an exception occurs,
         but only if we are to stop at or just below this level."""
 
+        global _saferepr
         self.stop_reason = 'exception'
         # Remove any pending source lines.
         self.rcLines = []
