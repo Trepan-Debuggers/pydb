@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.66 2006/02/27 10:15:37 rockyb Exp $
+"""$Id: pydb.py.in,v 1.67 2006/03/04 12:48:41 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -7,7 +7,7 @@ _debugger_name = '@PACKAGE_NAME@'
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
-import dis, inspect, linecache, os, pprint
+import atexit, dis, inspect, linecache, os, pprint
 import bdb, re, sys, traceback, types
 
 import pydbcmd, pydbbdb
@@ -73,8 +73,19 @@ class Pdb(Bdb, Cmd):
         # Try to load readline if it exists
         try:
             import readline
+            # Read history file and set up to write history file when we
+            # exit. 
+            global _debugger_name
+            self.histfile = os.path.join(os.environ["HOME"],
+                                         ".%shist" % _debugger_name)
+            try:
+                readline.read_history_file(self.histfile)
+            except IOError:
+                pass
+            atexit.register(readline.write_history_file, self.histfile)
+
         except ImportError:
-            pass
+            self.histfile = None
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
@@ -403,6 +414,19 @@ class Pdb(Bdb, Cmd):
             for line in rcFile.readlines():
                 self.rcLines.append(line)
             rcFile.close()
+
+    def show_commands(self):
+        """Print command history."""
+        try:
+            import readline
+            if self.histfile is not None:
+                for i in range(readline.get_current_history_length()):
+                    self.msg("%5d  %s" % (i+1, readline.get_history_item(i+1)))
+            else:
+                self.errmsg("History mechanism turned off.")
+        except ImportError:
+            self.errmsg("Readline not available.")
+            
 
     ###################################################################
     # Command definitions, called by cmdloop()
@@ -1313,7 +1337,8 @@ assignment to the variable __return__."""
     def do_show(self, arg):
         """Generic command for showing things about the debugger."""
         if not arg:
-            for subcommand in ['args', 'basename', 'cmdtrace', 'linetrace', 
+            for subcommand in ['args', 'basename', 'cmdtrace', 'commands',
+                               'linetrace', 
                                'linetrace delay', 'listsize', 'prompt',
                                'version']:
                 self.msg_nocr("%s: " % subcommand)
@@ -1328,6 +1353,8 @@ assignment to the variable __return__."""
             self.msg("basename is %s." % show_onoff(self.basename))
         elif arg == 'cmdtrace':
             self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
+        elif arg == 'commands':
+            self.show_commands()
         elif arg == 'interactive':
             self.msg("interactive is %s." %
                      show_onoff(not self.noninteractive))

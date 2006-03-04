@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.4 2006/02/26 12:46:33 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.5 2006/03/04 12:48:41 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -6,7 +6,7 @@ generally (but not always) the are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
-import cmd, sys, types
+import cmd, os, sys, types
 
 class Cmd(cmd.Cmd):
 
