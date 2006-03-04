@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.28 2006/02/27 16:25:41 rockyb Exp $
+% $Id: libpydb.tex,v 1.29 2006/03/04 23:58:47 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -259,6 +259,23 @@ Show lines as they are read from the debugger command file (or
 regression tests, but it may be helpful in tracking down a problem in
 your \code{.pydbrc} file.
 
+\item[set history filename]
+
+Set the filename in which to record the command history.
+(the list of previous commands of which a record is kept). The default
+file is \code{~/.pydbhist}.
+
+\item[set history save]
+
+Set saving of the history record on exit.  Use "on" to enable the
+saving, and "off" to disable it.  Without an argument, saving is
+enabled.
+
+\item[set history size]
+
+Set the size of the command history, ie. the number of previous
+commands to keep a record of. The default is 256.
+
 \item[set linetrace on\code{\Large{|}}off]\label{command:linetrace}
 
 If this is set on, the position (file and linenumber) is shown before
@@ -333,6 +350,19 @@ Show short or long filenames
 \item[show cmdtrace]
 
 Show the debugger commands before running
+
+\item[show commands]
+
+Show the history of commands you typed. You can supply a command
+number to start with, or a `+' to start after the previous command
+number shown.  This command Is available only if the readline module
+available and supports the history saving.
+
+\item[show history]
+
+Generic command for showing command history parameters. The command
+history filename, saving of history on exit and size of history file
+are shown.
 
 \item[show linetrace]
 

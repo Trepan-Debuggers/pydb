@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.5 2006/03/04 12:48:41 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.6 2006/03/04 23:59:02 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -257,3 +257,7 @@ List of %s subcommands:
         else:
             self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
                         % (cmd, cmd))
+
+    def undefined_cmd(self, cmd, subcmd):
+        """Error message when subcommand asked for but doesn't exist"""
+        self.errmsg("Undefined %s command \"%s\"." % (cmd, subcmd))

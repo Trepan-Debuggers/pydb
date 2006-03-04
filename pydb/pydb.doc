@@ -293,6 +293,15 @@ set *subcommand*
     to the program.  Set number of source lines debugger will list by
     default.
 
+  set history filename
+    Set the filename in which to record the command history
+
+  set history save
+    Set saving of the history record on exit
+
+  set history size
+    Set the size of the command history
+
   set linetrace {on|off}
     Set line execution tracing. If 'on', lines will be shown before they 
     are run.
@@ -321,9 +330,9 @@ show *subcommand*
       This command Is available only if the readline module available
       and supports the history saving.
 
-    show interactive -- Show if we are interactive or not
+    show history -- Generic command for showing command history parameters
 
-    show dialect -- Show what style of debugger interface is in effect.
+    show interactive -- Show if we are interactive or not
 
     show linetrace -- Show the line tracing status
 

@@ -132,7 +132,7 @@ Breakpoint index 'foo' is not a number
 + show prompt
 pydb's prompt is "(Pydb) ".
 + show foo
-*** unknown show subcommand "foo"
+*** Undefined show command "foo".
 + cd
 *** Argument required (new working directory).
 + ########################################
@@ -150,6 +150,8 @@ pydb's prompt is "(Pydb) ".
 *** step command: Expecting a positive integer at least 0, got: -1
 + next -1
 *** next command: Expecting a positive integer at least 0, got: -1
++ show commands fdasfsd
+*** show commands command: Expecting a positive integer, got: fdasfsd
 + ########################################
 + ###   test info
 + ########################################
@@ -181,6 +183,7 @@ List of set subcommands:
 set args -- Set argument list to give program being debugged when it is started
 set basename -- Set short filenames (the basename) in debug output
 set cmdtrace -- Set to show lines read from the debugger command file
+set history -- Generic command for setting command history parameters
 set interactive -- Set whether we are interactive
 set linetrace -- Set line execution tracing and delay on tracing
 set listsize -- Set number of source lines the debugger will list by default
@@ -198,6 +201,7 @@ show args -- Show argument list to give debugged program on start
 show basename -- Show if we are to show short of long filenames
 show cmdtrace -- Show if we are to show debugger commands before running
 show commands -- Show the history of commands you typed
+show history -- Generic command for showing command history parameters
 show interactive -- Show whether we are interactive
 show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default

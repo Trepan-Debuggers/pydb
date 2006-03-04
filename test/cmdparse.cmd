@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.8 2006/02/27 10:12:20 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.9 2006/03/04 23:59:03 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -75,6 +75,7 @@ down 1 b c
 frame foo
 step -1
 next -1
+show commands fdasfsd
 ########################################
 ###   test info
 ########################################
