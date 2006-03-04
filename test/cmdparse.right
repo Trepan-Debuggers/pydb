@@ -197,6 +197,7 @@ List of show subcommands:
 show args -- Show argument list to give debugged program on start
 show basename -- Show if we are to show short of long filenames
 show cmdtrace -- Show if we are to show debugger commands before running
+show commands -- Show the history of commands you typed
 show interactive -- Show whether we are interactive
 show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default

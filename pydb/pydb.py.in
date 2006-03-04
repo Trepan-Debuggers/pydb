@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.67 2006/03/04 12:48:41 rockyb Exp $
+"""$Id: pydb.py.in,v 1.68 2006/03/04 17:37:47 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -178,7 +178,7 @@ class Pdb(Bdb, Cmd):
         elif cmd == 'source':
             self.msg("Information about the current Python file")
         else:
-            self.errmsg("Unknown 'help info' subcommand %s." % cmd)
+            self.errmsg("Unknown 'help info' subcommand \"%s\"." % cmd)
 
     def __help_set(self, cmd, label=False):
         """Show help for a single set subcommand"""
@@ -214,6 +214,8 @@ class Pdb(Bdb, Cmd):
         elif cmd == 'cmdtrace':
             self.msg("Show if we are to show debugger commands " +
                      "before running")
+        elif cmd == 'commands':
+            self.msg("Show the history of commands you typed")
         elif cmd == 'interactive':
             self.msg("Show whether we are interactive")
         elif cmd == 'linetrace':
@@ -226,7 +228,7 @@ class Pdb(Bdb, Cmd):
         elif cmd == 'version':
             self.msg("Show what version of this is")
         else:
-            self.errmsg("Unknown 'help set' subcommand %s." % cmd)
+            self.errmsg("Unknown 'help show' subcommand \"%s\"." % cmd)
 
     def __info_args(self, arg):
         """Print the arguments of the current function."""
@@ -415,13 +417,22 @@ class Pdb(Bdb, Cmd):
                 self.rcLines.append(line)
             rcFile.close()
 
-    def show_commands(self):
-        """Print command history."""
+    def show_commands(self, arg):
+        """Show the history of commands you typed.
+You can supply a command number to start with."""
         try:
             import readline
             if self.histfile is not None:
-                for i in range(readline.get_current_history_length()):
-                    self.msg("%5d  %s" % (i+1, readline.get_history_item(i+1)))
+                first=1
+                last=readline.get_current_history_length()
+                if arg is not None:
+                    center = self.get_pos_int(arg, cmdname="show commands")
+                    first = max(1, center - (self.listsize/2))
+                    last  = min(last, center + (self.listsize/2))
+                i=first
+                while i<=last:
+                    self.msg("%5d  %s" % (i, readline.get_history_item(i)))
+                    i += 1
             else:
                 self.errmsg("History mechanism turned off.")
         except ImportError:
@@ -1039,7 +1050,7 @@ the .py suffix may be omitted."""
             self.msg('Current Python file is %s' %
                      self.filename(self.canonic_filename(frame)))
         else:
-            self.errmsg("Unknown info subcommand %s" % arg)
+            self.errmsg("Unknown info subcommand \"%s\"" % arg)
 
     def info_break(self, arg):
         """info break
@@ -1337,25 +1348,29 @@ assignment to the variable __return__."""
     def do_show(self, arg):
         """Generic command for showing things about the debugger."""
         if not arg:
-            for subcommand in ['args', 'basename', 'cmdtrace', 'commands',
-                               'linetrace', 
-                               'linetrace delay', 'listsize', 'prompt',
+            for subcommand in ['args',      'basename', 'cmdtrace', 
+                               'linetrace', 'linetrace delay',
+                               'listsize', 'prompt',
                                'version']:
                 self.msg_nocr("%s: " % subcommand)
                 self.do_show(subcommand)
             return
 
-        if arg == 'args':
+        args = arg.split()
+        if args[0] == 'args':
             self.msg("Argument list to give program being debugged " +
                       "when it is started is ")
             self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
-        elif arg == 'basename':
+        elif args[0] == 'basename':
             self.msg("basename is %s." % show_onoff(self.basename))
-        elif arg == 'cmdtrace':
+        elif args[0] == 'cmdtrace':
             self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
-        elif arg == 'commands':
-            self.show_commands()
-        elif arg == 'interactive':
+        elif args[0] == 'commands':
+            if len(args) > 1:
+                self.show_commands(args[1])
+            else:
+                self.show_commands(None)
+        elif args[0] == 'interactive':
             self.msg("interactive is %s." %
                      show_onoff(not self.noninteractive))
         elif arg == 'linetrace':
@@ -1363,17 +1378,17 @@ assignment to the variable __return__."""
         elif _re_linetrace_delay.match(arg):
             self.msg("line trace delay is %s. (In seconds)"
                      % self.linetrace_delay)
-        elif arg == 'listsize':
+        elif args[0] == 'listsize':
             self.msg("Number of source lines %s will list by default is %d." \
                   % (_debugger_name, self.listsize))
-        elif arg == 'prompt':
+        elif args[0] == 'prompt':
             self.msg("""%s's prompt is "%s".""" %
                      (_debugger_name, self.prompt))
-        elif arg == 'version':
+        elif args[0] == 'version':
             self.msg("""%s version %s.""" %
                      (_debugger_name, "@PACKAGE_VERSION@"))
         else:
-            self.errmsg('unknown show subcommand "%s"' % arg)
+            self.errmsg('unknown show subcommand "%s"' % args[0])
 
     def do_source(self, arg):
         """source FILE
@@ -1571,7 +1586,7 @@ You can see these environment settings with the 'show' command."""
     # Note: format of help is compatible with ddd.
     def help_show(self, *args):
         """Generic command for showing things about the debugger."""
-        subcmds=("args", "basename", "cmdtrace", "interactive",
+        subcmds=("args", "basename", "cmdtrace", "commands", "interactive",
                  "linetrace", "listsize", "prompt", "version")
         self.subcommand_help('show', getattr(self, 'help_show').__doc__,
                              subcmds, self.__help_show, args[0])

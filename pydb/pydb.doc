@@ -317,6 +317,10 @@ show *subcommand*
 
     show cmdtrace -- Show if we are to show debugger commands before running
 
+    show commands -- Show the history of commands you typed. 
+      This command Is available only if the readline module available
+      and supports the history saving.
+
     show interactive -- Show if we are interactive or not
 
     show dialect -- Show what style of debugger interface is in effect.
