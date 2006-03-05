@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test2.py.in,v 1.3 2006/02/28 19:46:11 rockyb Exp $ -*- Python -*-
+# $Id: test2.py.in,v 1.4 2006/03/05 00:14:12 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -53,6 +53,8 @@ class PdbTests(unittest.TestCase):
             sys.stderr = open(errfile, 'w')
             pydb.post_mortem(t=t, opts=None,
                              cmdfile=os.path.join(srcdir, 'pm.cmd'))
+            sys.stdout.close()
+            sys.stderr.close()
             sys.stdout = old_stdout
             sys.stderr = old_stderr
             fromfile  = rightfile
