@@ -1,4 +1,4 @@
-"""$Id: pydbfns.py,v 1.4 2006/02/27 01:02:47 rockyb Exp $
+"""$Id: pydbfns.py,v 1.5 2006/03/05 00:52:28 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import os, sys, re, traceback
@@ -81,17 +81,20 @@ def process_options(pydb, debugger_name, program):
                          action="store_true", default=False, 
                          help="Show lines before executing them. " +
                          "This option also sets --batch")
-    optparser.add_option("-n", "--nx", dest="noexecute",
-                         action="store_true", default=False, 
-                         help="Don't execute commands found in any " +
-                         "initialization files")
     optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
                          help="Don't run interactive commands shell on "+
                          "stops.")
     optparser.add_option("-x", "--command", dest="command",
                          action="store", type='string', metavar='FILE',
-                         help="Execute commands from FILE")
+                         help="Execute commands from FILE.")
+    optparser.add_option("--cd", dest="cd",
+                         action="store", type='string', metavar='DIR',
+                         help="Change current directory to DIR.")
+    optparser.add_option("-n", "--nx", dest="noexecute",
+                         action="store_true", default=False, 
+                         help="Don't execute commands found in any " +
+                         "initialization files")
     optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
                          help="Write debugger's output (stdout) " +
@@ -130,6 +133,9 @@ def process_options(pydb, debugger_name, program):
             envHome = os.environ['HOME']
             pydb.setup_source("%s.%src" % (envHome, debugger_name))
         pydb.setup_source(".%src" % debugger_name);
+
+    if opts.cd:
+        os.chdir(opts.cd)
 
     # As per gdb, first we execute user initialization files and then
     # we execute any file specified via --command.

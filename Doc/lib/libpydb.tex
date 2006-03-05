@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.29 2006/03/04 23:58:47 rockyb Exp $
+% $Id: libpydb.tex,v 1.30 2006/03/05 00:52:28 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -112,6 +112,11 @@ without any interactive behavior from the debugger, use this option
 for example, if you know that a script will terminate with an
 exception which causes the debugger to be entered at that point. The
 \code{--trace} option implicitly sets this option.
+
+\item[--{}--cd \var{directory}]
+
+Run \code{pydb} using \var{directory} as its working directory,
+instead of the current directory.
 
 \item[--{}--command=\var{filename}\code{\Large{|}}--x \var{filename}]\label{switch:command}
 

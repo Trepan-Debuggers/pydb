@@ -1,5 +1,13 @@
 The Python community or whoever wrote pdb.py is largely responsible
 for this.
 
-The extensions over pdb.py are by Rocky Bernstein.
+Richard Wolff (now retired) worked on the pydb.py that is in ddd. I
+get the impression he also worked a little on pdb.py. 
+
+The command interface is from GDB, and so much of the error messages
+and some parts of the documentation too.
+
+Coordination for putting this together are by Rocky Bernstein.
+
+
 

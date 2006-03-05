@@ -1,3 +1,9 @@
+1.15cvs
+
+* Add --cd command
+* Add gdb history commands:
+    set history ..., show history ..., show commands
+
 1.14
 2006-02-28
 * Fix bugs in configuration management. Make distcheck works again
