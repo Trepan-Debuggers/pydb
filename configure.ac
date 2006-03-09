@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.24 2006/03/04 17:37:41 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.25 2006/03/09 20:56:04 rockyb Exp $])dnl
 AC_INIT([pydb],[1.15cvs],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
@@ -48,6 +48,16 @@ AC_ARG_WITH(site-packages,
 if test "$find_pythondir" != yes; then
    am_cv_python_pythondir=$pythondir
 fi
+
+READLINE=readline
+AC_ARG_ENABLE(pyreadline,
+	AC_HELP_STRING([--enable-pyreadline], 
+                        [Use pyreadline instead of readline]),
+        [ if test "${enable_readline}" = "yes"; then
+	   READLINE=pyreadline
+	  fi
+	])
+AC_SUBST(READLINE)
 
 ##
 ## Get user-specified Python location

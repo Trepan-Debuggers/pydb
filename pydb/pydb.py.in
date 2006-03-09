@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.70 2006/03/05 00:11:12 rockyb Exp $
+"""$Id: pydb.py.in,v 1.71 2006/03/09 20:56:10 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -72,7 +72,7 @@ class Pdb(Bdb, Cmd):
         self._sys_argv       = []     # exec sys.argv, e.g. may include pydb 
         # Try to load readline if it exists
         try:
-            import readline
+            import @READLINE@
             self.hist_last = 0
             self.hist_save = False
             readline.set_history_length(256)
@@ -429,7 +429,7 @@ class Pdb(Bdb, Cmd):
 You can supply a command number to start with, or a `+' to start after
 the previous command number shown."""
         try:
-            import readline
+            import @READLINE@
             if self.histfile is not None:
                 if arg is None:
                     first=1
@@ -461,7 +461,7 @@ the previous command number shown."""
         """Write the command history file -- possibly."""
         if self.hist_save:
             try:
-                import readline
+                import @READLINE@
                 try:
                     readline.write_history_file(self.histfile)
                 except IOError:
@@ -1417,7 +1417,7 @@ assignment to the variable __return__."""
             self.show_commands(len(args) > 1 and args[1] or None)
         elif args[0] == 'history':
             try:
-                import readline
+                import @READLINE@
                 self.msg(
 """filename:  The filename in which to record the command history is
 "%s".""" % self.histfile)
