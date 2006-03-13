@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.71 2006/03/09 20:56:10 rockyb Exp $
+"""$Id: pydb.py.in,v 1.72 2006/03/13 05:49:33 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -65,6 +65,7 @@ class Pdb(Bdb, Cmd):
         self.maxargstrsize   = 30     # max length to show of parameter string 
         self.moduletodebug   = ""
         self.noninteractive  = False
+        self.rlcomplete      = False  # Do we have the rlcompeter module?
         self.originalpath    = sys.path[:]
         self._program_sys_argv = []   # sys.argv after pydb options stripped
         self.running         = False
@@ -86,6 +87,12 @@ class Pdb(Bdb, Cmd):
             except IOError:
                 pass
             atexit.register(self.write_history_file)
+            try:
+                import rlcompleter
+                readline.parse_and_bind('tab: complete')
+                self.rlcomplete = True
+            except ImportError:
+                pass
 
         except ImportError:
             self.histfile = None
