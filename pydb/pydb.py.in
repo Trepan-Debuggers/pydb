@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.72 2006/03/13 05:49:33 rockyb Exp $
+"""$Id: pydb.py.in,v 1.73 2006/03/13 15:09:43 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -65,7 +65,6 @@ class Pdb(Bdb, Cmd):
         self.maxargstrsize   = 30     # max length to show of parameter string 
         self.moduletodebug   = ""
         self.noninteractive  = False
-        self.rlcomplete      = False  # Do we have the rlcompeter module?
         self.originalpath    = sys.path[:]
         self._program_sys_argv = []   # sys.argv after pydb options stripped
         self.running         = False
@@ -87,12 +86,7 @@ class Pdb(Bdb, Cmd):
             except IOError:
                 pass
             atexit.register(self.write_history_file)
-            try:
-                import rlcompleter
-                readline.parse_and_bind('tab: complete')
-                self.rlcomplete = True
-            except ImportError:
-                pass
+            self.do_complete = self.__do_complete
 
         except ImportError:
             self.histfile = None
@@ -129,6 +123,24 @@ class Pdb(Bdb, Cmd):
         self.curframe = self.stack[self.curindex][0]
         self.print_location()
         self.lineno = None
+
+    def __do_complete(self, arg):
+        """Print a list of command names that can start with the
+        supplied command prefix"""
+        if not arg:
+            cmd_prefix=''
+        else:
+            cmd_prefix=arg.split()[0]
+        seen = {};
+        i=0
+        text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
+        while True:
+            if text is None: break
+            if text not in seen.keys():
+                self.msg(text)
+                seen[text]=True
+            i += 1
+            text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
 
     def __get_brkpt_lineno(self, arg):
         """__get_brkpt_lineno(self,arg)->(fn, file, lineno)

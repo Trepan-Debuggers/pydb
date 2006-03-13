@@ -128,6 +128,9 @@ cl(ear) {[file:]linenumber | function}
 
 	See also the 'delete' command which clears breakpoints by number.
 
+complete cmd-prefix
+        Print a list of commands names that start with cmd-prefix
+
 condition bpnumber condition
         condition is an expression which must evaluate to true before
         the breakpoint is honored.  If condition is absent, any
