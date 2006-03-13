@@ -10,6 +10,8 @@ check_DATA = \
 	filebug.cmd    \
 	filebug.py     \
 	filebug.right  \
+	logging.cmd    \
+	logging.right  \
 	pm.cmd         \
 	run.cmd        \
 	run.right      \

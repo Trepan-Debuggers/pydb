@@ -5,6 +5,8 @@
 
 * Add command completion (gdb: complete)
 
+* Add log redirection (gdb: set logging, show logging)
+
 * Add gdb directory commands: cd, pwd
 
 * Add --cd invocation option 

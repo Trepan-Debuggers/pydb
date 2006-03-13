@@ -187,6 +187,7 @@ set history -- Generic command for setting command history parameters
 set interactive -- Set whether we are interactive
 set linetrace -- Set line execution tracing and delay on tracing
 set listsize -- Set number of source lines the debugger will list by default
+set logging -- Set logging options
 set prompt -- Set debugger's prompt
 + help set linesize
 *** Unknown 'help set' subcommand linesize
@@ -205,8 +206,9 @@ show history -- Generic command for showing command history parameters
 show interactive -- Show whether we are interactive
 show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default
+show logging -- Show logging options
 show prompt -- Show debugger's prompt
-show version -- Show what version of this is
+show version -- Show what version of the debugger this is
 + help show listsize
 Show number of source lines the debugger will list by default
 + help info

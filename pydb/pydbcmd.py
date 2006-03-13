@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.6 2006/03/04 23:59:02 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.7 2006/03/13 22:23:30 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -7,6 +7,7 @@ of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
 import cmd, os, sys, types
+from pydbfns import *
 
 class Cmd(cmd.Cmd):
 
@@ -15,9 +16,22 @@ class Cmd(cmd.Cmd):
         self._user_requested_quit = False
         self.aliases              = {}
         self.cmdtrace             = False
+        self.logging              = False
+        self.logging_file         = "pydb.txt"
+        self.logging_fileobj      = None         # file object from open()
+        self.logging_overwrite    = False
+        self.logging_redirect     = False
         self.nohelp               = 'Undefined command: \"%s\". Try \"help\".'
         self.prompt               = '(Pydb) '
         self.rcLines              = []
+
+    def __open_log(self, filename):
+        open_mode = ('w', 'a')[self.logging_overwrite]
+        try:
+            self.logging_fileobj = open(filename, open_mode)
+            self.logging_file = filename
+        except:
+            self.errmsg("Error in opening %s" % filename)
 
     def default(self, line):
         """Method called on an input line when the command prefix is
@@ -133,18 +147,20 @@ class Cmd(cmd.Cmd):
                 raise ValueError
         return default
 
-    def get_onoff(self, arg, default=None):
+    def get_onoff(self, arg, default=None, print_error=True):
         """Return True if arg is 'on' or 1 and False arg is an 'off' or 0
         Any other value is an error"""
         if not arg:
             if default is None:
-                self.errmsg("Expecting 'on', 1, 'off', or 0. Got nothing.")
+                if print_error:
+                    self.errmsg("Expecting 'on', 1, 'off', or 0. Got nothing.")
                 raise ValueError
             return default
         if arg == '1' or arg == 'on': return True
         if arg == '0' or arg =='off': return False
-        
-        self.errmsg("Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg))
+
+        if print_error:
+            self.errmsg("Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg))
         raise ValueError
 
     def get_pos_int(self, arg, min=0, default = 1, cmdname=None):
@@ -194,19 +210,25 @@ class Cmd(cmd.Cmd):
         """Common routine for reporting debugger error messages.
            Derived classed may want to override this to capture output.
            """
-        print "*** %s" % msg
+        self.msg_nocr("*** %s\n" % msg)
 
     def msg(self, msg):
         """Common routine for reporting messages.
            Derived classed may want to override this to capture output.
            """
-        print "%s" % msg
+        self.msg_nocr("%s\n" % msg)
 
     def msg_nocr(self, msg):
         """Common routine for reporting messages (no carriage return).
            Derived classed may want to override this to capture output.
            """
-        print "%s" % msg,
+        do_print = True
+        if self.logging:
+            if self.logging_fileobj is not None:
+                print >> self.logging_fileobj, msg,
+            do_print = not self.logging_redirect
+        if do_print:                
+            print msg,
 
     def precmd(self, line):
         """Method executed just before the command line line is
@@ -257,6 +279,139 @@ List of %s subcommands:
         else:
             self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
                         % (cmd, cmd))
+
+    def set_args(self, args):
+        argv_start = self._program_sys_argv[0:1]
+        if len(args):
+            self._program_sys_argv = args[0:]
+        else:
+            self._program_sys_argv = []
+            self._program_sys_argv[:0] = argv_start
+            
+    def set_basename(self, args):
+        try:
+            self.basename = self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_cmdtrace(self, args):
+        try:
+            self.cmdtrace = self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_history(self, args):            
+        if args[1] == 'filename':
+            if len(args) < 3:
+                self.errmsg("Argument required (filename to set it to.")
+                return
+            self.histfile = args[2]
+        elif args[1] == 'save':
+            self.hist_save = ( (len(args) >=3 and self.get_onoff(args[2]))
+                               or True )
+        elif args[1] == 'size':
+            try:
+                size = self.get_int(args[2], cmdname="set history size")
+                readline.set_history_length(size)
+            except ValueError:
+                return
+        else:
+            self.undefined_cmd("set history", args[0])
+
+    def set_linetrace(self, args):
+        if args[1]=='delay':
+            try:
+                delay = float(args[2])
+                self.linetrace_delay = delay
+            except IndexError:
+                self.errmsg("Need a 3rd floating-point number")
+            except ValueError:
+                self.errmsg(("3rd argument %s is not a floating-point "
+                             + "number") % str(args[2]) )
+        else:
+            try:
+                self.linetrace = self.get_onoff(args[1])
+            except ValueError:
+                pass
+            
+    def set_listsize(self, args):
+        try:
+            self.listsize = self.get_int(args[1])
+        except ValueError:
+            pass
+
+    def set_logging(self, args):
+        if len(args):
+            try:
+                old_logging  = self.logging
+                self.logging = self.get_onoff(args[1], default=None,
+                                              print_error=False)
+                if old_logging and not self.logging \
+                       and self.logging_fileobj is not None:
+                    self.logging_fileobj.close()
+                if not old_logging and self.logging \
+                       and not self.logging_fileobj:
+                    self.__open_log(self.logging_file)
+                return
+            except ValueError:
+                try:
+                    if args[1] == 'overwrite':
+                        self.logging_overwrite = self.get_onoff(args[2],
+                                                                default=True,
+                                                                print_error=True)
+                    elif args[1] == 'redirect':
+                        self.logging_redirect = self.get_onoff(args[2],
+                                                               default=True,
+                                                               print_error=True)
+                    elif args[1] == 'file':
+                        if len(args) > 2: self.__open_log(args[2])
+                    else:
+                        self.undefined_cmd("set logging", args[1])
+                except ValueError:
+                    return
+        else:
+            self.msg("""Usage: set logging on [FILENAME]
+       set logging off
+       set logging file FILENAME
+       set logging overwrite [on|off]
+       set logging redirect [on|off]""")
+            
+
+    def set_prompt(self, args):
+        # Use the original prompt so we keep spaces and punctuation
+        # just skip over the work prompt.
+        re_prompt = re.compile(r'\s*prompt\s(.*)$')
+        mo = re_prompt.search(arg)
+        if mo:
+            self.prompt = mo.group(1)
+        else:
+            self.errmsg("Something went wrong trying to find the prompt")
+
+    def show_logging(self, args):
+        """This text odd as it is, is what gdb reports for 'show logging'."""
+        if len(args) > 1 and args[1]:
+            if args[1] == 'file':
+                self.msg('The current logfile is "%s".' %
+                         self.logging_file)
+            elif args[1] == 'overwrite':
+                self.msg('Whether logging overwrites or appends to the'
+                         + ' log file is is %s.'
+                         % show_onoff(self.logging_overwrite))
+            elif args[1] == 'redirect':
+                self.msg('The logging output mode is %s.' %
+                         show_onoff(self.logging_redirect))
+            else:
+                self.undefined_cmd("show logging", args[1])
+        else:
+            self.msg('Future logs will be written to %s.' % self.logging_file)
+            if self.logging_overwrite:
+                self.msg('Logs will overwrite the log file.')
+            else:
+                self.msg('Logs will be appended to the log file.')
+            if self.logging_redirect:
+                self.msg("Output will be sent only to the log file.")
+            else:
+                self.msg("Output will be logged and displayed.")
 
     def undefined_cmd(self, cmd, subcmd):
         """Error message when subcommand asked for but doesn't exist"""

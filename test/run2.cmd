@@ -1,5 +1,5 @@
 # Test of restart and linetracing 
-# $Id: run2.cmd,v 1.1 2006/02/21 15:30:37 rockyb Exp $
+# $Id: run2.cmd,v 1.2 2006/03/13 22:23:30 rockyb Exp $
 #
 set basename on
 set cmdtrace on
@@ -41,5 +41,3 @@ set interactive off
 return
 where
 quit
-
-
