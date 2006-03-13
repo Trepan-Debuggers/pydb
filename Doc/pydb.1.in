@@ -111,6 +111,9 @@ instead.
 .B set
 Modify parts of the debugger environment.
 .TP
+.B shell \fIcommand\fR
+Run a shell command.
+.TP
 .B show
 See the debugger environment settings
 .TP
@@ -139,6 +142,9 @@ Don't execute commands found in any initialization files
 .TP
 .B \-\-batch
 Don't run interactive commands on debugger entry
+.TP
+.B \-\-cd=DIR
+Change current directory to DIR.
 .TP
 .B \-x | \-\-command=FILE
 Execute commands from FILE

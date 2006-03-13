@@ -1,8 +1,20 @@
 1.15cvs
 
-* Add --cd command
 * Add gdb history commands:
     set history ..., show history ..., show commands
+
+* Add command completion (gdb: complete)
+
+* Add gdb directory commands: cd, pwd
+
+* Add --cd invocation option 
+
+* Add installation section in documentation
+
+* reorder documentation so important stuff is towards the
+  front. Small text corrections too.
+
+* Add pyreadline as a configuration option.  
 
 1.14
 2006-02-28
