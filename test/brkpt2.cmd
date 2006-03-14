@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt2.cmd,v 1.1 2006/02/21 15:30:37 rockyb Exp $
+# $Id: brkpt2.cmd,v 1.2 2006/03/14 02:02:23 rockyb Exp $
 #
 set basename on
 set cmdtrace on
@@ -19,7 +19,7 @@ clear 28
 ### Clear by current line number
 ###############################################################
 break 28
-cont
+continue
 clear
 info break
 ###############################################################

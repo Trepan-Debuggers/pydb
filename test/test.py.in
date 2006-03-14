@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.14 2006/03/13 22:23:30 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.15 2006/03/14 02:02:23 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -173,8 +173,7 @@ class PdbTests(unittest.TestCase):
             func = getattr(pdb, 'do_complete')
             print "Have complete"
             pdb.do_complete("c")
-            correct = ['c', 'cd', 'cl', 'clear', 'condition', 'cont',
-                       'continue']
+            correct = ['c', 'cd', 'cl', 'clear', 'condition', 'continue']
         except AttributeError:
             print "No complete"
             pass

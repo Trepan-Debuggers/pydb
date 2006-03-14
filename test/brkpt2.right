@@ -21,7 +21,7 @@ Deleted breakpoints 1 2
 + ###############################################################
 + break 28
 Breakpoint 3 set in file gcd.py, line 28.
-+ cont
++ continue
 + clear
 Deleted breakpoint 3
 + info break

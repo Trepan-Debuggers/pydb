@@ -18,6 +18,16 @@
 
 * Add pyreadline as a configuration option.  
 
+* Some single-letter command names for these reasons
+  1. We now have command completion (often)
+  2. If the letter isn't a command it can be used as a variable name
+     in an assignment
+  3. There is an alias mechanism that can be used
+  4. Some of the commands like "j" for "jump" aren't used that much;
+     or in the case of "cont" for "continue", there already was an 
+     abbreviation "c". 
+  5. Multiple names makes help and completion more awkward.
+
 1.14
 2006-02-28
 * Fix bugs in configuration management. Make distcheck works again
