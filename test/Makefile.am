@@ -5,11 +5,13 @@ check_DATA = \
 	brkpt2.right   \
 	cmdparse.cmd   \
 	cmdparse.right \
-	gcd.py         \
-	hanoi.py       \
 	filebug.cmd    \
 	filebug.py     \
 	filebug.right  \
+	gcd.py         \
+	hanoi.py       \
+	history.cmd    \
+	history.right  \
 	logging.cmd    \
 	logging.right  \
 	pm.cmd         \

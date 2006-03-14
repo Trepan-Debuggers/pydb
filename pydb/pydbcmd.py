@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.7 2006/03/13 22:23:30 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.8 2006/03/14 03:48:46 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -303,7 +303,7 @@ List of %s subcommands:
     def set_history(self, args):            
         if args[1] == 'filename':
             if len(args) < 3:
-                self.errmsg("Argument required (filename to set it to.")
+                self.errmsg("Argument required (filename to set it to).")
                 return
             self.histfile = args[2]
         elif args[1] == 'save':
@@ -312,7 +312,7 @@ List of %s subcommands:
         elif args[1] == 'size':
             try:
                 size = self.get_int(args[2], cmdname="set history size")
-                readline.set_history_length(size)
+                self.set_history_length(size)
             except ValueError:
                 return
         else:

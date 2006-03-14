@@ -3,7 +3,7 @@ Program stopped.
 It stopped after stepping, next'ing or initial start.
 + continue
 *** Uncaught exception. Entering post mortem debugging
-*** Running 'cont' or 'step' will restart the program
+*** Running 'c' or 'step' will restart the program
 + info program
 The program being debugged is not being run.
 + ######################################

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.75 2006/03/14 00:09:14 rockyb Exp $
+"""$Id: pydb.py.in,v 1.76 2006/03/14 03:48:46 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -53,7 +53,6 @@ class Pdb(Bdb, Cmd):
         pydbbdb.Bdb.__init__(self)
         pydbcmd.Cmd.__init__(self)
 
-        self._wait_for_mainpyfile = False
         self.basename        = False
         self.currentbp       = None   # for "info program"
         self.display         = Display()
@@ -69,13 +68,16 @@ class Pdb(Bdb, Cmd):
         self._program_sys_argv = []   # sys.argv after options are stripped
         self.running         = False
         self.stop_reason     = None   # Why are we in the debugger?
-        self._sys_argv       = []     # exec sys.argv, e.g. may include pydb 
+        self._sys_argv       = []     # exec sys.argv, e.g. may include pydb
+        self.set_history_length   = None
+        self._wait_for_mainpyfile = False
         # Try to load readline if it exists
         try:
             import @READLINE@
             self.hist_last = 0
             self.hist_save = False
-            readline.set_history_length(256)
+            self.set_history_length = readline.set_history_length
+            self.set_history_length(256)
             # Read history file and set up to write history file when we
             # exit. 
             global _debugger_name
@@ -450,26 +452,28 @@ class Pdb(Bdb, Cmd):
     def show_commands(self, arg):
         """Show the history of commands you typed.
 You can supply a command number to start with, or a `+' to start after
-the previous command number shown."""
+the previous command number shown. A negative number starts from the end."""
         try:
             import @READLINE@
             if self.histfile is not None:
+                hist_max = readline.get_current_history_length()
                 if arg is None:
                     first=1
-                    self.hist_last=readline.get_current_history_length()
+                    self.hist_last=hist_max
                 else:
                     if arg == '+':
                         first = self.hist_last+1
-                        self.hist_last = min(self.hist_last,
+                        self.hist_last = min(hist_max,
                                              first + self.listsize)
                     else:
                         try: 
-                            center = self.get_pos_int(arg,
-                                                      cmdname="show commands")
+                            center = self.get_int(arg,
+                                                  cmdname="show commands")
                         except ValueError:
                             return
+                        if center < 0: center = hist_max + center + 1
                         first = max(1, center - (self.listsize/2))
-                        self.hist_last = min(self.hist_last,
+                        self.hist_last = min(hist_max,
                                              center + (self.listsize/2))
                 i=first
                 while i<=self.hist_last:
@@ -1851,7 +1855,7 @@ def main():
                 pydb.errmsg("Uncaught exception.")
                 break
             pydb.errmsg("Uncaught exception. Entering post mortem debugging")
-            pydb.errmsg( "Running 'cont' or 'step' will restart the program")
+            pydb.errmsg( "Running 'c' or 'step' will restart the program")
             pydb.running = False;
             t = sys.exc_info()[2]
             while t.tb_next is not None:

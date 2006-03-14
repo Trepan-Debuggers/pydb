@@ -1,0 +1,29 @@
++ set history size 5
++ set history filename
+*** Argument required (filename to set it to).
++ set history filename history.hst
++ show history
+filename:  The filename in which to record the command history is
+"history.hst".
+save:  Saving of the history record on exit is off
+size:  The size of the command history is 5
++ set history save off
++ set history save on
++ list
+  1  	#!/usr/bin/python
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys,os
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
++ show history
+filename:  The filename in which to record the command history is
+"history.hst".
+save:  Saving of the history record on exit is on
+size:  The size of the command history is 5
++ quit

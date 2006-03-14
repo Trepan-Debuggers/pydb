@@ -3,6 +3,7 @@
 Makefile
 Makefile.in
 gcd.pyc
+history.hst
 hanoi.pyc
 test.py
 test2.py
