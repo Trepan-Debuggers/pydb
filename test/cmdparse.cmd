@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.9 2006/03/04 23:59:03 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.10 2006/03/14 00:09:15 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -70,7 +70,7 @@ cd
 ###   test numeric argument syntax 
 ########################################
 up fdsafdsa
-u=foo
+u='foo'
 down 1 b c
 frame foo
 step -1

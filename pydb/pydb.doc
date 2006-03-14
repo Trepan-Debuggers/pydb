@@ -137,7 +137,7 @@ condition bpnumber condition
         existing condition is removed; i.e., the breakpoint is made
         unconditional.
 
-c(ont(inue))
+c(ontinue)
         Continue execution, only stop when a breakpoint is encountered.
 
 delete [bpnumber [bpnumber...]]
@@ -172,7 +172,7 @@ display [format] EXP
 	expressions.  Use "undisplay" to cancel display requests previously
 	made.
 
-d(own) [count]
+down [count]
         Move the current frame one level down in the stack trace
         (to a newer frame). With a count, which can be a positive
 	or a negative value, move that many positions.
@@ -224,6 +224,9 @@ info line -- Current line number in source file. If a function name is
 info locals -- Local variables of current stack frame
 info program -- Execution status of the program
 info source -- Information about the current Python file
+
+jump lineno
+        Set the next line that will be executed.
 
 l(ist) [first [,last]]
         List source code for the current file.
@@ -373,7 +376,7 @@ undisplay
         "delete display" has the same effect as this command.
         Do "info display" to see current list of code numbers.
 
-u(p) [count]
+up [count]
         Move the current frame one level up in the stack trace
         (to an older frame). With a count, which can be a positive
 	or a negative value, move that many positions.

@@ -140,8 +140,7 @@ pydb's prompt is "(Pydb) ".
 + ########################################
 + up fdsafdsa
 *** up command: Expecting an integer, got: fdsafdsa
-+ u=foo
-*** up command: Expecting an integer, got: =foo
++ u='foo'
 + down 1 b c
 *** down command: Expecting an integer, got: 1 b c
 + frame foo

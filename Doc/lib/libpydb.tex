@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.32 2006/03/13 22:23:29 rockyb Exp $
+% $Id: libpydb.tex,v 1.33 2006/03/14 00:09:10 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -611,11 +611,11 @@ only able to perform this if we are in a subroutine that has a
 \code{return} statement in it.  See also \ref{command:retval} and
 \ref{command:finish}
 
-\item[c(ont(inue))]
+\item[c(ontinue)]
 
 Continue execution, stop only when a breakpoint is encountered.
 
-\item[j(ump) \var{lineno}]
+\item[jump \var{lineno}]
 
 Set the next line that will be executed. available only in the
 bottom-most frame.  This lets you jump back and execute code
@@ -712,13 +712,13 @@ To change the value, make an assignment to the variable
 
 See also \ref{command:finish}.
 
-\item[d(own) \optional{\var{count}}]
+\item[down \optional{\var{count}}]
 
 Move the current frame one level down in the stack trace
 (to a newer frame). With a count, which can be  positive
 or  negative, move that many positions.
 
-\item[u(p) \optional{\var{count}}]
+\item[up \optional{\var{count}}]
 
 Move the current frame one level up in the stack trace (to an older
 frame). With a count, which can be positive or negative,
