@@ -15,16 +15,18 @@ check_DATA = \
 	logging.cmd    \
 	logging.right  \
 	pm.cmd         \
+	pm.py          \
+	pm.right       \
 	run.cmd        \
 	run.right      \
 	run2.cmd       \
 	run2.right     \
 	test.py        \
-	test2.py       \
-	test2.right
+	trace.py       \
+	trace.right
 
-TESTS = test.py test2.py
+TESTS = test.py pm.py trace.py
 
-EXTRA_DIST = $(check_DATA) test.py.in test2.py.in
+EXTRA_DIST = $(check_DATA) pm.py.in test.py.in trace.py.in
 
 test: check

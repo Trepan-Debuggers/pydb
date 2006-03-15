@@ -1,11 +1,11 @@
-"""$Id: pydbbdb.py,v 1.4 2006/03/15 00:40:01 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.5 2006/03/15 20:29:56 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
 """
 import bdb, inspect, time, types
 from repr import Repr
-from pydbfns import *
+from fns import *
 
 class Bdb(bdb.Bdb):
 
@@ -81,6 +81,9 @@ class Bdb(bdb.Bdb):
             self.msg('\tbreakpoint already hit %d time%s' %
                      (bp.hits, ss))
 
+    def canonic_filename(self, frame):
+        return self.canonic(frame.f_code.co_filename)
+
     def clear_break(self, filename, lineno):
         filename = self.canonic(filename)
         if not filename in self.breaks:
@@ -102,6 +105,15 @@ class Bdb(bdb.Bdb):
         if not self.breaks[filename]:
             del self.breaks[filename]
         return brkpts
+
+    def filename(self, filename=None):
+        if filename is None:
+            filename = self.file
+        """Return filename or the basename of that depending on the
+        self.basename setting"""
+        if self.basename:
+            return(os.path.basename(filename))
+        return filename
 
     def format_stack_entry(self, frame_lineno):
         """Format and return a stack entry gdb-style. """

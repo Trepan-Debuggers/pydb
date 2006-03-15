@@ -1,6 +1,6 @@
-#!@PYTHON@ -t
-"""$Id: gdb.py.in,v 1.1 2006/03/15 19:22:21 rockyb Exp $
-A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
+"""$Id: gdb.py.in,v 1.2 2006/03/15 20:29:56 rockyb Exp $
+Largely handles gdb-like command processing.
+(See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -16,13 +16,6 @@ from fns import *
 
 from pydbcmd import Cmd
 from pydbbdb import Bdb
-
-# Interaction prompt line will separate file and call info from code
-# text using value of line_prefix string.  A newline and arrow may
-# be to your liking.  You can set it once pydb is imported using the
-# command "pydb.line_prefix = '\n% '".
-# line_prefix = ': '    # Use this to get the old situation back
-line_prefix = '\n-> '   # Probably a better default
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -114,8 +107,10 @@ class Gdb(Bdb, Cmd):
         supplied command prefix"""
         if not arg:
             cmd_prefix=''
+            args=[]
         else:
-            cmd_prefix=arg.split()[0]
+            args = arg.split()
+            cmd_prefix=args[0]
         seen = {};
         i=0
         text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
@@ -126,6 +121,7 @@ class Gdb(Bdb, Cmd):
                 seen[text]=True
             i += 1
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
+        return text
 
     def __get_brkpt_lineno(self, arg):
         """__get_brkpt_lineno(self,arg)->(fn, file, lineno)
@@ -259,9 +255,6 @@ class Gdb(Bdb, Cmd):
             if name in dict: self.msg(dict[name])
             else: self.msg("*** undefined ***")
 
-    def canonic_filename(self, frame):
-        return self.canonic(frame.f_code.co_filename)
-
     def checkline(self, filename, lineno):
         """Check whether specified line seems to be executable.
 
@@ -333,15 +326,6 @@ class Gdb(Bdb, Cmd):
         answer = find_function(item, fname)
         return answer or failed
 
-    def filename(self, filename=None):
-        if filename is None:
-            filename = self.file
-        """Return filename or the basename of that depending on the
-        self.basename setting"""
-        if self.basename:
-            return(os.path.basename(filename))
-        return filename
-
     def forget(self):
         self.lineno = None
         self.stack = []
@@ -363,29 +347,6 @@ class Gdb(Bdb, Cmd):
         self.forget()
         if not do_loop:
             return 1
-
-    def print_location(self, prompt_prefix=line_prefix):
-        """Show where we are. GUI's and front-end interfaces often
-        use this to update displays. So it is helpful to make sure
-        we give at least some place that's located in a file.      
-        """
-        i_stack = self.curindex
-        while i_stack >= 0:
-            frame_lineno = self.stack[i_stack]
-            i_stack -= 1
-            frame, lineno = frame_lineno
-            filename = self.filename(self.canonic_filename(frame))
-            self.msg_nocr('(%s:%s):' % (filename, lineno))
-            fn_name = frame.f_code.co_name
-            if fn_name and fn_name != '?':
-                self.msg(" %s" % frame.f_code.co_name)
-            else:
-                self.msg("")
-
-            # If we are stopped at an "exec" or print the next outer
-            # location for that front-ends tracking source execution.
-            if not is_exec_stmt(frame):
-                break
 
     def print_stack_entry(self, i_stack):
         frame_lineno = self.stack[len(self.stack)-i_stack-1]
@@ -1601,29 +1562,6 @@ You can see these environment settings with the 'show' command."""
                              subcmds, self.__help_show, args[0])
 
     ####### End of help section ########
-        
-    def _runscript(self, filename):
-        # When bdb sets tracing, a number of call and line events happens
-        # BEFORE debugger even reaches user's code (and the exact sequence of
-        # events depends on python version). So we take special measures to
-        # avoid stopping before we reach the main script (see user_line and
-        # user_call for details).
-        self._wait_for_mainpyfile = True
-        self.mainpyfile = self.canonic(filename)
-
-        # Start with fresh empty copy of globals and locals and tell the script
-        # that it's being run as __main__ to avoid scripts being able to access
-        # the pydb.py namespace.
-        globals_ = {"__name__" : "__main__",
-                    "__file__" : self.mainpyfile
-                    }
-        locals_ = globals_
-
-
-        statement = 'execfile( "%s")' % filename
-        self.running = True
-        self.run(statement, globals=globals_, locals=locals_)
-
 #
 # Local variables:
 #  mode: Python

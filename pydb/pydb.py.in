@@ -1,6 +1,8 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.78 2006/03/15 19:22:21 rockyb Exp $
+"""$Id: pydb.py.in,v 1.79 2006/03/15 20:29:56 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
+
+# This part contains user entry subroutines.
 
 _debugger_name = '@PACKAGE_NAME@'
 

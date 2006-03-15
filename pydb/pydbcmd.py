@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.8 2006/03/14 03:48:46 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.9 2006/03/15 20:29:56 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -8,6 +8,13 @@ be changed from cmd are here.
 """
 import cmd, os, sys, types
 from pydbfns import *
+
+# Interaction prompt line will separate file and call info from code
+# text using value of line_prefix string.  A newline and arrow may
+# be to your liking.  You can set it once pydb is imported using the
+# command "pydb.line_prefix = '\n% '".
+# line_prefix = ': '    # Use this to get the old situation back
+line_prefix = '\n-> '   # Probably a better default
 
 class Cmd(cmd.Cmd):
 
@@ -32,6 +39,28 @@ class Cmd(cmd.Cmd):
             self.logging_file = filename
         except:
             self.errmsg("Error in opening %s" % filename)
+
+    def _runscript(self, filename):
+        # When bdb sets tracing, a number of call and line events happens
+        # BEFORE debugger even reaches user's code (and the exact sequence of
+        # events depends on python version). So we take special measures to
+        # avoid stopping before we reach the main script (see user_line and
+        # user_call for details).
+        self._wait_for_mainpyfile = True
+        self.mainpyfile = self.canonic(filename)
+
+        # Start with fresh empty copy of globals and locals and tell the script
+        # that it's being run as __main__ to avoid scripts being able to access
+        # the pydb.py namespace.
+        globals_ = {"__name__" : "__main__",
+                    "__file__" : self.mainpyfile
+                    }
+        locals_ = globals_
+
+
+        statement = 'execfile( "%s")' % filename
+        self.running = True
+        self.run(statement, globals=globals_, locals=locals_)
 
     def default(self, line):
         """Method called on an input line when the command prefix is
@@ -259,26 +288,28 @@ class Cmd(cmd.Cmd):
                 line = line[:marker].rstrip()
         return line
 
-    # Note: format of help is compatible with ddd.
-    def subcommand_help(self, cmd, doc, subcmds, help_prog, args):
-        """Generic command for showing things about the program being debugged."""
-        if len(args) == 0:
-            self.msg(doc)
-            self.msg("""
-List of %s subcommands:
-""" % (cmd))
-            for subcmd in subcmds:
-                help_prog(subcmd, True)
-            return
-        if len(args) == 1:
-            subcmd = args[0]
-            if subcmd in subcmds:
-                help_prog(subcmd)
+    def print_location(self, prompt_prefix=line_prefix):
+        """Show where we are. GUI's and front-end interfaces often
+        use this to update displays. So it is helpful to make sure
+        we give at least some place that's located in a file.      
+        """
+        i_stack = self.curindex
+        while i_stack >= 0:
+            frame_lineno = self.stack[i_stack]
+            i_stack -= 1
+            frame, lineno = frame_lineno
+            filename = self.filename(self.canonic_filename(frame))
+            self.msg_nocr('(%s:%s):' % (filename, lineno))
+            fn_name = frame.f_code.co_name
+            if fn_name and fn_name != '?':
+                self.msg(" %s" % frame.f_code.co_name)
             else:
-                self.errmsg("Unknown 'help %s' subcommand %s" % (cmd, subcmd))
-        else:
-            self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
-                        % (cmd, cmd))
+                self.msg("")
+
+            # If we are stopped at an "exec" or print the next outer
+            # location for that front-ends tracking source execution.
+            if not is_exec_stmt(frame):
+                break
 
     def set_args(self, args):
         argv_start = self._program_sys_argv[0:1]
@@ -412,6 +443,27 @@ List of %s subcommands:
                 self.msg("Output will be sent only to the log file.")
             else:
                 self.msg("Output will be logged and displayed.")
+
+    # Note: format of help is compatible with ddd.
+    def subcommand_help(self, cmd, doc, subcmds, help_prog, args):
+        """Generic command for showing things about the program being debugged."""
+        if len(args) == 0:
+            self.msg(doc)
+            self.msg("""
+List of %s subcommands:
+""" % (cmd))
+            for subcmd in subcmds:
+                help_prog(subcmd, True)
+            return
+        if len(args) == 1:
+            subcmd = args[0]
+            if subcmd in subcmds:
+                help_prog(subcmd)
+            else:
+                self.errmsg("Unknown 'help %s' subcommand %s" % (cmd, subcmd))
+        else:
+            self.errmsg("Can only handle 'help %s', or 'help %s *subcmd*'"
+                        % (cmd, cmd))
 
     def undefined_cmd(self, cmd, subcmd):
         """Error message when subcommand asked for but doesn't exist"""

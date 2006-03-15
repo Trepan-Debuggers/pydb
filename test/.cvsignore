@@ -5,5 +5,6 @@ Makefile.in
 gcd.pyc
 history.hst
 hanoi.pyc
+pm.py
 test.py
-test2.py
+trace.py

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.27 2006/03/15 19:22:16 rockyb Exp $
+#$Id: Makefile.am,v 1.28 2006/03/15 20:29:24 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,11 @@ python_debugger_script := $(DEBUGGER).py
 pkgpython_PYTHON := \
 	$(DEBUGGER)/__init__.py \
         $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/fns.py \
 	$(DEBUGGER)/gdb.py \
 	$(DEBUGGER)/pydbbdb.py \
 	$(DEBUGGER)/pydbcmd.py \
-	$(DEBUGGER)/pydbdisp.py \
-	$(DEBUGGER)/pydbfns.py
+	$(DEBUGGER)/pydbdisp.py
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
 pkgdatadir = $(pkgpythondir)
@@ -64,7 +64,7 @@ clean-generic:
 	$(top_builddir)/pydb/pydbfns.pyc
 
 test: check
-check: pydb/pydb.py pydb/gdb.py test/test.py test/test2.py
+check: pydb/pydb.py pydb/gdb.py test/test.py test/pm.py
 
 # 
 # For the executable, we make a symbolic link to the python program,
