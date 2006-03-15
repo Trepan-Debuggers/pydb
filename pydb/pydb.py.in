@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.76 2006/03/14 03:48:46 rockyb Exp $
+"""$Id: pydb.py.in,v 1.77 2006/03/15 00:40:01 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -13,7 +13,6 @@ import bdb, re, sys, traceback, types
 import pydbcmd, pydbbdb
 from pydbdisp import Display, DisplayNode
 from pydbfns import *
-from repr import Repr
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -25,16 +24,10 @@ __all__ = ["Pdb",     "help",
            "set_trace"]
 
 def init():
-    global program, _repr, _saferepr
+    global program
     global _re_linetrace_delay
 
     program = os.path.basename(sys.argv[0])
-
-    # Create a custom safe Repr instance and increase its maxstring.
-    # The default of 30 truncates error messages too easily.
-    _repr = Repr()
-    _repr.maxstring = 200
-    _saferepr = _repr.repr
 
     _re_linetrace_delay = re.compile(r'\s*linetrace\s*')
 

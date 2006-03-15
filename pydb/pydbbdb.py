@@ -1,9 +1,10 @@
-"""$Id: pydbbdb.py,v 1.3 2006/03/03 02:28:54 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.4 2006/03/15 00:40:01 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
 """
 import bdb, inspect, time, types
+from repr import Repr
 from pydbfns import *
 
 class Bdb(bdb.Bdb):
@@ -14,6 +15,12 @@ class Bdb(bdb.Bdb):
         # A 0 value means stop on this occurance. A positive value means to
         # skip that many more step/next's.
         self.step_ignore = 0
+
+        # Create a custom safe Repr instance and increase its maxstring.
+        # The default of 30 truncates error messages too easily.
+        self._repr = Repr()
+        self._repr.maxstring = 200
+        self._saferepr = self._repr.repr
 
     def __print_location_if_linetrace(self, frame):
         if self.linetrace:
@@ -161,7 +168,6 @@ class Bdb(bdb.Bdb):
         """This function is called if an exception occurs,
         but only if we are to stop at or just below this level."""
 
-        global _saferepr
         self.stop_reason = 'exception'
         # Remove any pending source lines.
         self.rcLines = []
@@ -170,7 +176,8 @@ class Bdb(bdb.Bdb):
         if type(exc_type) == types.StringType:
             exc_type_name = exc_type
         else: exc_type_name = exc_type.__name__
-        self.msg("%s:%s" % (str(exc_type_name), str(_saferepr(exc_value))))
+        self.msg("%s:%s" % (str(exc_type_name),
+                            str(self._saferepr(exc_value))))
         self.interaction(frame, exc_traceback)
 
     def user_line(self, frame):
