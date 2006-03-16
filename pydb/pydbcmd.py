@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.9 2006/03/15 20:29:56 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.10 2006/03/16 04:19:09 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -7,7 +7,7 @@ of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
 import cmd, os, sys, types
-from pydbfns import *
+from fns import *
 
 # Interaction prompt line will separate file and call info from code
 # text using value of line_prefix string.  A newline and arrow may

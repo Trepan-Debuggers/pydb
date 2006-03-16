@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.79 2006/03/15 20:29:56 rockyb Exp $
+"""$Id: pydb.py.in,v 1.80 2006/03/16 04:19:09 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -9,7 +9,7 @@ _debugger_name = '@PACKAGE_NAME@'
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
-import os, re, sys, traceback
+import inspect, os, re, sys, traceback
 
 import pydbcmd, pydbbdb
 from pydbdisp import Display, DisplayNode

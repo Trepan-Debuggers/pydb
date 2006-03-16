@@ -144,6 +144,9 @@ and source-file directory for your debugger."
 	   "<" "Up N stack frames (numeric arg).")
   (gud-def gud-where   "where"
 	   "T" "Show stack trace.")
+  (local-set-key "\C-i" 'gud-gdb-complete-command)
+  (setq comint-prompt-regexp "^(+Pydb)+ *")
+  (setq paragraph-start comint-prompt-regexp)
 
   ;; Update GUD menu bar
   (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
@@ -162,7 +165,7 @@ and source-file directory for your debugger."
   (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
   (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
   (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
-  ;; (setq comint-prompt-regexp "^(.*pydb[+]?) *")
+
   (setq comint-prompt-regexp "^(+Pydb)+ *")
   (setq paragraph-start comint-prompt-regexp)
   (run-hooks 'pydb-mode-hook))
