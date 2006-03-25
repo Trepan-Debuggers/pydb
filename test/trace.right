@@ -1,75 +1,76 @@
-(/home/src/external-cvs/pydb/test/hanoi.py:2): 
-(/home/src/external-cvs/pydb/test/hanoi.py:3): 
-(/home/src/external-cvs/pydb/test/hanoi.py:5): 
-(/home/src/external-cvs/pydb/test/hanoi.py:12): 
-(/home/src/external-cvs/pydb/test/hanoi.py:13): 
-(/home/src/external-cvs/pydb/test/hanoi.py:17): 
-(/home/src/external-cvs/pydb/test/hanoi.py:19): 
-(/home/src/external-cvs/pydb/test/hanoi.py:26): 
-(/home/src/external-cvs/pydb/test/hanoi.py:30): 
+(hanoi.py:2): 
+(hanoi.py:3): 
+(hanoi.py:5): 
+(hanoi.py:12): 
+(hanoi.py:13): 
+(hanoi.py:17): 
+(hanoi.py:19): 
+(hanoi.py:26): 
+(hanoi.py:30): 
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:7):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:7):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:7):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:7):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:8):  hanoi
 Move disk a to b
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:9):  hanoi
+(hanoi.py:8):  hanoi
 Move disk a to c
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
+(hanoi.py:9):  hanoi
+(hanoi.py:10):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:8):  hanoi
 Move disk b to c
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:10):  hanoi
+(hanoi.py:8):  hanoi
 Move disk a to b
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
+(hanoi.py:9):  hanoi
+(hanoi.py:10):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:7):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:7):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:8):  hanoi
 Move disk c to a
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:9):  hanoi
+(hanoi.py:8):  hanoi
 Move disk c to b
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
+(hanoi.py:9):  hanoi
+(hanoi.py:10):  hanoi
 --Call--
-(/home/src/external-cvs/pydb/test/hanoi.py:5):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:6):  hanoi
-(/home/src/external-cvs/pydb/test/hanoi.py:8):  hanoi
+(hanoi.py:5):  hanoi
+(hanoi.py:6):  hanoi
+(hanoi.py:8):  hanoi
 Move disk a to b
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:9):  hanoi
+(hanoi.py:9):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
+(hanoi.py:10):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:10):  hanoi
+(hanoi.py:10):  hanoi
 --Return--
-(/home/src/external-cvs/pydb/test/hanoi.py:30): 
+(hanoi.py:30): 
 --Return--
 (<string>:1): 
+(bdb.py:366):  run

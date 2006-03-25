@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.1 2006/03/15 19:22:21 rockyb Exp $
+"""$Id: fns.py,v 1.2 2006/03/25 05:57:44 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import os, sys, re, traceback
@@ -85,6 +85,10 @@ def process_options(pydb, debugger_name, program):
                          action="store_true", default=False, 
                          help="Don't run interactive commands shell on "+
                          "stops.")
+    optparser.add_option("--basename", dest="basename",
+                         action="store_true", default=False, 
+                         help="Filenames strip off basename, (e.g.For testing)"
+                         )
     optparser.add_option("-x", "--command", dest="command",
                          action="store", type='string', metavar='FILE',
                          help="Execute commands from FILE.")
@@ -136,6 +140,8 @@ def process_options(pydb, debugger_name, program):
 
     if opts.cd:
         os.chdir(opts.cd)
+
+    if opts.basename: pydb.basename = True
 
     # As per gdb, first we execute user initialization files and then
     # we execute any file specified via --command.
