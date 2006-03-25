@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.35 2006/03/25 05:28:50 rockyb Exp $
+% $Id: libpydb.tex,v 1.36 2006/03/25 18:15:10 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -109,6 +109,11 @@ Many options have both a short and a long version. For example,
 version.
 
 \begin{description} 
+
+\item[--{}--basename]
+
+Report file locations as only the base filename, and omit the
+directory name. This is useful in running regression tests.
 
 \item[--{}--batch]
 
