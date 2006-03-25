@@ -129,7 +129,9 @@ cl(ear) {[file:]linenumber | function}
 	See also the 'delete' command which clears breakpoints by number.
 
 complete cmd-prefix
-        Print a list of commands names that start with cmd-prefix
+        Print a list of commands names that start with cmd-prefix.
+	
+	This is command is only availaible if readline supports it.
 
 condition bpnumber condition
         condition is an expression which must evaluate to true before
@@ -260,6 +262,12 @@ restart
         Restart debugger and program via an exec call. All state
         is lost, and new copy of the debugger is used.
 
+        Sometimes in debugging it is necessary to modify module code
+        when one finds a bugs in them. Python will not notice
+        dynamically that a module has changed and thus not reimport
+        , so in such a situation one must use "restart" rather than
+	"run".
+
 return
         Make selected stack frame return to its caller. Control
         remains in the debugger, but when you continue execution will
@@ -283,8 +291,14 @@ run     [args...]
 
         Run (or restart the debugged python program. If a string is
 	supplied that becomes the new command arguments.
-        History, breakpoints, actions and debugger options are preserved.
-	'R' is a short command alias for run.
+
+	History, breakpoints, actions nd debugger options are
+        preserved. ' R' is a short command alias for run. 
+
+	Note that there may be situations where "run" doesn't have the
+        effect you want and you may have to use "restart" instead. See
+        restart for more info.
+
 
 set *subcommand*
     In general sets the debugger environment.
@@ -319,6 +333,12 @@ set *subcommand*
 
   set listsize *int*
     Set number of source lines debugger will list by default.
+
+  set logging on
+  set logging off
+  set logging file FILENAME
+  set logging overwrite [on|off]
+  set logging redirect [on|off]
 
   set prompt *string*
     Set debugger's prompt

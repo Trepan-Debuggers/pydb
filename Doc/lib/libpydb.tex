@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.34 2006/03/14 03:48:44 rockyb Exp $
+% $Id: libpydb.tex,v 1.35 2006/03/25 05:28:50 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -50,8 +50,8 @@ the command were given. Furthermore there was a button called
 a box widget for customization or modified any code for using tool
 tips. How did \code{ddd} do this?
 
-Because I had copied the output format of \code{gdb}'s \samp{info},
-\samp{set} and \samp{show} commands, \code{ddd} ran these commands on
+Because I had copied the output format of \code{gdb}'s \code{info},
+\code{set} and \code{show} commands, \code{ddd} ran these commands on
 its own and parsed the output; it then used that output to form tool
 tips and create customization boxes.
 
@@ -72,6 +72,14 @@ have been used.
 
 \section{Invoking the Debugger \label{pydb-invocation}}
 
+First it should be noted that in various situations and for various
+reasons you might not be able to call the debugger directly from a
+command line or at the outset of the program. That's okay. See section
+\ref{subsection-calling-pydb-inside-program} for how to invoke the
+debugger from inside your running Python program. Also, see section
+\ref{subsection-post-mortem} for how to invoke after an error is
+encontered and you have a traceback.
+
 Of the many additions to the standard Python debugger, two will be
 mentioned here. First, this debugger should install itself somewhere
 in your command path, usually as \code{pydb} so you don't have to
@@ -83,16 +91,15 @@ In particular \code{pydb} has the two very common options
 \samp{--help} to show what options are available and \samp{--version}
 to report the version that is installed. 
 
-These two options don't require any
-further options. However usually you will want to give the name of a
-script to debug and after that you may want to pass options for this
-script.
+These two options don't require any further options. However usually
+you will want to give the name of a script to debug and after that you
+may want to pass options for this script.
 
 Thus the general form of invoking the debugger is:
 
 \code{pydb} \optional{\var{debugger-options}\ldots} \var{python-script} \optional{\var{script-options}\ldots}
 
-A detailed list of options is given next.
+A detailed list of options is given next. 
 
 \subsection{Debugger Command Options ({\tt --trace}, {\tt
     --output}, {\tt --command}, {\tt --nx}, \ldots)\label{subsection-switches}}
@@ -242,10 +249,12 @@ can also use 1 for ``on'' and 0 for ``off.''
 Each command has a corresponding {\tt show} command to show the current
 value. See \ref{subsubsection-show} for these counterparts.
 
-If a readline module is available, \code{pydb} can keep track of the
-commands you type during your debugging sessions, so that you can be
-certain of precisely what happened.  The \code{set history} commands
-to manage the command history facility.
+If a
+\ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
+module is available, \code{pydb} can keep track of the commands you
+type during your debugging sessions, so that you can be certain of
+precisely what happened.  The \code{set history} commands to manage
+the command history facility.
 
 POSIX-style line tracing is available and the \code{set linetrace}
 commands can be used to control that.
@@ -322,8 +331,8 @@ file is \verb|~/.pydbhist|.
 
 \item[set history save]
 
-Set saving of the history record on exit.  Use "on" to enable the
-saving, and "off" to disable it.  Without an argument, saving is
+Set saving of the history record on exit.  Use ``on'' to enable the
+saving, and ``off'' to disable it.  Without an argument, saving is
 enabled.
 
 \item[set history size]
@@ -438,8 +447,9 @@ Show the history of commands you typed. You can supply a command
 number to start with, or a `+' to start after the previous command
 number shown.  A negative number starts from the end.
 
-This command is available only if a readline module
-is available and supports the history saving.
+This command is available only if a
+\ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
+module is available and supports the history saving.
 
 \item[show history]
 
@@ -817,17 +827,26 @@ environment). The prompt is changed to indicate nested behavior. See
 
 \begin{description}
 
-\item[restart \var{args...}]
+\item[restart \var{args...}]\label{command:restart}
 
 Restart debugger and program via an \code{exec} call. All state
 is lost, and new copy of the debugger is used.
+
+Sometimes in debugging it is necessary to modify module code when one
+finds a bugs in them. Python will not notice dynamically that a module
+has changed and thus not reimport it, so in such a situation one must
+use \code{restart} rather than \code{run}.\footnote{It may be possible to
+unimport by removing a the module from a namespace, but if there
+are shared dynamically loaded objects those don't get unloaded.}
 
 \item[run \var{args...}]
 
 Run or restart the debugged Python program. If a string is supplied
 that becomes the new command arguments.  History, breakpoints, actions
 and debugger options are preserved.  \code{R} is a short command alias
-for run.
+for \code{run}. Note that there may be situations where \code{run} doesn't
+have the effect you want and you may have to use \code{restart}
+instead.
 
 \end{description}
 
@@ -909,11 +928,19 @@ alias ps pi self
                 
 \item[complete \var{command-prefix}]\label{command:complete}
 
-If readline is available on your OS, the \code{complete} command will
-print a list of command names that start with \var{command-prefix}.
+If
+\ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
+or one of readline-compatible interfaces such as
+\ulink{\module{pyreadline}}{http://projects.scipy.org/ipython/ipython/wiki/PyReadline/Intro}
+are available on your OS, the \code{complete} command will print a
+list of command names that start with \var{command-prefix}.
+
+\code{complete} will also work on \code{info}, \code{set}, and
+\code{show} sub-command. 
 
 In addition the command-completion key (usually the tab key) can be
-used to complete command names.
+used to complete command names, or \code{info}, \code{set}, and
+\code{show} subcommands.
 
 \item[h(elp) \optional{\var{command} \optional{subcommand}}]
 

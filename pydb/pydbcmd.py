@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.10 2006/03/16 04:19:09 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.11 2006/03/25 05:28:51 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -401,7 +401,7 @@ class Cmd(cmd.Cmd):
                 except ValueError:
                     return
         else:
-            self.msg("""Usage: set logging on [FILENAME]
+            self.msg("""Usage: set logging on
        set logging off
        set logging file FILENAME
        set logging overwrite [on|off]
@@ -426,7 +426,7 @@ class Cmd(cmd.Cmd):
                          self.logging_file)
             elif args[1] == 'overwrite':
                 self.msg('Whether logging overwrites or appends to the'
-                         + ' log file is is %s.'
+                         + ' log file is %s.'
                          % show_onoff(self.logging_overwrite))
             elif args[1] == 'redirect':
                 self.msg('The logging output mode is %s.' %
