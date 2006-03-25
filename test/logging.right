@@ -3,7 +3,7 @@ Logs will be appended to the log file.
 Output will be sent only to the log file.
 The logging output mode is on.
 The current logfile is "logging.out".
-Whether logging overwrites or appends to the log file is is off.
+Whether logging overwrites or appends to the log file is off.
 *** Undefined set logging command "fdfsdasdfs".
 *** Error in opening /.bogus/bogusbogus/bogus/bogus/bogus
 *** Expecting 'on', 1, 'off', or 0. Got: oon.
