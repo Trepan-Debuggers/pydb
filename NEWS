@@ -1,4 +1,5 @@
-1.15cvs
+1.15
+2006-03-25
 
 * Add gdb history commands:
     set history ..., show history ..., show commands
