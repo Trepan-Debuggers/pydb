@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.37 2006/03/26 01:58:30 rockyb Exp $
+% $Id: libpydb.tex,v 1.38 2006/04/08 17:55:05 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1058,7 +1058,7 @@ Now here's a sample run of the program:
 python hardtodebug.py a b c
 --Return--
 --Return--
-(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:9):
+(/tmp/hardtodebug.py:9):
 (Pydb) list
   4         # Force a call to the debugger in running code here
   5         pydb.set_trace()
@@ -1066,11 +1066,11 @@ python hardtodebug.py a b c
   7     # ...
   8     test()
   9  -> x=5
-(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:9): 
+(/tmp/hardtodebug.py:9): 
 (Pydb) restart
 Re exec'ing
 	['pydb', 'hardtodebug.py', 'a', 'b', 'c']
-(/home/src/external-cvs/pydb/Doc/lib/hardtodebug.py:1): 
+(/tmp/hardtodebug.py:1): 
 (Pydb) 
 \end{verbatim}
 
@@ -1092,6 +1092,43 @@ just confuse things more.}
 
 Also note that we can issue a \code{restart} which involves some
 hackery. But at least in this case it gets things right.
+
+Rather than trace the entire program, if there is a specific portion
+that you want traced that can be done too. Create a files called
+\code{/tmp/trace-on} and \code{/tmp/trace-off}. \code{/tmp/trace-on}
+might contain this:
+
+\begin{verbatim}
+# Issue debugger commands to set debugger output to
+# go to a file, turn on line tracing, and continue
+set logging file /tmp/dbg.log
+# uncomment the following line if you want to wipe out old dbg.log
+# set logging overwrite on
+set logging redirect on
+set logging on
+set linetrace on
+continue
+\end{verbatim}
+
+and \code{/tmp/trace-off}:
+
+\begin{verbatim}
+# Issue debugger commands to turn off line tracing and continue
+set linetrace off
+continue
+\end{verbatim}
+
+In your script (in the above example it was
+\code{/tmp/hardtodebug.py}), add:
+
+\begin{verbatim}
+import pydb 
+# some code here ...
+pydb.set_trace("/tmp/trace-on")
+# This and subsequent lines will be traced
+# more code ...
+pydb.set_trace("/tmp/trace-off")
+\end{verbatim}
 
 \subsection{Entering the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
 

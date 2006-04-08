@@ -1,76 +1,128 @@
 (hanoi.py:2): 
++ """Towers of Hanoi"""
 (hanoi.py:3): 
++ import sys,os
 (hanoi.py:5): 
++ def hanoi(n,a,b,c):
 (hanoi.py:12): 
++ i_args=len(sys.argv)
 (hanoi.py:13): 
++ if i_args != 1 and i_args != 2:
 (hanoi.py:17): 
++ n=3
 (hanoi.py:19): 
++ if i_args > 1:
 (hanoi.py:26): 
++ if n < 1 or n > 100: 
 (hanoi.py:30): 
++ hanoi(n, "a", "b", "c")
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:7):  hanoi
++        hanoi(n-1, a, c, b) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:7):  hanoi
++        hanoi(n-1, a, c, b) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk a to b
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk a to c
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk b to c
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk a to b
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:7):  hanoi
++        hanoi(n-1, a, c, b) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk c to a
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk c to b
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 --Call--
 (hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
++     if n-1 > 0:
 (hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
 Move disk a to b
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:9):  hanoi
++     if n-1 > 0:
 --Return--
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 --Return--
 (hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
 --Return--
 (hanoi.py:30): 
++ hanoi(n, "a", "b", "c")
 --Return--
 (<string>:1): 
-(bdb.py:366):  run
++   (bdb.py:366):  run  ###### LINE NUMBER MAY BE DIFFERENT - IGNORE
++                 exec cmd in globals, locals

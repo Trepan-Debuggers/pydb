@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.11 2006/03/25 05:28:51 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.12 2006/04/08 17:55:08 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -6,7 +6,7 @@ generally (but not always) the are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
-import cmd, os, sys, types
+import cmd, linecache, os, sys, types
 from fns import *
 
 # Interaction prompt line will separate file and call info from code
@@ -288,7 +288,7 @@ class Cmd(cmd.Cmd):
                 line = line[:marker].rstrip()
         return line
 
-    def print_location(self, prompt_prefix=line_prefix):
+    def print_location(self, prompt_prefix=line_prefix, print_line=False):
         """Show where we are. GUI's and front-end interfaces often
         use this to update displays. So it is helpful to make sure
         we give at least some place that's located in a file.      
@@ -305,6 +305,9 @@ class Cmd(cmd.Cmd):
                 self.msg(" %s" % frame.f_code.co_name)
             else:
                 self.msg("")
+
+            if print_line:
+                self.msg_nocr('+ %s' % linecache.getline(filename, lineno))
 
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.

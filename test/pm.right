@@ -29,3 +29,4 @@ The program being debugged is not being run.
 + 
 + 
 (pm.py:34):  raise_error
++     raise FloatingPointError
