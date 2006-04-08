@@ -19,7 +19,7 @@
 
 * Add pyreadline as a configuration option.  
 
-* Position locaiton in file in GNU Emacs tracking in when in 
+* Position location in file in GNU Emacs tracking in when in 
   comint shell: pydbtrack is a modified pdbtrack for Pydb. 
 
 * Some single-letter command names for these reasons
