@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.38 2006/04/08 17:55:05 rockyb Exp $
+% $Id: libpydb.tex,v 1.39 2006/05/04 09:39:25 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -187,7 +187,9 @@ want to make sure a user's profile doesn't get in the way. See
 the \samp{--nx} command option, \ref{switch:nx}.
 
 For tracking down problems with command files, see the \samp{set
-cmdtrace on} debugger command, \ref{command:cmdtrace}.
+cmdtrace on} debugger command, \ref{command:cmdtrace}. To run a
+debugger command script inside the debugger see the \samp{source}
+command, \ref{command:source}.
 
 \section{Debugger Commands\label{pydb-commands}}
 
@@ -916,7 +918,7 @@ than the first, it is interpreted as a count.
 \end{description}
 
 \subsection{Interfacing to the debugger ({\tt alias}, {\tt complete}, 
-{\tt help}, {\tt quit}, {\tt unalias})\label{subsection-misc}}
+{\tt help}, {\tt quit}, {\tt source}, {\tt unalias})\label{subsection-misc}}
 
 \begin{description}
 
@@ -980,6 +982,18 @@ subcommand. For example \code{help info line} give help about the
 
 Quit the debugger. The program being executed is aborted. For now,
 \code{kill} is a synonym for quit.
+
+\item[source \var{filename}]\label{command:source}
+
+Read commands from a file named \var{filename}.
+Note that the file \code{.pydbrc} is read automatically
+this way when \code{pydb} is started.
+
+An error in any command terminates execution of the command and
+control is returned to the console.
+
+For tracking down problems with command files, see the \samp{set
+cmdtrace on} debugger command, \ref{command:cmdtrace}. 
 
 \item[unalias \var{name}]\label{command:unalias}
 

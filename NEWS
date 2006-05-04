@@ -1,3 +1,9 @@
+1.16
+*  Line tracing now shows line position.
+*  Document how to turn on and off from program control
+*  Remove pdb backwards-compatibile runctx. This is a new debugger.
+*  Doc fixes for "source" command
+
 1.15
 2006-03-25
 

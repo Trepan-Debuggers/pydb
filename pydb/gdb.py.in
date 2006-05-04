@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.3 2006/03/16 04:19:09 rockyb Exp $
+"""$Id: gdb.py.in,v 1.4 2006/05/04 09:39:25 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1390,7 +1390,7 @@ assignment to the variable __return__."""
     def do_source(self, arg):
         """source FILE
         Read commands from a file named FILE.
-        Note that the file file '.@PACKAGE_NAME@rc' is read automatically
+        Note that the file '.@PACKAGE_NAME@rc' is read automatically
         in this way when @PACKAGE_NAME@ is started.
 
         An error in any command terminates execution of the command
