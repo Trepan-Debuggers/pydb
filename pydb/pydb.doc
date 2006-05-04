@@ -371,11 +371,14 @@ show *subcommand*
 
 source FILE
         Read commands from a file named FILE.
-        Note that the file file '.pydbrc' is read automatically
+        Note that the file '.pydbrc' is read automatically
         in this way when pydb is started.
 
         An error in any command terminates execution of the command
         file and control is returned to the console.
+
+	For tracking down problems with command files, see the "set
+	cmdtrace on" debugger command.
 
 s(tep) [count]
         Execute the current line, stop at the first possible occasion
