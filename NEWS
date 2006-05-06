@@ -1,7 +1,8 @@
 1.16
-*  Line tracing now shows line position.
+*  Line tracing now shows source text.
 *  Document how to turn on and off from program control
 *  Remove pdb backwards-compatibile runctx. This is a new debugger.
+*  list command can accept filename:lineo (if that's all that's given)
 *  Doc fixes for "source" command
 
 1.15
