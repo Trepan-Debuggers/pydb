@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.4 2006/05/04 09:39:25 rockyb Exp $
+"""$Id: gdb.py.in,v 1.5 2006/05/06 02:22:34 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -155,7 +155,7 @@ class Gdb(Bdb, Cmd):
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
 
     def __get_brkpt_lineno(self, arg):
-        """__get_brkpt_lineno(self,arg)->(fn, file, lineno)
+        """__get_brkpt_lineno(self,arg)->(filename, file, lineno)
 
         See if arg is a line number or a function name.  Return what
         we've found. None can be returned as a value in the triple."""
@@ -367,7 +367,7 @@ class Gdb(Bdb, Cmd):
         """Possibly goes into loop to read debugger commands."""
         do_loop = self.setup(frame, traceback) != 1
         if do_loop:
-            self.print_location()
+            self.print_location(print_line=self.linetrace)
             self.display.displayAny(self.curframe)
             if not self.noninteractive:
                 try:

@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.6 2006/04/08 17:55:08 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.7 2006/05/06 02:22:34 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -222,8 +222,8 @@ class Bdb(bdb.Bdb):
                 return
             if not self.break_here(frame):
                 if is_def_stmt(line, frame):
-                   self.__print_location_if_linetrace(frame)
-                   return
+                    self.__print_location_if_linetrace(frame)
+                    return
         else:
             if not self.break_here(frame) and self.step_ignore > 0:
                 self.__print_location_if_linetrace(frame)
