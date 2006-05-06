@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.11 2006/03/14 03:48:47 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.12 2006/05/06 06:05:57 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -57,6 +57,7 @@ list
 list
 list 10, 15
 list 10, 3
+list hanoi.py:12
 list 50
 set listsize 6
 list 5

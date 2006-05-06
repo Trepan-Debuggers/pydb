@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.5 2006/05/06 02:22:34 rockyb Exp $
+"""$Id: gdb.py.in,v 1.6 2006/05/06 06:05:56 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -286,6 +286,32 @@ class Gdb(Bdb, Cmd):
             if name in dict: self.msg(dict[name])
             else: self.msg("*** undefined ***")
 
+    def __parse_filepos(self, arg):
+        """__parse_filepos(self,arg)->(fn, filename, lineno)
+        
+        Parse arg as [filename:]lineno | function
+        Make sure it works for C:\foo\bar.py:12
+        """
+        colon = arg.rfind(':')
+        if colon >= 0:
+            filename = arg[:colon].rstrip()
+            f = self.lookupmodule(filename)
+            if not f:
+                self.errmsg("%s not found from sys.path" % repr(filename))
+                return (None, None, None)
+            else:
+                filename = f
+                arg = arg[colon+1:].lstrip()
+            try:
+                lineno = int(arg)
+            except ValueError, msg:
+                self.errmsg('Bad lineno: %s', str(arg))
+                return (None, filename, None)
+            return (None, filename, lineno)
+        else:
+            # no colon; can be lineno or function
+            return self.__get_brkpt_lineno(arg)
+
     def checkline(self, filename, lineno):
         """Check whether specified line seems to be executable.
 
@@ -542,28 +568,9 @@ the .py suffix may be omitted."""
                 # parse stuff after comma: "condition"
                 cond = arg[comma+1:].lstrip()
                 arg = arg[:comma].rstrip()
-            # parse stuff before comma: [filename:]lineno | function
-            # Make sure it works for "clear C:\foo\bar.py:12"
-            colon = arg.rfind(':')
-            if colon >= 0:
-                filename = arg[:colon].rstrip()
-                f = self.lookupmodule(filename)
-                if not f:
-                    self.errmsg("%s not found from sys.path" % repr(filename))
-                    return
-                else:
-                    filename = f
-                arg = arg[colon+1:].lstrip()
-                try:
-                    lineno = int(arg)
-                except ValueError, msg:
-                    self.errmsg('Bad lineno: %s', str(arg))
-                    return
-            else:
-                # no colon; can be lineno or function
-                (funcname, filename, lineno) = self.__get_brkpt_lineno(arg)
-                if lineno is None: return
-                
+            (funcname, filename, lineno) = self.__parse_filepos(arg)
+            if lineno is None: return
+            
         # FIXME This default setting doesn't match that used in
         # do_clear. Perhaps one is non-optimial.
         if not filename:
@@ -1125,13 +1132,16 @@ the .py suffix may be omitted."""
     def do_list(self, arg):
         """l(ist) [first [,last]]
         List source code for the current file.
-        Without arguments, list 11 lines around the current line
+        Without arguments, list LISTSIZE lines around the current line
         or continue the previous listing.
-        With one argument, list 11 lines starting at that line.
+        With one argument, list LISTSIZE lines starting at that line.
         With two arguments, list the given range;
-        if the second argument is less than the first, it is a count."""
+        if the second argument is less than the first, it is a count.
+        If just a single argument, first, it can be of form file:line or
+        line."""
         self.lastcmd = 'list'
         last = None
+        filename = self.curframe.f_code.co_filename
         if arg:
             try:
                 x = eval(arg, {}, {})
@@ -1143,17 +1153,24 @@ the .py suffix may be omitted."""
                         # Assume it's a count
                         last = first + last
                 else:
-                    first = max(1, int(x) - (self.listsize/2))
+                    # Allow for filename:lineno or lineno
+                    (fn, new_filename, lineno) = self.__parse_filepos(arg)
+                    if new_filename is not None: filename = new_filename
+                    if lineno is None: return
+                    first = max(1, lineno - (self.listsize/2))
             except:
-                self.errmsg('Error in argument: %s' % repr(arg))
-                return
+                (fn, new_filename, lineno) = self.__parse_filepos(arg)
+                if new_filename is not None: filename = new_filename
+                if lineno is None: 
+                    self.errmsg('Error in argument: %s' % repr(arg))
+                    return
+                first = max(1, lineno - (self.listsize/2))
         elif self.lineno is None or not self.running:
-            first = max(1, inspect.getlineno(self.curframe) - 5)
+            first = max(1, inspect.getlineno(self.curframe) - self.listsize/2)
         else:
             first = self.lineno + 1
         if last is None:
             last = first + self.listsize
-        filename = self.curframe.f_code.co_filename
         breaklist = self.get_file_breaks(filename)
         try:
             for lineno in range(first, last+1):

@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.39 2006/05/04 09:39:25 rockyb Exp $
+% $Id: libpydb.tex,v 1.40 2006/05/06 06:05:48 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -914,6 +914,10 @@ shown by \samp{show listsize}.  The default value is 10.
 With one argument, list \emph{n} lines around that line.  With
 two arguments, list the given range; if the second argument is less
 than the first, it is interpreted as a count.
+
+If just a single argument is given, it can be of form
+        \var{filename}:\var{line-number} or
+        \var{linenumber}.
 
 \end{description}
 

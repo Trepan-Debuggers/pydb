@@ -237,6 +237,8 @@ l(ist) [first [,last]]
         With one argument, list 11 lines starting at that line.
         With two arguments, list the given range;
         if the second argument is less than the first, it is a count.
+        If just a single argument, first, it can be of form file:line or
+        line.
 
 n(ext) [count]
         Continue execution until the next line in the current function
