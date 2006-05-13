@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.16 2006/03/14 03:48:47 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.17 2006/05/13 00:16:22 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -90,20 +90,20 @@ class PdbTests(unittest.TestCase):
         """Test breakpoint setting/display"""
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir)
-        self.assertTrue(result, "brkpt1")
+        self.assertEqual(True, result, "brkpt1")
 
     def test_brkpt2(self):
         """Test breakpoint setting/display"""
         result=run_debugger(testname='brkpt2',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5')
-        self.assertTrue(result, "brkpt2")
+        self.assertEqual(True, result, "brkpt2")
 
     def test_cmdparse(self):
         """Test command parsing"""
         result=run_debugger(testname='cmdparse',
                             pythonfile='%shanoi.py' % srcdir)
-        self.assertTrue(result, "cmdparse")
+        self.assertEqual(True, result, "cmdparse")
 
     def test_complete(self):
         """Test the 'complete' command"""
@@ -125,7 +125,7 @@ class PdbTests(unittest.TestCase):
         """Test __file__"""
         result=run_debugger(testname='filebug',
                             pythonfile='%sfilebug.py' %srcdir)
-        self.assertTrue(result, "filebug")
+        self.assertEqual(True, result, "filebug")
         
     def test_history(self):
         """Test the history command"""
@@ -135,14 +135,14 @@ class PdbTests(unittest.TestCase):
             return
         result=run_debugger(testname='history',
                             pythonfile='%shanoi.py' % srcdir)
-        self.assertTrue(result, "history")
+        self.assertEqual(True, result, "history")
 
     def test_logging(self):
         """Test set/show logging"""
         result=run_debugger(testname='logging',
                             pythonfile='%shanoi.py' % srcdir,
                             outfile='logging.out')
-        self.assertTrue(result, "logging")
+        self.assertEqual(True, result, "logging")
 
     def test_pwd_cd(self):
         """Test pwd and cd commands"""
@@ -152,20 +152,20 @@ class PdbTests(unittest.TestCase):
         # Run pwd
         pdb.msgLines=[]; pdb.errLines=[]
         pdb.do_pwd("")
-        self.assertTrue(len(pdb.errLines) == 0,
+        self.assertEqual(True, len(pdb.errLines) == 0,
                          "pwd gave error: " + str(pdb.errLines))
-        self.assertTrue(len(pdb.msgLines) == 1)
+        self.assertEqual(True, len(pdb.msgLines) == 1)
         my_cd = pdb.msgLines[0]
 
         # Run cd
         pdb.msgLines=[]; pdb.errLines=[]
         pdb.do_cd(".")
-        self.assertTrue(len(pdb.errLines) == 0,
+        self.assertEqual(True, len(pdb.errLines) == 0,
                          "cd gave error: " + str(pdb.errLines))
-        self.assertTrue(len(pdb.msgLines) == 0)
+        self.assertEqual(True, len(pdb.msgLines) == 0)
         pdb.msgLines=[]; pdb.errLines=[]
         pdb.do_pwd("")
-        self.assertTrue(pdb.msgLines[0] == my_cd)
+        self.assertEqual(True, pdb.msgLines[0] == my_cd)
 
     def test_return(self):
         """Test of run with return"""
@@ -176,7 +176,7 @@ class PdbTests(unittest.TestCase):
         print "**********************************************************"
         result=run_debugger(testname='run2',
                             pythonfile='%sgcd.py' % srcdir)
-        self.assertTrue(result, "run2")
+        self.assertEqual(True, result, "run2")
 
     def test_run(self):
         """Test run/restart"""
@@ -189,7 +189,7 @@ class PdbTests(unittest.TestCase):
         # For version 2.4.2 (and above?) we'll assume a more 
         # stringent test.
         if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
-            self.assertTrue(result, "run")
+            self.assertEqual(True, result, "run")
 
 if __name__ == "__main__":
     unittest.main()

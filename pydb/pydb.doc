@@ -230,15 +230,15 @@ info source -- Information about the current Python file
 jump lineno
         Set the next line that will be executed.
 
-l(ist) [first [,last]]
-        List source code for the current file.
-        Without arguments, list 11 lines around the current line
-        or continue the previous listing.
-        With one argument, list 11 lines starting at that line.
-        With two arguments, list the given range;
-        if the second argument is less than the first, it is a count.
-        If just a single argument, first, it can be of form file:line or
-        line.
+l(ist) [- | first [last or count]]
+        List source code. Without arguments, list LISTSIZE lines
+        centered around the current line or continue the previous
+        listing. "list -" lists LISTSIZE lines before a previous
+        listing. With one argument other than "-", list LISTSIZE lines
+        centered around the specified position.  With two arguments,
+        list the given range; if the second argument is less than the
+        first, it is a count.  First and last can be either a function
+        name, a line number or file:line
 
 n(ext) [count]
         Continue execution until the next line in the current function

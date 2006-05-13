@@ -68,7 +68,7 @@ Breakpoint index 'foo' is not a number
 + disable foo
 Breakpoint index 'foo' is not a number
 + ########################################
-+ ###   test list by number
++ ###   test list
 + ########################################
 + list
   1  	#!/usr/bin/python
@@ -91,8 +91,8 @@ Breakpoint index 'foo' is not a number
  18  	
  19  	if i_args > 1:
  20  	  try: 
- 21  	    n = int(sys.argv[1])
 + list
+ 21  	    n = int(sys.argv[1])
  22  	  except ValueError, msg:
  23  	    print "** Expecting an integer, got: %s" % repr(sys.argv[1])
  24  	    sys.exit(2)
@@ -103,14 +103,35 @@ Breakpoint index 'foo' is not a number
  29  	
  30  	hanoi(n, "a", "b", "c")
 [EOF]
-+ list 10, 15
++ list -
+  1  	#!/usr/bin/python
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys,os
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
  11  	
  12  	i_args=len(sys.argv)
  13  	if i_args != 1 and i_args != 2:
  14  	    print "*** Need number of disks or no parameter"
  15  	    sys.exit(1)
-+ list 10, 3
+ 16  	
+ 17  	n=3
+ 18  	
+ 19  	if i_args > 1:
+ 20  	  try: 
++ list 10 15
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	i_args=len(sys.argv)
+ 13  	if i_args != 1 and i_args != 2:
+ 14  	    print "*** Need number of disks or no parameter"
+ 15  	    sys.exit(1)
++ list 10 3
  10  	       hanoi(n-1, c, b, a) 
  11  	
  12  	i_args=len(sys.argv)
@@ -136,7 +157,57 @@ Breakpoint index 'foo' is not a number
  19  	if i_args > 1:
  20  	  try: 
  21  	    n = int(sys.argv[1])
- 22  	  except ValueError, msg:
++ list hanoi
+  1  	#!/usr/bin/python
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys,os
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	i_args=len(sys.argv)
+ 13  	if i_args != 1 and i_args != 2:
+ 14  	    print "*** Need number of disks or no parameter"
+ 15  	    sys.exit(1)
+ 16  	
+ 17  	n=3
+ 18  	
+ 19  	if i_args > 1:
+ 20  	  try: 
++ list hanoi 10
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
+ 10  	       hanoi(n-1, c, b, a) 
++ list gcd.py:24
+ 14  	    if len(sys.argv) != 3:
+ 15  	        # Rather than use sys.exit let's just raise an error
+ 16  	        raise Exception, "Need to give two numbers"
+ 17  	    for i in range(2):
+ 18  	        try: 
+ 19  	            sys.argv[i+1] = int(sys.argv[i+1])
+ 20  	        except ValueError, msg:
+ 21  	            print "** Expecting an integer, got: %s" % repr(sys.argv[i])
+ 22  	            sys.exit(2)
+ 23  	    
+ 24  	def gcd(a,b):
+ 25  	    """ GCD. We assume positive numbers"""
+ 26  	
+ 27  	    # Make: a <= b
+ 28  	    if a > b:
+ 29  	       (a, b) = (b, a)
+ 30  	       
+ 31  	    if a <= 0:
+ 32  	        return None
+ 33  	    if a == 1 or b-a == 0:
++ list gcd.py:24 hanoi.py:10
+*** filename in the range must be the same
 + list 50
 [EOF]
 + set listsize 6
@@ -147,7 +218,6 @@ Breakpoint index 'foo' is not a number
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
   7  	       hanoi(n-1, a, c, b) 
-  8  	    print "Move disk %s to %s" % (a, b)
 + ########################################
 + ###  test prompt, misc...
 + ########################################

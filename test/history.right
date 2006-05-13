@@ -20,7 +20,6 @@ size:  The size of the command history is 5
   8  	    print "Move disk %s to %s" % (a, b)
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
- 11  	
 + show history
 filename:  The filename in which to record the command history is
 "history.hst".

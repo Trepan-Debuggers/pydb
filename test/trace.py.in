@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: trace.py.in,v 1.3 2006/05/06 13:50:11 rockyb Exp $ -*- Python -*-
+# $Id: trace.py.in,v 1.4 2006/05/13 00:16:22 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -65,7 +65,7 @@ class PdbTests(unittest.TestCase):
         result=run_debugger(testname='trace',
                             pydb_opts='--trace --basename',
                             pythonfile='%shanoi.py' % srcdir)
-        self.assertTrue(result, "hanoi trace output comparision")
+        self.assertEqual(True, result, "hanoi trace output comparision")
 
 if __name__ == "__main__":
     unittest.main()

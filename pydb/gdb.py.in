@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.6 2006/05/06 06:05:56 rockyb Exp $
+"""$Id: gdb.py.in,v 1.7 2006/05/13 00:16:22 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -163,6 +163,7 @@ class Gdb(Bdb, Cmd):
         try:
             # First try as an integer
             lineno = int(arg)
+            filename = self.curframe.f_code.co_filename
         except ValueError:
             try:
                 func = eval(arg, self.curframe.f_globals,
@@ -297,7 +298,8 @@ class Gdb(Bdb, Cmd):
             filename = arg[:colon].rstrip()
             f = self.lookupmodule(filename)
             if not f:
-                self.errmsg("%s not found from sys.path" % repr(filename))
+                self.errmsg("%s not found from sys.path" %
+                            self._saferepr(filename))
                 return (None, None, None)
             else:
                 filename = f
@@ -913,7 +915,7 @@ the .py suffix may be omitted."""
             doc=inspect.getdoc(obj)
             if doc != None and doc != '': 
                 self.msg(doc)
-            self.msg(repr(obj))
+            self.msg(self._saferepr(obj))
         elif inspect.ismodule(obj) or inspect.isbuiltin(obj) \
                 or inspect.isclass(obj):
             self.msg(repr(obj))
@@ -1130,48 +1132,59 @@ the .py suffix may be omitted."""
                 self.errmsg('%s failed: %s' % (cmdname, e))
 
     def do_list(self, arg):
-        """l(ist) [first [,last]]
-        List source code for the current file.
-        Without arguments, list LISTSIZE lines around the current line
-        or continue the previous listing.
-        With one argument, list LISTSIZE lines starting at that line.
-        With two arguments, list the given range;
-        if the second argument is less than the first, it is a count.
-        If just a single argument, first, it can be of form file:line or
-        line."""
+        """l(ist) [- | first [last or count]]
+
+        List source code. Without arguments, list LISTSIZE lines
+        centered around the current line or continue the previous
+        listing. "list -" lists LISTSIZE lines before a previous
+        listing. With one argument other than "-", list LISTSIZE lines
+        centered around the specified position.  With two arguments,
+        list the given range; if the second argument is less than the
+        first, it is a count.  First and last can be either a function
+        name, a line number or file:line"""
+
         self.lastcmd = 'list'
         last = None
         filename = self.curframe.f_code.co_filename
         if arg:
-            try:
-                x = eval(arg, {}, {})
-                if type(x) == type(()):
-                    first, last = x
-                    first = int(first)
-                    last = int(last)
+            if arg == '-':
+                first = max(1, self.lineno - 2*self.listsize - 1)
+            else:
+                args = arg.split()
+                (funcname, filename, first) = self.__parse_filepos(args[0])
+                if len(args) == 1:
+                    first = max(1, first - (self.listsize/2))
+                elif len(args) == 2:
+                    (funcname, last_filename, last) = \
+                               self.__parse_filepos(args[1])
+                    if filename != last_filename \
+                       and filename is not None and last_filename is not None:
+                        self.errmsg('filename in the range must be the same')
+                        return
                     if last < first:
-                        # Assume it's a count
-                        last = first + last
-                else:
-                    # Allow for filename:lineno or lineno
-                    (fn, new_filename, lineno) = self.__parse_filepos(arg)
-                    if new_filename is not None: filename = new_filename
-                    if lineno is None: return
-                    first = max(1, lineno - (self.listsize/2))
-            except:
-                (fn, new_filename, lineno) = self.__parse_filepos(arg)
-                if new_filename is not None: filename = new_filename
-                if lineno is None: 
-                    self.errmsg('Error in argument: %s' % repr(arg))
+                        try:
+                            junk = int(args[1])
+                            # Assume it's a count
+                            last = first + last
+                        except ValueError:
+                            self.errmsg('2nd number (%s) is less than the '
+                                        + '1st number %d is not a pure integer'
+                                        % args[1], first)
+                            return
+                elif len(args) > 2:
+                    self.errmsg('At most 2 arguments allowed. Saw: %d' %
+                                len(args))
                     return
-                first = max(1, lineno - (self.listsize/2))
         elif self.lineno is None or not self.running:
             first = max(1, inspect.getlineno(self.curframe) - self.listsize/2)
         else:
             first = self.lineno + 1
         if last is None:
-            last = first + self.listsize
+            last = first + self.listsize - 1
         breaklist = self.get_file_breaks(filename)
+
+        # Okay we now have range information. Finally do the listing.
+        # (Just when you though we'd never get around to it).
         try:
             for lineno in range(first, last+1):
                 line = linecache.getline(filename, lineno)
@@ -1179,11 +1192,12 @@ the .py suffix may be omitted."""
                     self.msg('[EOF]')
                     break
                 else:
-                    s = repr(lineno).rjust(3)
+                    s = self._saferepr(lineno).rjust(3)
                     if len(s) < 4: s = s + ' '
                     if lineno in breaklist: s = s + 'B'
                     else: s = s + ' '
-                    if lineno == inspect.getlineno(self.curframe):
+                    if lineno == inspect.getlineno(self.curframe) \
+                       and filename == self.curframe.f_code.co_filename:
                         s = s + '->'
                     self.msg_nocr(s + '\t' + line)
                     self.lineno = lineno
@@ -1212,7 +1226,7 @@ With an integer argument, perform that many times."""
         """p expression
         Print the value of the expression."""
         try:
-            self.msg(repr(self.getval(arg)))
+            self.msg(self._saferepr(self.getval(arg)))
         except:
             pass
 
@@ -1506,7 +1520,7 @@ Prints the type of the argument which can be a Python expression."""
             if exc_type_name == 'NameError':
                 self.errmsg("Name Error: %s" % arg)
             else:
-                self.errmsg("%s: %s" % (exc_type_name, repr(v)))
+                self.errmsg("%s: %s" % (exc_type_name, self._saferepr(v)))
             return
         if inspect.isfunction(value):
             self.msg('function %s%s' %

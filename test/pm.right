@@ -15,7 +15,6 @@ Argument list to give program being debugged when it is started is
  36  	class PdbTests(unittest.TestCase):
  37  	
  38  	    ## Don't use assertTrue to be compatible with older version of
- 39  	    ## unittest
 + where
 + step
 The program being debugged is not being run.
