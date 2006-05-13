@@ -1,3 +1,8 @@
+Bug in bdb's canonic() - should check that file exists before
+appending path. If not use method that gdb uses.
+
+Add watchpoints. (Mentioned in pdbimprovements)
+
 The main pydb.py file size has been reduced but it is still bit
 large. If we can break out into more files that might be nice.
 
@@ -26,4 +31,4 @@ Use a better readline if that's available.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.5 2006/02/27 01:02:44 rockyb Exp $
+$Id: TODO,v 1.6 2006/05/13 12:25:08 rockyb Exp $
