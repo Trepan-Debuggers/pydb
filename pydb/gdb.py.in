@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.7 2006/05/13 00:16:22 rockyb Exp $
+"""$Id: gdb.py.in,v 1.8 2006/05/21 04:27:38 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -184,8 +184,9 @@ class Gdb(Bdb, Cmd):
                 (ok, filename, ln) = self.lineinfo(arg)
                 if not ok:
                     self.errmsg(('The specified object %s is not'
-                                 +' a function or was not found '
-                                 +' along sys.path.') % str(repr(arg)))
+                                 +' a function, or not found'
+                                 +' along sys.path or no line given.')
+                                % str(repr(arg)))
                     return (None, None, None)
                 funcname = ok # ok contains a function name
                 lineno = int(ln)
@@ -1152,6 +1153,9 @@ the .py suffix may be omitted."""
             else:
                 args = arg.split()
                 (funcname, filename, first) = self.__parse_filepos(args[0])
+                if first == None and funcname == None:
+                    # error should have been shown previously
+                    return
                 if len(args) == 1:
                     first = max(1, first - (self.listsize/2))
                 elif len(args) == 2:

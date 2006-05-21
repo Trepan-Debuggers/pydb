@@ -206,8 +206,10 @@ Breakpoint index 'foo' is not a number
  31  	    if a <= 0:
  32  	        return None
  33  	    if a == 1 or b-a == 0:
++ # first and last file names are different
 + list gcd.py:24 hanoi.py:10
 *** filename in the range must be the same
++ # File doesn't have 50 lines
 + list 50
 [EOF]
 + set listsize 6
@@ -218,6 +220,9 @@ Breakpoint index 'foo' is not a number
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
   7  	       hanoi(n-1, a, c, b) 
++ # Invalid list command - need lineno or fn name
++ list hanoi.py
+*** The specified object 'hanoi.py' is not a function, or not found along sys.path or no line given.
 + ########################################
 + ###  test prompt, misc...
 + ########################################

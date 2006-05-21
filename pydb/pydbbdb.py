@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.7 2006/05/06 02:22:34 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.8 2006/05/21 04:27:38 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -80,6 +80,24 @@ class Bdb(bdb.Bdb):
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
                      (bp.hits, ss))
+
+    def canonic(self, filename):
+
+        """ Overrides bdb canonic. We need to ensure the file
+        we return exists! """
+
+        if filename == "<" + filename[1:-1] + ">":
+            return filename
+        canonic = self.fncache.get(filename)
+        if not canonic:
+            canonic = os.path.abspath(filename)
+            if not os.path.isfile(canonic):
+                # FIXME!!
+                # canonic = search_file(filename, self.search_path)
+                pass
+            canonic = os.path.normcase(canonic)
+            self.fncache[filename] = canonic
+        return canonic
 
     def canonic_filename(self, frame):
         return self.canonic(frame.f_code.co_filename)
