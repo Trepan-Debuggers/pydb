@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.41 2006/05/13 00:16:18 rockyb Exp $
+% $Id: libpydb.tex,v 1.42 2006/05/24 03:36:28 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1313,9 +1313,18 @@ expression.  Otherwise this function is similar to
 \end{funcdesc}
 
 \begin{funcdesc}{set_trace}{\optional{cmdfile=None}}
-Enter the debugger at the calling stack frame.  This is useful to
-hard-code a breakpoint at a given point in a program, even if the code
-is not otherwise being debugged (e.g., when an assertion fails).
+Enter the debugger at the statement which follows (in execution) the
+\code{set_trace()} statement. This hard-codes a call to the debugger
+at a given point in a program, even if the code is not otherwise being
+debugged. For example you might want to do this when an assertion
+fails.
+
+It is useful in a couple of other situations. First, there may be some
+problem in getting the debugger to stop at this particular place for
+whatever reason (like flakiness in the debugger). Alternatively, using
+the debugger and setting a breakpoint can slow down a program a
+bit. But if you use this instead, the code will run as though the
+debugger is not present \emph{until} you reach this point in the program.
 
 When the debugger is quitting, this causes the program to be
 terminated. If you want the program to continue instead, use the
