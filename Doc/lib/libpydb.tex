@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.43 2006/05/24 03:51:52 rockyb Exp $
+% $Id: libpydb.tex,v 1.44 2006/05/24 04:18:47 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -643,6 +643,42 @@ again, or jump forward to skip code that you don't want to run.
 Not all jumps are allowed---for instance it
 is not possible to jump into the middle of a \keyword{for} loop or out
 of a \keyword{finally} clause.
+
+One common use for the \code{jump} statement is to get out of a
+loop. Sometimes the bounds of loops are computed in advance so you
+can't leave a loop early by say setting the value of the loop variable
+
+Here's an example demonstrating this:
+
+\begin{verbatim}
+pydb ptest.py
+(ptest.py:2): 
+(Pydb) list
+  1  	#!/bin/python
+  2  ->	for i in range(1,10):
+  3  	    print i
+  4  	print "tired of this"
+[EOF]
+(Pydb) step
+(ptest.py:3): 
+(Pydb) i=1000
+(Pydb) step
+1000
+(ptest.py:2): 
+(Pydb) jump 4
+(ptest.py:4): 
+(Pydb) step
+tired of this
+--Return--
+--Return--
+The program finished and will be restarted
+(ptest.py:2): 
+(Pydb) 
+\end{verbatim}
+
+Not that the assignment of 1,000 to \code{i} took effect, although it
+had no effect on termintating the \code{for} loop; \code{jump} was
+needed to get out of the loop early.
 
 \end{description}
 
