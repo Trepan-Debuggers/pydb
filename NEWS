@@ -1,9 +1,29 @@
 1.16
+
+*  Add gdb "command" - run commands on a breakpoint. Code from current
+   pdb sources, but we follow gdb more closely.
+
+*  Allow one specify in the Pdb class Cmd's "completekey" binding.
+   (Also in current pdb sources.)
+
 *  Line tracing now shows source text.
-*  Document how to turn on and off from program control
+
+*  Document how to turn on and off from program control. 
+
+* "list" command is more like gdb's and can accept filename:lineo if
+   that's all that's given (Suggestion from Matt Fleming). Was also
+   off by one in line number listings.
+
+*  Made pydb document corrections for the "source" command
+
+*  Reword documentation on how set_trace() works based on confusion
+   observed in comp.lang.python. Note speed implications of using this over 
+   setting a breakpoint.
+
+*  Note in Documentation that "jump" can be used to leave a loop. (Also
+   based on a query in comp.lang.python)
+
 *  Remove pdb backwards-compatibile runctx. This is a new debugger.
-*  list command can accept filename:lineo (if that's all that's given)
-*  Doc fixes for "source" command
 
 1.15
 2006-03-25
