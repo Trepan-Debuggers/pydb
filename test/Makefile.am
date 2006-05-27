@@ -3,8 +3,12 @@ check_DATA = \
 	brkpt1.right   \
 	brkpt2.cmd     \
 	brkpt2.right   \
+	brkpt3.cmd     \
+	brkpt3.right   \
 	cmdparse.cmd   \
 	cmdparse.right \
+	comm1.cmd      \
+	comm2.cmd      \
 	filebug.cmd    \
 	filebug.py     \
 	filebug.right  \

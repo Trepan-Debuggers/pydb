@@ -1,0 +1,3 @@
+commands
+print "test"
+end

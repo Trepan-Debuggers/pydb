@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.44 2006/05/24 04:18:47 rockyb Exp $
+% $Id: libpydb.tex,v 1.45 2006/05/27 02:12:00 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -500,7 +500,7 @@ Show the debugger version number.
 \end{description}
 
 \subsection{Breakpoints ({\tt break}, {\tt tbreak}, {\tt clear},
-  {\tt delete}, {\tt disable}, {\tt
+  {\tt commands}, {\tt delete}, {\tt disable}, {\tt
   ignore})\label{subsubsection-brkpts}}
 
 \index{breakpoints} A breakpoint makes your program stop at that
@@ -555,6 +555,36 @@ frame is executing.
 
 See also the \code{delete} command below which clears breakpoints by
 number.
+
+\item[commands \optional{\optional{\var{pbnumber}}}]
+
+Set commands to be executed when a breakpoint is hit.
+Give breakpoint number as the argument after "commands".
+With no bpnumber argument, commands refers to the last one set.
+The commands themselves follow starting on the next line.
+Type a line containing "end" to terminate the commands.
+
+To remove all commands from a breakpoint, type commands and
+follow it immediately with end; that is, give no commands.
+
+You can use breakpoint commands to start your program up
+again. Simply use the continue command, or step, or any other
+command that resumes execution.
+
+Specifying any command resuming execution (currently \code{continue},
+\code{step}, \code{next}, \code{return}, \code{jump}, and \code{quit})
+terminates the command list as if that command was immediately
+followed by 'end'.  This is because any time you resume execution (even
+with a simple next or step), you may encounter another
+breakpoint---which could have its own command list, leading to
+ambiguities about which list to execute.
+
+If you use the \code{silent} command in the command list, the
+usual message about stopping at a breakpoint is not printed.
+This may be desirable for breakpoints that are to print a
+specific message and then continue.  If none of the other
+commands print anything, you see no sign that the breakpoint
+was reached.
 
 \item[delete \optional{\var{bpnumber} \optional{\var{bpnumber \ldots}}}]
 

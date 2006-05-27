@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.8 2006/05/21 04:27:38 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.9 2006/05/27 02:12:02 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -28,6 +28,32 @@ class Bdb(bdb.Bdb):
             self.print_location(print_line=True)
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
+
+    def bp_commands(self, frame):
+
+        """ Call every command that was set for the current
+        active breakpoint (if there is one) Returns True if
+        the normal interaction function must be called,
+        False otherwise """
+
+        # self.currentbp is set in bdb.py in bdb.break_here if
+        # a breakpoint was hit
+
+        if getattr(self,"currentbp",False) and self.currentbp in self.commands:
+            currentbp = self.currentbp
+            self.currentbp = 0
+            lastcmd_back = self.lastcmd
+            self.setup(frame, None)
+            for line in self.commands[currentbp]:
+                self.onecmd(line)
+            self.lastcmd = lastcmd_back
+            if not self.commands_silent[currentbp]:
+                self.print_location(print_line=self.linetrace)
+            if self.commands_doprompt[currentbp]:
+                self.cmdloop()
+            self.forget()
+            return 
+        return 1
 
     def is_running(self):
         if self.running: return True
@@ -247,7 +273,8 @@ class Bdb(bdb.Bdb):
                 self.__print_location_if_linetrace(frame)
                 self.step_ignore -= 1
                 return
-        self.interaction(frame, None)
+        if self.bp_commands(frame):
+            self.interaction(frame, None)
 
     def user_return(self, frame, return_value):
         """This function is called when a return trap is set here."""

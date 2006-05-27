@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.17 2006/05/13 00:16:22 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.18 2006/05/27 02:12:02 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -99,6 +99,13 @@ class PdbTests(unittest.TestCase):
                             args='3 5')
         self.assertEqual(True, result, "brkpt2")
 
+    def test_brkpt3(self):
+        """Test breakpoint setting/display"""
+        result=run_debugger(testname='brkpt3',
+                            pythonfile='%sgcd.py' % srcdir,
+                            args='3 5')
+        self.assertEqual(True, result, "brkpt2")
+
     def test_cmdparse(self):
         """Test command parsing"""
         result=run_debugger(testname='cmdparse',
@@ -113,7 +120,8 @@ class PdbTests(unittest.TestCase):
             func = getattr(pdb, 'do_complete')
             print "Have complete"
             pdb.do_complete("c")
-            correct = ['c', 'cd', 'cl', 'clear', 'condition', 'continue']
+            correct = ['c', 'cd', 'cl', 'clear', 'commands',
+                       'condition', 'continue']
         except AttributeError:
             print "No complete"
             pass

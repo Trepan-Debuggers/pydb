@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.8 2006/05/21 04:27:38 rockyb Exp $
+"""$Id: gdb.py.in,v 1.9 2006/05/27 02:12:02 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -57,6 +57,15 @@ class Gdb(Bdb, Cmd):
         self.stop_reason     = None   # Why are we in the debugger?
         self._sys_argv       = []     # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
+
+
+        # list of all the commands making the program
+        # resume execution.
+
+        self.commands_resuming = ['do_continue', 'do_jump',  'do_next',
+                                  'do_quit',      'do_return',
+                                  'do_step']
+
         # Try to load readline if it exists
         try:
             import @READLINE@
@@ -453,6 +462,12 @@ class Gdb(Bdb, Cmd):
                 self.rcLines.append(line)
             rcFile.close()
 
+        self.commands = {} # associates a command list to breakpoint numbers
+        self.commands_doprompt = {} # for each bp num, tells if the prompt must be disp. after execing the cmd list
+        self.commands_silent = {} # for each bp num, tells if the stack trace must be disp. after execing the cmd list
+        self.commands_defining = False # True while in the process of defining a command list
+        self.commands_bnum = None # The breakpoint number for which we are defining a list
+
     def show_commands(self, arg):
         """Show the history of commands you typed.
 You can supply a command number to start with, or a `+' to start after
@@ -659,6 +674,44 @@ the .py suffix may be omitted."""
         return
 
     do_cl = do_clear
+
+    def do_commands(self, arg):
+
+        """Defines a list of commands associated to a breakpoint Those
+        commands will be executed whenever the breakpoint causes the
+        program to stop execution."""
+
+        if not arg:
+            bnum = len(bdb.Breakpoint.bpbynumber)-1
+        else:
+            try:
+                bnum = self.get_pos_int(arg, min=0, default=None,
+                                        cmdname="'commands'")
+            except ValueError:
+                return
+        if not (bnum < len(bdb.Breakpoint.bpbynumber)):
+            self.errmsg('No breakpoint numbered %d.' % bnum)
+            return
+
+        self.commands_bnum = bnum
+        self.commands[bnum] = []
+        self.commands_doprompt[bnum] = True
+        self.commands_silent[bnum] = False
+
+        self.commands_defining = True
+        if self.setup(self.curframe) == 1:
+            self.commands_defining = False
+            return
+
+        prompt_back = self.prompt
+        self.prompt = '>'
+        self.msg("Type commands for when breakpoint %d is hit, one per line."
+                 % bnum)
+        self.msg('End with a line saying just "end".')
+
+        self.cmdloop()
+        self.commands_defining = False
+        self.prompt = prompt_back
 
     def do_condition(self, arg):
         """condition bpnumber str_condition
@@ -1583,6 +1636,40 @@ Handles the receipt of EOF as a command."""
     help_R = help_run
     help_bt = help_T = help_where
 
+    def help_commands(self, *arg):
+        print """commands [bpnumber]
+>...
+>end
+(Pydb)
+
+Set commands to be executed when a breakpoint is hit.
+Give breakpoint number as the argument after "commands".
+With no bpnumber argument, commands refers to the last one set.
+The commands themselves follow starting on the next line.
+Type a line containing "end" to terminate the commands.
+
+To remove all commands from a breakpoint, type commands and
+follow it immediately with end; that is, give no commands.
+
+You can use breakpoint commands to start your program up
+again. Simply use the continue command, or step, or any other
+command that resumes execution.
+
+Specifying any command resuming execution (currently continue, step,
+next, return, jump, and quit) terminates the command list as if that
+command was immediately followed by 'end'.  This is because any time
+you resume execution (even with a simple next or step), you may
+encounter another breakpoint--which could have its own command list,
+leading to ambiguities about which list to execute.
+
+If you use the 'silent' command in the command list, the
+usual message about stopping at a breakpoint is not printed.
+This may be desirable for breakpoints that are to print a
+specific message and then continue.  If none of the other
+commands print anything, you see no sign that the breakpoint
+was reached.
+"""
+
     def help_exec(self, *arg):
         self.msg("""(!) statement
         Execute the (one-line) statement in the context of
@@ -1623,6 +1710,10 @@ You can see these environment settings with the 'show' command."""
                  "logging",   "prompt", "version")
         self.subcommand_help('show', getattr(self, 'help_show').__doc__,
                              subcmds, self.__help_show, args[0])
+
+    def help_unalias(self):
+        print """unalias name
+Deletes the specified alias."""
 
     ####### End of help section ########
 #

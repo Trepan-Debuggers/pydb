@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.12 2006/04/08 17:55:08 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.13 2006/05/27 02:12:02 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -241,6 +241,33 @@ class Cmd(cmd.Cmd):
            """
         self.msg_nocr("*** %s\n" % msg)
 
+    def handle_command_def(self,line):        
+        """ Handles one command line during command list
+        definition. """
+        cmd, arg, line = self.parseline(line)
+        if cmd == 'silent':
+            self.commands_silent[self.commands_bnum] = True
+            return # continue to handle other cmd def in the cmd list
+        elif cmd == 'end':
+            self.cmdqueue = []
+            return 1 # end of cmd list
+        cmdlist = self.commands[self.commands_bnum]
+        if (arg):
+            cmdlist.append(cmd+' '+arg)
+        else:
+            cmdlist.append(cmd)
+        # Determine if we must stop
+        try:
+            func = getattr(self, 'do_' + cmd)
+        except AttributeError:
+            func = self.default
+        if func.func_name in self.commands_resuming :
+            # one of the resuming commands. 
+            self.commands_doprompt[self.commands_bnum] = False
+            self.cmdqueue = []
+            return 1
+        return 
+
     def msg(self, msg):
         """Common routine for reporting messages.
            Derived classed may want to override this to capture output.
@@ -313,6 +340,19 @@ class Cmd(cmd.Cmd):
             # location for that front-ends tracking source execution.
             if not is_exec_stmt(frame):
                 break
+
+    def onecmd(self, line):
+
+        """Interpret the argument as though it had been typed
+        in response to the prompt.
+        
+        Checks whether this line is typed in the normal
+        prompt or in a breakpoint command list definition """
+
+        if not self.commands_defining:
+            return cmd.Cmd.onecmd(self, line)
+        else:
+            return self.handle_command_def(line)
 
     def set_args(self, args):
         argv_start = self._program_sys_argv[0:1]
