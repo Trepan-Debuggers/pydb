@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.47 2006/05/27 04:36:05 rockyb Exp $
+% $Id: libpydb.tex,v 1.48 2006/05/27 11:50:20 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1076,15 +1076,8 @@ of arbitrary Python code in the context of any stack frame.  It also
 supports disassembly of code and post-mortem debugging and can be
 called under program control.
 
-The debugger is extensible---it is defined as the class
-\class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.  This is
-currently undocumented but easily understood by reading the source.
-The extension interface uses the modules
-\module{bdb}\refstmodindex{bdb} (undocumented) and
-\refmodule{cmd}\refstmodindex{cmd}.
-
-\file{pydb.py} can also be invoked as a script to debug other scripts.
-For example:
+\file{pydb.py} can be invoked as a script to debug other scripts.  For
+example:
 
 \begin{verbatim}
 python -m pydb myscript.py
@@ -1096,6 +1089,25 @@ abnormally. After post-mortem debugging (or after normal exit of the
 program), \code{pydb} will restart the program. Automatic restarting
 preserves \code{pydb}'s state (such as breakpoints) and in most cases
 is more useful than quitting the debugger upon program's exit.
+
+The debugger is extensible---it is defined as the class
+\class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.  When
+creating a new \class{Pdb} object, one can optionally specifying the
+key for command completion if it is provided in your Python via
+\module{readline} or \module{pyreadline}. The parameter name here is
+\code{completekey} an its default value is the tab key.
+
+The \class{Pdb} extension interface of \class{Gdb} a gdb-like debugger
+command interface. This in turn inherts from \class{Cmd} and
+\class{Bdb}; \class{Cmd} handles command-line aspects (e.g. keyboard
+input, completion, help system, top-level command-invocation), while
+\class{Bdb} handles debugger aspects (e.g. breakpoints, stepping, call
+stack formatting). However \class{Cmd} and \class{Bdb} go through two
+more modules \module{pycmd} and \module{pybdb} which are extensions of
+\ulink{\module{\code
+cmd.py}}{http://docs.python.org/lib/module-cmd.html} and \module{bdb}
+respectively. In general these extensions are used to paper over
+deficiencies or differences in operation that are needed.
 
 All of the methods intended for outside use are documented. In fact
 the help documentation for commands comes from the document strings of
