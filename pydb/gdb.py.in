@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.10 2006/05/27 02:58:31 rockyb Exp $
+"""$Id: gdb.py.in,v 1.11 2006/05/27 11:52:51 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -25,7 +25,7 @@ class Gdb(Bdb, Cmd):
 
     def __init__(self, completekey='tab'):
         pydbbdb.Bdb.__init__(self)
-        pydbcmd.Cmd.__init__(self, completekey='tab')
+        pydbcmd.Cmd.__init__(self, completekey)
 
         self._program_sys_argv    = []   # sys.argv after options are stripped
         self._re_linetrace_delay  = re.compile(r'\s*linetrace\s*')
