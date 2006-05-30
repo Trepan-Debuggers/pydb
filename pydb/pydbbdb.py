@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.9 2006/05/27 02:12:02 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.10 2006/05/30 00:33:12 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -86,7 +86,7 @@ class Bdb(bdb.Bdb):
 
     # Override Bdb methods
 
-    def bpprint(self, bp):
+    def bpprint(self, bp, out=None):
         if bp.temporary:
             disp = 'del  '
         else:
@@ -96,16 +96,16 @@ class Bdb(bdb.Bdb):
         else:
             disp = disp + 'n  '
         self.msg('%-4dbreakpoint    %s at %s:%d' %
-                 (bp.number, disp, self.filename(bp.file), bp.line))
+                 (bp.number, disp, self.filename(bp.file), bp.line), out)
         if bp.cond:
             self.msg('\tstop only if %s' % (bp.cond))
         if bp.ignore:
-            self.msg('\tignore next %d hits' % (bp.ignore))
+            self.msg('\tignore next %d hits' % (bp.ignore), out)
         if (bp.hits):
             if (bp.hits > 1): ss = 's'
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
-                     (bp.hits, ss))
+                     (bp.hits, ss), out)
 
     def canonic(self, filename):
 

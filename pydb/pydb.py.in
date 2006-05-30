@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.83 2006/05/27 11:52:51 rockyb Exp $
+"""$Id: pydb.py.in,v 1.84 2006/05/30 00:33:12 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -29,8 +29,8 @@ def init():
     program = os.path.basename(sys.argv[0])
 
 class Pdb(Gdb):
-    def __init__(self, completekey='tab'):
-        Gdb.__init__(self, completekey)
+    def __init__(self, completekey='tab', stdin=None, stdout=None):
+        Gdb.__init__(self, completekey, stdin, stdout)
 
 #########################################################
 # Alternative top-level calls

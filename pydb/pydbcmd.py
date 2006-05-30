@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.15 2006/05/27 11:52:51 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.16 2006/05/30 00:33:12 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -235,11 +235,11 @@ class Cmd(cmd.Cmd):
             self.errmsg(str("%s: %s" % (exc_type_name, arg)))
             raise
 
-    def errmsg(self, msg):
+    def errmsg(self, msg, prefix="*** "):
         """Common routine for reporting debugger error messages.
            Derived classed may want to override this to capture output.
            """
-        self.msg_nocr("*** %s\n" % msg)
+        self.msg_nocr("%s%s\n" %(prefix, msg))
 
     def handle_command_def(self,line):        
         """ Handles one command line during command list
@@ -268,13 +268,13 @@ class Cmd(cmd.Cmd):
             return 1
         return 
 
-    def msg(self, msg):
+    def msg(self, msg, out=None):
         """Common routine for reporting messages.
            Derived classed may want to override this to capture output.
            """
         self.msg_nocr("%s\n" % msg)
 
-    def msg_nocr(self, msg):
+    def msg_nocr(self, msg, out=None):
         """Common routine for reporting messages (no carriage return).
            Derived classed may want to override this to capture output.
            """
@@ -283,8 +283,10 @@ class Cmd(cmd.Cmd):
             if self.logging_fileobj is not None:
                 print >> self.logging_fileobj, msg,
             do_print = not self.logging_redirect
-        if do_print:                
-            print msg,
+        if do_print:
+            if out is None:
+                out = sys.stdout
+            print >> out, msg,
 
     def precmd(self, line):
         """Method executed just before the command line line is
