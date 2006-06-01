@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.16 2006/05/30 00:33:12 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.17 2006/06/01 00:49:53 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -18,8 +18,8 @@ line_prefix = '\n-> '   # Probably a better default
 
 class Cmd(cmd.Cmd):
 
-    def __init__(self, completekey='tab'):
-        cmd.Cmd.__init__(self, completekey)
+    def __init__(self, completekey='tab', stdin=None, stdout=None):
+        cmd.Cmd.__init__(self, completekey, stdin, stdout)
         self._user_requested_quit = False
         self.aliases              = {}
         self.cmdtrace             = False

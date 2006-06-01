@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.12 2006/05/30 00:33:12 rockyb Exp $
+"""$Id: gdb.py.in,v 1.13 2006/06/01 00:49:53 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -58,6 +58,23 @@ class Gdb(Bdb, Cmd):
         self._sys_argv       = []     # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
 
+
+        # associates a command list to breakpoint numbers
+        self.commands = {}
+
+        # for each bp num, tells if the prompt must be disp. after
+        # execing the cmd list
+        self.commands_doprompt = {} 
+
+        # for each bp num, tells if the stack trace must be disp. after
+        # execing the cmd list
+        self.commands_silent = {} 
+
+        # True while in the process of defining a command list
+        self.commands_defining = False
+
+        # The breakpoint number for which we are defining a list        
+        self.commands_bnum = None # 
 
         # list of all the commands making the program
         # resume execution.
@@ -461,12 +478,6 @@ class Gdb(Bdb, Cmd):
             for line in rcFile.readlines():
                 self.rcLines.append(line)
             rcFile.close()
-
-        self.commands = {} # associates a command list to breakpoint numbers
-        self.commands_doprompt = {} # for each bp num, tells if the prompt must be disp. after execing the cmd list
-        self.commands_silent = {} # for each bp num, tells if the stack trace must be disp. after execing the cmd list
-        self.commands_defining = False # True while in the process of defining a command list
-        self.commands_bnum = None # The breakpoint number for which we are defining a list
 
     def show_commands(self, arg):
         """Show the history of commands you typed.
