@@ -1,7 +1,7 @@
-"""$Id: fns.py,v 1.2 2006/03/25 05:57:44 rockyb Exp $
+"""$Id: fns.py,v 1.3 2006/06/03 22:22:22 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
-import os, sys, re, traceback
+import inspect, os, sys, re, traceback
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
@@ -60,6 +60,26 @@ def is_def_stmt(line, frame):
 def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""
     return frame.f_back is not None and op_at_frame(frame.f_back)=='EXEC_STMT'
+
+def get_last_tb_or_frame_tb(frameno=1):
+
+    """Intended to be used going into post mortem routines.  If
+    sys.last_traceback is set, we will return that and assume that
+    this is what post-mortem will want. If sys.last_traceback has not
+    been set, then perhaps we *about* to raise an error and are
+    fielding an exception. So assume that sys.exec_info()[frameno]
+    is where we want to look."""
+
+    traceback = sys.exc_info()[frameno]
+
+    try:
+        if inspect.istraceback(sys.last_traceback):
+            # We do have a traceback so prefer that.
+            traceback = sys.last_traceback
+    except AttributeError:
+        pass
+    return traceback
+
 
 from opcode import opname
 def op_at_frame(frame, pos=None):

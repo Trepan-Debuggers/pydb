@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.84 2006/05/30 00:33:12 rockyb Exp $
+"""$Id: pydb.py.in,v 1.85 2006/06/03 22:22:22 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -95,15 +95,27 @@ def set_trace(cmdfile=None):
 
 # Post-Mortem interface
 
-def post_mortem(t, opts=None, cmdfile=None):
+def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
     """Enter debugger read loop after your program has crashed.
-    Opts is a dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the @PACKAGE_NAME@ instance."""
+
+    If no traceback parameter, t, is supplied, the last traceback and
+    if that doesn't exist either we'll assume that sys.exec_info()
+    contains what we want and frameno is the index location of where
+    we want to start.
+
+    Opts is a dictionary of debugger variables you want set; the key
+    is the variable name and the value is the value to give the
+    variable in the @PACKAGE_NAME@ instance."""
+
     p = Pdb()
     p.reset()
     p.running = False
     re_bogus_file = re.compile("^<.+>$")
+
+    if t is None: 
+        # frameno+1 because we are about to add one more level of call
+        # in get_last_tb_or_frame_tb
+        t = get_last_tb_or_frame_tb(frameno+1)
 
     # t has least-recent traceback entry first. We want the most-recent
     # entry. Also we'll pick out a mainpyfile name if it hasn't previously
@@ -149,19 +161,21 @@ def post_mortem(t, opts=None, cmdfile=None):
             except Restart:
                 pass
 
-def pm(opts=None, cmdfile=None):
-    """Set up post-mortem debugging using the last traceback.
+def pm(opts=None, cmdfile=None, frameno=1):
+
+    """Set up post-mortem debugging using the last traceback.  But if
+    there is no traceback, we'll assume that sys.exec_info() contains
+    what we want and frameno is the index location of where we want
+    to start.
+    
     Opts is a dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the @PACKAGE_NAME@ instance."""
-    try:
-        if not inspect.istraceback(sys.last_traceback):
-            print "*** sys.last_traceback is not a traceback?!"
-            return
-    except AttributeError:
-        print "*** Can't find exception to run a post-mortem over."
-        return
-    post_mortem(sys.last_traceback, opts, cmdfile)
+
+    # frameno+1 because we are about to add one more level of call
+    # in get_last_tb_or_frame_tb
+    traceback = get_last_tb_or_frame_tb(frameno+1)
+    post_mortem(traceback, opts, cmdfile)
 
 # print help
 def help():
