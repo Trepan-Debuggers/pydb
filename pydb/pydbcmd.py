@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.17 2006/06/01 00:49:53 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.18 2006/06/03 21:15:58 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -53,10 +53,10 @@ class Cmd(cmd.Cmd):
         # that it's being run as __main__ to avoid scripts being able to access
         # the pydb.py namespace.
         globals_ = {"__name__" : "__main__",
-                    "__file__" : self.mainpyfile
+                    "__file__" : self.mainpyfile,
+                    "__builtins__" : __builtins__
                     }
         locals_ = globals_
-
 
         statement = 'execfile( "%s")' % filename
         self.running = True
