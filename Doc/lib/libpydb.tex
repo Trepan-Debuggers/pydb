@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.49 2006/05/27 11:56:42 rockyb Exp $
+% $Id: libpydb.tex,v 1.50 2006/06/07 10:51:56 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -69,6 +69,38 @@ keeping compatibility is not important.
 So, in cases where the standard Python
 debugger was incompatible with \code{gdb}, the \code{gdb} commands
 have been used.
+
+{\bf A design principle for debuggers in general}:\\ By necessity,
+debuggers change the operation of the program they are debugging. And
+this can lead to unexpected and unwanted differences. It has happened
+so often that the term
+\ulink{http://en.wikipedia.org/wiki/Heisenbug}{``Heisenbugs'} was
+coined invented to describe the situation where the adding the use of
+a the debugger (among other possibilities) changes behavior of the
+program so that the bug doesn't manifest itself anymore.
+
+Of course a debugger, and this one in particular, tries hard to make
+itself transparent when not asked to do its thing. But there can be
+unavoidable differences. One such noticeable difference, mentioned in
+conjunction with \code{set_trace()} (see \ref{set-trace}), is the
+speed at which the debugger runs. Another difference may involve
+name-space issues since some of the debugger may live inside the
+debugged program.
+
+Consequently as a debugger writer a general principle (and principle
+use in this debugger) is: \emph{bring in services only when needed or
+requested.}  For example, it is possible that we will add debugging
+threads and out-of-process debugging, including debugging from outside
+of the running computer. For thread debugging, most certainly the
+debugged program will, by necessity, add a thread to manage the
+others. For out of process debugging, most certainly some sort of
+communication mechanism will need to get added, e.g. a socket. However
+there are many programs that one might want to debug that might not
+use either threads or sockets and might not need debugging outside of
+the debugged program. So when debugging those, a debugger should not
+add beforehand either a thread or a socket, unless the features that
+require them are requested. And even then, not \emph{until} they are
+requested.
 
 \section{Invoking the Debugger \label{pydb-invocation}}
 
@@ -1135,9 +1167,9 @@ works often enough.
 
 So another approach which doesn't have this complexity or drawback is
 to modify your program to add calls to the debugger at special
-places. For this, the \code{pydb} function \code{set_trace()} can be
-used. I've even this method to debug the debugger itself and to debug
-regression tests.
+places. For this, the \code{pydb} function \code{set_trace()} (see
+\ref{set-trace}) can be used. I've even this method to debug the
+debugger itself and to debug regression tests.
 
 When the \code{pydb.set_trace()} function is called, the program stops
 before the next statement. To continue running the program, issue a
@@ -1411,7 +1443,7 @@ expression.  Otherwise this function is similar to
 \function{run()}.
 \end{funcdesc}
 
-\begin{funcdesc}{set_trace}{\optional{cmdfile=None}}
+\begin{funcdesc}{set_trace}{\optional{cmdfile=None}}\label{set-trace}
 Enter the debugger at the statement which follows (in execution) the
 \code{set_trace()} statement. This hard-codes a call to the debugger
 at a given point in a program, even if the code is not otherwise being
