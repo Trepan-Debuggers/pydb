@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.11 2006/06/16 02:25:14 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.12 2006/06/16 03:41:52 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -116,7 +116,8 @@ class Bdb(bdb.Bdb):
             return filename
         canonic = self.fncache.get(filename)
         if not canonic:
-            if filename.split(os.sep)[0] == os.curdir:
+            lead_dir = filename.split(os.sep)[0]
+            if lead_dir == os.curdir or lead_dir == os.pardir:
                 # We may have invoked the program from a directory
                 # other than where the program resides. filename is
                 # relative to where the program resides. So make sure
