@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.13 2006/06/01 00:49:53 rockyb Exp $
+"""$Id: gdb.py.in,v 1.14 2006/06/16 02:25:14 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -48,6 +48,11 @@ class Gdb(Bdb, Cmd):
         self.linetrace       = False
         self.linetrace_delay = 0
         self.listsize        = 10
+
+        # main_dirname is the directory where the script resides;
+        # "import" statments are relative to this location.
+
+        self.main_dirname    = os.curdir
         self.mainpyfile      = ''
         self.maxargstrsize   = 30     # max length to show of parameter string 
         self.moduletodebug   = ""

@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.10 2006/05/30 00:33:12 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.11 2006/06/16 02:25:14 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -116,7 +116,15 @@ class Bdb(bdb.Bdb):
             return filename
         canonic = self.fncache.get(filename)
         if not canonic:
-            canonic = os.path.abspath(filename)
+            if filename.split(os.sep)[0] == os.curdir:
+                # We may have invoked the program from a directory
+                # other than where the program resides. filename is
+                # relative to where the program resides. So make sure
+                # to use that.
+                canonic = os.path.abspath(os.path.join(self.main_dirname,
+                                                       filename))
+            else:
+                canonic = os.path.abspath(filename)
             if not os.path.isfile(canonic):
                 # FIXME!!
                 # canonic = search_file(filename, self.search_path)
@@ -238,7 +246,6 @@ class Bdb(bdb.Bdb):
 
     def user_line(self, frame):
         """This function is called when we stop or break at this line."""
-        # print "+++ user_line here"
         self.stop_reason = 'line'
         if self._wait_for_mainpyfile:
             if (self.mainpyfile != self.canonic_filename(frame)

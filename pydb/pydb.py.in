@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.85 2006/06/03 22:22:22 rockyb Exp $
+"""$Id: pydb.py.in,v 1.86 2006/06/16 02:25:14 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -80,6 +80,7 @@ def set_trace(cmdfile=None):
         _pydb_trace._program_sys_argv = list(sys.argv)
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
         _pydb_trace._sys_argv[:0] = [_debugger_name]
+        _pydb_trace.main_dirname = os.path.dirname(sys.argv[0])
     except:
         print "Unknown error"
         return
@@ -220,7 +221,7 @@ def main():
 
     # Replace @PACKAGE_NAME@'s dir with script's dir in front of
     # module search path.
-    sys.path[0] = os.path.dirname(mainpyfile)
+    sys.path[0] = pydb.main_dirname = os.path.dirname(mainpyfile)
 
     while True:
 
