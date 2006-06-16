@@ -401,6 +401,8 @@ problem as best as we can determine."
   (pydb-pydbtrack-toggle-stack-tracking 1)
   (setq pydb-pydbtrack-is-tracking-p t)
   (add-hook 'comint-output-filter-functions 'pydb-pydbtrack-track-stack-file))
+  ; remove other py-pdbtrack if which gets in the way
+  (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file))
 
 
 (defun turn-off-pydbtrack ()
