@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.52 2006/06/08 09:04:21 rockyb Exp $
+% $Id: libpydb.tex,v 1.53 2006/06/17 22:13:10 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -870,8 +870,22 @@ command---it executes the Python \keyword{print} statement.}
 \item[p \var{expression}]
 
 Evaluate the \var{expression} in the current context and print its
-value.  \note{\samp{print} can also be used, but is not a debugger
-command---it executes the Python \keyword{print} statement.}
+value. One can also often have an expression printed by just typing
+the expression. If the first token doesn't conflict with a debugger
+built-in command Python will, by default, print the result same as if
+you did this inside a Python interpreter shell. To make things even
+more confused, a special case of running an arbitrary Python command
+is the \samp{print} command. But note that the debugger command is
+just \samp{p}.
+
+So what's the difference? The debugger's print command encloses
+everything in a \samp{repr()}, to ensure the resulting output is not
+too long.  \emph{\note{Should add info as to how to customize what
+``too long'' means}}. So if you want abbreviated output, or are not
+sure if the expression may have an arbitrarily long (or infinite)
+representation, then use \samp{p}. If you want the output as Python
+would print it, just give the expression or possibly use python's
+\samp{print} command.
 
 \item[pp \var{expression}]
 
