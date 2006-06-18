@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.53 2006/06/17 22:13:10 rockyb Exp $
+% $Id: libpydb.tex,v 1.54 2006/06/18 19:25:44 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -70,14 +70,14 @@ So, in cases where the standard Python
 debugger was incompatible with \code{gdb}, the \code{gdb} commands
 have been used.
 
-{\bf A design principle for debuggers in general}:\\ By necessity,
-debuggers change the operation of the program they are debugging. And
-this can lead to unexpected and unwanted differences. It has happened
-so often that the term
+{\bf Least action: a design principle for debuggers in general}:\\ By
+necessity, debuggers change the operation of the program they are
+debugging. And this can lead to unexpected and unwanted
+differences. It has happened so often that the term
 \ulink{http://en.wikipedia.org/wiki/Heisenbug}{``Heisenbugs'} was
-coined to describe the situation where the adding the use of
-a the debugger (among other possibilities) changes behavior of the
-program so that the bug doesn't manifest itself anymore.
+coined to describe the situation where the adding the use of a the
+debugger (among other possibilities) changes behavior of the program
+so that the bug doesn't manifest itself anymore.
 
 Of course a debugger, and this one in particular, tries hard to make
 itself transparent when not asked to do its thing. But there can be
