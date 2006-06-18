@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.19 2006/06/16 02:25:14 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.20 2006/06/18 22:40:10 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -65,10 +65,10 @@ class Cmd(cmd.Cmd):
     def default(self, line):
         """Method called on an input line when the command prefix is
         not recognized. In particular we ignore # comments and execute
-        Python commands which might optionally start with !"""
+        Python commands which might optionally start with $"""
 
         if line[:1] == '#': return
-        if line[:1] == '!': line = line[1:]
+        if line[:1] == '$': line = line[1:]
         locals = self.curframe.f_locals
         globals = self.curframe.f_globals
         try:

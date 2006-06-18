@@ -7,6 +7,10 @@
 
 *  Fix bug when using set trace introduced in 1.16 in adding "command".
 
+* The "turn-on-pydbtrack" command turns removes py-pdbtrack from
+  comint-output-filter-functions which was removing the cursor in the
+  source window.
+
 1.16
 2006-04-27
 

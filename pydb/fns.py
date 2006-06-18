@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.3 2006/06/03 22:22:22 rockyb Exp $
+"""$Id: fns.py,v 1.4 2006/06/18 22:40:10 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, os, sys, re, traceback
@@ -7,6 +7,23 @@ import inspect, os, sys, re, traceback
 _re_def_str = r'^\s*def\s'
 _re_def = re.compile(_re_def_str)
     
+def search_file(filename, path, cdir):
+    """Return a full pathname for filename if we can find one. path
+    is a list of directories to prepend to filename. If no file is
+    found we'll return filename"""
+    dirs=path.split(":")
+    for dir in dirs:
+
+        # Handle $cwd and $cdir
+        if dir =='$cwd': dir='.'
+        elif dir == '$cdir': dir = cdir
+
+        tryfile = os.path.abspath(os.path.join(dir, filename))
+        if os.path.isfile(tryfile):
+            return tryfile
+    return filename
+    
+
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
     # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))

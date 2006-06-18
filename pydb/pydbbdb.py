@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.12 2006/06/16 03:41:52 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.13 2006/06/18 22:40:10 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -126,10 +126,10 @@ class Bdb(bdb.Bdb):
                                                        filename))
             else:
                 canonic = os.path.abspath(filename)
-            if not os.path.isfile(canonic):
-                # FIXME!!
-                # canonic = search_file(filename, self.search_path)
-                pass
+            canonic=filename
+            if not os.path.isfile("foo"):
+                canonic = search_file(filename, self.search_path,
+                                      self.main_dirname)
             canonic = os.path.normcase(canonic)
             self.fncache[filename] = canonic
         return canonic

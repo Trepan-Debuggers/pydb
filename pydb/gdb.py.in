@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.14 2006/06/16 02:25:14 rockyb Exp $
+"""$Id: gdb.py.in,v 1.15 2006/06/18 22:40:10 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -33,7 +33,7 @@ class Gdb(Bdb, Cmd):
         self._set_cmds =  ['args',      'basename', 'cmdtrace', 'history',
                            'linetrace', 'linetrace delay',
                            'listsize',  'logging',  'prompt']
-        self._show_cmds = ['args',      'basename', 'cmdtrace', 
+        self._show_cmds = ['args',      'basename', 'cmdtrace', 'directories',
                            'linetrace', 'linetrace delay',
                            'listsize',  'logging',  'prompt',
                            'version']
@@ -59,6 +59,7 @@ class Gdb(Bdb, Cmd):
         self.noninteractive  = False
         self.originalpath    = sys.path[:]
         self.running         = False
+        self.search_path     = '$cdir:$cwd'  # source name search path
         self.stop_reason     = None   # Why are we in the debugger?
         self._sys_argv       = []     # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
@@ -816,6 +817,7 @@ the .py suffix may be omitted."""
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
         if not arg:
+            ## FIXME: put this and the below instance into fns.
             while True and not self.noninteractive:
                 try:
                     reply = raw_input('Delete all breakpoints (y or n)? ')
@@ -846,6 +848,37 @@ the .py suffix may be omitted."""
                 self.errmsg(err)
             else:
                 self.msg('Deleted breakpoint %d' % i)
+
+    def do_directory(self, arg):
+
+        """Add directory DIR to beginning of search path for source
+files.  Forget cached info on source file locations and line
+positions.  DIR can also be $cwd for the current working directory, or
+$cdir for the directory in which the source file was compiled into
+object code.  With no argument, reset the search path to $cdir:$cwd,
+the default."""
+        if len(arg) == 0:
+            ## FIXME: put this and the above instance into fns.
+            while True and not self.noninteractive:
+                try:
+                    reply = raw_input('Reinitialize source path to empty? (y or n) ')
+                except EOFError:
+                    reply = 'no'
+                    reply = reply.strip().lower()
+                if reply in ('y', 'yes'):
+                    self.search_path=''
+                    return
+                elif reply in ('n', 'no'):
+                    return
+                else:
+                    self.msg("Please answer y or n.")
+            return
+        elif len(arg) == 1:
+            # FIXME: should check each argument to see if it is a directory
+            self.search_path=arg
+        else:
+            # Loop over arguments checking for directory?
+            pass
 
     def do_disable(self, arg):
         """disable [display] bpnumber [bpnumber ...]
@@ -1447,7 +1480,8 @@ assignment to the variable __return__."""
             return
 
         args = arg.split()
-        if args[0] == 'args':
+        ## FIXME Change all to use startswith.
+        if 'args'.startswith(args[0]):
             self.msg("Argument list to give program being debugged " +
                       "when it is started is ")
             self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
@@ -1455,8 +1489,10 @@ assignment to the variable __return__."""
             self.msg("basename is %s." % show_onoff(self.basename))
         elif args[0] == 'cmdtrace':
             self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
-        elif args[0] == 'commands':
+        elif 'commands'.startswith(args[0]) and len(args[0]) > 2:
             self.show_commands(len(args) > 1 and args[1] or None)
+        elif 'directories'.startswith(args[0]):
+            self.msg("Source directories searched: %s." % self.search_path)
         elif args[0] == 'history':
             try:
                 import @READLINE@
