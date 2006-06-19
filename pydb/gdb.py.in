@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.15 2006/06/18 22:40:10 rockyb Exp $
+"""$Id: gdb.py.in,v 1.16 2006/06/19 04:56:01 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1485,15 +1485,15 @@ assignment to the variable __return__."""
             self.msg("Argument list to give program being debugged " +
                       "when it is started is ")
             self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
-        elif args[0] == 'basename':
+        elif 'basename'.startswith(args[0]):
             self.msg("basename is %s." % show_onoff(self.basename))
-        elif args[0] == 'cmdtrace':
+        elif 'cmdtrace'.startswith(args[0]) and len(args[0]) > 1:
             self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
-        elif 'commands'.startswith(args[0]) and len(args[0]) > 2:
+        elif 'commands'.startswith(args[0]) and len(args[0]) > 1:
             self.show_commands(len(args) > 1 and args[1] or None)
         elif 'directories'.startswith(args[0]):
             self.msg("Source directories searched: %s." % self.search_path)
-        elif args[0] == 'history':
+        elif 'history'.startswith(args[0]):
             try:
                 import @READLINE@
                 self.msg(
@@ -1505,7 +1505,7 @@ assignment to the variable __return__."""
                          % readline.get_history_length())
             except ImportError:
                 pass
-        elif args[0] == 'interactive':
+        elif 'interactive'.startswith(args[0]):
             self.msg("interactive is %s." %
                      show_onoff(not self.noninteractive))
         elif arg == 'linetrace':
