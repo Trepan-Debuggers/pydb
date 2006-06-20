@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.31 2006/06/16 02:53:38 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.32 2006/06/20 03:34:45 rockyb Exp $])dnl
 AC_INIT([pydb],[1.17cvs],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
@@ -71,8 +71,8 @@ AC_ARG_WITH(python,
 ##
 ## Check for Python interpreter and make we have a recent version.
 ##
-AM_PATH_PYTHON(2.4.0,, 
-   [AC_MSG_ERROR(Debugger known only to work with Python 2.4 or greater)])
+AM_PATH_PYTHON(2.3.4,, 
+   [AC_MSG_ERROR(Debugger known only to work with Python 2.3.4 or greater)])
 
 ## Automake doesn't get Python's install path correct. So we 
 ## figure it out and set it ourself.

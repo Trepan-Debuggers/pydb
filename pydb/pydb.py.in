@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.86 2006/06/16 02:25:14 rockyb Exp $
+"""$Id: pydb.py.in,v 1.87 2006/06/20 03:34:45 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -92,7 +92,11 @@ def set_trace(cmdfile=None):
     if cmdfile is not None: _pydb_trace.do_source(cmdfile)
 
     # There can be no other commands after the following one:
-    _pydb_trace.set_trace(_pydb_trace.curframe)
+    if sys.version_info[0:2] == (2, 4):
+        _pydb_trace.set_trace(_pydb_trace.curframe)
+    else:
+        # older versions
+        _pydb_trace.set_trace()  
 
 # Post-Mortem interface
 

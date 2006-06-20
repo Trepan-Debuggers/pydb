@@ -16,6 +16,8 @@
   comint-output-filter-functions which was removing the cursor in the
   source window.
 
+* Tolerance for version 2.3.4. (It's what I have to use at work.)
+
 1.16
 2006-04-27
 
