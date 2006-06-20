@@ -12,7 +12,7 @@ Argument list to give program being debugged when it is started is
 basename is on.
 + set basename foo
 *** Expecting 'on', 1, 'off', or 0. Got: foo.
-+ show basename
++ show base
 basename is on.
 + set basename off
 + show basename
@@ -29,7 +29,7 @@ basename is on.
 + show listsize
 Number of source lines pydb will list by default is 10.
 + set listsize 20
-+ show listsize
++ show listsi
 Number of source lines pydb will list by default is 20.
 + set listsize abc
 *** Expecting an integer, got: abc

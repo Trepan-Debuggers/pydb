@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.16 2006/06/19 04:56:01 rockyb Exp $
+"""$Id: gdb.py.in,v 1.17 2006/06/20 11:06:56 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1513,15 +1513,15 @@ assignment to the variable __return__."""
         elif self._re_linetrace_delay.match(arg):
             self.msg("line trace delay is %s. (In seconds)"
                      % self.linetrace_delay)
-        elif args[0] == 'listsize':
+        elif 'listsize'.startswith(args[0]) and len(args[0]) > 2:
             self.msg("Number of source lines %s will list by default is %d." \
                   % (_debugger_name, self.listsize))
-        elif args[0] == 'logging':
+        elif 'logging'.startswith(args[0]) and len(args[0]) > 2:
             self.show_logging(args)
-        elif args[0] == 'prompt':
+        elif 'prompt'.startswith(args[0]):
             self.msg("""%s's prompt is "%s".""" %
                      (_debugger_name, self.prompt))
-        elif args[0] == 'version':
+        elif 'version'.startswith(args[0]):
             self.msg("""%s version %s.""" %
                      (_debugger_name, "@PACKAGE_VERSION@"))
         else:

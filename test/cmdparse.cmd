@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.14 2006/05/21 04:27:40 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.15 2006/06/20 11:06:57 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -13,7 +13,7 @@ set args this is a test
 show args
 show basename
 set basename foo
-show basename
+show base
 set basename off
 show basename
 set basename 0
@@ -25,7 +25,7 @@ show basename
 ########################################
 show listsize
 set listsize 20
-show listsize
+show listsi
 set listsize abc
 set listsize -20
 set listsize 20 forever

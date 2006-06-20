@@ -1,5 +1,5 @@
 # Test of history mechanism
-# $Id: history.cmd,v 1.1 2006/03/14 03:48:47 rockyb Exp $
+# $Id: history.cmd,v 1.2 2006/06/20 11:06:57 rockyb Exp $
 #
 set basename on
 set cmdtrace on
@@ -10,7 +10,7 @@ show history
 set history save off
 set history save on
 list
-show history
+show hi
 quit
 
 
