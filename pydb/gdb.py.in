@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.17 2006/06/20 11:06:56 rockyb Exp $
+"""$Id: gdb.py.in,v 1.18 2006/06/20 12:19:16 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -877,8 +877,8 @@ the default."""
             # FIXME: should check each argument to see if it is a directory
             self.search_path=arg
         else:
-            # Loop over arguments checking for directory?
-            pass
+            # FIXME: Loop over arguments checking for directory?
+            self.search_path=arg[0]
 
     def do_disable(self, arg):
         """disable [display] bpnumber [bpnumber ...]
