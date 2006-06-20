@@ -5,6 +5,6 @@ URL = 'http://bashdb.sourceforge.net/pydb/'
 HELP_URL = URL + 'pydb/index.html'
 
 import sys
-assert sys.version_info >= (2, 3, 5), _("Python %s or newer required") % '2.3.5'
+assert sys.version_info >= (2, 3, 4), _("Python %s or newer required") % '2.3.4'
 from pydb import *
 
