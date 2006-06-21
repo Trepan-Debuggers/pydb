@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.19 2006/06/21 10:33:35 rockyb Exp $
+"""$Id: gdb.py.in,v 1.20 2006/06/21 11:03:00 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -224,57 +224,6 @@ class Gdb(Bdb, Cmd):
                 lineno = int(ln)
         return (funcname, filename, lineno)
 
-    def __help_info(self, cmd, label=False):
-        """Show help for a single 'info' subcommand"""
-        if label:
-            self.msg_nocr("info %s --" % cmd)
-        if 'args'.startswith(cmd):
-            self.msg("Argument variables of current stack frame")
-        elif 'display'.startswith(cmd):
-            self.msg("Expressions to display when program stops, " +
-                     "with code numbers.")
-        elif 'break'.startswith(cmd):
-            self.msg("Status of user-settable breakpoints")
-        elif 'globals'.startswith(cmd):
-            self.msg("Global variables of current stack frame")
-        elif 'line'.startswith(cmd) and len(cmd) > 1:
-            self.msg("Current line number in source file")
-        elif 'locals'.startswith(cmd) and len(cmd) > 1:
-            self.msg("Local variables of current stack frame")
-        elif 'program'.startswith(cmd):
-            self.msg("Execution status of the program")
-        elif 'source'.startswith(cmd):
-            self.msg("Information about the current Python file")
-        else:
-            self.undefined_cmd("help info", cmd)
-
-    def __help_set(self, cmd, label=False):
-        """Show help for a single set subcommand"""
-        if label:
-            self.msg_nocr("set %s --" % cmd)
-        if 'args'.startswith(cmd):
-            self.msg("Set argument list to give program being debugged when it is started")
-        elif 'basename'.startswith(cmd):
-            self.msg("Set short filenames (the basename) in debug output")
-        elif 'cmdtrace'.startswith(cmd):
-            self.msg("Set to show lines read from the " +
-                     "debugger command file")
-        elif 'history'.startswith(cmd):
-            self.msg("Generic command for setting command history parameters")
-        elif 'interactive'.startswith(cmd):
-            self.msg("Set whether we are interactive")
-        elif 'linetrace'.startswith(cmd) and len(cmd) > 2:
-            self.msg("Set line execution tracing and delay on tracing")
-        elif 'listsize'.startswith(cmd) and len(cmd) > 2:
-            self.msg("Set number of source lines the debugger will list "
-                     + "by default")
-        elif 'logging'.startswith(cmd) and len(cmd) > 1:
-            self.msg("Set logging options")
-        elif 'prompt'.startswith(cmd):
-            self.msg("Set debugger's prompt")
-        else:
-            self.undefined_cmd("help set", cmd)
-
     def __help_show(self, cmd, label=False):
         """Show help for a single set subcommand"""
         if label:
@@ -385,6 +334,30 @@ class Gdb(Bdb, Cmd):
                 self.msg('index %r is not a number' % i)
                 continue
 
+    def info_helper(self, cmd, label=False):
+        """Show help for a single 'info' subcommand"""
+        if label:
+            self.msg_nocr("info %s --" % cmd)
+        if 'args'.startswith(cmd):
+            self.msg("Argument variables of current stack frame")
+        elif 'display'.startswith(cmd):
+            self.msg("Expressions to display when program stops, " +
+                     "with code numbers.")
+        elif 'break'.startswith(cmd):
+            self.msg("Status of user-settable breakpoints")
+        elif 'globals'.startswith(cmd):
+            self.msg("Global variables of current stack frame")
+        elif 'line'.startswith(cmd) and len(cmd) > 1:
+            self.msg("Current line number in source file")
+        elif 'locals'.startswith(cmd) and len(cmd) > 1:
+            self.msg("Local variables of current stack frame")
+        elif 'program'.startswith(cmd):
+            self.msg("Execution status of the program")
+        elif 'source'.startswith(cmd):
+            self.msg("Information about the current Python file")
+        else:
+            self.undefined_cmd("help info", cmd)
+
     def lineinfo(self, identifier):
         failed = (None, None, None)
         # Input is identifier, may be in single quotes
@@ -461,6 +434,33 @@ class Gdb(Bdb, Cmd):
                 self.print_stack_entry(i)
         except KeyboardInterrupt:
             pass
+
+    def set_helper(self, cmd, label=False):
+        """Show help for a single set subcommand"""
+        if label:
+            self.msg_nocr("set %s --" % cmd)
+        if 'args'.startswith(cmd):
+            self.msg("Set argument list to give program being debugged when it is started")
+        elif 'basename'.startswith(cmd):
+            self.msg("Set short filenames (the basename) in debug output")
+        elif 'cmdtrace'.startswith(cmd):
+            self.msg("Set to show lines read from the " +
+                     "debugger command file")
+        elif 'history'.startswith(cmd):
+            self.msg("Generic command for setting command history parameters")
+        elif 'interactive'.startswith(cmd):
+            self.msg("Set whether we are interactive")
+        elif 'linetrace'.startswith(cmd) and len(cmd) > 2:
+            self.msg("Set line execution tracing and delay on tracing")
+        elif 'listsize'.startswith(cmd) and len(cmd) > 2:
+            self.msg("Set number of source lines the debugger will list "
+                     + "by default")
+        elif 'logging'.startswith(cmd) and len(cmd) > 1:
+            self.msg("Set logging options")
+        elif 'prompt'.startswith(cmd):
+            self.msg("Set debugger's prompt")
+        else:
+            self.undefined_cmd("help set", cmd)
 
     def setup(self, frame, traceback=None):
         """Initialization done before entering the debugger-command
@@ -1743,7 +1743,7 @@ was reached.
     def help_info(self, *args):
         """Generic command for showing things about the program being debugged."""
         self.subcommand_help('info', getattr(self, 'help_info').__doc__,
-                             self._info_cmds, self.__help_info, args[0])
+                             self._info_cmds, self.info_helper, args[0])
 
     def help_pydb(self, *arg):
         help()
@@ -1753,7 +1753,7 @@ was reached.
         """This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command."""
         self.subcommand_help('set', getattr(self, 'help_set').__doc__,
-                             self._set_cmds, self.__help_set, args[0])
+                             self._set_cmds, self.set_helper, args[0])
 
     # Note: format of help is compatible with ddd.
     def help_show(self, *args):
