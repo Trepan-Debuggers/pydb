@@ -9,14 +9,17 @@
 
 *  Add "directory" and "show directories" commands. 
 
-* All show and info commands (will) allow abbreviations in the
-  subcommand name. E.g. "show dir" for "show directories"
+* All show and info commands allow unique abbreviations in the
+  subcommand name and in help. E.g. "show dir" for "show directories";
+  "help dir" for "help directories".
 
 * The "turn-on-pydbtrack" command turns removes py-pdbtrack from
   comint-output-filter-functions which was removing the cursor in the
   source window.
 
 * Tolerance for version 2.3.4. (It's what I have to use at work.)
+
+* Allow info, and set help strings to be subclassed properly.
 
 1.16
 2006-04-27
