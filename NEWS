@@ -1,4 +1,4 @@
-1.16cvs
+1.17cvs
 *  Fix a bad bug (at least for me) where we would get the wrong path in
    tracing through an "import x as y". This happened only if we invoked
    from a directory other than where the debugged program lives and we
@@ -9,7 +9,7 @@
 
 *  Add "directory" and "show directories" commands. 
 
-* All show and info commands allow unique abbreviations in the
+* All "show" and "info" commands allow unique abbreviations in the
   subcommand name and in help. E.g. "show dir" for "show directories";
   "help dir" for "help directories".
 
