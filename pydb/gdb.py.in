@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.20 2006/06/21 11:03:00 rockyb Exp $
+"""$Id: gdb.py.in,v 1.21 2006/06/23 03:14:13 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -86,7 +86,7 @@ class Gdb(Bdb, Cmd):
         # resume execution.
 
         self.commands_resuming = ['do_continue', 'do_jump',  'do_next',
-                                  'do_quit',      'do_return',
+                                  'do_quit',     'do_return',
                                   'do_step']
 
         # Try to load readline if it exists
@@ -951,7 +951,7 @@ the default."""
                variable = arglist[0]
             dp = DisplayNode(self.curframe, variable, format)
             res = dp.checkValid(self.curframe)
-            print res
+            self.msg(res)
         return
     
     def do_down(self, arg):
@@ -1007,27 +1007,9 @@ the default."""
         modules we print out the documentation string if any.
 
         For functions we also show the argument list."""
-        try: 
-            obj = self.getval(arg)
-        except:
-            return
-        if inspect.isfunction(obj):
-            # For functions we print the fn(args) and doc if it exists
-            self.msg("def %s%s:" % 
-                     (arg, inspect.formatargspec(inspect.getargspec(obj)[0])))
-            doc=inspect.getdoc(obj)
-            if doc != None and doc != '': 
-                self.msg(doc)
-            self.msg(self._saferepr(obj))
-        elif inspect.ismodule(obj) or inspect.isbuiltin(obj) \
-                or inspect.isclass(obj):
-            self.msg(repr(obj))
-            doc=inspect.getdoc(obj)
-            if doc != None and doc != '': 
-                self.msg(doc)
-        else:
-            self.do_whatis(arg)
-            self.do_pp(arg)
+        dp = DisplayNode(self.curframe, arg, "")
+        res = dp.checkValid(self.curframe)
+        self.msg(res)
 
 #    def do_file(self, fname):
 #
