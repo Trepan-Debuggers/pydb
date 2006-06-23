@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.22 2006/06/23 08:53:48 rockyb Exp $
+"""$Id: gdb.py.in,v 1.23 2006/06/23 10:30:54 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -846,17 +846,15 @@ positions.  DIR can also be $cwd for the current working directory, or
 $cdir for the directory in which the source file was compiled into
 object code.  With no argument, reset the search path to $cdir:$cwd,
 the default."""
-        if len(arg) == 0:
+        args = arg.split()
+        if len(args) == 0:
             if get_confirmation(
                 'Reinitialize source path to empty? (y or n) '):
                 self.search_path=''
             return
-        elif len(arg) == 1:
-            # FIXME: should check each argument to see if it is a directory
-            self.search_path=arg
         else:
             # FIXME: Loop over arguments checking for directory?
-            self.search_path=arg[0]
+            self.search_path=args[0]
 
     def do_disable(self, arg):
         """disable [display] bpnumber [bpnumber ...]
@@ -1126,10 +1124,17 @@ the default."""
                 answer = self.lineinfo(arglist[1])
                 if answer[0]:
                     item, file, lineno = answer
+                    if not os.path.isfile(file):
+                        file = search_file(file, self.search_path,
+                                           self.main_dirname)
                     self.msg('Line %s of "%s" <%s>' %
                              (lineno, file, item))
                 return
             #info line
+            file=self.canonic_filename(frame)
+            if not os.path.isfile(file):
+                file = search_file(file, self.search_path, self.main_dirname)
+
             self.msg('Line %d of \"%s\" at instruction %d' % 
                      (inspect.getlineno(frame),
                       self.filename(self.canonic_filename(frame)),
