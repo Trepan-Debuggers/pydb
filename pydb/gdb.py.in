@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.21 2006/06/23 03:14:13 rockyb Exp $
+"""$Id: gdb.py.in,v 1.22 2006/06/23 08:53:48 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -817,20 +817,9 @@ the .py suffix may be omitted."""
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
         if not arg:
-            ## FIXME: put this and the below instance into fns.
-            while True and not self.noninteractive:
-                try:
-                    reply = raw_input('Delete all breakpoints (y or n)? ')
-                except EOFError:
-                    reply = 'no'
-                    reply = reply.strip().lower()
-                if reply in ('y', 'yes'):
-                    self.clear_all_breaks()
-                    break
-                elif reply in ('n', 'no'):
-                    return
-                else:
-                    self.msg("Please answer y or n.")
+            if get_confirmation('Delete all breakpoints (y or n)? '):
+                self.clear_all_breaks()
+            return
 
         numberlist = arg.split()
         for arg in numberlist:
@@ -858,20 +847,9 @@ $cdir for the directory in which the source file was compiled into
 object code.  With no argument, reset the search path to $cdir:$cwd,
 the default."""
         if len(arg) == 0:
-            ## FIXME: put this and the above instance into fns.
-            while True and not self.noninteractive:
-                try:
-                    reply = raw_input('Reinitialize source path to empty? (y or n) ')
-                except EOFError:
-                    reply = 'no'
-                    reply = reply.strip().lower()
-                if reply in ('y', 'yes'):
-                    self.search_path=''
-                    return
-                elif reply in ('n', 'no'):
-                    return
-                else:
-                    self.msg("Please answer y or n.")
+            if get_confirmation(
+                'Reinitialize source path to empty? (y or n) '):
+                self.search_path=''
             return
         elif len(arg) == 1:
             # FIXME: should check each argument to see if it is a directory

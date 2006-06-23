@@ -1,4 +1,6 @@
 1.17cvs
+*  "examine" command output is like display's and is more useful.
+
 *  Fix a bad bug (at least for me) where we would get the wrong path in
    tracing through an "import x as y". This happened only if we invoked
    from a directory other than where the debugged program lives and we
