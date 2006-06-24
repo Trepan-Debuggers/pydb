@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.23 2006/06/23 10:30:54 rockyb Exp $
+"""$Id: gdb.py.in,v 1.24 2006/06/24 08:47:00 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -987,6 +987,8 @@ the default."""
         res = dp.checkValid(self.curframe)
         self.msg(res)
 
+    do_x = do_examine
+
 #    def do_file(self, fname):
 #
 #        """ Use FILE as program to be debugged.  It is compiled and
@@ -1422,16 +1424,24 @@ assignment to the variable __return__."""
             self.errmsg("Expecting at least 2 arguments. Got %d" % len(args))
             return
 
-        if   args[0] == 'args'       : self.set_args(args)
-        elif args[0] == 'basename'   : self.set_basename(args)
-        elif args[0] == 'cmdtrace'   : self.set_cmdtrace(args)
-        elif args[0] == 'history'    : self.set_history(args)
-        elif args[0] == 'interactive':
+        if   'args'.startswith(args[0]):
+            self.set_args(args)
+        elif 'basename'.startswith(args[0]):
+            self.set_basename(args)
+        elif 'cmdtrace'.startswith(args[0]):
+            self.set_cmdtrace(args)
+        elif 'history'.startswith(args[0]):
+            self.set_history(args)
+        elif 'interactive'.startswith(args[0]):
             self.noninteractive = not self.get_onoff(args[1])
-        elif args[0] == 'linetrace'  : self.set_linetrace(args)
-        elif args[0] == 'listsize'   : self.set_listsize(args)
-        elif args[0] == 'logging'    : self.set_logging(args)
-        elif args[0] == 'prompt'     : self.set_prompt(args)
+        elif 'linetrace'.startswith(args[0]) and len(args[0]) > 2:
+            self.set_linetrace(args)
+        elif 'listsize'.startswith(args[0]) and len(args[0]) > 2:
+            self.set_listsize(args)
+        elif 'logging'.startswith(args[0]) and len(args[0]) > 1:
+            self.set_logging(args)
+        elif 'prompt'.startswith(args[0]):
+            self.set_prompt(args)
         else:
             self.errmsg("unknown set subcommand %s" %  args[0])
 

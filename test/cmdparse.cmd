@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.15 2006/06/20 11:06:57 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.16 2006/06/24 08:47:02 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -66,7 +66,7 @@ list gcd.py:24
 list gcd.py:24 hanoi.py:10
 # File doesn't have 50 lines
 list 50
-set listsize 6
+set listsi 6
 list 5
 # Invalid list command - need lineno or fn name
 list hanoi.py

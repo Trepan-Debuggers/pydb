@@ -212,7 +212,7 @@ Breakpoint index 'foo' is not a number
 + # File doesn't have 50 lines
 + list 50
 [EOF]
-+ set listsize 6
++ set listsi 6
 + list 5
   2  ->	"""Towers of Hanoi"""
   3  	import sys,os

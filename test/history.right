@@ -7,8 +7,12 @@ filename:  The filename in which to record the command history is
 "history.hst".
 save:  Saving of the history record on exit is off
 size:  The size of the command history is 5
-+ set history save off
-+ set history save on
++ #########################################
++ # Test save on and off.
++ # Test also using short abbreviated name
++ #########################################
++ set his save off
++ set hi save on
 + list
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""

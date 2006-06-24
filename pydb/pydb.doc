@@ -217,6 +217,7 @@ enable bpnumber [bpnumber ...]
 
 examine expression
         Print the type of the expression and prettyprint its value.
+	Alias is x (same as in Perl).
 	
 finish
         Continue execution until the current function returns.
