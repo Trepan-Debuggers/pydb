@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.87 2006/06/20 03:34:45 rockyb Exp $
+"""$Id: pydb.py.in,v 1.88 2006/06/24 09:08:19 rockyb Exp $
 A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
@@ -203,7 +203,7 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    opts = process_options(pydb, _debugger_name, program)
+    opts = process_options(pydb, _debugger_name, program, '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to

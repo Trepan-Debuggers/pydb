@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.6 2006/06/24 09:01:05 rockyb Exp $
+"""$Id: fns.py,v 1.7 2006/06/24 09:08:19 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback
@@ -147,13 +147,13 @@ def print_stack_trace(self, count=None):
     except KeyboardInterrupt:
         pass
 
-def process_options(pydb, debugger_name, program):
+def process_options(pydb, debugger_name, program, pkg_version):
     usage_str="""%s [debugger-options] python-script [script-options...]
 
        Runs the extended python debugger""" % (program)
 
     optparser = OptionParser(usage=usage_str,
-                             version="%prog @PACKAGE_VERSION@")
+                             version="%%prog version %s" % pkg_version)
 
     optparser.add_option("-X", "--trace", dest="linetrace",
                          action="store_true", default=False, 
