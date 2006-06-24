@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.24 2006/06/24 08:47:00 rockyb Exp $
+"""$Id: gdb.py.in,v 1.25 2006/06/24 09:01:05 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -296,24 +296,6 @@ class Gdb(Bdb, Cmd):
             # no colon; can be lineno or function
             return self.__get_brkpt_lineno(arg)
 
-    def checkline(self, filename, lineno):
-        """Check whether specified line seems to be executable.
-
-        Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
-        line or EOF). Warning: testing is not comprehensive.
-        """
-        line = linecache.getline(filename, lineno)
-        if not line:
-            self.errmsg('End of file')
-            return 0
-        line = line.strip()
-        # Don't allow setting breakpoint at a blank line
-        if (not line or (line[0] == '#') or
-             (line[:3] == '"""') or line[:3] == "'''"):
-            self.errmsg('Blank or comment')
-            return 0
-        return lineno
-
     # To be overridden in derived debuggers
     def defaultFile(self):
         """Produce a reasonable default."""
@@ -412,28 +394,6 @@ class Gdb(Bdb, Cmd):
         self.forget()
         if not do_loop:
             return 1
-
-    def print_stack_entry(self, i_stack):
-        frame_lineno = self.stack[len(self.stack)-i_stack-1]
-        frame, lineno = frame_lineno
-        if frame is self.curframe:
-            self.msg_nocr('->')
-        else:
-            self.msg_nocr('##')
-        self.msg("%d %s" %
-                 (i_stack, self.format_stack_entry(frame_lineno)))
-
-    def print_stack_trace(self, count=None):
-        "Print count entries of the stack trace"
-        if count is None:
-            n=len(self.stack)
-        else:
-            n=min(len(self.stack), count)
-        try:
-            for i in range(n):
-                self.print_stack_entry(i)
-        except KeyboardInterrupt:
-            pass
 
     def set_helper(self, cmd, label=False):
         """Show help for a single set subcommand"""
@@ -612,11 +572,11 @@ the .py suffix may be omitted."""
             filename = self.defaultFile()
 
         # Check for reasonable breakpoint
-        line = self.checkline(filename, lineno)
+        line = checkline(self, filename, lineno)
         if line:
             # now set the break point
             # Python 2.3.5 takes 5 args rather than 6.
-            # There's probably a way in configure to test for the version,
+            # There is another way in configure to test for the version,
             # but this works too.
             try:
                err = self.set_break(filename, line, temporary, cond, funcname)
@@ -1634,7 +1594,7 @@ Prints the type of the argument which can be a Python expression."""
         except ValueError:
             return
 
-        self.print_stack_trace(count)
+        print_stack_trace(self, count)
 
     do_T = do_bt = do_where
 

@@ -1,12 +1,30 @@
-"""$Id: fns.py,v 1.5 2006/06/23 08:53:48 rockyb Exp $
+"""$Id: fns.py,v 1.6 2006/06/24 09:01:05 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
-import inspect, os, sys, re, traceback
+import inspect, linecache, os, sys, re, traceback
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
 _re_def = re.compile(_re_def_str)
     
+def checkline(self, filename, lineno):
+    """Check whether specified line seems to be executable.
+
+    Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
+    line or EOF). Warning: testing is not comprehensive.
+    """
+    line = linecache.getline(filename, lineno)
+    if not line:
+        self.errmsg('End of file')
+        return 0
+    line = line.strip()
+    # Don't allow setting breakpoint at a blank line
+    if (not line or (line[0] == '#') or
+         (line[:3] == '"""') or line[:3] == "'''"):
+        self.errmsg('Blank or comment')
+        return 0
+    return lineno
+
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
     # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))
@@ -106,6 +124,28 @@ def op_at_frame(frame, pos=None):
     op = ord(code[pos])
     # print "+++ %s" % opname[op]
     return opname[op]
+
+def print_stack_entry(self, i_stack):
+    frame_lineno = self.stack[len(self.stack)-i_stack-1]
+    frame, lineno = frame_lineno
+    if frame is self.curframe:
+        self.msg_nocr('->')
+    else:
+        self.msg_nocr('##')
+    self.msg("%d %s" %
+             (i_stack, self.format_stack_entry(frame_lineno)))
+
+def print_stack_trace(self, count=None):
+    "Print count entries of the stack trace"
+    if count is None:
+        n=len(self.stack)
+    else:
+        n=min(len(self.stack), count)
+    try:
+        for i in range(n):
+            print_stack_entry(self, i)
+    except KeyboardInterrupt:
+        pass
 
 def process_options(pydb, debugger_name, program):
     usage_str="""%s [debugger-options] python-script [script-options...]
@@ -236,4 +276,3 @@ def show_onoff(bool):
     if bool == True: return "on"
     if bool == False: return "off"
     return "??"
-
