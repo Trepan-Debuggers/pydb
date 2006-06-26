@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.19 2006/06/26 00:59:10 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.20 2006/06/26 02:04:36 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -128,6 +128,12 @@ class PdbTests(unittest.TestCase):
         else:
             self.failUnless(  pdb.msgLines == correct,
                               "Completion: is not complete"  )
+
+##     def test_debug(self):
+##         """Test (recursive) debug command"""
+##         result=run_debugger(testname='debug',
+##                             pythonfile='%shanoi.py' % srcdir)
+##         self.assertEqual(True, result, "debug")
 
     def test_filebug(self):
         """Test __file__"""

@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
-# $Id: pm.py.in,v 1.1 2006/03/15 20:29:56 rockyb Exp $ -*- Python -*-
-"Unit test for Extended Python debugger "
+# $Id: pm.py.in,v 1.2 2006/06/26 02:04:36 rockyb Exp $ -*- Python -*-
+"Unit test for Extended Python debugger's Post-Mortem (pm) commands "
 import difflib, os, pprint, time, sys, unittest
 
 top_builddir = "@top_builddir@"

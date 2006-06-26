@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.25 2006/06/24 09:01:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.26 2006/06/26 02:04:34 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -747,6 +747,7 @@ the .py suffix may be omitted."""
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
+        from pydb import Pdb
         p = Pdb()
         p.prompt  = "(%s) " % self.prompt.strip()
         self.msg("ENTERING RECURSIVE DEBUGGER")
@@ -760,6 +761,11 @@ the .py suffix may be omitted."""
         p.linetrace_delay = self.linetrace_delay
         p.listsize        = self.listsize
         p.noninteractive  = self.noninteractive
+
+        # Some values that are different from the current environment
+        # and different from the default initialization values.
+        p.running         = True  # We *are* trying to run something
+        p.step_ignore     = 1     # We need to skip one statement
         
         sys.call_tracing(p.run, (arg, globals, locals))
         self.msg("LEAVING RECURSIVE DEBUGGER")
