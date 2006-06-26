@@ -1,4 +1,4 @@
-"""$Id: pydbdisp.py,v 1.2 2006/02/24 18:58:51 rockyb Exp $
+"""$Id: pydbdisp.py,v 1.3 2006/06/26 02:41:35 rockyb Exp $
 Classes to support display/undisplay for pydb, the Extended Python
 debugger"""
 
@@ -69,7 +69,7 @@ class DisplayNode(Display):
         Display.displayNext = Display.displayNext + 1
         Display.displayList.append(self)
 
-    def displayMe(self, frame):
+    def displayMe(self, frame, number_me=True):
         if not frame:
             return 'No symbol "' + self.arg + '" in current context.'
         try:
@@ -81,7 +81,10 @@ class DisplayNode(Display):
         if self.format:
             what = self.format + ' ' + self.arg
             val = self.printf(val, self.format)
-        return '%d: %s = %s' % (self.number, what, val)
+        s = '%s = %s' % (what, val)
+        if number_me:
+            s ='%d: %s' % (self.number, s)
+        return s
 
     pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}
     twos = ('0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
@@ -111,10 +114,10 @@ class DisplayNode(Display):
                 return str(val)
         return str(val)
         
-    def checkValid(self, frame):
+    def checkValid(self, frame, number_me=True):
         # Check if valid for this frame, and if not, delete display
         # To be used by code that creates a displayNode and only then.
-        res = self.displayMe(frame)
+        res = self.displayMe(frame, number_me)
         if res.split()[0] == 'No':
             self.deleteMe()
             # reset counter
