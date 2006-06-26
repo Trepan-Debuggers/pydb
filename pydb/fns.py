@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.7 2006/06/24 09:08:19 rockyb Exp $
+"""$Id: fns.py,v 1.8 2006/06/26 12:30:18 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback
@@ -258,17 +258,17 @@ def search_file(filename, path, cdir):
     """Return a full pathname for filename if we can find one. path
     is a list of directories to prepend to filename. If no file is
     found we'll return filename"""
+
     dirs=path.split(":")
-    for dir in dirs:
+    for trydir in dirs:
 
         # Handle $cwd and $cdir
-        if dir =='$cwd': dir='.'
-        elif dir == '$cdir': dir = cdir
+        if trydir =='$cwd': trydir='.'
+        elif trydir == '$cdir': trydir = cdir
 
-        tryfile = os.path.abspath(os.path.join(dir, filename))
+        tryfile = os.path.abspath(os.path.join(trydir, filename))
         if os.path.isfile(tryfile):
             return tryfile
-    return filename
     
 def show_onoff(bool):
     """Return 'on' for True and 'off' for False, and ?? for anything
@@ -276,3 +276,11 @@ def show_onoff(bool):
     if bool == True: return "on"
     if bool == False: return "off"
     return "??"
+
+if __name__ == '__main__':
+    print "show_onoff(True is %s)" % str(show_onoff(True))
+    print "show_onoff(False is %s)" % str(show_onoff(False))
+    print "search_file('fns.py', '.', '.'): %s" % search_file("fns.py",
+                                                              "$cwd:$cdir",
+                                                              ".")
+
