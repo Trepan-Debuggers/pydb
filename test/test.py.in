@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.18 2006/05/27 02:12:02 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.19 2006/06/26 00:59:10 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -182,14 +182,13 @@ class PdbTests(unittest.TestCase):
         print "***                   NOTE                             ***"
         print "*** The traceback 'Need to give two numbers' is right  ***"
         print "**********************************************************"
-        result=run_debugger(testname='run2',
-                            pythonfile='%sgcd.py' % srcdir)
-        self.assertEqual(True, result, "run2")
+        if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
+            result=run_debugger(testname='run2',
+                                pythonfile='%sgcd.py' % srcdir)
+            self.assertEqual(True, result, "run2")
 
     def test_run(self):
         """Test run/restart"""
-        result=run_debugger(testname='run',
-                            pythonfile='%shanoi.py' % srcdir)
         # Python 2.3.5 stack traces look different and I 
         # don't know enough about what version changes what. So for
         # now, we run the test and if it doesn't crash on anything
@@ -197,6 +196,8 @@ class PdbTests(unittest.TestCase):
         # For version 2.4.2 (and above?) we'll assume a more 
         # stringent test.
         if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
+            result=run_debugger(testname='run',
+                                pythonfile='%shanoi.py' % srcdir)
             self.assertEqual(True, result, "run")
 
 if __name__ == "__main__":
