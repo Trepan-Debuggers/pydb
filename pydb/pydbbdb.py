@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.14 2006/06/20 12:19:16 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.15 2006/06/28 19:11:02 rockyb Exp $
 A Python debugger Basic Debugger (bdb) class.
 
 Routines here have to do with the subclassing of bdb.
@@ -159,10 +159,13 @@ class Bdb(bdb.Bdb):
         return brkpts
 
     def filename(self, filename=None):
-        if filename is None:
-            filename = self.file
         """Return filename or the basename of that depending on the
         self.basename setting"""
+        if filename is None:
+            if self.mainpyfile:
+                filename = self.mainpyfile
+            else:
+                return None
         if self.basename:
             return(os.path.basename(filename))
         return filename
