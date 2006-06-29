@@ -19,7 +19,7 @@ the code.
 Add online debugger concept help and in LaTeX? 
 
 There seem to be weirdnesses in the debugger that I don't fully
-comprehend and I think they exist in pydb.py as well.
+comprehend and I think they exist in pdb.py as well.
 
 Should check into getting this integrated with ipython's "run -d".  It
 has a history mechanism and pydb should too. If it is possible to use
@@ -27,8 +27,6 @@ a class form ipython or a class that's out there, that should be done.
 
 The examine command needs to deal with arbitrary objects better.
 
-Use a better readline if that's available.
-
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.6 2006/05/13 12:25:08 rockyb Exp $
+$Id: TODO,v 1.7 2006/06/29 10:39:47 rockyb Exp $

@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.27 2006/06/26 02:41:35 rockyb Exp $
+"""$Id: gdb.py.in,v 1.28 2006/06/29 10:39:49 rockyb Exp $
 Largely handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1298,8 +1298,11 @@ With an integer argument, perform that many times."""
         """restart - Restart debugger and program via an exec
         call. All state is lost, and new copy of the debugger is used."""
 
-        self.msg("Re exec'ing\n\t%s" % self._sys_argv)
-        os.execvp(self._sys_argv[0], self._sys_argv)
+        if self._sys_argv[0]:
+            self.msg("Re exec'ing\n\t%s" % self._sys_argv)
+            os.execvp(self._sys_argv[0], self._sys_argv)
+        else:
+            self.msg("No exectuable file specified.")
         
 
     def do_return(self, arg):
