@@ -27,6 +27,7 @@ check_DATA = \
 	run2.right     \
 	test.py        \
 	trace.py       \
+	trace-2.5.right \
 	trace.right
 
 TESTS = test.py pm.py trace.py

@@ -1,15 +1,15 @@
 1.17cvs
-*  "examine" command output is like display's and is more useful.
+* "examine" command output is like display's and is more useful.
 
-*  Fix a bad bug (at least for me) where we would get the wrong path in
-   tracing through an "import x as y". This happened only if we invoked
-   from a directory other than where the debugged program lives and we
-   stepped into such an imported method. The fix is to save the the
-   dirname of the script in the debugger instance variable.
+* Fix a bad bug (at least for me) where we would get the wrong path in
+  tracing through an "import x as y". This happened only if we invoked
+  from a directory other than where the debugged program lives and we
+  stepped into such an imported method. The fix is to save the the
+  dirname of the script in the debugger instance variable.
 
-*  Fix bug when using set trace introduced in 1.16 in adding "command".
+* Fix bug when using set trace introduced in 1.16 in adding "command".
 
-*  Add "directory" and "show directories" commands. 
+* Add "directory" and "show directories" commands. 
 
 * All "show" and "info" commands allow unique abbreviations in the
   subcommand name and in help. E.g. "show dir" for "show directories";
@@ -21,7 +21,9 @@
 
 * Tolerance for version 2.3.4. (It's what I have to use at work.)
 
-* Allow info, and set help strings to be subclassed properly.
+* Tolerance for version 2.5
+
+* Allow info, and set help strings to be overwritten.
 
 1.16
 2006-04-27
