@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.20 2006/06/26 02:04:36 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.21 2006/07/04 13:40:06 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -183,12 +183,12 @@ class PdbTests(unittest.TestCase):
 
     def test_return(self):
         """Test of run with return"""
-        print
-        print "**********************************************************"
-        print "***                   NOTE                             ***"
-        print "*** The traceback 'Need to give two numbers' is right  ***"
-        print "**********************************************************"
         if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
+            print
+            print "**********************************************************"
+            print "***                   NOTE                             ***"
+            print "*** The traceback 'Need to give two numbers' is right  ***"
+            print "**********************************************************"
             result=run_debugger(testname='run2',
                                 pythonfile='%sgcd.py' % srcdir)
             self.assertEqual(True, result, "run2")
