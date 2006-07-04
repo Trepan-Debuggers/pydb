@@ -25,8 +25,14 @@
 
 * Allow info, and set help strings to be overwritten.
 
-1.16
-2006-04-27
+* More fexible and more general output by no longer assuming we
+  write to sys.stdout. Rather the output object is saved in the
+  instance variable, which could be and often is the same as
+  sys.stdout, but doesn't need to be. This change may make
+  communication used in remote debugging and thread debugging
+  simpler. Many thanks to Matt Flemming for the patch.
+
+1.16 2006-04-27
 
 *  Add gdb "command" - run commands on a breakpoint. Code from current
    pdb sources, but we follow gdb more closely.

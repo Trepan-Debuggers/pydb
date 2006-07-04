@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.20 2006/06/18 22:40:10 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.21 2006/07/04 01:58:32 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -285,7 +285,7 @@ class Cmd(cmd.Cmd):
             do_print = not self.logging_redirect
         if do_print:
             if out is None:
-                out = sys.stdout
+                out = self.stdout
             print >> out, msg,
 
     def precmd(self, line):
