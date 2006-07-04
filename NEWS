@@ -32,6 +32,8 @@
   communication used in remote debugging and thread debugging
   simpler. Many thanks to Matt Flemming for the patch.
 
+* --output and --error no longer modify programs stdout/stderr.
+
 1.16 2006-04-27
 
 *  Add gdb "command" - run commands on a breakpoint. Code from current
