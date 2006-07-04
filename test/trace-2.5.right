@@ -37,7 +37,6 @@
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk a to b
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 --Return--
@@ -45,7 +44,6 @@ Move disk a to b
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk a to c
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 (hanoi.py:10):  hanoi
@@ -57,7 +55,6 @@ Move disk a to c
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk b to c
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 --Return--
@@ -68,7 +65,6 @@ Move disk b to c
 +        hanoi(n-1, c, b, a) 
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk a to b
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 (hanoi.py:10):  hanoi
@@ -87,7 +83,6 @@ Move disk a to b
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk c to a
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 --Return--
@@ -95,7 +90,6 @@ Move disk c to a
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk c to b
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 (hanoi.py:10):  hanoi
@@ -107,7 +101,6 @@ Move disk c to b
 +     if n-1 > 0:
 (hanoi.py:8):  hanoi
 +     print "Move disk %s to %s" % (a, b)
-Move disk a to b
 (hanoi.py:9):  hanoi
 +     if n-1 > 0:
 --Return--
