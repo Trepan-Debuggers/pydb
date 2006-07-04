@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.10 2006/07/04 02:13:43 rockyb Exp $
+"""$Id: fns.py,v 1.11 2006/07/04 06:02:46 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback
@@ -179,11 +179,11 @@ def process_options(pydb, debugger_name, program, pkg_version):
                          "initialization files")
     optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
-                         help="Write debugger's and program's output (stdout) "
+                         help="Write debugger's output (stdout) "
                          + "to FILE")
     optparser.add_option("--error", dest="errors", metavar='FILE',
                          action="store", type='string',
-                         help="Write debugger's and program's error output "
+                         help="Write debugger's error output "
                          + "(stderr) to FILE")
 
     # Set up to stop on the first non-option because that's the name
@@ -230,11 +230,6 @@ def process_options(pydb, debugger_name, program, pkg_version):
         try: 
             pydb.stdout = open(opts.output, 'w')
 
-            # ?? For now --output also redirects the program's
-            # stdout. We may or may not decide to do this in the
-            # future.
-            sys.stdout = pydb.stdout
-
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.output
             print "error(%s): %s" % (errno, strerror)
@@ -248,7 +243,7 @@ def process_options(pydb, debugger_name, program, pkg_version):
 
     if opts.errors:
         try: 
-            sys.stderr = open(opts.errors, 'w')
+            self.stderr = open(opts.errors, 'w')
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.errors
             print "error(%s): %s" % (errno, strerror)

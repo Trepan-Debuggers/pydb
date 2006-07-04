@@ -2,13 +2,6 @@
 Program stopped.
 It stopped after stepping, next'ing or initial start.
 + continue
-Move disk a to b
-Move disk a to c
-Move disk b to c
-Move disk a to b
-Move disk c to a
-Move disk c to b
-Move disk a to b
 The program finished and will be restarted
 + ######################################
 + ### Now restart with a breakpoint
@@ -53,7 +46,6 @@ Deleted breakpoint 1
 Restarting hanoi.py with arguments:
 	1
 + continue
-Move disk a to b
 The program finished and will be restarted
 + show args
 Argument list to give program being debugged when it is started is 
