@@ -1,6 +1,8 @@
-"""$Id: pydbdisp.py,v 1.4 2006/07/09 00:43:10 rockyb Exp $
+"""$Id: pydbdisp.py,v 1.5 2006/07/09 17:07:17 rockyb Exp $
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined."""
+
+import pprint, types
 
 class Display:
     displayNext = 1
@@ -82,6 +84,17 @@ class DisplayNode(Display):
             what = self.format + ' ' + self.arg
             val = self.printf(val, self.format)
         s = '%s = %s' % (what, val)
+
+        # Try to list the members of a class.
+        # Not sure if this is correct or the
+        # best way to do. 
+        if hasattr(val, "__class__"):
+            cl=getattr(val, "__class__")
+            if hasattr(cl, "__dict__"):
+                dict=getattr(cl,"__dict__")
+                if type(dict) == types.DictType:
+                    s += "\n%s" % pprint.pformat(dict)
+
         if number_me:
             s ='%d: %s' % (self.number, s)
         return s
