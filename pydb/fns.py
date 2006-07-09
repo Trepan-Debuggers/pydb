@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.12 2006/07/09 22:31:04 rockyb Exp $
+"""$Id: fns.py,v 1.13 2006/07/09 23:01:21 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -116,7 +116,7 @@ def get_last_tb_or_frame_tb(frameno=1):
         pass
     return traceback
 
-def print_obj(arg, frame, format=None):
+def print_obj(arg, frame, format=None, short=False):
     """Return a string representation of an object """
     if not frame:
         return 'No symbol "' + arg + '" in current context.'
@@ -130,21 +130,22 @@ def print_obj(arg, frame, format=None):
         what = format + ' ' + arg
         val = printf(val, format)
     s = '%s = %s' % (what, val)
-
-    # Try to list the members of a class.
-    # Not sure if this is correct or the
-    # best way to do. 
-    if hasattr(val, "__class__"):
-        cl=getattr(val, "__class__")
-        if hasattr(cl, "__dict__"):
-            d=getattr(cl,"__dict__")
-            if type(d) == types.DictType \
-                   or type(d) == types.DictProxyType:
-                s += "\nmethods:\n"
-                keys = d.keys()
-                keys.sort()
-                for key in keys:
-                    s+="  '%s':\t%s\n" % (key, d[key])
+    if not short:
+        s += '\ntype = %s' % type(val)
+        # Try to list the members of a class.
+        # Not sure if this is correct or the
+        # best way to do. 
+        if hasattr(val, "__class__"):
+            cl=getattr(val, "__class__")
+            if hasattr(cl, "__dict__"):
+                d=getattr(cl,"__dict__")
+                if type(d) == types.DictType \
+                       or type(d) == types.DictProxyType:
+                    s += "\nattributes:\n"
+                    keys = d.keys()
+                    keys.sort()
+                    for key in keys:
+                        s+="  '%s':\t%s\n" % (key, d[key])
     return s
 
 pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}

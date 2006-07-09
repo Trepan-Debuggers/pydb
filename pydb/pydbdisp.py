@@ -1,4 +1,4 @@
-"""$Id: pydbdisp.py,v 1.6 2006/07/09 22:31:04 rockyb Exp $
+"""$Id: pydbdisp.py,v 1.7 2006/07/09 23:01:21 rockyb Exp $
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined."""
 
@@ -79,7 +79,7 @@ class DisplayNode(Display):
         except:
             return 'No symbol "' + self.arg + '" in current context.'
         s = "%d: %s" % (self.number,
-                        fns.print_obj(self.arg, frame, self.format))
+                        fns.print_obj(self.arg, frame, self.format, True))
         return s
 
     def checkValid(self, frame):

@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.31 2006/07/09 22:31:04 rockyb Exp $
+"""$Id: gdb.py.in,v 1.32 2006/07/09 23:01:21 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -948,11 +948,8 @@ the default."""
                 bp.enable()
 
     def do_examine(self, arg):
-        """examine expression - Print the type of the expression and
-        prettyprint its value.  For functions, methods, classes and
-        modules we print out the documentation string if any.
-
-        For functions we also show the argument list."""
+        """examine expression - Print the expression, its value, type,
+        and object attributes."""
         s = print_obj(arg, self.curframe)
         self.msg(s)
 
