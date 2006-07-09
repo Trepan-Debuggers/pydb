@@ -1,8 +1,8 @@
-"""$Id: pydbdisp.py,v 1.5 2006/07/09 17:07:17 rockyb Exp $
+"""$Id: pydbdisp.py,v 1.6 2006/07/09 22:31:04 rockyb Exp $
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined."""
 
-import pprint, types
+import fns
 
 class Display:
     displayNext = 1
@@ -71,66 +71,21 @@ class DisplayNode(Display):
         Display.displayNext = Display.displayNext + 1
         Display.displayList.append(self)
 
-    def displayMe(self, frame, number_me=True):
+    def displayMe(self, frame):
         if not frame:
             return 'No symbol "' + self.arg + '" in current context.'
         try:
             val = eval(self.arg, frame.f_globals, frame.f_locals)
         except:
             return 'No symbol "' + self.arg + '" in current context.'
-        #format and print
-        what = self.arg
-        if self.format:
-            what = self.format + ' ' + self.arg
-            val = self.printf(val, self.format)
-        s = '%s = %s' % (what, val)
-
-        # Try to list the members of a class.
-        # Not sure if this is correct or the
-        # best way to do. 
-        if hasattr(val, "__class__"):
-            cl=getattr(val, "__class__")
-            if hasattr(cl, "__dict__"):
-                dict=getattr(cl,"__dict__")
-                if type(dict) == types.DictType:
-                    s += "\n%s" % pprint.pformat(dict)
-
-        if number_me:
-            s ='%d: %s' % (self.number, s)
+        s = "%d: %s" % (self.number,
+                        fns.print_obj(self.arg, frame, self.format))
         return s
 
-    pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}
-    twos = ('0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
-            '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111')
-
-    def printf(self, val, fmt):
-        if not fmt:
-            fmt = ' ' # not 't' nor in pconvert
-        # Strip leading '/'
-        if fmt[0] == '/':
-            fmt = fmt[1:]
-        f = fmt[0]
-        if f in self.pconvert.keys():
-            try:
-                return apply(self.pconvert[f], (val,))
-            except:
-                return str(val)
-        # binary (t is from 'twos')
-        if f == 't':
-            try:
-                res = ''
-                while val:
-                    res = self.twos[val & 0xf] + res
-                    val = val >> 4
-                return res
-            except:
-                return str(val)
-        return str(val)
-        
-    def checkValid(self, frame, number_me=True):
+    def checkValid(self, frame):
         # Check if valid for this frame, and if not, delete display
         # To be used by code that creates a displayNode and only then.
-        res = self.displayMe(frame, number_me)
+        res = self.displayMe(frame)
         if res.split()[0] == 'No':
             self.deleteMe()
             # reset counter

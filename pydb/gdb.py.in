@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.30 2006/07/09 00:49:24 rockyb Exp $
+"""$Id: gdb.py.in,v 1.31 2006/07/09 22:31:04 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -953,9 +953,8 @@ the default."""
         modules we print out the documentation string if any.
 
         For functions we also show the argument list."""
-        dp = DisplayNode(self.curframe, arg, "")
-        res = dp.checkValid(self.curframe, False)
-        self.msg(res)
+        s = print_obj(arg, self.curframe)
+        self.msg(s)
 
     do_x = do_examine
 

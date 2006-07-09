@@ -1,7 +1,7 @@
-"""$Id: fns.py,v 1.11 2006/07/04 06:02:46 rockyb Exp $
+"""$Id: fns.py,v 1.12 2006/07/09 22:31:04 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
-import inspect, linecache, os, sys, re, traceback
+import inspect, linecache, os, sys, re, traceback, types
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
@@ -115,6 +115,66 @@ def get_last_tb_or_frame_tb(frameno=1):
     except AttributeError:
         pass
     return traceback
+
+def print_obj(arg, frame, format=None):
+    """Return a string representation of an object """
+    if not frame:
+        return 'No symbol "' + arg + '" in current context.'
+    try:
+        val = eval(arg, frame.f_globals, frame.f_locals)
+    except:
+        return 'No symbol "' + arg + '" in current context.'
+    #format and print
+    what = arg
+    if format:
+        what = format + ' ' + arg
+        val = printf(val, format)
+    s = '%s = %s' % (what, val)
+
+    # Try to list the members of a class.
+    # Not sure if this is correct or the
+    # best way to do. 
+    if hasattr(val, "__class__"):
+        cl=getattr(val, "__class__")
+        if hasattr(cl, "__dict__"):
+            d=getattr(cl,"__dict__")
+            if type(d) == types.DictType \
+                   or type(d) == types.DictProxyType:
+                s += "\nmethods:\n"
+                keys = d.keys()
+                keys.sort()
+                for key in keys:
+                    s+="  '%s':\t%s\n" % (key, d[key])
+    return s
+
+pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}
+twos = ('0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
+        '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111')
+
+def printf(val, fmt):
+    global pconvert, twos
+    if not fmt:
+        fmt = ' ' # not 't' nor in pconvert
+    # Strip leading '/'
+    if fmt[0] == '/':
+        fmt = fmt[1:]
+    f = fmt[0]
+    if f in pconvert.keys():
+        try:
+            return apply(pconvert[f], (val,))
+        except:
+            return str(val)
+    # binary (t is from 'twos')
+    if f == 't':
+        try:
+            res = ''
+            while val:
+                res = twos[val & 0xf] + res
+                val = val >> 4
+            return res
+        except:
+            return str(val)
+    return str(val)
 
 
 from opcode import opname
