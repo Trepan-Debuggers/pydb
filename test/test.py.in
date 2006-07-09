@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.22 2006/07/09 00:43:12 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.23 2006/07/09 00:49:24 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger "
 import difflib, os, pprint, time, sys, unittest
 
@@ -161,7 +161,7 @@ class PdbTests(unittest.TestCase):
     def test_no_script(self):
         """Test running without a script"""
         result=run_debugger(testname='noscript',
-                            pythonfile=None)
+                            pythonfile="")
         self.assertEqual(True, result, "running without a Python script")
 
     def test_pwd_cd(self):

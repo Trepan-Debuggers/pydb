@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.29 2006/07/09 00:43:09 rockyb Exp $
+"""$Id: gdb.py.in,v 1.30 2006/07/09 00:49:24 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1120,7 +1120,7 @@ the default."""
                      (inspect.getlineno(frame),
                       self.filename(self.canonic_filename(frame)),
                      self.curframe.f_lasti))
-        elif "locals".startswith(arg) and len(args) > 1:
+        elif "locals".startswith(arg) and len(arg) > 1:
             if not frame:
                 self.msg("No frame selected.")
                 return
