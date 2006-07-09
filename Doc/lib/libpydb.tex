@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.54 2006/06/18 19:25:44 rockyb Exp $
+% $Id: libpydb.tex,v 1.55 2006/07/09 00:43:08 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -112,10 +112,12 @@ debugger from inside your running Python program. Also, see section
 \ref{subsection-post-mortem} for how to invoke after an error is
 encontered and you have a traceback.
 
-Of the many additions to the standard Python debugger, two will be
-mentioned here. First, this debugger should install itself somewhere
-in your command path, usually as \code{pydb} so you don't have to
-invoke it as an argument to the \code{python} command.
+Of the many additions to the standard Python debugger, pdb, three will
+be mentioned here. 
+
+First, this debugger should install itself somewhere in your command
+path, usually as \code{pydb} so you don't have to invoke it as an
+argument to the \code{python} command.
 
 Second the extended debugger supports command switches courtesy of
 \ulink{\module{optparse}}{http://docs.python.org/lib/module-optparse.html}.
@@ -123,13 +125,13 @@ In particular \code{pydb} has the two very common options
 \samp{--help} to show what options are available and \samp{--version}
 to report the version that is installed. 
 
-These two options don't require any further options. However usually
-you will want to give the name of a script to debug and after that you
-may want to pass options for this script.
+Third, you need not supply a script name to debug at the
+outset. Usually though you will want to give the name of a script to
+debug and after that you may want to pass options for this script.
 
 Thus the general form of invoking the debugger is:
 
-\code{pydb} \optional{\var{debugger-options}\ldots} \var{python-script} \optional{\var{script-options}\ldots}
+\code{pydb} \optional{\var{debugger-options}\ldots} \optional{\var{python-script} \optional{\var{script-options}\ldots}}
 
 A detailed list of options is given next. 
 
@@ -278,9 +280,15 @@ the middle of a quoted string.
 
 \subsection{Status and Debugger Settings ({\tt info}, {\tt set}, {\tt show})\label{subsection-status}}
 
-An {\tt info} command shows things about the program being debugged.A
+An {\tt info} command shows things about the program being debugged. A
 {\tt set} command modifies parts of the debugger environment. You can
 see these environment settings with the {\tt show} command.
+
+The subobptions to \code{info}, or \code{set} (or \code{show}) don't
+can be abbreviated to any prefix that uniquely specifies them. For
+example \code{info li} is a valid abbrevation for \code{info line}
+while \code{info l} is not since there is another subcommand
+(\code{locals}) which also starts with an `l'.
 
 In all of the set options that take ``on'' or ``off'' parameters, you
 can also use 1 for ``on'' and 0 for ``off.''
@@ -343,6 +351,13 @@ Information about the current Python file.
 \end{description}
 
 \subsubsection{Set ({\tt set})\label{subsubsection-set}}
+
+As with subobptions to \code{info}, or \code{set}, \code{show}
+subcommands can be abbreviated to any prefix that uniquely
+specifies them. For example \code{set lis 5} is a valid abbrevation for
+\code{info listsize 5} while \code{set li} is not since there is another
+subcommand (\code{linetrace}) which also starts with `li'.
+
 
 \begin{description}
 
@@ -1547,6 +1562,50 @@ Since an exception is propagated down the chain of callers, an
 For more information on code and frame objects, see to the
 \ulink{Python Reference
 Manual}{http://docs.python.org/ref/ref.html}.
+
+\section{Files making up the Debugger \label{debugger-files}}
+
+Here are the files making up the debugger and what is in
+them. Currently we use GNU automake and makes substitutings in files
+and Python programs which then get installed. A file with a \code{.in}
+suffix is a file that is the input for the substitution. The
+corresponding output file has the \code{.in} stipped off. For example
+{\tt pydb.py.in} becomes \code{pydb.py} after a Python interpreter and
+package name (pydb) is substituted inside it.
+
+\begin{description}
+  
+\item[pydb.py.in]
+Python debugger. Contains user-callable routines, e.g. 
+\code{run}, \code{set_trace}, \code{runeval}.
+
+\item[gdb.py.in]
+
+Handles gdb-like command processing.
+
+\item[pydbbdb.py]
+
+Routines here have to do with the subclassing of bdb.  Defines Python
+debugger Basic Debugger (Bdb) class.  This file could/should probably
+get merged into bdb.py
+
+\item[fns.py]
+
+Functions to support the Debugger.
+
+\item[pydbcmd.py]
+
+Routines here have to do with parsing or processing commands,
+generally (but not always) they are not specific to pydb. They are sort
+of more oriented towards any gdb-like debugger. Also routines that need to
+be changed from cmd are here.
+
+\item[pydbdisp.py]
+
+Classes to support gdb-like display/undisplay for pydb, the Extended
+Python debugger. Class Display and DisplayNode are defined.
+
+\end{description}
 
 \section{Installation}
 

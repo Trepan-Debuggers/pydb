@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.21 2006/07/04 01:58:32 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.22 2006/07/09 00:43:09 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -69,8 +69,16 @@ class Cmd(cmd.Cmd):
 
         if line[:1] == '#': return
         if line[:1] == '$': line = line[1:]
-        locals = self.curframe.f_locals
-        globals = self.curframe.f_globals
+        if self.curframe:
+            locals = self.curframe.f_locals
+            globals = self.curframe.f_globals
+        else:
+            locals = None
+            # FIXME: should probably have place where the
+            # user can store variables inside the debug session.
+            # The setup for this should be elsewhere. Possibly
+            # in interaction.
+            globals = None
         try:
             code = compile(line + '\n', '"%s"' % line, 'single')
             exec code in globals, locals

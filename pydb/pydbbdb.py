@@ -1,7 +1,7 @@
-"""$Id: pydbbdb.py,v 1.15 2006/06/28 19:11:02 rockyb Exp $
-A Python debugger Basic Debugger (bdb) class.
-
-Routines here have to do with the subclassing of bdb.
+"""$Id: pydbbdb.py,v 1.16 2006/07/09 00:43:09 rockyb Exp $
+Routines here have to do with the subclassing of bdb.  Defines Python
+debugger Basic Debugger (Bdb) class.  This file could/should probably
+get merged into bdb.py
 """
 import bdb, inspect, time, types
 from repr import Repr

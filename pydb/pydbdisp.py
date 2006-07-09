@@ -1,6 +1,6 @@
-"""$Id: pydbdisp.py,v 1.3 2006/06/26 02:41:35 rockyb Exp $
-Classes to support display/undisplay for pydb, the Extended Python
-debugger"""
+"""$Id: pydbdisp.py,v 1.4 2006/07/09 00:43:10 rockyb Exp $
+Classes to support gdb-like display/undisplay for pydb, the Extended
+Python debugger. Class Display and DisplayNode are defined."""
 
 class Display:
     displayNext = 1

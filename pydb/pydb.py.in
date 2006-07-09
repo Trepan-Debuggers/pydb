@@ -1,6 +1,9 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.88 2006/06/24 09:08:19 rockyb Exp $
-A Python debugger. (See also @PACKAGE_NAME@.doc for documentation.)"""
+"""$Id: pydb.py.in,v 1.89 2006/07/09 00:43:09 rockyb Exp $
+A Python debugger. Contains user-callable routines, e.g.
+run, set_trace, runevel.
+
+(See also @PACKAGE_NAME@.doc for documentation.)"""
 
 # This part contains user entry subroutines.
 
@@ -210,22 +213,24 @@ def main():
     # invoke the debugger and script are in global sys_argv
 
     if len(sys.argv) == 0:
-        print 'Error: you need to give a script name to debug'
-        sys.exit(1)
+        # No program given to debug. Set to go into a command loop
+        # anyway
+        mainpyfile = None
 
-    # Save the DEBUGGED programs arguments. This is in case
-    # the debugged script munges these, we have a good copy to use
-    # for restart
-    pydb._program_sys_argv = list(sys.argv)
+    else:
+        # Save the DEBUGGED programs arguments. This is in case
+        # the debugged script munges these, we have a good copy to use
+        # for restart
+        pydb._program_sys_argv = list(sys.argv)
 
-    mainpyfile = pydb._program_sys_argv[0] # Get script filename. 
-    if not os.path.exists(mainpyfile):
-        print 'Error:', mainpyfile, 'does not exist'
-        sys.exit(1)
+        mainpyfile = pydb._program_sys_argv[0] # Get script filename. 
+        if not os.path.exists(mainpyfile):
+            print 'Error:', mainpyfile, 'does not exist'
+            sys.exit(1)
 
-    # Replace @PACKAGE_NAME@'s dir with script's dir in front of
-    # module search path.
-    sys.path[0] = pydb.main_dirname = os.path.dirname(mainpyfile)
+        # Replace @PACKAGE_NAME@'s dir with script's dir in front of
+        # module search path.
+        sys.path[0] = pydb.main_dirname = os.path.dirname(mainpyfile)
 
     while True:
 
@@ -233,15 +238,22 @@ def main():
         # right.
 
         try:
-            pydb._runscript(mainpyfile)
+            if mainpyfile:
+                pydb._runscript(mainpyfile)
+            else:
+                pydb._wait_for_mainpyfile = True
+                pydb.interaction(None, None)
+
             if pydb._user_requested_quit: break
             if pydb.noninteractive: break
             pydb.msg("The program finished and will be restarted")
         except Restart:
-            sys.argv = list(pydb._program_sys_argv)
-            pydb.msg("Restarting %s with arguments:\n\t%s"
-                     % (pydb.filename(mainpyfile),
-                        " ".join(pydb._program_sys_argv[1:])))
+            if pydb._program_sys_argv:
+                sys.argv = list(pydb._program_sys_argv)
+                pydb.msg("Restarting %s with arguments:\n\t%s"
+                         % (pydb.filename(mainpyfile),
+                            " ".join(pydb._program_sys_argv[1:])))
+            else: break
         except SystemExit:
             # In most cases SystemExit does not warrant a post-mortem session.
             pydb.msg("The program exited via sys.exit(). Exit status: %s" %

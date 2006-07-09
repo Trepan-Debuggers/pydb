@@ -1,5 +1,5 @@
-"""$Id: gdb.py.in,v 1.28 2006/06/29 10:39:49 rockyb Exp $
-Largely handles gdb-like command processing.
+"""$Id: gdb.py.in,v 1.29 2006/07/09 00:43:09 rockyb Exp $
+Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
 _debugger_name = '@PACKAGE_NAME@'
@@ -383,8 +383,9 @@ class Gdb(Bdb, Cmd):
         """Possibly goes into loop to read debugger commands."""
         do_loop = self.setup(frame, traceback) != 1
         if do_loop:
-            self.print_location(print_line=self.linetrace)
-            self.display.displayAny(self.curframe)
+            if frame:
+                self.print_location(print_line=self.linetrace)
+                self.display.displayAny(self.curframe)
             if not self.noninteractive:
                 try:
                     self.cmdloop()
@@ -427,8 +428,11 @@ class Gdb(Bdb, Cmd):
         loop. We return 1 if we should NOT enter the debugger-command
         loop."""
         self.forget()
-        self.stack, self.curindex = self.get_stack(frame, traceback)
-        self.curframe = self.stack[self.curindex][0]
+        if frame:
+            self.stack, self.curindex = self.get_stack(frame, traceback)
+            self.curframe = self.stack[self.curindex][0]
+        else:
+            self.stack = self.curframe = self.botframe = None
         if self.execRcLines()==1: return 1
 
     def setup_source(self, arg, showError=False):
@@ -1073,20 +1077,29 @@ the default."""
         arglist = arg.split()
         arg = arglist[0]
         frame=self.curframe
-        if "args" == arg:
+        if "args".startswith(arg):
+            if not self.curframe:
+                self.msg("No stack.")
+                return
             self.__info_args(None)
-        elif "break" == arg:
+        elif "break".startswith(arg):
             # FIXME: Should split out the "info" part in args
             self.do_L(None)
-        elif 'display' == arg:
+        elif 'display'.startswith(arg):
             if not self.display.displayAll():
                 self.msg('There are no auto-display expressions now.')
-        elif "globals" == arg:
+        elif "globals".startswith(arg):
+            if not frame:
+                self.msg("No frame selected.")
+                return
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self.getval(l)))
                                 for l in frame.f_globals]))
-        elif "line" == arg:
+        elif "line".startswith(arg) and len(arg) > 1:
             #info line identifier
+            if not frame:
+                self.msg("No line number information available.")
+                return
             if len(arglist) == 2:
                 # lineinfo returns (item, file, lineno) or (None,)
                 answer = self.lineinfo(arglist[1])
@@ -1107,11 +1120,17 @@ the default."""
                      (inspect.getlineno(frame),
                       self.filename(self.canonic_filename(frame)),
                      self.curframe.f_lasti))
-        elif "locals" == arg:
+        elif "locals".startswith(arg) and len(args) > 1:
+            if not frame:
+                self.msg("No frame selected.")
+                return
             self.msg("\n".join(["%s = %s"
                                 % (l, pprint.pformat(self.getval(l)))
                                 for l in frame.f_locals]))
-        elif 'program' == arg:
+        elif 'program'.startswith(arg):
+            if not frame:
+                self.msg("The program being debugged is not being run.")
+                return
             if self.is_running():
                 self.msg('Program stopped.')
                 if self.currentbp:
@@ -1125,7 +1144,10 @@ the default."""
                 else:
                     self.msg("It stopped after stepping, next'ing or initial start.")
             return
-        elif "source" == arg:
+        elif "source".startswith(arg):
+            if not frame:
+                self.msg("No current source file.")
+                return
             self.msg('Current Python file is %s' %
                      self.filename(self.canonic_filename(frame)))
         else:
@@ -1377,6 +1399,10 @@ assignment to the variable __return__."""
         Run/Restart the debugged Python program. If a string is
         supplied that becomes the new command arguments.  History,
         breakpoints, actions and debugger options are preserved."""
+        if not self._program_sys_argv:
+            self.msg("No Python program registered.")
+            # FIXME add FILE command and mention that.
+            return
         if arg:
             argv_start = self._program_sys_argv[0:1]
             self._program_sys_argv = arg.split(" ")
@@ -1603,6 +1629,9 @@ Prints the type of the argument which can be a Python expression."""
         except ValueError:
             return
 
+        if not self.curframe:
+            self.msg("No stack.")
+            return
         print_stack_trace(self, count)
 
     do_T = do_bt = do_where

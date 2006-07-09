@@ -1,4 +1,6 @@
 1.17cvs
+* Allow entry to the debugger without a script name.
+
 * "examine" command output is like display's and is more useful.
 
 * Fix a bad bug (at least for me) where we would get the wrong path in
@@ -9,7 +11,7 @@
 
 * Fix bug when using set trace introduced in 1.16 in adding "command".
 
-* Add "directory" and "show directories" commands. 
+* Add gdb "directory" and "show directories" commands. 
 
 * All "show" and "info" commands allow unique abbreviations in the
   subcommand name and in help. E.g. "show dir" for "show directories";
@@ -33,6 +35,9 @@
   simpler. Many thanks to Matt Flemming for the patch.
 
 * --output and --error no longer modify program's stdout/stderr.
+
+* Document least-intrusion principle and changes listed above, list
+  of files making up the debugger and changes above.
 
 1.16 2006-04-27
 
