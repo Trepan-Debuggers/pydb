@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.23 2006/07/09 00:49:24 rockyb Exp $ -*- Python -*-
-"Unit test for Extended Python debugger "
+# $Id: test.py.in,v 1.24 2006/07/10 08:11:49 rockyb Exp $ -*- Python -*-
+"Unit test for the Extended Python debugger."
 import difflib, os, pprint, time, sys, unittest
 
 top_builddir = "@top_builddir@"
@@ -87,33 +87,33 @@ def run_debugger(testname, pythonfile, args='', outfile=None):
 class PdbTests(unittest.TestCase):
 
     def test_brkpt(self):
-        """Test breakpoint setting/display"""
+        """Unit test breakpoint setting and display - part 1."""
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "brkpt1")
 
     def test_brkpt2(self):
-        """Test breakpoint setting/display"""
+        """Unit test breakpoint setting and display - part 2."""
         result=run_debugger(testname='brkpt2',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5')
         self.assertEqual(True, result, "brkpt2")
 
     def test_brkpt3(self):
-        """Test breakpoint setting/display"""
+        """Unit test breakpoint setting and display - part 3."""
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5')
-        self.assertEqual(True, result, "brkpt2")
+        self.assertEqual(True, result, "brkpt3")
 
     def test_cmdparse(self):
-        """Test command parsing"""
+        """Unit test command parsing."""
         result=run_debugger(testname='cmdparse',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "cmdparse")
 
     def test_complete(self):
-        """Test the 'complete' command"""
+        """Test the 'complete' command."""
         pdb = PdbTest()
         pdb.noninteractive = True
         try:
@@ -142,7 +142,7 @@ class PdbTests(unittest.TestCase):
         self.assertEqual(True, result, "filebug")
         
     def test_history(self):
-        """Test the history command"""
+        """Test the 'history' debugger command."""
         try:
             import @READLINE@
         except ImportError:
@@ -152,20 +152,20 @@ class PdbTests(unittest.TestCase):
         self.assertEqual(True, result, "history")
 
     def test_logging(self):
-        """Test set/show logging"""
+        """Test 'set logging' and 'show logging' debuger commands."""
         result=run_debugger(testname='logging',
                             pythonfile='%shanoi.py' % srcdir,
                             outfile='logging.out')
         self.assertEqual(True, result, "logging")
 
     def test_no_script(self):
-        """Test running without a script"""
+        """Test running without a script."""
         result=run_debugger(testname='noscript',
                             pythonfile="")
         self.assertEqual(True, result, "running without a Python script")
 
     def test_pwd_cd(self):
-        """Test pwd and cd commands"""
+        """Test the 'pwd' and 'cd' debugger commands."""
         pdb = PdbTest()
         pdb.noninteractive = True
 
@@ -188,7 +188,7 @@ class PdbTests(unittest.TestCase):
         self.assertEqual(True, pdb.msgLines[0] == my_cd)
 
     def test_return(self):
-        """Test of run with return"""
+        """Test of run with return."""
         if sys.version_info[0:2] == (2, 4) and sys.version_info[3] >= 2:
             print
             print "**********************************************************"
@@ -200,7 +200,7 @@ class PdbTests(unittest.TestCase):
             self.assertEqual(True, result, "run2")
 
     def test_run(self):
-        """Test run/restart"""
+        """Test 'run' and 'restart' debugger commands."""
         # Python 2.3.5 stack traces look different and I 
         # don't know enough about what version changes what. So for
         # now, we run the test and if it doesn't crash on anything

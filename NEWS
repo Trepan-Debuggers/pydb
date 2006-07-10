@@ -1,7 +1,10 @@
 1.17cvs
 * Allow entry to the debugger without a script name.
 
-* "examine" command output is like display's and is more useful.
+* "examine" command output shows object attributes.
+  There is a routine common to both examine and display.
+
+* "whatis" shows doc strings if there is one.
 
 * Fix a bad bug (at least for me) where we would get the wrong path in
   tracing through an "import x as y". This happened only if we invoked

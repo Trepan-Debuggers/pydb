@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.33 2006/07/10 07:04:41 rockyb Exp $
+"""$Id: gdb.py.in,v 1.34 2006/07/10 08:11:49 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -22,7 +22,9 @@ class Restart(Exception):
     pass
 
 class Gdb(Bdb, Cmd):
-
+    """A debugger class for Python that resembles the gdb (GNU debugger)
+    command set."""
+    
     def __init__(self, completekey='tab', stdin=None, stdout=None):
         pydbbdb.Bdb.__init__(self)
         pydbcmd.Cmd.__init__(self, completekey, stdin, stdout)
@@ -1635,6 +1637,13 @@ Prints the type of the argument which can be a Python expression."""
             self.msg('function %s%s' %
                      (value.func_code.co_name,
                        inspect.formatargspec(inspect.getargspec(value))))
+            if inspect.getdoc(value):
+                self.msg('%s:\n%s' %
+                         (value, inspect.getdoc(value)))
+                return
+        elif inspect.getdoc(value):
+            self.msg('%s:\n%s' %
+                     (value, inspect.getdoc(value)))
             return
         # None of the above...
         self.msg(type(value))
