@@ -1,6 +1,12 @@
 No stack.
 No stack.
 No stack.
+No frame selected.
+No frame selected.
+No frame selected.
+No stack.
+No stack.
+No stack.
 No breakpoints.
 No breakpoints.
 There are no auto-display expressions now.
@@ -15,4 +21,7 @@ The program being debugged is not being run.
 The program being debugged is not being run.
 No current source file.
 No current source file.
+The program being debugged is not being run.
+No Python program loaded.
 No Python program registered.
+No stack.

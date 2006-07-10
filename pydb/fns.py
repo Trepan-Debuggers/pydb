@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.13 2006/07/09 23:01:21 rockyb Exp $
+"""$Id: fns.py,v 1.14 2006/07/10 07:04:40 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -118,10 +118,13 @@ def get_last_tb_or_frame_tb(frameno=1):
 
 def print_obj(arg, frame, format=None, short=False):
     """Return a string representation of an object """
-    if not frame:
-        return 'No symbol "' + arg + '" in current context.'
     try:
-        val = eval(arg, frame.f_globals, frame.f_locals)
+        if not frame:
+            # ?? Should we have set up a dummy globals
+            # to have persistence? 
+            val = eval(arg, None, None)
+        else:
+            val = eval(arg, frame.f_globals, frame.f_locals)
     except:
         return 'No symbol "' + arg + '" in current context.'
     #format and print

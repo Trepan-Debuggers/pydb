@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.32 2006/07/09 23:01:21 rockyb Exp $
+"""$Id: gdb.py.in,v 1.33 2006/07/10 07:04:41 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -119,6 +119,10 @@ class Gdb(Bdb, Cmd):
         entry and doesn't match Python's indexing. Otherwise it does.
 
         A negative number indexes from the other end."""
+        if not self.curframe:
+            self.msg("No stack.")
+            return
+        
         # Below we remove any negativity. At the end, pos will be
         # the new value of self.curindex.
         if absolute_pos:
@@ -549,6 +553,9 @@ The line number may be prefixed with a filename and a colon,
 to specify a breakpoint in another file (probably one that
 hasn't been loaded yet).  The file is searched for on sys.path;
 the .py suffix may be omitted."""
+        if not self.curframe:
+            self.msg("No stack.")
+            return
         cond = None
         funcname = None
         if not arg:
@@ -619,6 +626,9 @@ the .py suffix may be omitted."""
         See also the 'delete' command which clears breakpoints by number.
         """
 
+        if not self.curframe:
+            self.msg("No frame selected.")
+            return
         if not arg:
             frame, lineno = self.stack[self.curindex]
             filename = self.canonic_filename(self.curframe)
@@ -748,6 +758,9 @@ the .py suffix may be omitted."""
         Enter a recursive debugger that steps through the code argument
         (which is an arbitrary expression or statement to be executed
         in the current environment)."""
+        if not self.curframe:
+            self.msg("No frame selected.")
+            return
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe.f_locals
@@ -860,6 +873,9 @@ the default."""
         With a numeric argument, disassemble at the frame location at that
         line number. With a class, method, function, code or string argument
         disassemble that."""
+        if not self.curframe:
+            self.msg("No frame selected.")
+            return
         if not arg:
             dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
         else:
@@ -1171,6 +1187,9 @@ the default."""
 
         Set the next line that will be executed."""
 
+        if not self.is_running():
+            return
+
         if self.curindex + 1 != len(self.stack):
             self.errmsg("You can only jump within the bottom frame")
             return
@@ -1199,6 +1218,10 @@ the default."""
         list the given range; if the second argument is less than the
         first, it is a count.  First and last can be either a function
         name, a line number or file:line"""
+
+        if not self.curframe:
+            self.msg("No Python program loaded.")
+            return
 
         self.lastcmd = 'list'
         last = None
@@ -1591,8 +1614,13 @@ Deletes the specified alias."""
         """whatis arg
 Prints the type of the argument which can be a Python expression."""
         try:
-            value = eval(arg, self.curframe.f_globals,
-                         self.curframe.f_locals)
+            if not self.curframe:
+                # ?? Should we have set up a dummy globals
+                # to have persistence? 
+                value = eval(arg, None, None)
+            else:
+                value = eval(arg, self.curframe.f_globals,
+                             self.curframe.f_locals)
         except:
             t, v = sys.exc_info()[:2]
             if type(t) == types.StringType:
