@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.14 2006/07/10 07:04:40 rockyb Exp $
+"""$Id: fns.py,v 1.15 2006/07/10 07:21:32 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -211,12 +211,19 @@ def print_stack_trace(self, count=None):
     except KeyboardInterrupt:
         pass
 
-def process_options(pydb, debugger_name, program, pkg_version):
+def process_options(pydb, debugger_name, program, pkg_version,
+                    option_list=None):
+    """Handle debugger options. Use option_list if you want are writing
+    another main program and want to extend the existing set of debugger
+    options.
+
+    The options dicionary from opt_parser is return. Global sys.argv is
+    also updated."""
     usage_str="""%s [debugger-options] python-script [script-options...]
 
        Runs the extended python debugger""" % (program)
 
-    optparser = OptionParser(usage=usage_str,
+    optparser = OptionParser(usage=usage_str, option_list=option_list,
                              version="%%prog version %s" % pkg_version)
 
     optparser.add_option("-X", "--trace", dest="linetrace",
@@ -318,6 +325,7 @@ def process_options(pydb, debugger_name, program, pkg_version):
                   opts.errors
             print sys.exc_info()[0]
             sys.exit(2)
+    return opts
 
 def search_file(filename, path, cdir):
     """Return a full pathname for filename if we can find one. path
