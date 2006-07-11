@@ -1,10 +1,11 @@
 *.err
 *.out
+*.pyc
+*.pyo
 Makefile
 Makefile.in
-gcd.pyc
+except.py
 history.hst
-hanoi.pyc
 pm.py
 test.py
 trace.py
