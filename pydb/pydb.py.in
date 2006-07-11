@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.90 2006/07/10 08:11:49 rockyb Exp $
+"""$Id: pydb.py.in,v 1.91 2006/07/11 10:47:40 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -20,7 +20,7 @@ from fns import *
 from gdb import Gdb
 from gdb import Restart
 
-__all__ = ["Pdb",     "help",
+__all__ = ["Pdb",     "except_hook", "help",
            "pm",      "post_mortem", "run",
            "runcall", "runeval",
            "set_trace"]
@@ -72,11 +72,17 @@ def runcall(*args, **kwds):
 
     return Pdb().runcall(*args, **kwds)
 
-def set_trace(cmdfile=None):
+def set_trace(cmdfile=None, add_exception_hook=True):
     """Enter the debugger at the calling stack frame.  This is useful to
     hard-code a breakpoint at a given point in a program, even if the code
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
+
+    If cmdfile is given, it is assumed to be a debugger command file
+    and will run as an argument to the debugger 'source' command.
+
+    If add_exception is True (the default), we will install an exception hook
+    to call the post-mortem debugger on an unhandled exception. 
     """
     global _pydb_trace
     try:
@@ -100,8 +106,11 @@ def set_trace(cmdfile=None):
 
     if cmdfile is not None: _pydb_trace.do_source(cmdfile)
 
+    if add_exception_hook:
+        sys.excepthook = exception_hook
+
     # There can be no other commands after the following one:
-    if sys.version_info[0:2] == (2, 4):
+    if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
         _pydb_trace.set_trace(_pydb_trace.curframe)
     else:
         # older versions
@@ -117,9 +126,13 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
     contains what we want and frameno is the index location of where
     we want to start.
 
-    Opts is a dictionary of debugger variables you want set; the key
-    is the variable name and the value is the value to give the
-    variable in the @PACKAGE_NAME@ instance."""
+    cmdfile is an optional debugger command file you want to run
+    "source" on.
+    
+    Opts is an optional dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the @PACKAGE_NAME@ instance.
+    """
 
     p = Pdb()
     p.reset()
@@ -160,6 +173,14 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
         p.do_source(cmdfile)
         
     try:
+
+        # FIXME: This can be called from except hook in which case we
+        # need this. Dunno why though.
+        try: 
+            _pydb_trace.set_trace(t.tb_frame)
+        except:
+            pass
+
         p.interaction(t.tb_frame, t)
     except Restart:
         while True:
@@ -188,8 +209,26 @@ def pm(opts=None, cmdfile=None, frameno=1):
 
     # frameno+1 because we are about to add one more level of call
     # in get_last_tb_or_frame_tb
-    traceback = get_last_tb_or_frame_tb(frameno+1)
-    post_mortem(traceback, opts, cmdfile)
+    tb = get_last_tb_or_frame_tb(frameno+1)
+    post_mortem(tb, opts, cmdfile)
+
+def exception_hook(type, value, tb, opts=None, cmdfile=None):
+    """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.
+
+    cmdfile is an optional debugger command file you want to run
+    "source" on.
+    
+    Opts is an optional dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the @PACKAGE_NAME@ instance.
+
+    To use add this to your Python program
+       import sys
+       sys.excepthook = @PACKAGE_NAME@.exception_hook
+    """
+    traceback.print_exception(type, value, tb)
+    post_mortem(tb, opts, cmdfile, 0)
+
 
 # print help
 def help():

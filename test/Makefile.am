@@ -9,6 +9,7 @@ check_DATA = \
 	cmdparse.right  \
 	comm1.cmd       \
 	comm2.cmd       \
+	except.py       \
 	filebug.cmd     \
 	filebug.py      \
 	filebug.right   \
@@ -34,6 +35,6 @@ check_DATA = \
 
 TESTS = test.py pm.py trace.py
 
-EXTRA_DIST = $(check_DATA) pm.py.in test.py.in trace.py.in
+EXTRA_DIST = $(check_DATA) except.py.in pm.py.in test.py.in trace.py.in
 
 test: check
