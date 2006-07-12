@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.91 2006/07/11 10:47:40 rockyb Exp $
+"""$Id: pydb.py.in,v 1.92 2006/07/12 09:37:19 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -110,6 +110,7 @@ def set_trace(cmdfile=None, add_exception_hook=True):
         sys.excepthook = exception_hook
 
     # There can be no other commands after the following one:
+    _pydb_trace.curframe=inspect.currentframe()
     if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
         _pydb_trace.set_trace(_pydb_trace.curframe)
     else:
