@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.15 2006/07/10 07:21:32 rockyb Exp $
+"""$Id: fns.py,v 1.16 2006/07/12 03:07:29 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -55,12 +55,12 @@ def get_confirmation(self, prompt):
         except EOFError:
             reply = 'no'
             reply = reply.strip().lower()
-            if reply in ('y', 'yes'):
-                return True
-            elif reply in ('n', 'no'):
-                return False
-            else:
-                self.msg("Please answer y or n.")
+        if reply in ('y', 'yes'):
+            return True
+        elif reply in ('n', 'no'):
+            return False
+        else:
+            self.msg("Please answer y or n.")
     return False
                 
 
