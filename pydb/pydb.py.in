@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.93 2006/07/12 09:47:33 rockyb Exp $
+"""$Id: pydb.py.in,v 1.94 2006/07/13 01:54:46 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -20,7 +20,7 @@ from fns import *
 from gdb import Gdb
 from gdb import Restart
 
-__all__ = ["Pdb",     "except_hook", "help",
+__all__ = ["Pdb",     "exception_hook", "help",
            "pm",      "post_mortem", "run",
            "runcall", "runeval",
            "set_trace"]
