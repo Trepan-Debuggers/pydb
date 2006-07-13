@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.95 2006/07/13 02:30:50 rockyb Exp $
+"""$Id: pydb.py.in,v 1.96 2006/07/13 08:29:24 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -78,8 +78,9 @@ def set_trace(opts=None, add_exception_hook=True):
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
 
-    If cmdfile is given, it is assumed to be a debugger command file
-    and will run as an argument to the debugger 'source' command.
+    Opts is an optional dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the pydb instance.
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception. 
