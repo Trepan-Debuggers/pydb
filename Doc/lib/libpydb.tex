@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.56 2006/07/13 02:14:57 rockyb Exp $
+% $Id: libpydb.tex,v 1.57 2006/07/13 02:30:50 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1435,7 +1435,7 @@ the display listsize to be 20 by default on entry pass
 \end{funcdesc}
 
 \begin{funcdesc}{post_mortem}{traceback\optional{opts-dictionary=None,
-  cmdfile=None}}
+  cmdfile=None}}\label{post-mortem}
 Enter post-mortem debugging of the given \var{traceback} object.
 
 To set debugger options, pass a dictionary of variable, value pairs
@@ -1472,7 +1472,8 @@ expression.  Otherwise this function is similar to
 \function{run()}.
 \end{funcdesc}
 
-\begin{funcdesc}{set_trace}{\optional{cmdfile=None, add_exception_hook=True}}\label{set-trace}
+\begin{funcdesc}{set_trace}{\optional{opts-dictionary=None,
+      add_exception_hook=True}}\label{set-trace}
 Enter the debugger at the statement which follows (in execution) the
 \code{set_trace()} statement. This hard-codes a call to the debugger
 at a given point in a program, even if the code is not otherwise being
@@ -1490,10 +1491,10 @@ When the debugger is quitting, this causes the program to be
 terminated. If you want the program to continue instead, use the
 \code{debugger} function.
 
-The \code{cmdfile} allows you to run a debugger command file before
-entering the debugger. Unless \code{add_exception_hook} is set to
-\code{False}, we install an exception hook to enter the debugger on
-any otherwise unhandled exception.
+Set debugger options are set in the same way as \code{post-mortem}().
+Unless \code{add_exception_hook} is set to \code{False}, we install an
+exception hook to enter the debugger on any otherwise unhandled
+exception.
 
 \end{funcdesc}
 
