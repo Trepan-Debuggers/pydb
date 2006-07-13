@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.16 2006/07/12 03:07:29 rockyb Exp $
+"""$Id: fns.py,v 1.17 2006/07/13 07:45:09 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -219,7 +219,7 @@ def process_options(pydb, debugger_name, program, pkg_version,
 
     The options dicionary from opt_parser is return. Global sys.argv is
     also updated."""
-    usage_str="""%s [debugger-options] python-script [script-options...]
+    usage_str="""%s [debugger-options] [python-script [script-options...]]
 
        Runs the extended python debugger""" % (program)
 
