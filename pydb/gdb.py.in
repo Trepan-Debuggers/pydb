@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.35 2006/07/15 22:42:00 rockyb Exp $
+"""$Id: gdb.py.in,v 1.36 2006/07/15 22:57:24 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -884,18 +884,23 @@ the default."""
         # Observation and fix from by Matt Flemming.
         orig_stdout = sys.stdout
         sys.stdout = self.stdout
-        if not arg:
-            dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
-        else:
-            try:
-                i = int(arg)
-                dis.disassemble(self.curframe.f_code, i)
-            except ValueError:
-                try: 
-                    obj=self.getval(arg)
-                    dis.dis(obj)
-                except NameError:
-                    pass
+        try:
+            if not arg:
+                dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
+            else:
+                try:
+                    i = int(arg)
+                    dis.disassemble(self.curframe.f_code, i)
+                except ValueError:
+                    try: 
+                        obj=self.getval(arg)
+                        dis.dis(obj)
+                    except NameError:
+                        pass
+        except:
+            # Make sure we restore sys.stdout on an exception.
+            sys.stdout = orig_stdout
+            raise # reraise exception
         sys.stdout = orig_stdout
         
     def do_display(self, arg):
