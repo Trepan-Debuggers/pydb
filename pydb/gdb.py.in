@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.37 2006/07/15 22:58:50 rockyb Exp $
+"""$Id: gdb.py.in,v 1.38 2006/07/15 22:59:23 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -880,8 +880,8 @@ the default."""
             return
 
         # Disassemble uses "print". We may have redirected where we want
-        # debugger output to go. So we'll save and restore sys.stdout
-        # Observation and fix from by Matt Flemming.
+        # debugger output to go. So we'll save and restore sys.stdout.
+        # Observation and fix from Matt Flemming.
         orig_stdout = sys.stdout
         sys.stdout = self.stdout
         try:
