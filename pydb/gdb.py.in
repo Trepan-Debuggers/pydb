@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.38 2006/07/15 22:59:23 rockyb Exp $
+"""$Id: gdb.py.in,v 1.39 2006/07/16 04:57:19 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -400,7 +400,8 @@ class Gdb(Bdb, Cmd):
         self.currentbp = None    # Can forget it now that we're moving on
         self.forget()
         if not do_loop:
-            return 1
+            # Tell cmdloop to break out of its loop.
+            return True 
 
     def set_helper(self, cmd, label=False):
         """Show help for a single set subcommand"""
@@ -752,7 +753,10 @@ the .py suffix may be omitted."""
             self.set_step()
         else:
             self.set_continue()
-        return 1
+
+        # Tell cmdloop to break out of its loop.
+        return True 
+
     do_c = do_continue
 
     def do_debug(self, arg):
@@ -1034,7 +1038,9 @@ the default."""
         if self.linetrace:
             self.step_ignore = -1
             self.stopframe = None
-        return 1
+
+        # Tell cmdloop to break out of its loop.
+        return True 
 
     def do_frame(self, arg):
         """frame frame-number
@@ -1316,7 +1322,9 @@ With an integer argument, perform that many times."""
             return
 
         self.set_next(self.curframe)
-        return 1
+        # Tell cmdloop to break out of its loop.
+        return True 
+
     do_n = do_next
 
     def do_p(self, arg):
@@ -1345,7 +1353,9 @@ With an integer argument, perform that many times."""
         self._user_requested_quit = True
         self.running              = False
         self.set_quit()
-        return 1
+
+        # Tell cmdloop to break out of its loop.
+        return True 
 
     do_kill = do_q = do_quit
 
@@ -1563,7 +1573,9 @@ With an integer argument, step that many times."""
             return
 
         self.set_step()
-        return 1
+        # Tell cmdloop to break out of its loop.
+        return True 
+
     do_s = do_step
 
     def do_tbreak(self, arg):
@@ -1687,7 +1699,9 @@ Handles the receipt of EOF as a command."""
         self.msg("")
         self._user_requested_quit = True
         self.set_quit()
-        return 1
+
+        # Tell cmdloop to break out of its loop.
+        return True 
 
     #########################################################
     # Help methods (derived from @PACKAGE@.doc or vice versa)
