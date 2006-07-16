@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.57 2006/07/13 02:30:50 rockyb Exp $
+% $Id: libpydb.tex,v 1.58 2006/07/16 20:15:38 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1155,8 +1155,7 @@ The debugger is extensible---it is defined as the class
 \class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.  When
 creating a new \class{Pdb} object, one can optionally specifying the
 key for command completion if it is provided in your Python via
-\ulink{\module{\code
-readline}}{http://docs.python.org/lib/module-readline.html}
+\ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
 or \module{pyreadline}. The parameter name here is
 \code{completekey} an its default value is the tab key.
 
@@ -1167,8 +1166,7 @@ input, completion, help system, top-level command-invocation), while
 \class{Bdb} handles debugger aspects (e.g. breakpoints, stepping, call
 stack formatting). However \class{Cmd} and \class{Bdb} go through two
 more modules \module{pycmd} and \module{pybdb} which are extensions of
-\ulink{\module{\code
-cmd}}{http://docs.python.org/lib/module-cmd.html} and \module{bdb}
+\ulink{\module{cmd}}{http://docs.python.org/lib/module-cmd.html} and \module{bdb}
 respectively. In general these extensions are used to paper over
 deficiencies or differences in operation that are needed.
 
