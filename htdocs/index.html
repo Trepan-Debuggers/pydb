@@ -27,54 +27,32 @@ or modified command names generally refer to the function they have in
 gdb.
 
 <p>
-Changes from pdb.py:
+Some (but by no means all) of the features and changes from pdb.py:
 <ul>
 
-<li> non-interactive POSIX-shell like line tracing.
+<li>non-interactive POSIX-shell like line tracing.
 
 <li>Restart program saving settings (gdb's <tt>run</tt>) or a pure
 <tt>exec</tt> restart (reloads the entire debugger)
 
-<li>Add "display" expressions
+<li>Many gdb commands.
 
-<li>Some of gdb <tt>set</tt>/<tt>show</tt> commands: <tt>args</tt>,
-   <tt>listsize</tt>, <tt>version</tt> (no set here), and some new
-   ones <tt>basename</tt>, <tt>cmdtrace</tt>, <tt>interactive</tt>,
-   <tt>linetrace</tt>,
-
-<li>Some gdb <tt>info</tt> commands: <tt>args</tt>, <tt>break</tt>,
-   <tt>display</tt>, <tt>globals</tt>, <tt>line</tt>, <tt>locals</tt>,
-   <tt>program</tt>, and <tt>source</tt>
-
-<li>Other gdb commands: <tt>cd</tt>, <tt>display</tt>,
-  <tt>disassemble</tt>, <tt>finish</tt>,<tt>frame</tt>, <tt>pwd</tt>,
-  <tt>return</tt> (immediate return, not <tt>finish</tt>),
-  <tt>run</tt>, <tt>shell</tt>, <tt>source</tt>, <tt>undisplay</tt>
-
-<li> debugger is installed in binary directory; i.e. one runs "pydb script..."
+<li>debugger is installed in binary directory; i.e. one runs "pydb script..."
   rather than "python pdb script..."
 
-<li> debugger accepts debugger options; e.g. redirecting output or setting 
-  line tracing
+<li>debugger accepts debugger options; e.g. redirecting debugger output
 
-<li> Add Perl's "examine" to show info about a symbol.  For functions,
+<li>Add Perl's "examine" to show info about a symbol.  For functions,
   methods, classes and modules the documentation string if any is printed.
   For functions, we also show the argument list. More work is needed here
   to recurse fields of an arbitrary object and show that.
-
-<li> add gdb's <tt>frame</tt> command and stack order. Cleaner display of
-  call stack; for example <tt>exec</tt> calls are marked as such.
 
 <li> gdb-like help with subcommand-specific help available on
   <tt>info</tt>, <tt>set</tt>, or <tt>show</tt> subcommands;
   e.g. <tt>help info line</tt> works
 
-<li> More <a href="http://bashdb.sourceforge.net/pydb/pydb/lib/index.html">
+<li>More <a href="http://bashdb.sourceforge.net/pydb/pydb/lib/index.html">
 extensive and complete documentation</a>.
-
-<li> up/down can take a number of frames to move.
-
-<li> Stepping skips over <tt>def</tt> statements.
 
 <li> Comes with regression tests. Can also be subclassed to capture
   debugger output.
@@ -82,9 +60,7 @@ extensive and complete documentation</a>.
 <li> Works with GUI frontend <a
 href="http://www.gnu.org/software/ddd/">ddd</a>. (For now a <a
 href="http://sourceforge.net/project/showfiles.php?group_id=61395&amp;package_id=65341">testing
-version</a> of ddd is required.
-
-<li>Miscellaneous pdb bugs fixed. (See ChangeLog for details)
+version</a> of ddd is required.)
 </ul>
 
 <center>
@@ -144,6 +120,6 @@ version</a> of ddd is required.
 src="http://sourceforge.net/sflogo.php?group_id=61395&amp;type=1"
 alt="SourceForge Logo" border="0" height="31" width="88">></a>
 
-<i>$Id: index.html,v 1.10 2006/05/22 16:56:28 rockyb Exp $</i>
+<i>$Id: index.html,v 1.11 2006/07/16 00:06:36 rockyb Exp $</i>
 </body>
 </html>
