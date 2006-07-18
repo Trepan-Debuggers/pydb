@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.39 2006/07/16 04:57:19 rockyb Exp $
+"""$Id: gdb.py.in,v 1.40 2006/07/18 21:34:57 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1433,7 +1433,7 @@ assignment to the variable __return__."""
         if '__return__' in self.curframe.f_locals:
             self.msg(self.curframe.f_locals['__return__'])
         else:
-            self.errmg('Not yet returned!')
+            self.errmsg('Not yet returned!')
     do_rv = do_retval
 
     def do_run(self, arg):
