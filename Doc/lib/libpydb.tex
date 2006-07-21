@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.58 2006/07/16 20:15:38 rockyb Exp $
+% $Id: libpydb.tex,v 1.59 2006/07/21 08:17:26 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -970,7 +970,7 @@ must use \code{restart} rather than \code{run}.\footnote{It may be
 possible to unimport by removing a the module from a namespace, but if
 there are shared dynamically loaded objects those don't get unloaded.}
 
-\item[run \var{args...}]
+\item[run \var{args...}]\label{command:run}
 
 Run or ``soft'' restart the debugged Python program. If a string is
 supplied that becomes the new command arguments.  History,
@@ -1445,27 +1445,39 @@ the display listsize to be 20 by default on entry pass
 
 \begin{funcdesc}{run}{statement\optional{, globals\optional{, locals}}}
 Execute the \var{statement} (given as a string) under debugger
-control.  The debugger prompt appears before any code is executed; you
-can set breakpoints and type \samp{continue}, or you can step through
-the statement using \samp{step} or \samp{next} See \ref{command:step}
-and \ref{command:next} for explanations of these commands.  The
-optional \var{globals} and \var{locals} arguments specify the
-environment in which the code is executed; by default the dictionary
-of the module \refmodule[main]{__main__} is used.  (See the
-explanation of the \keyword{exec} statement or the \function{eval()}
-built-in function.)
+control starting with the statement subsequent to the place that the
+this appears in your program.
+
+The debugger prompt appears before any code is executed; you can set
+breakpoints and type \samp{continue}, or you can step through the
+statement using \samp{step} or \samp{next} See \ref{command:step} and
+\ref{command:next} for explanations of these commands.  The optional
+\var{globals} and \var{locals} arguments specify the environment in
+which the code is executed; by default the dictionary of the module
+\refmodule[main]{__main__} is used.  (See the explanation of the
+\keyword{exec} statement or the \function{eval()} built-in function.)
+
+Note that this is not at all like pydb's (or GDB's)
+\code{run}\ref{command:run} debugger command. This function should be
+called from inside the program you are trying to debug.
 \end{funcdesc}
 
 \begin{funcdesc}{runcall}{function\optional{, argument, ...}}
 Call the \var{function} (a function or method object, not a string)
-with the given arguments.  When \function{runcall()} returns, it returns
+with the given arguments starting with the statement subsequent to the
+place that the this appears in your program..
+
+When \function{runcall()} returns, it returns
 whatever the function call returned.  The debugger prompt appears as
 soon as the function is entered.
 \end{funcdesc}
 
 \begin{funcdesc}{runeval}{expression\optional{, globals\optional{, locals}}}
 Evaluate the \var{expression} (given as a string) under debugger
-control.  When \function{runeval()} returns, it returns the value of the
+control starting with the statement subsequent to the place that the
+this appears in your program.
+
+When \function{runeval()} returns, it returns the value of the
 expression.  Otherwise this function is similar to
 \function{run()}.
 \end{funcdesc}

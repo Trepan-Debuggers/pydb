@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.96 2006/07/13 08:29:24 rockyb Exp $
+"""$Id: pydb.py.in,v 1.97 2006/07/21 08:17:27 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -46,31 +46,49 @@ class Pdb(Gdb):
 #########################################################
 
 def run(statement, globals=None, locals=None):
+
     """Execute the statement (given as a string) under debugger
-    control. The debugger prompt appears before any code is executed;
+    control starting with the statement subsequent to the place that
+    this call appears in your program.
+
+    The debugger prompt appears before any code is executed;
     you can set breakpoints and type 'continue', or you can step
     through the statement using 'step' or 'next'
 
     The optional globals and locals arguments specify the environment
     in which the code is executed; by default the dictionary of the
     module __main__ is used."""
-    
-    Pdb().run(statement, globals, locals)
+
+    p = Pdb()
+    p.running=True
+    p.run(statement, globals, locals)
 
 def runeval(expression, globals=None, locals=None):
-    """Evaluate the expression (given as a string) under debugger
-    control.  When runeval() returns, it returns the value of the
-    expression.  Otherwise this function is similar to run()."""
 
-    return Pdb().runeval(expression, globals, locals)
+    """Evaluate the expression (given as a string) under debugger
+    control starting with the statement subsequent to the place that
+    this appears in your program.
+
+    When runeval() returns, it returns the value of the expression.
+    Otherwise this function is similar to run()."""
+
+    p = Pdb()
+    p.running=True
+    return p.runeval(expression, globals, locals)
 
 def runcall(*args, **kwds):
-    """ Call the function (a function or method object, not a string)
-    with the given arguments.  When runcall() returns, it returns
-    whatever the function call returned.  The debugger prompt appears
-    as soon as the function is entered."""
 
-    return Pdb().runcall(*args, **kwds)
+    """ Call the function (a function or method object, not a string)
+    with the given arguments starting with the statement subsequent to
+    the place that this appears in your program.
+
+    When runcall() returns, it returns whatever the function call
+    returned.  The debugger prompt appears as soon as the function is
+    entered."""
+
+    p = Pdb()
+    p.running=True
+    return p.runcall(*args, **kwds)
 
 def set_trace(opts=None, add_exception_hook=True):
     """Enter the debugger at the calling stack frame.  This is useful to
