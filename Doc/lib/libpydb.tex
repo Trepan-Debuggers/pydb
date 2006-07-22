@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.60 2006/07/22 22:37:32 rockyb Exp $
+% $Id: libpydb.tex,v 1.61 2006/07/22 23:31:01 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -138,7 +138,7 @@ In contrast to running a program from a shell (or gdb), no path
 searching is performed on \var{python-script}. Therefore
 \var{python-script} should be explicit enough (include relative or
 absolute file paths) so that the debugger can read it as a file
-name. Similarly, the location of the Python interper used for the
+name. Similarly, the location of the Python interpreter used for the
 script will not necessarily be the one specified in the magic field
 (the first line of the file), but will be the Python interpreter that
 the debugger specifies. (In most cases they'll be the same and/or it
