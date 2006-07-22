@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.59 2006/07/21 08:17:26 rockyb Exp $
+% $Id: libpydb.tex,v 1.60 2006/07/22 22:37:32 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -131,7 +131,18 @@ debug and after that you may want to pass options for this script.
 
 Thus the general form of invoking the debugger is:
 
-\code{pydb} \optional{\var{debugger-options}\ldots} \optional{\var{python-script} \optional{\var{script-options}\ldots}}
+\code{pydb} \optional{\var{debugger-options}\ldots}
+\optional{\var{python-script} \optional{\var{script-options}\ldots}}
+
+In contrast to running a program from a shell (or gdb), no path
+searching is performed on \var{python-script}. Therefore
+\var{python-script} should be explicit enough (include relative or
+absolute file paths) so that the debugger can read it as a file
+name. Similarly, the location of the Python interper used for the
+script will not necessarily be the one specified in the magic field
+(the first line of the file), but will be the Python interpreter that
+the debugger specifies. (In most cases they'll be the same and/or it
+won't matter.)
 
 A detailed list of options is given next. 
 
