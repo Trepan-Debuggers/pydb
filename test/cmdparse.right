@@ -311,8 +311,8 @@ Generic command for showing things about the program being debugged.
 List of info subcommands:
 
 info args -- Argument variables of current stack frame
-info break -- Status of user-settable breakpoints
-info display -- Expressions to display when program stops, with code numbers.
+info breakpoints -- Status of user-settable breakpoints
+info display -- Expressions to display when program stops, with code numbers
 info globals -- Global variables of current stack frame
 info line -- Current line number in source file
 info locals -- Local variables of current stack frame
