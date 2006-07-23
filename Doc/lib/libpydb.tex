@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.62 2006/07/23 00:23:42 rockyb Exp $
+% $Id: libpydb.tex,v 1.63 2006/07/23 04:09:00 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1205,17 +1205,27 @@ I needed far too many tests and working this way would not scale.
 \subsection{Calling the Debugger from Inside your Program}\label{subsection-calling-pydb-inside-program}
 
 When you issue \code{pydb myscript.py} you are running \code{pydb}
-first which then invokes your script \code{myscript.py}. The debugger,
-\code{pydb}, tries hard to make itself transparent and thus strips its
-own program options, resets \code{sys.argv} and sets \code{__file__}
-to the values you would get by calling the debugged program directly.
+first which then invokes your script \code{myscript.py} via Python's
+\code{exec} command. The debugger, \code{pydb}, tries hard to make
+itself transparent and thus strips its own program options, resets
+\code{sys.argv} and sets \code{__file__} to the values you would get
+by calling the debugged program directly.
 
-However there are times when this doesn't work right. It's probable
-that this method can't be made to work all the time, even though it
-works often enough.
+There may be however some subtle differences. For example the Python
+interpreter used would be the one specified by \code{pydb} rather than
+possibly that specified inside \code{myscript.py}. Also \code{pydb}
+does not search your command path, as would be done if issued from a
+shell.
 
-So another approach which doesn't have this complexity or drawback is
-to modify your program to add calls to the debugger at special
+Of course you can arrange to get the same interpeter by putting
+\code{python} (with the right path) first before \code{pydb}; and you
+can give an explicit file path in the script name to debug.
+
+But there are times when even this won't work right.
+
+There is another approach which obviates this complexity and the
+attendant drawbacks. However in this approach though you need to
+modify your program to add calls to the debugger at special
 places. For this, the \code{pydb} function \code{set_trace()} (see
 \ref{set-trace}) can be used. I've even this method to debug the
 debugger itself and to debug regression tests.
