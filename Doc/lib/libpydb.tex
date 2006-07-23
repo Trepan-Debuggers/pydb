@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.61 2006/07/22 23:31:01 rockyb Exp $
+% $Id: libpydb.tex,v 1.62 2006/07/23 00:23:42 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -134,15 +134,20 @@ Thus the general form of invoking the debugger is:
 \code{pydb} \optional{\var{debugger-options}\ldots}
 \optional{\var{python-script} \optional{\var{script-options}\ldots}}
 
-In contrast to running a program from a shell (or gdb), no path
-searching is performed on \var{python-script}. Therefore
-\var{python-script} should be explicit enough (include relative or
-absolute file paths) so that the debugger can read it as a file
-name. Similarly, the location of the Python interpreter used for the
-script will not necessarily be the one specified in the magic field
-(the first line of the file), but will be the Python interpreter that
-the debugger specifies. (In most cases they'll be the same and/or it
-won't matter.)
+\var{python-script} should be the Python source (usually has extension
+\code{.py} if any), and not a compiled or optimized Python program.
+
+In contrast to running a program from a shell (or using the \code{gdb}
+debugger), no path searching is performed on
+\var{python-script}. Therefore \var{python-script} should be explicit
+enough (include relative or absolute file paths) so that the debugger
+can read it as a file name. 
+
+Similarly, the location of the Python interpreter used for the script
+will not necessarily be the one specified in the magic field (the
+first line of the file), but will be the Python interpreter that the
+debugger specifies. (In most cases they'll be the same and/or it won't
+matter.)
 
 A detailed list of options is given next. 
 
@@ -1155,6 +1160,12 @@ example:
 python -m pydb myscript.py
 \end{verbatim}
 
+As with \code{pydb} invocation (see \ref{pydb-invocation}), \var{myscript.py}
+must be fully qualified as a file, no path-searching is done to find
+it. Also it must be Python source, not compiled or optimized
+versions. Finally you may have to adjust \code{PYTHONPATH} if the
+module \code{pydb} is not found.
+
 When invoked as a script, \code{pydb} will automatically enter
 post-mortem debugging if the program being debugged exits
 abnormally. After post-mortem debugging (or after normal exit of the
@@ -1390,6 +1401,14 @@ Here's another way run a program under control of the debugger:
 (Pydb) continue
 \end{verbatim}
 
+One difference betwen this kind of invocation that of Section
+\ref{pydb-invocation} is that statements may get executed in the
+import of \code{mymodule} will not be debugged. For example if
+\code{mymodule} implements a standalone program and/or has a
+\code{__name__ = '__main__' } clause, you probably don't want to use
+this method.
+
+
 \subsection{Inheritance from class \class{Cmd}}
 Because \class{Pdb} inherts from \class{Cmd}, the following
 conventions are used. 
@@ -1468,9 +1487,9 @@ which the code is executed; by default the dictionary of the module
 \refmodule[main]{__main__} is used.  (See the explanation of the
 \keyword{exec} statement or the \function{eval()} built-in function.)
 
-Note that this is not at all like pydb's (or GDB's)
-\code{run}\ref{command:run} debugger command. This function should be
-called from inside the program you are trying to debug.
+Note that this is not at all like pydb's (or GDB's) \code{run} (see
+\ref{command:run}) debugger command. This function should be called
+from inside the program you are trying to debug.
 \end{funcdesc}
 
 \begin{funcdesc}{runcall}{function\optional{, argument, ...}}
@@ -1606,6 +1625,10 @@ package name (pydb) is substituted inside it.
 Python debugger. Contains user-callable routines, e.g. 
 \code{run}, \code{set_trace}, \code{runeval}.
 
+\item[fns.py]
+
+Functions to support the Debugger.
+
 \item[gdb.py.in]
 
 Handles gdb-like command processing.
@@ -1615,10 +1638,6 @@ Handles gdb-like command processing.
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
-
-\item[fns.py]
-
-Functions to support the Debugger.
 
 \item[pydbcmd.py]
 
@@ -1631,6 +1650,11 @@ be changed from cmd are here.
 
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined.
+
+\item[subcmd.py]
+
+Implements a sub-command class for handling \code{info}, \code{set},
+and \code{show} subcommand processing.
 
 \end{description}
 
