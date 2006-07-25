@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.44 2006/07/25 13:48:04 rockyb Exp $
+"""$Id: gdb.py.in,v 1.45 2006/07/25 14:08:01 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -36,9 +36,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._program_sys_argv    = []   # sys.argv after options are stripped
         self._re_linetrace_delay  = re.compile(r'\s*linetrace\s+delay')
         self._wait_for_mainpyfile = False
-        self._info_cmds = ['args',      'break',    'display',
-                           'globals',   'line',     'locals',
-                           'program',   'source']
+
         self.__init_info()
         self.__init_set()
         self.__init_show()
@@ -1082,8 +1080,9 @@ the default."""
 
         if not arg:
             for subcommand in self.infocmds.list():
-                self.msg_nocr("%s: " % subcommand)
-                self.do_info(subcommand)
+                if self.infocmds.subcmds[subcommand]['in_list']:
+                    self.msg_nocr("%s: " % subcommand)
+                    self.do_info(subcommand)
             return
 
         else:

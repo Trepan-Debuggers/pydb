@@ -1,4 +1,4 @@
-"""$Id: subcmd.py,v 1.2 2006/07/25 01:30:25 rockyb Exp $
+"""$Id: subcmd.py,v 1.3 2006/07/25 14:08:01 rockyb Exp $
 Handles gdb-like subcommand processing.
 """
 
@@ -82,10 +82,6 @@ List of %s subcommands:
 
     def list(self):
         l=self.subcmds.keys()
-        for i in l:
-            # Remove subcmd if we don't want it displayed in the list
-            if not self.subcmds[i]['in_list']:
-                l.pop(l.index(i))
         l.sort()
         return l
 
@@ -120,7 +116,7 @@ if __name__=='__main__':
         def show_cmdtrace(self, arg):
             "Show if we are to show debugger commands"
             print "cmdtraces is on."
-    
+
 
     gdb=FakeGdb()
     info=Subcmd('info',
@@ -158,4 +154,4 @@ You can see these environment settings with the 'show' command.""")
     set.do(gdb, 'basename', 'off')
 
     print show.list()
-    
+
