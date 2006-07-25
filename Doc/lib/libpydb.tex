@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.63 2006/07/23 04:09:00 rockyb Exp $
+% $Id: libpydb.tex,v 1.64 2006/07/25 08:25:56 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1635,6 +1635,11 @@ package name (pydb) is substituted inside it.
 Python debugger. Contains user-callable routines, e.g. 
 \code{run}, \code{set_trace}, \code{runeval}.
 
+\item[display.py]
+
+Classes to support gdb-like display/undisplay for pydb, the Extended
+Python debugger. Class Display and DisplayNode are defined.
+
 \item[fns.py]
 
 Functions to support the Debugger.
@@ -1655,11 +1660,6 @@ Routines here have to do with parsing or processing commands,
 generally (but not always) they are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
-
-\item[pydbdisp.py]
-
-Classes to support gdb-like display/undisplay for pydb, the Extended
-Python debugger. Class Display and DisplayNode are defined.
 
 \item[subcmd.py]
 

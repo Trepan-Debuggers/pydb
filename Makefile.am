@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.29 2006/07/22 22:39:18 rockyb Exp $
+#$Id: Makefile.am,v 1.30 2006/07/25 08:25:56 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,11 @@ python_debugger_script := $(DEBUGGER).py
 pkgpython_PYTHON := \
 	$(DEBUGGER)/__init__.py \
         $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/display.py  \
 	$(DEBUGGER)/fns.py	\
 	$(DEBUGGER)/gdb.py	\
 	$(DEBUGGER)/pydbbdb.py	\
 	$(DEBUGGER)/pydbcmd.py	\
-	$(DEBUGGER)/pydbdisp.py \
 	$(DEBUGGER)/subcmd.py 
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
@@ -60,10 +60,11 @@ MOSTLYCLEANFILES = $(man1_MANS)
 
 clean-generic: 
 	-rm $(top_builddir)/pydb/pydb.pyc	\
+	$(top_builddir)/pydb/display.pyc	\
+	$(top_builddir)/pydb/fns.pyc		\
+	$(top_builddir)/pydb/gdb.pyc		\
 	$(top_builddir)/pydb/pydbcmd.pyc	\
-	$(top_builddir)/pydb/pydbdisp.pyc	\
-	$(top_builddir)/pydb/pydbfns.pyc	\
-	$(top_builddir)/pydb/subcmds.pyc
+	$(top_builddir)/pydb/subcmd.pyc
 
 test: check
 check: pydb/pydb.py pydb/gdb.py test/test.py test/pm.py
