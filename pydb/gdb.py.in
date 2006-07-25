@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.42 2006/07/25 01:30:25 rockyb Exp $
+"""$Id: gdb.py.in,v 1.43 2006/07/25 09:33:05 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -11,8 +11,12 @@ import atexit, dis, inspect, linecache, os, pprint
 import bdb, re, subcmd, sys, traceback, types
 
 import pydbcmd, pydbbdb
-from pydbdisp import Display, DisplayNode
-from fns import *
+
+from display import Display, DisplayNode
+from fns     import *
+from info    import *
+from set     import *
+from show    import *
 
 from pydbcmd import Cmd
 from pydbbdb import Bdb
@@ -21,7 +25,7 @@ class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
 
-class Gdb(Bdb, Cmd):
+class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     """A debugger class for Python that resembles the gdb (GNU debugger)
     command set."""
     
@@ -87,6 +91,8 @@ class Gdb(Bdb, Cmd):
                                   'do_quit',     'do_return',
                                   'do_step']
 
+        self.do_L = self.info_breakpoints
+    
         # Try to load readline if it exists
         try:
             import @READLINE@
@@ -259,6 +265,7 @@ class Gdb(Bdb, Cmd):
         self.showcmds.add('basename',    self.show_basename)
         self.showcmds.add('cmdtrace',    self.show_cmdtrace, 2)
         self.showcmds.add('commands',    self.show_commands, 2)
+        self.showcmds.add('directories', self.show_directories, 1)
         self.showcmds.add('history',     self.show_history)
         self.showcmds.add('interactive', self.show_interactive)
         self.showcmds.add('linetrace',   self.show_linetrace, 3)
@@ -1082,23 +1089,6 @@ the default."""
         else:
             args = arg.split()
             self.infocmds.do(self, args[0], args)
-
-    def info_break(self, arg):
-        """info break
-
-        Without argument, list info about all breakpoints.  With an
-        integer argument, list info on that breakpoint.
-
-        The short command name is L."""
-        if self.breaks:  # There's at least one
-            self.msg("Num Type          Disp Enb    Where")
-            for bp in bdb.Breakpoint.bpbynumber:
-                if bp:
-                    self.bpprint(bp)
-        else:
-            self.msg("No breakpoints.")
-
-    do_L = info_break
 
     def do_jump(self, arg, cmdname='Jump'):
         """jump lineno

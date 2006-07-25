@@ -1,12 +1,13 @@
-"""$Id: pydbcmd.py,v 1.24 2006/07/25 01:30:25 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.25 2006/07/25 09:33:05 rockyb Exp $
 A Python debugger command class.
 
-Routines here have to do with parsing or processing commands,
-generally (but not always) they are not specific to pydb. They are sort
-of more oriented towards any gdb-like debugger. Also routines that need to
-be changed from cmd are here.
-"""
-import cmd, linecache, os, pprint, sys, types
+Routines here have to do with parsing or processing commands, but are
+not the commands themselves which are in gdb.py.in.  Generally (but
+not always) they are not specific to pydb. They are sort of more
+oriented towards any gdb-like debugger. Also routines that need to be
+changed from cmd are here.  """
+
+import cmd, linecache, sys, types
 from fns import *
 
 # Interaction prompt line will separate file and call info from code
@@ -31,14 +32,6 @@ class Cmd(cmd.Cmd):
         self.nohelp               = 'Undefined command: \"%s\". Try \"help\".'
         self.prompt               = '(Pydb) '
         self.rcLines              = []
-
-    def __open_log(self, filename):
-        open_mode = ('w', 'a')[self.logging_overwrite]
-        try:
-            self.logging_fileobj = open(filename, open_mode)
-            self.logging_file = filename
-        except:
-            self.errmsg("Error in opening %s" % filename)
 
     def _runscript(self, filename):
         # When bdb sets tracing, a number of call and line events happens
@@ -280,102 +273,6 @@ class Cmd(cmd.Cmd):
             return 1
         return
 
-    def info_args(self, arg):
-        """Argument variables of current stack frame."""
-        if not self.curframe:
-            self.msg("No stack.")
-            return
-        f = self.curframe
-        co = f.f_code
-        dict = f.f_locals
-        n = co.co_argcount
-        if co.co_flags & inspect.CO_VARARGS: n += 1
-        if co.co_flags & inspect.CO_VARKEYWORDS: n += 1
-        for i in range(n):
-            name = co.co_varnames[i]
-            self.msg_nocr("%s=" %  name)
-            if name in dict: self.msg(dict[name])
-            else: self.msg("*** undefined ***")
-
-    def info_breakpoints(self, arg):
-        """Status of user-settable breakpoints"""
-        # FIXME: Should split out the "info" part in args
-        self.do_L(None)
-
-    def info_display(self, arg):
-        """Expressions to display when program stops, with code numbers."""
-        if not self.display.displayAll():
-            self.msg('There are no auto-display expressions now.')
-
-    def info_globals(self, arg):
-        """Global variables of current stack frame"""
-        if not self.curframe:
-            self.msg("No frame selected.")
-            return
-        self.msg("\n".join(["%s = %s"
-                            % (l, pprint.pformat(self.getval(l)))
-                            for l in self.curframe.f_globals]))
-
-    def info_line(self, arg):
-        """Current line number in source file"""
-        #info line identifier
-        if not self.curframe:
-            self.msg("No line number information available.")
-            return
-        if len(arg) == 2:
-            # lineinfo returns (item, file, lineno) or (None,)
-            answer = self.lineinfo(arg[1])
-            if answer[0]:
-                item, file, lineno = answer
-                if not os.path.isfile(file):
-                    file = search_file(file, self.search_path,
-                                       self.main_dirname)
-                self.msg('Line %s of "%s" <%s>' %
-                         (lineno, file, item))
-            return
-        file=self.canonic_filename(self.curframe)
-        if not os.path.isfile(file):
-            file = search_file(file, self.search_path, self.main_dirname)
-
-        self.msg('Line %d of \"%s\" at instruction %d' %
-                 (inspect.getlineno(self.curframe),
-                  self.filename(self.canonic_filename(self.curframe)),
-                  self.curframe.f_lasti))
-
-    def info_locals(self, arg):
-        """Local variables of current stack frame"""
-        if not self.curframe:
-            self.msg("No frame selected.")
-            return
-        self.msg("\n".join(["%s = %s"
-                            % (l, pprint.pformat(self.getval(l)))
-                            for l in self.curframe.f_locals]))
-
-    def info_program(self, arg):
-        """Execution status of the program."""
-        if not self.curframe:
-            self.msg("The program being debugged is not being run.")
-            return
-        if self.is_running():
-            self.msg('Program stopped.')
-            if self.currentbp:
-                self.msg('It stopped at breakpoint %d.' % self.currentbp)
-            elif self.stop_reason == 'call':
-                self.msg('It stopped at a call.')
-            elif self.stop_reason == 'exception':
-                self.msg('It stopped as a result of an exception.')
-            elif self.stop_reason == 'return':
-                self.msg('It stopped at a return.')
-            else:
-                self.msg("It stopped after stepping, next'ing or initial start.")
-    def info_source(self, arg):
-        """Information about the current Python file."""
-        if not self.curframe:
-            self.msg("No current source file.")
-            return
-        self.msg('Current Python file is %s' %
-                 self.filename(self.canonic_filename(self.curframe)))
-
     def msg(self, msg, out=None):
         """Common routine for reporting messages.
            Derived classed may want to override this to capture output.
@@ -463,192 +360,6 @@ class Cmd(cmd.Cmd):
             return cmd.Cmd.onecmd(self, line)
         else:
             return self.handle_command_def(line)
-
-    def set_args(self, args):
-        """Set argument list to give program being debugged when it is started.
-Follow this command with any number of args, to be passed to the program."""
-        argv_start = self._program_sys_argv[0:1]
-        if len(args):
-            self._program_sys_argv = args[0:]
-        else:
-            self._program_sys_argv = []
-            self._program_sys_argv[:0] = argv_start
-            
-    def set_basename(self, args):
-        """Set short filenames (the basename) in debug output"""
-        try:
-            self.basename = self.get_onoff(args[1])
-        except ValueError:
-            pass
-
-    def set_cmdtrace(self, args):
-        """Set to show lines read from the debugger command file"""
-        try:
-            self.cmdtrace = self.get_onoff(args[1])
-        except ValueError:
-            pass
-
-    def set_history(self, args):
-        """Generic command for setting command history parameters."""
-        if args[1] == 'filename':
-            if len(args) < 3:
-                self.errmsg("Argument required (filename to set it to).")
-                return
-            self.histfile = args[2]
-        elif args[1] == 'save':
-            self.hist_save = ( (len(args) >=3 and self.get_onoff(args[2]))
-                               or True )
-        elif args[1] == 'size':
-            try:
-                size = self.get_int(args[2], cmdname="set history size")
-                self.set_history_length(size)
-            except ValueError:
-                return
-        else:
-            self.undefined_cmd("set history", args[0])
-
-    def set_interactive(self, args):
-        """Set whether we are interactive"""
-        try:
-            self.noninteractive = not self.get_onoff(args[1])
-        except ValueError:
-            pass
-        
-    def set_linetrace(self, args):
-        """Set line execution tracing and delay on tracing"""
-        if args[1]=='delay':
-            try:
-                delay = float(args[2])
-                self.linetrace_delay = delay
-            except IndexError:
-                self.errmsg("Need a 3rd floating-point number")
-            except ValueError:
-                self.errmsg(("3rd argument %s is not a floating-point "
-                             + "number") % str(args[2]) )
-        else:
-            try:
-                self.linetrace = self.get_onoff(args[1])
-            except ValueError:
-                pass
-            
-    def set_listsize(self, args):
-        """Set number of source lines the debugger will list by default."""
-        try:
-            self.listsize = self.get_int(args[1])
-        except ValueError:
-            pass
-
-    def set_logging(self, args):
-        """Set logging options"""
-        if len(args):
-            try:
-                old_logging  = self.logging
-                self.logging = self.get_onoff(args[1], default=None,
-                                              print_error=False)
-                if old_logging and not self.logging \
-                       and self.logging_fileobj is not None:
-                    self.logging_fileobj.close()
-                if not old_logging and self.logging \
-                       and not self.logging_fileobj:
-                    self.__open_log(self.logging_file)
-                return
-            except ValueError:
-                try:
-                    if args[1] == 'overwrite':
-                        self.logging_overwrite = self.get_onoff(args[2],
-                                                                default=True,
-                                                                print_error=True)
-                    elif args[1] == 'redirect':
-                        self.logging_redirect = self.get_onoff(args[2],
-                                                               default=True,
-                                                               print_error=True)
-                    elif args[1] == 'file':
-                        if len(args) > 2: self.__open_log(args[2])
-                    else:
-                        self.undefined_cmd("set logging", args[1])
-                except ValueError:
-                    return
-        else:
-            self.msg("""Usage: set logging on
-       set logging off
-       set logging file FILENAME
-       set logging overwrite [on|off]
-       set logging redirect [on|off]""")
-            
-
-    def set_prompt(self, args):
-        """Set debugger's prompt"""
-        # Use the original prompt so we keep spaces and punctuation
-        # just skip over the work prompt.
-        re_prompt = re.compile(r'\s*prompt\s(.*)$')
-        mo = re_prompt.search(arg)
-        if mo:
-            self.prompt = mo.group(1)
-        else:
-            self.errmsg("Something went wrong trying to find the prompt")
-
-    def show_args(self, args):
-        """Show argument list to give debugged program when it is started.
-Follow this command with any number of args, to be passed to the program."""
-        self.msg("Argument list to give program being debugged " +
-                 "when it is started is ")
-        self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
-
-    def show_basename(self, args):
-        """Show if we are to show short of long filenames"""
-        self.msg("basename is %s." % show_onoff(self.basename))
-
-    def show_cmdtrace(self, args):
-        "Show if we are to show debugger commands before running"
-        self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
-
-    def show_commands(self, args):
-        """Show the history of commands you typed.
-You can supply a command number to start with, or a `+' to start after
-the previous command number shown. A negative number starts from the end."""
-        print "+++args: ", args
-        self.show_commands(len(args) > 1 and args[1] or None)
-
-    def show_directories(self, args):
-        """Current search path for finding source files.
-$cwd in search path means the current working directory.
-$cdir in the path means the compilation directory of the source file."""
-        self.msg("Source directories searched: %s." % self.search_path)
-
-    def show_interactive(self, args):
-        """Show whether we are interactive"""
-        self.msg("interactive is %s." %
-                 show_onoff(not self.noninteractive))
-
-    def show_linetrace(self, args):
-        "Show the line tracing status. Can also add 'delay'"
-        self.msg("line tracing is %s." % show_onoff(self.linetrace))
-
-    def show_logging(self, args):
-        "Show logging options"
-        if len(args) > 1 and args[1]:
-            if args[1] == 'file':
-                self.msg('The current logfile is "%s".' %
-                         self.logging_file)
-            elif args[1] == 'overwrite':
-                self.msg('Whether logging overwrites or appends to the'
-                         + ' log file is %s.'
-                         % show_onoff(self.logging_overwrite))
-            elif args[1] == 'redirect':
-                self.msg('The logging output mode is %s.' %
-                         show_onoff(self.logging_redirect))
-            else:
-                self.undefined_cmd("show logging", args[1])
-        else:
-            self.msg('Future logs will be written to %s.' % self.logging_file)
-            if self.logging_overwrite:
-                self.msg('Logs will overwrite the log file.')
-            else:
-                self.msg('Logs will be appended to the log file.')
-            if self.logging_redirect:
-                self.msg("Output will be sent only to the log file.")
-            else:
-                self.msg("Output will be logged and displayed.")
 
     def undefined_cmd(self, cmd, subcmd):
         """Error message when subcommand asked for but doesn't exist"""

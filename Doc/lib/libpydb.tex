@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.64 2006/07/25 08:25:56 rockyb Exp $
+% $Id: libpydb.tex,v 1.65 2006/07/25 09:33:04 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1648,6 +1648,10 @@ Functions to support the Debugger.
 
 Handles gdb-like command processing.
 
+\item[info.py]
+
+Info subcommands. (Well, most of them).
+
 \item[pydbbdb.py]
 
 Routines here have to do with the subclassing of bdb.  Defines Python
@@ -1660,6 +1664,14 @@ Routines here have to do with parsing or processing commands,
 generally (but not always) they are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
+
+\item[set.py]
+
+Set subcommands. (Well, most of them).
+
+\item[show.py]
+
+Show subcommands. (Well, most of them).
 
 \item[subcmd.py]
 

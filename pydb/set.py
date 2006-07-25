@@ -1,0 +1,136 @@
+"""$Id: set.py,v 1.1 2006/07/25 09:33:05 rockyb Exp $
+set subcommands, except those that need some sort of text substitution.
+(Those are in gdb.py.in.)
+"""
+class SubcmdSet:
+
+
+    def __open_log(self, filename):
+        open_mode = ('w', 'a')[self.logging_overwrite]
+        try:
+            self.logging_fileobj = open(filename, open_mode)
+            self.logging_file = filename
+        except:
+            self.errmsg("Error in opening %s" % filename)
+
+    def set_args(self, args):
+        """Set argument list to give program being debugged when it is started.
+Follow this command with any number of args, to be passed to the program."""
+        argv_start = self._program_sys_argv[0:1]
+        if len(args):
+            self._program_sys_argv = args[0:]
+        else:
+            self._program_sys_argv = []
+            self._program_sys_argv[:0] = argv_start
+
+    def set_basename(self, args):
+        """Set short filenames (the basename) in debug output"""
+        try:
+            self.basename = self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_cmdtrace(self, args):
+        """Set to show lines read from the debugger command file"""
+        try:
+            self.cmdtrace = self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_history(self, args):
+        """Generic command for setting command history parameters."""
+        if args[1] == 'filename':
+            if len(args) < 3:
+                self.errmsg("Argument required (filename to set it to).")
+                return
+            self.histfile = args[2]
+        elif args[1] == 'save':
+            self.hist_save = ( (len(args) >=3 and self.get_onoff(args[2]))
+                               or True )
+        elif args[1] == 'size':
+            try:
+                size = self.get_int(args[2], cmdname="set history size")
+                self.set_history_length(size)
+            except ValueError:
+                return
+        else:
+            self.undefined_cmd("set history", args[0])
+    def set_interactive(self, args):
+        """Set whether we are interactive"""
+        try:
+            self.noninteractive = not self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_linetrace(self, args):
+        """Set line execution tracing and delay on tracing"""
+        if args[1]=='delay':
+            try:
+                delay = float(args[2])
+                self.linetrace_delay = delay
+            except IndexError:
+                self.errmsg("Need a 3rd floating-point number")
+            except ValueError:
+                self.errmsg(("3rd argument %s is not a floating-point "
+                             + "number") % str(args[2]) )
+        else:
+            try:
+                self.linetrace = self.get_onoff(args[1])
+            except ValueError:
+                pass
+
+    def set_listsize(self, args):
+        """Set number of source lines the debugger will list by default."""
+        try:
+            self.listsize = self.get_int(args[1])
+        except ValueError:
+            pass
+
+    def set_logging(self, args):
+        """Set logging options"""
+        if len(args):
+            try:
+                old_logging  = self.logging
+                self.logging = self.get_onoff(args[1], default=None,
+                                              print_error=False)
+                if old_logging and not self.logging \
+                       and self.logging_fileobj is not None:
+                    self.logging_fileobj.close()
+                if not old_logging and self.logging \
+                       and not self.logging_fileobj:
+                    self.__open_log(self.logging_file)
+                return
+            except ValueError:
+                try:
+                    if args[1] == 'overwrite':
+                        self.logging_overwrite = self.get_onoff(args[2],
+                                                                default=True,
+                                                                print_error=True)
+                    elif args[1] == 'redirect':
+                        self.logging_redirect = self.get_onoff(args[2],
+                                                               default=True,
+                                                               print_error=True)
+                    elif args[1] == 'file':
+                        if len(args) > 2: self.__open_log(args[2])
+                    else:
+                        self.undefined_cmd("set logging", args[1])
+                except ValueError:
+                    return
+        else:
+            self.msg("""Usage: set logging on
+set logging off
+set logging file FILENAME
+set logging overwrite [on|off]
+set logging redirect [on|off]""")
+
+
+    def set_prompt(self, args):
+        """Set debugger's prompt"""
+        # Use the original prompt so we keep spaces and punctuation
+        # just skip over the work prompt.
+        re_prompt = re.compile(r'\s*prompt\s(.*)$')
+        mo = re_prompt.search(arg)
+        if mo:
+            self.prompt = mo.group(1)
+        else:
+            self.errmsg("Something went wrong trying to find the prompt")

@@ -296,6 +296,7 @@ show args -- Show argument list to give debugged program when it is started
 show basename -- Show if we are to show short of long filenames
 show cmdtrace -- Show if we are to show debugger commands before running
 show commands -- Show the history of commands you typed
+show directories -- Current search path for finding source files
 show history -- Generic command for showing command history parameters
 show interactive -- Show whether we are interactive
 show linetrace -- Show the line tracing status. Can also add 'delay'
