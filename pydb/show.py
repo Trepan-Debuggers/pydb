@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.2 2006/07/25 09:40:23 rockyb Exp $
+"""$Id: show.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -10,6 +10,9 @@ class SubcmdShow:
     but is expected to be called with something that subclasses it and
     adds other methods and instance variables like msg and
     _program_sys_argv."""
+
+    ######## Note: the docstrings of methods here get used in
+    ######## help output.
 
     def show_args(self, args):
         """Show argument list to give debugged program when it is started.

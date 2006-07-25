@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.45 2006/07/25 14:08:01 rockyb Exp $
+"""$Id: gdb.py.in,v 1.46 2006/07/25 14:15:43 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -261,8 +261,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds=subcmd.Subcmd("show", getattr(self.help_show, "__doc__"))
         self.showcmds.add('args',        self.show_args)
         self.showcmds.add('basename',    self.show_basename)
-        self.showcmds.add('cmdtrace',    self.show_cmdtrace, 2)
-        self.showcmds.add('commands',    self.show_commands, 2)
+        self.showcmds.add('cmdtrace',    self.show_cmdtrace,    2)
+        self.showcmds.add('commands',    self.show_commands,    2, False)
         self.showcmds.add('directories', self.show_directories, 1)
         self.showcmds.add('history',     self.show_history)
         self.showcmds.add('interactive', self.show_interactive)
@@ -1080,6 +1080,8 @@ the default."""
 
         if not arg:
             for subcommand in self.infocmds.list():
+                # Some commands have lots of output.
+                # they are excluded here because 'in_list' is false.
                 if self.infocmds.subcmds[subcommand]['in_list']:
                     self.msg_nocr("%s: " % subcommand)
                     self.do_info(subcommand)
@@ -1362,7 +1364,8 @@ assignment to the variable __return__."""
 
         if not arg:
             for subcommand in self.showcmds.list():
-                # Only display commands that are 'in_list'
+                # Some commands have lots of output.
+                # they are excluded here because 'in_list' is false.
                 if self.showcmds.subcmds[subcommand]['in_list']:
                     self.msg_nocr("%s: " % subcommand)
                     self.do_show(subcommand)

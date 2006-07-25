@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.2 2006/07/25 09:40:23 rockyb Exp $
+"""$Id: set.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -17,6 +17,9 @@ class SubcmdSet:
             self.logging_file = filename
         except:
             self.errmsg("Error in opening %s" % filename)
+
+    ######## Note: the docstrings of methods here get used in
+    ######## help output.
 
     def set_args(self, args):
         """Set argument list to give program being debugged when it is started.

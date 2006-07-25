@@ -1,4 +1,4 @@
-"""$Id: info.py,v 1.2 2006/07/25 09:40:23 rockyb Exp $
+"""$Id: info.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -10,6 +10,9 @@ class SubcmdInfo:
     but is expected to be called with something that subclasses it and
     adds other methods and instance variables like msg and
     curframe."""
+
+    ######## Note: the docstrings of methods here get used in
+    ######## help output.
 
     def info_args(self, arg):
         """Argument variables of current stack frame."""
