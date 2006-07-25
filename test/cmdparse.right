@@ -286,13 +286,13 @@ set prompt -- Set debugger's prompt
 + help set linesize
 *** Unknown 'help set' subcommand linesize
 + help set listsize
-Set number of source lines the debugger will list by default
+Set number of source lines the debugger will list by default.
 + help show
 Generic command for showing things about the debugger.
 
 List of show subcommands:
 
-show args -- Show argument list to give debugged program on start
+show args -- Show argument list to give debugged program when it is started
 show basename -- Show if we are to show short of long filenames
 show cmdtrace -- Show if we are to show debugger commands before running
 show commands -- Show the history of commands you typed
@@ -318,6 +318,26 @@ info line -- Current line number in source file
 info locals -- Local variables of current stack frame
 info program -- Execution status of the program
 info source -- Information about the current Python file
++ #######################################
++ # The below  "help info" lines should
++ # have '.' append to the end whereas
++ # in the above listing they were 
++ # omitted. 
++ #######################################
 + help info program
-Execution status of the program
+Execution status of the program.
++ help info source
+Information about the current Python file.
++ #######################################
++ # The below "help show" commands have 
++ # more than one line of output also
++ # ommited in a simple "show"
++ #######################################
++ help show args
+Show argument list to give debugged program when it is started.
+Follow this command with any number of args, to be passed to the program.
++ help show commands
+Show the history of commands you typed.
+You can supply a command number to start with, or a `+' to start after
+the previous command number shown. A negative number starts from the end.
 + quit

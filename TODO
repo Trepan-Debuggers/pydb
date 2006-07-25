@@ -1,11 +1,4 @@
-- show bug.
-- Some commands should not be in subcommand lists (e.g show commands)
-- Some docstrings can be more than one line. subcommand helper routine 
-  should just extract the first line, sans trailing period.
-
-
-Bug in bdb's canonic() - should check that file exists before
-appending path. If not use method that gdb uses.
+Add gdb-style signal handling
 
 Add watchpoints. (Mentioned in pdbimprovements)
 
@@ -35,4 +28,4 @@ The examine command needs to deal with arbitrary objects better.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.8 2006/07/23 16:32:07 rockyb Exp $
+$Id: TODO,v 1.9 2006/07/25 01:30:22 rockyb Exp $

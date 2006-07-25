@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.41 2006/07/22 22:39:18 rockyb Exp $
+"""$Id: gdb.py.in,v 1.42 2006/07/25 01:30:25 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -315,30 +315,6 @@ class Gdb(Bdb, Cmd):
                 self.msg('index %r is not a number' % i)
                 continue
 
-    def info_helper(self, cmd, label=False):
-        """Show help for a single 'info' subcommand"""
-        if label:
-            self.msg_nocr("info %s --" % cmd)
-        if 'args'.startswith(cmd):
-            self.msg("Argument variables of current stack frame")
-        elif 'display'.startswith(cmd):
-            self.msg("Expressions to display when program stops, " +
-                     "with code numbers.")
-        elif 'break'.startswith(cmd):
-            self.msg("Status of user-settable breakpoints")
-        elif 'globals'.startswith(cmd):
-            self.msg("Global variables of current stack frame")
-        elif 'line'.startswith(cmd) and len(cmd) > 1:
-            self.msg("Current line number in source file")
-        elif 'locals'.startswith(cmd) and len(cmd) > 1:
-            self.msg("Local variables of current stack frame")
-        elif 'program'.startswith(cmd):
-            self.msg("Execution status of the program")
-        elif 'source'.startswith(cmd):
-            self.msg("Information about the current Python file")
-        else:
-            self.undefined_cmd("help info", cmd)
-
     def lineinfo(self, identifier):
         failed = (None, None, None)
         # Input is identifier, may be in single quotes
@@ -423,22 +399,24 @@ class Gdb(Bdb, Cmd):
             rcFile.close()
 
     def show_commands(self, arg):
-        """Show the history of commands you typed"""
+        """Show the history of commands you typed.
+You can supply a command number to start with, or a `+' to start after
+the previous command number shown. A negative number starts from the end."""
         try:
             import @READLINE@
             if self.histfile is not None:
                 hist_max = readline.get_current_history_length()
-                if arg is None:
+                if len(arg) <= 1:
                     first=1
                     self.hist_last=hist_max
                 else:
-                    if arg == '+':
+                    if arg[1] == '+':
                         first = self.hist_last+1
                         self.hist_last = min(hist_max,
                                              first + self.listsize)
                     else:
                         try: 
-                            center = self.get_int(arg,
+                            center = self.get_int(arg[1],
                                                   cmdname="show commands")
                         except ValueError:
                             return
@@ -1096,87 +1074,14 @@ the default."""
         get info about just that subcommand."""
 
         if not arg:
-            self.help_info([])
+            for subcommand in self.infocmds.list():
+                self.msg_nocr("%s: " % subcommand)
+                self.do_info(subcommand)
             return
 
-        arglist = arg.split()
-        arg = arglist[0]
-        frame=self.curframe
-        if "args".startswith(arg):
-            if not self.curframe:
-                self.msg("No stack.")
-                return
-            self.info_args(None)
-        elif "break".startswith(arg):
-            # FIXME: Should split out the "info" part in args
-            self.do_L(None)
-        elif 'display'.startswith(arg):
-            if not self.display.displayAll():
-                self.msg('There are no auto-display expressions now.')
-        elif "globals".startswith(arg):
-            if not frame:
-                self.msg("No frame selected.")
-                return
-            self.msg("\n".join(["%s = %s"
-                                % (l, pprint.pformat(self.getval(l)))
-                                for l in frame.f_globals]))
-        elif "line".startswith(arg) and len(arg) > 1:
-            #info line identifier
-            if not frame:
-                self.msg("No line number information available.")
-                return
-            if len(arglist) == 2:
-                # lineinfo returns (item, file, lineno) or (None,)
-                answer = self.lineinfo(arglist[1])
-                if answer[0]:
-                    item, file, lineno = answer
-                    if not os.path.isfile(file):
-                        file = search_file(file, self.search_path,
-                                           self.main_dirname)
-                    self.msg('Line %s of "%s" <%s>' %
-                             (lineno, file, item))
-                return
-            #info line
-            file=self.canonic_filename(frame)
-            if not os.path.isfile(file):
-                file = search_file(file, self.search_path, self.main_dirname)
-
-            self.msg('Line %d of \"%s\" at instruction %d' % 
-                     (inspect.getlineno(frame),
-                      self.filename(self.canonic_filename(frame)),
-                     self.curframe.f_lasti))
-        elif "locals".startswith(arg) and len(arg) > 1:
-            if not frame:
-                self.msg("No frame selected.")
-                return
-            self.msg("\n".join(["%s = %s"
-                                % (l, pprint.pformat(self.getval(l)))
-                                for l in frame.f_locals]))
-        elif 'program'.startswith(arg):
-            if not frame:
-                self.msg("The program being debugged is not being run.")
-                return
-            if self.is_running():
-                self.msg('Program stopped.')
-                if self.currentbp:
-                    self.msg('It stopped at breakpoint %d.' % self.currentbp)
-                elif self.stop_reason == 'call':
-                    self.msg('It stopped at a call.')
-                elif self.stop_reason == 'exception':
-                    self.msg('It stopped as a result of an exception.')
-                elif self.stop_reason == 'return':
-                    self.msg('It stopped at a return.')
-                else:
-                    self.msg("It stopped after stepping, next'ing or initial start.")
-            return
-        elif "source".startswith(arg):
-            if not frame:
-                self.msg("No current source file.")
-                return
-            self.msg('Current Python file is %s' %
-                     self.filename(self.canonic_filename(frame)))
         else:
-            self.undefined_cmd("info", arg)
+            args = arg.split()
+            self.infocmds.do(self, args[0], args)
 
     def info_break(self, arg):
         """info break
@@ -1468,8 +1373,10 @@ assignment to the variable __return__."""
 
         if not arg:
             for subcommand in self.showcmds.list():
-                self.msg_nocr("%s: " % subcommand)
-                self.do_show(subcommand)
+                # Only display commands that are 'in_list'
+                if self.showcmds.subcmds[subcommand]['in_list']:
+                    self.msg_nocr("%s: " % subcommand)
+                    self.do_show(subcommand)
             return
 
         if self._re_linetrace_delay.match(arg):
@@ -1478,52 +1385,6 @@ assignment to the variable __return__."""
         else:
             args = arg.split()
             self.showcmds.do(self, args[0], args)
-
-##         if 'args'.startswith(args[0]):
-##             self.msg("Argument list to give program being debugged " +
-##                       "when it is started is ")
-##             self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
-##         elif 'basename'.startswith(args[0]):
-##             self.msg("basename is %s." % show_onoff(self.basename))
-##         elif 'cmdtrace'.startswith(args[0]) and len(args[0]) > 1:
-##             self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
-##         elif 'commands'.startswith(args[0]) and len(args[0]) > 1:
-##             self.show_commands(len(args) > 1 and args[1] or None)
-##         elif 'directories'.startswith(args[0]):
-##             self.msg("Source directories searched: %s." % self.search_path)
-##         elif 'history'.startswith(args[0]):
-##             try:
-##                 import @READLINE@
-##                 self.msg(
-## """filename:  The filename in which to record the command history is
-## "%s".""" % self.histfile)
-##                 self.msg("save:  Saving of the history record on exit is %s"
-##                          % show_onoff(self.hist_save))
-##                 self.msg("size:  The size of the command history is %d"
-##                          % readline.get_history_length())
-##             except ImportError:
-##                 pass
-##         elif 'interactive'.startswith(args[0]):
-##             self.msg("interactive is %s." %
-##                      show_onoff(not self.noninteractive))
-##         elif arg == 'linetrace':
-##             self.msg("line tracing is %s." % show_onoff(self.linetrace))
-##         elif self._re_linetrace_delay.match(arg):
-##             self.msg("line trace delay is %s. (In seconds)"
-##                      % self.linetrace_delay)
-##         elif 'listsize'.startswith(args[0]) and len(args[0]) > 2:
-##             self.msg("Number of source lines %s will list by default is %d." \
-##                   % (_debugger_name, self.listsize))
-##         elif 'logging'.startswith(args[0]) and len(args[0]) > 2:
-##             self.show_logging(args)
-##         elif 'prompt'.startswith(args[0]):
-##             self.msg("""%s's prompt is "%s".""" %
-##                      (_debugger_name, self.prompt))
-##         elif 'version'.startswith(args[0]):
-##             self.msg("""%s version %s.""" %
-##                      (_debugger_name, "@PACKAGE_VERSION@"))
-##         else:
-##             self.undefined_cmd('show', args[0])
 
     def do_source(self, arg):
         """source FILE

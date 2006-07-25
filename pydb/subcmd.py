@@ -1,4 +1,4 @@
-"""$Id: subcmd.py,v 1.1 2006/07/22 22:39:18 rockyb Exp $
+"""$Id: subcmd.py,v 1.2 2006/07/25 01:30:25 rockyb Exp $
 Handles gdb-like subcommand processing.
 """
 
@@ -17,14 +17,21 @@ class Subcmd:
                 return self.subcmds[subcmd_name]
         return None
 
-    def _subcmd_helper(self, subcmd_name, obj, label=False):
+    def _subcmd_helper(self, subcmd_name, obj, label=False, strip=False):
         """Show help for a single subcommand"""
         if label:
             obj.msg_nocr("%s %s --" % (self.name, subcmd_name))
 
         entry=self.lookup(subcmd_name)
         if entry:
-            obj.msg(entry['doc'])
+            d = entry['doc']
+            if strip:
+                # Limit the help message to one line (delimited by '\n')
+                if '\n' in d:
+                    d = d[:d.find('\n')]
+                # If the last character is a period, remove it.
+                if d[-1] == '.': d = d[:d.find('.')]
+            obj.msg(d)
             return
         obj.undefined_cmd("help", subcmd_name)
 
@@ -34,7 +41,7 @@ class Subcmd:
         when we want to run the command. min_len is the minimum length
         allowed to abbreviate the command. in_list indicates with the
         show command will be run when giving a list of all sub commands
-        of this object. Some commands have long output like "show history"
+        of this object. Some commands have long output like "show commands"
         so we might not want to show that.
         """
         self.subcmds[subcmd_name] = {
@@ -54,7 +61,7 @@ class Subcmd:
 
     # Note: format of help is compatible with ddd.
     def help(self, obj, *args):
-        """help for subcommands"""
+        """help for subcommands."""
 
         subcmd_prefix=args[0]
         if not subcmd_prefix or len(subcmd_prefix) == 0:
@@ -63,7 +70,7 @@ class Subcmd:
 List of %s subcommands:
 """ % (self.name))
             for subcmd_name in self.list():
-                self._subcmd_helper(subcmd_name, obj, True)
+                self._subcmd_helper(subcmd_name, obj, True, True)
             return
 
         entry=self.lookup(subcmd_prefix)
@@ -75,6 +82,10 @@ List of %s subcommands:
 
     def list(self):
         l=self.subcmds.keys()
+        for i in l:
+            # Remove subcmd if we don't want it displayed in the list
+            if not self.subcmds[i]['in_list']:
+                l.pop(l.index(i))
         l.sort()
         return l
 
@@ -94,14 +105,14 @@ if __name__=='__main__':
             "Without argument, list info about all breakpoints"
             print "no breakpoints"
         def set_args(self, arg):
-            "Set argument list to give program being debugged when it is started"
+            """Set argument list to give program being debugged when it is started"""
             print "Not done yet"
         def set_basename(self, arg):
             "Set short filenames (the basename) in debug output"
             print "basename changed to %s" % arg
 
         def show_args(self, arg):
-            "Show argument list to give debugged program on start"
+            """Show argument list to give debugged program on start"""
             print "Argument list to give program is ''"
         def show_basename(self, arg):
             "Show if we are to show short of long filenames"

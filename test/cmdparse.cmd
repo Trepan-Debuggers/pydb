@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.16 2006/06/24 08:47:02 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.17 2006/07/25 01:30:26 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -102,5 +102,19 @@ help set listsize
 help show
 help show listsize
 help info
+#######################################
+# The below  "help info" lines should
+# have '.' append to the end whereas
+# in the above listing they were 
+# omitted. 
+#######################################
 help info program
+help info source
+#######################################
+# The below "help show" commands have 
+# more than one line of output also
+# ommited in a simple "show"
+#######################################
+help show args
+help show commands
 quit

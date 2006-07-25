@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.23 2006/07/22 22:39:18 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.24 2006/07/25 01:30:25 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands,
@@ -6,7 +6,7 @@ generally (but not always) they are not specific to pydb. They are sort
 of more oriented towards any gdb-like debugger. Also routines that need to
 be changed from cmd are here.
 """
-import cmd, linecache, os, sys, types
+import cmd, linecache, os, pprint, sys, types
 from fns import *
 
 # Interaction prompt line will separate file and call info from code
@@ -104,6 +104,10 @@ class Cmd(cmd.Cmd):
                 try:
                     doc=getattr(self, 'do_' + first_arg).__doc__
                     if doc:
+                        # We only print the first line, removing any periods
+                        # if they are the last character on the line
+                        doc = doc[:doc.find('\n')]
+                        if doc[-1] == '.': doc = doc[:-1]
                         self.msg("%s\n" % str(doc))
                         return
                 except AttributeError:
@@ -274,10 +278,10 @@ class Cmd(cmd.Cmd):
             self.commands_doprompt[self.commands_bnum] = False
             self.cmdqueue = []
             return 1
-        return 
+        return
 
     def info_args(self, arg):
-        """Argument variables of current stack frame"""
+        """Argument variables of current stack frame."""
         if not self.curframe:
             self.msg("No stack.")
             return
@@ -299,7 +303,7 @@ class Cmd(cmd.Cmd):
         self.do_L(None)
 
     def info_display(self, arg):
-        """Expressions to display when program stops, with code numbers"""
+        """Expressions to display when program stops, with code numbers."""
         if not self.display.displayAll():
             self.msg('There are no auto-display expressions now.')
 
@@ -318,9 +322,9 @@ class Cmd(cmd.Cmd):
         if not self.curframe:
             self.msg("No line number information available.")
             return
-        if len(arglist) == 2:
+        if len(arg) == 2:
             # lineinfo returns (item, file, lineno) or (None,)
-            answer = self.lineinfo(arglist[1])
+            answer = self.lineinfo(arg[1])
             if answer[0]:
                 item, file, lineno = answer
                 if not os.path.isfile(file):
@@ -329,6 +333,14 @@ class Cmd(cmd.Cmd):
                 self.msg('Line %s of "%s" <%s>' %
                          (lineno, file, item))
             return
+        file=self.canonic_filename(self.curframe)
+        if not os.path.isfile(file):
+            file = search_file(file, self.search_path, self.main_dirname)
+
+        self.msg('Line %d of \"%s\" at instruction %d' %
+                 (inspect.getlineno(self.curframe),
+                  self.filename(self.canonic_filename(self.curframe)),
+                  self.curframe.f_lasti))
 
     def info_locals(self, arg):
         """Local variables of current stack frame"""
@@ -340,7 +352,7 @@ class Cmd(cmd.Cmd):
                             for l in self.curframe.f_locals]))
 
     def info_program(self, arg):
-        """Execution status of the program"""
+        """Execution status of the program."""
         if not self.curframe:
             self.msg("The program being debugged is not being run.")
             return
@@ -357,12 +369,12 @@ class Cmd(cmd.Cmd):
             else:
                 self.msg("It stopped after stepping, next'ing or initial start.")
     def info_source(self, arg):
-        """Information about the current Python file"""
+        """Information about the current Python file."""
         if not self.curframe:
             self.msg("No current source file.")
             return
         self.msg('Current Python file is %s' %
-                 self.filename(self.canonic_filename(frame)))
+                 self.filename(self.canonic_filename(self.curframe)))
 
     def msg(self, msg, out=None):
         """Common routine for reporting messages.
@@ -453,7 +465,8 @@ class Cmd(cmd.Cmd):
             return self.handle_command_def(line)
 
     def set_args(self, args):
-        """Set argument list to give program being debugged when it is started"""
+        """Set argument list to give program being debugged when it is started.
+Follow this command with any number of args, to be passed to the program."""
         argv_start = self._program_sys_argv[0:1]
         if len(args):
             self._program_sys_argv = args[0:]
@@ -476,7 +489,7 @@ class Cmd(cmd.Cmd):
             pass
 
     def set_history(self, args):
-        """Generic command for setting command history parameters"""
+        """Generic command for setting command history parameters."""
         if args[1] == 'filename':
             if len(args) < 3:
                 self.errmsg("Argument required (filename to set it to).")
@@ -519,7 +532,7 @@ class Cmd(cmd.Cmd):
                 pass
             
     def set_listsize(self, args):
-        """Set number of source lines the debugger will list by default"""
+        """Set number of source lines the debugger will list by default."""
         try:
             self.listsize = self.get_int(args[1])
         except ValueError:
@@ -575,7 +588,8 @@ class Cmd(cmd.Cmd):
             self.errmsg("Something went wrong trying to find the prompt")
 
     def show_args(self, args):
-        """Show argument list to give debugged program on start"""
+        """Show argument list to give debugged program when it is started.
+Follow this command with any number of args, to be passed to the program."""
         self.msg("Argument list to give program being debugged " +
                  "when it is started is ")
         self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
@@ -589,11 +603,16 @@ class Cmd(cmd.Cmd):
         self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
 
     def show_commands(self, args):
-        "Show the history of commands you typed"
+        """Show the history of commands you typed.
+You can supply a command number to start with, or a `+' to start after
+the previous command number shown. A negative number starts from the end."""
+        print "+++args: ", args
         self.show_commands(len(args) > 1 and args[1] or None)
 
     def show_directories(self, args):
-        """Show directory search path"""
+        """Current search path for finding source files.
+$cwd in search path means the current working directory.
+$cdir in the path means the compilation directory of the source file."""
         self.msg("Source directories searched: %s." % self.search_path)
 
     def show_interactive(self, args):
