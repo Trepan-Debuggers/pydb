@@ -28,7 +28,9 @@
 
 * Tolerance for version 2.5
 
-* Allow info, and set help strings to be overwritten.
+* Add a subcommand class. Used in set, show, info (and possibly more
+  down the line). As a result help output now more closely resembles
+  gdb's. Thanks to Matt Fleming for finishing what I started.
 
 * More fexible and more general output by no longer assuming we
   write to sys.stdout. Rather the output object is saved in the
@@ -40,7 +42,8 @@
 * --output and --error no longer modify program's stdout/stderr.
 
 * Document least-intrusion principle and changes listed above, list
-  of files making up the debugger and changes above.
+  of files making up the debugger and changes above. Be more precise
+  yet again on the subtle differences in how the debugger is invoked.
 
 1.16 2006-04-27
 
