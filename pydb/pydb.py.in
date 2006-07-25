@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.98 2006/07/22 22:39:18 rockyb Exp $
+"""$Id: pydb.py.in,v 1.99 2006/07/25 13:48:04 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -15,7 +15,7 @@ _version = '@PACKAGE_VERSION@'
 import inspect, os, re, sys, traceback
 
 import pydbcmd, pydbbdb
-from pydbdisp import Display, DisplayNode
+from display import Display, DisplayNode
 from fns import *
 from gdb import Gdb
 from gdb import Restart
@@ -101,7 +101,7 @@ def set_trace(opts=None, add_exception_hook=True):
     the variable in the pydb instance.
 
     If add_exception is True (the default), we will install an exception hook
-    to call the post-mortem debugger on an unhandled exception. 
+    to call the post-mortem debugger on an unhandled exception.
     """
     global _pydb_trace
     try:
@@ -136,7 +136,7 @@ def set_trace(opts=None, add_exception_hook=True):
         _pydb_trace.set_trace(_pydb_trace.curframe)
     else:
         # older versions
-        _pydb_trace.set_trace()  
+        _pydb_trace.set_trace()
 
 # Post-Mortem interface
 
@@ -150,7 +150,7 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
 
     cmdfile is an optional debugger command file you want to run
     "source" on.
-    
+
     Opts is an optional dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the @PACKAGE_NAME@ instance.
@@ -161,7 +161,7 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
     p.running = False
     re_bogus_file = re.compile("^<.+>$")
 
-    if t is None: 
+    if t is None:
         # frameno+1 because we are about to add one more level of call
         # in get_last_tb_or_frame_tb
         t = get_last_tb_or_frame_tb(frameno+1)
@@ -193,12 +193,12 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
 
     if cmdfile is not None:
         p.do_source(cmdfile)
-        
+
     try:
 
         # FIXME: This can be called from except hook in which case we
         # need this. Dunno why though.
-        try: 
+        try:
             _pydb_trace.set_trace(t.tb_frame)
         except:
             pass
@@ -224,7 +224,7 @@ def pm(opts=None, cmdfile=None, frameno=1):
     there is no traceback, we'll assume that sys.exec_info() contains
     what we want and frameno is the index location of where we want
     to start.
-    
+
     Opts is a dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the @PACKAGE_NAME@ instance."""
@@ -239,7 +239,7 @@ def exception_hook(type, value, tb, opts=None, cmdfile=None):
 
     cmdfile is an optional debugger command file you want to run
     "source" on.
-    
+
     Opts is an optional dictionary of debugger variables you want set;
     the key is the variable name and the value is the value to give
     the variable in the @PACKAGE_NAME@ instance.
@@ -290,7 +290,7 @@ def main():
         # for restart
         pydb._program_sys_argv = list(sys.argv)
 
-        mainpyfile = pydb._program_sys_argv[0] # Get script filename. 
+        mainpyfile = pydb._program_sys_argv[0] # Get script filename.
         if not os.path.exists(mainpyfile):
             print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
                   % mainpyfile

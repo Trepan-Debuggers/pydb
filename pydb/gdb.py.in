@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.43 2006/07/25 09:33:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.44 2006/07/25 13:48:04 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -28,7 +28,7 @@ class Restart(Exception):
 class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     """A debugger class for Python that resembles the gdb (GNU debugger)
     command set."""
-    
+
     def __init__(self, completekey='tab', stdin=None, stdout=None):
         pydbbdb.Bdb.__init__(self)
         pydbcmd.Cmd.__init__(self, completekey, stdin, stdout)
@@ -36,7 +36,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._program_sys_argv    = []   # sys.argv after options are stripped
         self._re_linetrace_delay  = re.compile(r'\s*linetrace\s+delay')
         self._wait_for_mainpyfile = False
-        self._info_cmds = ['args',      'break',    'display', 
+        self._info_cmds = ['args',      'break',    'display',
                            'globals',   'line',     'locals',
                            'program',   'source']
         self.__init_info()
@@ -56,7 +56,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         self.main_dirname    = os.curdir
         self.mainpyfile      = ''
-        self.maxargstrsize   = 30     # max length to show of parameter string 
+        self.maxargstrsize   = 30     # max length to show of parameter string
         self.moduletodebug   = ""
         self.noninteractive  = False
         self.originalpath    = sys.path[:]
@@ -72,17 +72,17 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         # for each bp num, tells if the prompt must be disp. after
         # execing the cmd list
-        self.commands_doprompt = {} 
+        self.commands_doprompt = {}
 
         # for each bp num, tells if the stack trace must be disp. after
         # execing the cmd list
-        self.commands_silent = {} 
+        self.commands_silent = {}
 
         # True while in the process of defining a command list
         self.commands_defining = False
 
-        # The breakpoint number for which we are defining a list        
-        self.commands_bnum = None # 
+        # The breakpoint number for which we are defining a list
+        self.commands_bnum = None #
 
         # list of all the commands making the program
         # resume execution.
@@ -92,7 +92,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                                   'do_step']
 
         self.do_L = self.info_breakpoints
-    
+
         # Try to load readline if it exists
         try:
             import @READLINE@
@@ -101,7 +101,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             self.set_history_length = readline.set_history_length
             self.set_history_length(256)
             # Read history file and set up to write history file when we
-            # exit. 
+            # exit.
             global _debugger_name
             self.histfile = os.path.join(os.environ["HOME"],
                                          ".%shist" % _debugger_name)
@@ -126,7 +126,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if not self.curframe:
             self.msg("No stack.")
             return
-        
+
         # Below we remove any negativity. At the end, pos will be
         # the new value of self.curindex.
         if absolute_pos:
@@ -239,9 +239,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('args',         self.info_args)
         self.infocmds.add('breakpoints',  self.info_breakpoints)
         self.infocmds.add('display',      self.info_display)
-        self.infocmds.add('globals',      self.info_globals)
+        self.infocmds.add('globals',      self.info_globals, 1, False)
         self.infocmds.add('line',         self.info_line)
-        self.infocmds.add('locals',       self.info_locals)
+        self.infocmds.add('locals',       self.info_locals,  1, False)
         self.infocmds.add('program',      self.info_program)
         self.infocmds.add('source',       self.info_source)
 
@@ -273,11 +273,11 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('logging',     self.show_logging,   2)
         self.showcmds.add('prompt',      self.show_prompt)
         self.showcmds.add('version',     self.show_version)
-        
+
 
     def __parse_filepos(self, arg):
         """__parse_filepos(self,arg)->(fn, filename, lineno)
-        
+
         Parse arg as [filename:]lineno | function
         Make sure it works for C:\foo\bar.py:12
         """
@@ -377,7 +377,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.forget()
         if not do_loop:
             # Tell cmdloop to break out of its loop.
-            return True 
+            return True
 
     def setup(self, frame, traceback=None):
         """Initialization done before entering the debugger-command
@@ -422,7 +422,7 @@ the previous command number shown. A negative number starts from the end."""
                         self.hist_last = min(hist_max,
                                              first + self.listsize)
                     else:
-                        try: 
+                        try:
                             center = self.get_int(arg[1],
                                                   cmdname="show commands")
                         except ValueError:
@@ -439,7 +439,7 @@ the previous command number shown. A negative number starts from the end."""
                 self.errmsg("History mechanism turned off.")
         except ImportError:
             self.errmsg("Readline not available.")
-            
+
     def show_history(self, args):
         """Generic command for showing command history parameters"""
         try:
@@ -557,7 +557,7 @@ the .py suffix may be omitted."""
                 arg = arg[:comma].rstrip()
             (funcname, filename, lineno) = self.__parse_filepos(arg)
             if lineno is None: return
-            
+
         # FIXME This default setting doesn't match that used in
         # do_clear. Perhaps one is non-optimial.
         if not filename:
@@ -627,14 +627,14 @@ the .py suffix may be omitted."""
                     return
             else:
                 (funcname, filename, lineno) = self.__get_brkpt_lineno(arg)
-                    
+
             if lineno is None: return
 
             # FIXME This default setting doesn't match that used in
             # do_break. Perhaps one is non-optimial.
             if filename is None:
                 filename = self.canonic_filename(self.curframe)
-                    
+
         brkpts = self.clear_break(filename, lineno)
 
         if len(brkpts) > 0:
@@ -733,7 +733,7 @@ the .py suffix may be omitted."""
             self.set_continue()
 
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     do_c = do_continue
 
@@ -767,7 +767,7 @@ the .py suffix may be omitted."""
         # and different from the default initialization values.
         p.running         = True  # We *are* trying to run something
         p.step_ignore     = 1     # We need to skip one statement
-        
+
         sys.call_tracing(p.run, (arg, globals, locals))
         self.msg("LEAVING RECURSIVE DEBUGGER")
         sys.settrace(self.trace_dispatch)
@@ -780,7 +780,7 @@ the .py suffix may be omitted."""
         delete all breakpoints, give no argument.  those breakpoints.
         Without argument, clear all breaks (but first ask
         confirmation).
-        
+
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
         if not arg:
@@ -874,7 +874,7 @@ the default."""
                     i = int(arg)
                     dis.disassemble(self.curframe.f_code, i)
                 except ValueError:
-                    try: 
+                    try:
                         obj=self.getval(arg)
                         dis.dis(obj)
                     except NameError:
@@ -884,12 +884,12 @@ the default."""
             sys.stdout = orig_stdout
             raise # reraise exception
         sys.stdout = orig_stdout
-        
+
     def do_display(self, arg):
         """display [format] EXP
 
         Print value of expression EXP each time the program stops.
-        FMT may be used before EXP and may be one of 'c' for char, 
+        FMT may be used before EXP and may be one of 'c' for char,
         'x' for hex, 'o' for octal, 'f' for float or 's' for string.
 
         With no argument, display all currently requested auto-display
@@ -911,7 +911,7 @@ the default."""
             res = dp.checkValid(self.curframe)
             self.msg(res)
         return
-    
+
     def do_down(self, arg):
         """d(own) [count]
 
@@ -982,7 +982,7 @@ the default."""
 #            else:
 #                # should confirm this per
 #                #Discard symbol table from `/work/.../ddd/cxxtest'? (y or n) n
-#                # XXX 
+#                # XXX
 #                # del module
 #                sys.path = self.originalpath[:]
 #                self.mainpyfile == ""
@@ -1018,11 +1018,11 @@ the default."""
             self.stopframe = None
 
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     def do_frame(self, arg):
         """frame frame-number
-        Move the current frame to the specified frame number. 
+        Move the current frame to the specified frame number.
 
         If using gdb dialect up matches the gdb: 0 is the most recent
         frame.  Otherwise we match Python's stack: 0 is the oldest
@@ -1211,7 +1211,7 @@ With an integer argument, perform that many times."""
 
         self.set_next(self.curframe)
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     do_n = do_next
 
@@ -1243,7 +1243,7 @@ With an integer argument, perform that many times."""
         self.set_quit()
 
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     do_kill = do_q = do_quit
 
@@ -1256,7 +1256,7 @@ With an integer argument, perform that many times."""
             os.execvp(self._sys_argv[0], self._sys_argv)
         else:
             self.msg("No exectuable file specified.")
-        
+
 
     def do_return(self, arg):
         """Make selected stack frame return to its caller. Control
@@ -1385,7 +1385,7 @@ assignment to the variable __return__."""
         An error in any command terminates execution of the command
         file and control is returned to the console."""
         self.setup_source(os.path.expanduser(arg), True);
-        rc = self.execRcLines() 
+        rc = self.execRcLines()
         if rc == 1:  return rc
 
     def do_step(self, arg):
@@ -1404,14 +1404,14 @@ With an integer argument, step that many times."""
 
         self.set_step()
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     do_s = do_step
 
     def do_tbreak(self, arg):
         """tbreak  [ ([filename:]lineno | function) [, condition] ]
         Set a temporary breakpoint. Arguments are like the "break" command.
-        Like "break" except the breakoint is only temporary, 
+        Like "break" except the breakoint is only temporary,
         so it will be deleted when hit."""
         self.do_break(arg, 1)
 
@@ -1453,7 +1453,7 @@ Deletes the specified alias."""
         """up [count]
         Move the current frame one level up in the stack trace
         (to an older frame).
-        
+
         If using gdb dialect up matches the gdb: 0 is the most recent
         frame.  Otherwise we match Python's stack: 0 is the oldest
         frame.  """
@@ -1472,7 +1472,7 @@ Prints the type of the argument which can be a Python expression."""
         try:
             if not self.curframe:
                 # ?? Should we have set up a dummy globals
-                # to have persistence? 
+                # to have persistence?
                 value = eval(arg, None, None)
             else:
                 value = eval(arg, self.curframe.f_globals,
@@ -1531,7 +1531,7 @@ Handles the receipt of EOF as a command."""
         self.set_quit()
 
         # Tell cmdloop to break out of its loop.
-        return True 
+        return True
 
     #########################################################
     # Help methods (derived from @PACKAGE@.doc or vice versa)
@@ -1545,13 +1545,13 @@ Handles the receipt of EOF as a command."""
                'ignore',  'info',      'jump',        'list',
                'next',    'p',         'pp',          'pwd',    'quit',
                'restart', 'retval',    'run',
-               'set',     'show',      'shell',       'source', 'step', 
+               'set',     'show',      'shell',       'source', 'step',
                'tbreak',  'unalias',   'undisplay',   'up',
                'whatis',  'where'):
         exec 'def help_%s(self, *arg): self.msg(getattr(self.do_%s, "__doc__"))' \
              % (fn, fn)
 
-    # Is this the right way to do this? 
+    # Is this the right way to do this?
     help_h = help_help
     help_R = help_run
     help_bt = help_T = help_where
@@ -1604,7 +1604,7 @@ was reached.
     # Note: format of help is compatible with ddd.
     def help_info(self, args):
         """Generic command for showing things about the program being debugged."""
-        if len(args) == 0: 
+        if len(args) == 0:
             self.infocmds.help(self, '')
         else:
             self.infocmds.help(self, args[0])
@@ -1616,7 +1616,7 @@ was reached.
     def help_set(self, args):
         """This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command."""
-        if len(args) == 0: 
+        if len(args) == 0:
             self.setcmds.help(self, '')
         else:
             self.setcmds.help(self, args[0])
@@ -1624,7 +1624,7 @@ You can see these environment settings with the 'show' command."""
     # Note: format of help is compatible with ddd.
     def help_show(self, args):
         """Generic command for showing things about the debugger."""
-        if len(args) == 0: 
+        if len(args) == 0:
             self.showcmds.help(self, '')
         else:
             self.showcmds.help(self, args[0])
