@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.31 2006/07/25 09:33:03 rockyb Exp $
+#$Id: Makefile.am,v 1.32 2006/07/25 20:13:22 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -73,7 +73,9 @@ check: pydb/pydb.py pydb/gdb.py test/test.py test/pm.py
 # proper name to the python interpreter into the beginning.
 #
 install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
-	test -z "$(DESTDIR)$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
+	if ! test -d "$(DESTDIR)$(bindir)"; then \
+	  test -z "$(DESTDIR)$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"; \
+	fi
 	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
 	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
 	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
