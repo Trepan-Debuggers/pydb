@@ -1,9 +1,14 @@
-"""$Id: set.py,v 1.1 2006/07/25 09:33:05 rockyb Exp $
+"""$Id: set.py,v 1.2 2006/07/25 09:40:23 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
+
 class SubcmdSet:
 
+    """Handle set subcommands. This class isn't usuable in of itself,
+    but is expected to be called with something that subclasses it and
+    adds other methods and instance variables like msg and
+    _program_sys_argv."""
 
     def __open_log(self, filename):
         open_mode = ('w', 'a')[self.logging_overwrite]

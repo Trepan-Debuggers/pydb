@@ -1,9 +1,16 @@
-"""$Id: show.py,v 1.1 2006/07/25 09:33:05 rockyb Exp $
+"""$Id: show.py,v 1.2 2006/07/25 09:40:23 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
 from fns import *
+
 class SubcmdShow:
+
+    """Handle set subcommands. This class isn't usuable in of itself,
+    but is expected to be called with something that subclasses it and
+    adds other methods and instance variables like msg and
+    _program_sys_argv."""
+
     def show_args(self, args):
         """Show argument list to give debugged program when it is started.
 Follow this command with any number of args, to be passed to the program."""
