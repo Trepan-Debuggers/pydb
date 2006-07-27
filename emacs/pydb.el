@@ -287,13 +287,12 @@ Currently-active file is at the head of the list.")
   ;; This was derived/simplified from edebug-overlay-arrow
   (cond (activation
 	 (setq overlay-arrow-position (make-marker))
-	 (setq pos (point))
 	 (setq overlay-arrow-string "=>")
 	 (set-marker overlay-arrow-position (point) (current-buffer))
 	 (setq pydb-pydbtrack-is-tracking-p t))
 	(pydb-pydbtrack-is-tracking-p
 	 (setq overlay-arrow-position nil)
-	 (setq pydb-pydbtrack-tracking-p nil))
+	 (setq pydb-pydbtrack-is-tracking-p nil))
 	))
 
 (defun pydb-pydbtrack-track-stack-file (text)
@@ -324,7 +323,7 @@ at the beginning of the line.
                                            (- procmark
                                               pydb-pydbtrack-track-range))
                                       procmark))
-             target target_fname target_lineno)
+             target target_fname target_lineno target_buffer)
 
         (if (not (string-match (concat pydb-pydbtrack-input-prompt "$") block))
             (pydb-pydbtrack-overlay-arrow nil)
