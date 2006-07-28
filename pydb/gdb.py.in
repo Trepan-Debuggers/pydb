@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.46 2006/07/25 14:15:43 rockyb Exp $
+"""$Id: gdb.py.in,v 1.47 2006/07/28 01:36:47 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -157,8 +157,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
            """
         matches = []
         try:
-            list = getattr(self, "_%s_cmds" % subcmd)
-            for word in list:
+            cmdlist = getattr(self, "_%s_cmds" % subcmd)
+            for word in cmdlist:
                 if word.startswith(text):
                     matches.append("%s %s" % (subcmd, word))
         except AttributeError:
@@ -232,8 +232,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
     def __init_info(self):
         """Initialize info subcommands"""
-        self.infocmds=subcmd.Subcmd("info",
-                                    getattr(self.help_info, "__doc__"))
+        self.infocmds=subcmd.Subcmd("info", self.help_info.__doc__)
         self.infocmds.add('args',         self.info_args)
         self.infocmds.add('breakpoints',  self.info_breakpoints)
         self.infocmds.add('display',      self.info_display)
@@ -245,7 +244,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
     def __init_set(self):
         """Initialize set subcommands"""
-        self.setcmds=subcmd.Subcmd("set", getattr(self.help_set, "__doc__"))
+        self.setcmds=subcmd.Subcmd("set", self.help_set.__doc__)
         self.setcmds.add('args',         self.set_args)
         self.setcmds.add('basename',     self.set_basename)
         self.setcmds.add('cmdtrace',     self.set_cmdtrace)
@@ -258,7 +257,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
     def __init_show(self):
         """Initialize show subcommands"""
-        self.showcmds=subcmd.Subcmd("show", getattr(self.help_show, "__doc__"))
+        self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
         self.showcmds.add('args',        self.show_args)
         self.showcmds.add('basename',    self.show_basename)
         self.showcmds.add('cmdtrace',    self.show_cmdtrace,    2)
@@ -292,7 +291,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                 arg = arg[colon+1:].lstrip()
             try:
                 lineno = int(arg)
-            except ValueError, msg:
+            except ValueError:
                 self.errmsg('Bad lineno: %s', str(arg))
                 return (None, filename, None)
             return (None, filename, lineno)
@@ -326,14 +325,14 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         idstring = identifier.split("'")
         if len(idstring) == 1:
             # not in single quotes
-            id = idstring[0].strip()
+            ident = idstring[0].strip()
         elif len(idstring) == 3:
             # quoted
-            id = idstring[1].strip()
+            ident = idstring[1].strip()
         else:
             return failed
-        if id == '': return failed
-        parts = id.split('.')
+        if ident == '': return failed
+        parts = ident.split('.')
         # Protection for derived debuggers
         if parts[0] == 'self':
             del parts[0]
@@ -500,14 +499,14 @@ are then hidden until the alias is removed.  Aliasing is recursively
 applied to the first word of the command line; all other words
 in the line are left alone.
 
-Some useful aliases (especially when placed in the .%src file) are:
+Some useful aliases (especially when placed in the .@PACKAGE_NAME@src file) are:
 
 #Print instance variables (usage "pi classInst")
 alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
 
 #Print instance variables in self
 alias ps pi self
-""" % _debugger_name
+"""
         args = arg.split()
         if len(args) == 0:
             keys = self.aliases.keys()
@@ -744,9 +743,8 @@ the .py suffix may be omitted."""
             self.msg("No frame selected.")
             return
         sys.settrace(None)
-        globals = self.curframe.f_globals
-        locals = self.curframe.f_locals
-        from pydb import Pdb
+        global_vars = self.curframe.f_globals
+        local_vars = self.curframe.f_locals
         p = Pdb()
         p.prompt  = "(%s) " % self.prompt.strip()
         self.msg("ENTERING RECURSIVE DEBUGGER")
@@ -766,7 +764,7 @@ the .py suffix may be omitted."""
         p.running         = True  # We *are* trying to run something
         p.step_ignore     = 1     # We need to skip one statement
 
-        sys.call_tracing(p.run, (arg, globals, locals))
+        sys.call_tracing(p.run, (arg, global_vars, local_vars))
         self.msg("LEAVING RECURSIVE DEBUGGER")
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
@@ -782,7 +780,7 @@ the .py suffix may be omitted."""
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
         if not arg:
-            if get_confirmation('Delete all breakpoints (y or n)? '):
+            if get_confirmation(self, 'Delete all breakpoints (y or n)? '):
                 self.clear_all_breaks()
             return
 
@@ -813,7 +811,7 @@ object code.  With no argument, reset the search path to $cdir:$cwd,
 the default."""
         args = arg.split()
         if len(args) == 0:
-            if get_confirmation(
+            if get_confirmation(self,
                 'Reinitialize source path to empty? (y or n) '):
                 self.search_path=''
             return
@@ -998,9 +996,9 @@ the default."""
 #                    pass
 #            line = "import " + module + '\n'
 #            code = compile(line, '<stdin>', 'single')
-#            globals = self.curframe.f_globals
-#            locals = self.curframe.f_locals
-#            exec code in globals, locals
+#            global_vars = self.curframe.f_globals
+#            local_vars = self.curframe.f_locals
+#            exec code in global_vars, local_vars
 #            # Could print 'Reading symbols from fname...done.' for gdb conformance
 #            self.mainpyfile = fname
 #            self.moduletodebug = module
@@ -1155,7 +1153,7 @@ the default."""
                         return
                     if last < first:
                         try:
-                            junk = int(args[1])
+                            int(args[1])
                             # Assume it's a count
                             last = first + last
                         except ValueError:

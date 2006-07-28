@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.25 2006/07/25 09:33:05 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.26 2006/07/28 01:36:47 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -63,18 +63,18 @@ class Cmd(cmd.Cmd):
         if line[:1] == '#': return
         if line[:1] == '$': line = line[1:]
         if self.curframe:
-            locals = self.curframe.f_locals
-            globals = self.curframe.f_globals
+            local_vars = self.curframe.f_locals
+            global_vars = self.curframe.f_globals
         else:
-            locals = None
+            local_vars = None
             # FIXME: should probably have place where the
             # user can store variables inside the debug session.
             # The setup for this should be elsewhere. Possibly
             # in interaction.
-            globals = None
+            global_vars = None
         try:
             code = compile(line + '\n', '"%s"' % line, 'single')
-            exec code in globals, locals
+            exec code in global_vars, local_vars
         except:
             t, v = sys.exc_info()[:2]
             if type(t) == types.StringType:
@@ -111,10 +111,10 @@ class Cmd(cmd.Cmd):
             names = self.get_names()
             cmds_doc = []
             cmds_undoc = []
-            help = {}
+            help_dict = {}
             for name in names:
                 if name[:5] == 'help_':
-                    help[name[5:]]=1
+                    help_dict[name[5:]]=1
             names.sort()
             # There can be duplicates if routines overridden
             prevname = ''
@@ -124,16 +124,16 @@ class Cmd(cmd.Cmd):
                         continue
                     prevname = name
                     cmd=name[3:]
-                    if cmd in help:
+                    if cmd in help_dict:
                         cmds_doc.append(cmd)
-                        del help[cmd]
+                        del help_dict[cmd]
                     elif getattr(self, name).__doc__:
                         cmds_doc.append(cmd)
                     else:
                         cmds_undoc.append(cmd)
             self.msg("%s\n" % str(self.doc_leader))
             self.print_topics(self.doc_header,   cmds_doc,   15,80)
-            self.print_topics(self.misc_header,  help.keys(),15,80)
+            self.print_topics(self.misc_header,  help_dict.keys(),15,80)
             self.print_topics(self.undoc_header, cmds_undoc, 15,80)
 
     do_h = do_help
@@ -210,8 +210,8 @@ class Cmd(cmd.Cmd):
                                     % (cmdname, min, default))
                     else: 
                         self.errmsg(('Expecting a positive ' +
-                                     'integer at least %d, got: %d') 
-                                    % (cmdname, min, default))
+                                     'integer at least %d, got: %d')
+                                    % (min, default))
                     # Really should use something custom? 
                     raise ZeroDivisionError
                     
@@ -221,7 +221,7 @@ class Cmd(cmd.Cmd):
                                  + "got: %s") % (cmdname, str(arg)))
                 else:
                     self.errmsg(('Expecting a positive integer, '
-                                 + "got: %s") % (cmdname, str(arg)))
+                                 + "got: %s") % str(arg))
                 raise ValueError
             except ZeroDivisionError:
                 # Turn this into a ValueError

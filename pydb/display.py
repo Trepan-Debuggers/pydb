@@ -1,4 +1,4 @@
-"""$Id: display.py,v 1.1 2006/07/25 08:25:56 rockyb Exp $
+"""$Id: display.py,v 1.2 2006/07/28 01:36:47 rockyb Exp $
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined."""
 
@@ -7,9 +7,6 @@ import fns
 class Display:
     displayNext = 1
     displayList = []
-
-    def __init__(self):
-        pass
 
     def displayIndex(self, frame):
         if not frame:
@@ -75,7 +72,7 @@ class DisplayNode(Display):
         if not frame:
             return 'No symbol "' + self.arg + '" in current context.'
         try:
-            val = eval(self.arg, frame.f_globals, frame.f_locals)
+            eval(self.arg, frame.f_globals, frame.f_locals)
         except:
             return 'No symbol "' + self.arg + '" in current context.'
         s = "%d: %s" % (self.number,

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.100 2006/07/28 00:47:47 rockyb Exp $
+"""$Id: pydb.py.in,v 1.101 2006/07/28 01:36:47 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -255,7 +255,7 @@ def help():
         fullname = os.path.join(dirname, _debugger_name, doc_file)
         if os.path.exists(fullname):
             sts = os.system('${PAGER-more} '+fullname)
-            if sts: self.errmsg('Pager exit status: %s' % str(sts))
+            if sts: print 'Pager exit status: %s' % str(sts)
             break
     else:
         print ("Sorry, can't find the help file '%s' along the "

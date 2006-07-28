@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.16 2006/07/09 00:43:09 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.17 2006/07/28 01:36:47 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -141,11 +141,11 @@ class Bdb(bdb.Bdb):
         if not filename in self.breaks:
             self.errmsg('No breakpoint at %s:%d.'
                         % (self.filename(filename), lineno))
-            return ()
+            return []
         if lineno not in self.breaks[filename]:
             self.errmsg('No breakpoint at %s:%d.'
                         % (self.filename(filename), lineno))
-            return()
+            return []
         # If there's only one bp in the list for that file,line
         # pair, then remove the breaks entry
         brkpts = []
@@ -182,8 +182,8 @@ class Bdb(bdb.Bdb):
         else:
             s = "<lambda>"
 
-        args, varargs, varkw, locals = inspect.getargvalues(frame)
-        parms=inspect.formatargvalues(args, varargs, varkw, locals)
+        args, varargs, varkw, local_vars = inspect.getargvalues(frame)
+        parms=inspect.formatargvalues(args, varargs, varkw, local_vars)
         if len(parms) >= self.maxargstrsize:
             parms = "%s...)" % parms[0:self.maxargstrsize]
         s += parms

@@ -1,8 +1,8 @@
-"""$Id: info.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
+"""$Id: info.py,v 1.4 2006/07/28 01:36:47 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-import bdb, inspect, os, pprint
+import bdb, fns, inspect, os, pprint
 
 class SubcmdInfo:
 
@@ -21,14 +21,14 @@ class SubcmdInfo:
             return
         f = self.curframe
         co = f.f_code
-        dict = f.f_locals
+        d = f.f_locals
         n = co.co_argcount
         if co.co_flags & inspect.CO_VARARGS: n += 1
         if co.co_flags & inspect.CO_VARKEYWORDS: n += 1
         for i in range(n):
             name = co.co_varnames[i]
             self.msg_nocr("%s=" %  name)
-            if name in dict: self.msg(dict[name])
+            if name in d: self.msg(d[name])
             else: self.msg("*** undefined ***")
 
     def info_breakpoints(self, arg):
@@ -69,16 +69,17 @@ The short command name is L."""
             # lineinfo returns (item, file, lineno) or (None,)
             answer = self.lineinfo(arg[1])
             if answer[0]:
-                item, file, lineno = answer
-                if not os.path.isfile(file):
-                    file = search_file(file, self.search_path,
-                                       self.main_dirname)
+                item, filename, lineno = answer
+                if not os.path.isfile(filename):
+                    filename = fns.search_file(filename, self.search_path,
+                                               self.main_dirname)
                 self.msg('Line %s of "%s" <%s>' %
-                         (lineno, file, item))
+                         (lineno, filename, item))
             return
-        file=self.canonic_filename(self.curframe)
-        if not os.path.isfile(file):
-            file = search_file(file, self.search_path, self.main_dirname)
+        filename=self.canonic_filename(self.curframe)
+        if not os.path.isfile(filename):
+            filename = fns.search_file(filename, self.search_path,
+                                       self.main_dirname)
 
         self.msg('Line %d of \"%s\" at instruction %d' %
                  (inspect.getlineno(self.curframe),

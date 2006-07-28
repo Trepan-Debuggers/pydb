@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.18 2006/07/28 00:47:47 rockyb Exp $
+"""$Id: fns.py,v 1.19 2006/07/28 01:36:47 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -7,7 +7,7 @@ import inspect, linecache, os, sys, re, traceback, types
 _re_def_str = r'^\s*def\s'
 _re_def = re.compile(_re_def_str)
     
-def checkline(self, filename, lineno):
+def checkline(obj, filename, lineno):
     """Check whether specified line seems to be executable.
 
     Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
@@ -15,13 +15,13 @@ def checkline(self, filename, lineno):
     """
     line = linecache.getline(filename, lineno)
     if not line:
-        self.errmsg('End of file')
+        obj.errmsg('End of file')
         return 0
     line = line.strip()
     # Don't allow setting breakpoint at a blank line
     if (not line or (line[0] == '#') or
          (line[:3] == '"""') or line[:3] == "'''"):
-        self.errmsg('Blank or comment')
+        obj.errmsg('Blank or comment')
         return 0
     return lineno
 
@@ -46,10 +46,10 @@ def find_function(funcname, filename):
     fp.close()
     return answer
 
-def get_confirmation(self, prompt):
-    """Get a yes/no answer to prompt. self is an object that has
+def get_confirmation(obj, prompt):
+    """Get a yes/no answer to prompt. obj is an object that has
     a boolean noninteractive attribute and a msg method."""
-    while True and not self.noninteractive:
+    while True and not obj.noninteractive:
         try:
             reply = raw_input(prompt)
         except EOFError:
@@ -60,7 +60,7 @@ def get_confirmation(self, prompt):
         elif reply in ('n', 'no'):
             return False
         else:
-            self.msg("Please answer y or n.")
+            obj.msg("Please answer y or n.")
     return False
                 
 
@@ -139,9 +139,9 @@ def print_obj(arg, frame, format=None, short=False):
         # Not sure if this is correct or the
         # best way to do. 
         if hasattr(val, "__class__"):
-            cl=getattr(val, "__class__")
+            cl=val.__class__
             if hasattr(cl, "__dict__"):
-                d=getattr(cl,"__dict__")
+                d=cl.__dict__
                 if type(d) == types.DictType \
                        or type(d) == types.DictProxyType:
                     s += "\nattributes:\n"
@@ -189,29 +189,29 @@ def op_at_frame(frame, pos=None):
     # print "+++ %s" % opname[op]
     return opname[op]
 
-def print_stack_entry(self, i_stack):
-    frame_lineno = self.stack[len(self.stack)-i_stack-1]
+def print_stack_entry(obj, i_stack):
+    frame_lineno = obj.stack[len(obj.stack)-i_stack-1]
     frame, lineno = frame_lineno
-    if frame is self.curframe:
-        self.msg_nocr('->')
+    if frame is obj.curframe:
+        obj.msg_nocr('->')
     else:
-        self.msg_nocr('##')
-    self.msg("%d %s" %
-             (i_stack, self.format_stack_entry(frame_lineno)))
+        obj.msg_nocr('##')
+    obj.msg("%d %s" %
+             (i_stack, obj.format_stack_entry(frame_lineno)))
 
-def print_stack_trace(self, count=None):
+def print_stack_trace(obj, count=None):
     "Print count entries of the stack trace"
     if count is None:
-        n=len(self.stack)
+        n=len(obj.stack)
     else:
-        n=min(len(self.stack), count)
+        n=min(len(obj.stack), count)
     try:
         for i in range(n):
-            print_stack_entry(self, i)
+            print_stack_entry(obj, i)
     except KeyboardInterrupt:
         pass
 
-def process_options(pydb, debugger_name, program, pkg_version,
+def process_options(pydb, debugger_name, prog, pkg_version,
                     option_list=None):
     """Handle debugger options. Use option_list if you want are writing
     another main program and want to extend the existing set of debugger
@@ -221,7 +221,7 @@ def process_options(pydb, debugger_name, program, pkg_version,
     also updated."""
     usage_str="""%s [debugger-options] [python-script [script-options...]]
 
-       Runs the extended python debugger""" % (program)
+       Runs the extended python debugger""" % (prog)
 
     optparser = OptionParser(usage=usage_str, option_list=option_list,
                              version="%%prog version %s" % pkg_version)
@@ -320,7 +320,7 @@ def process_options(pydb, debugger_name, program, pkg_version,
 
     if opts.errors:
         try: 
-            self.stderr = open(opts.errors, 'w')
+            pydb.stderr = open(opts.errors, 'w')
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.errors
             print "error(%s): %s" % (errno, strerror)
@@ -352,9 +352,12 @@ def search_file(filename, path, cdir):
 def show_onoff(bool):
     """Return 'on' for True and 'off' for False, and ?? for anything
     else."""
-    if bool == True: return "on"
-    if bool == False: return "off"
-    return "??"
+    if type(bool) != types.BooleanType:
+        return "??"
+    if bool:
+        return "on"
+    else:
+        return "off"
 
 if __name__ == '__main__':
     print "show_onoff(True is %s)" % str(show_onoff(True))

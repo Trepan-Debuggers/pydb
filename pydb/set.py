@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
+"""$Id: set.py,v 1.4 2006/07/28 01:36:47 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -137,7 +137,7 @@ set logging redirect [on|off]""")
         # Use the original prompt so we keep spaces and punctuation
         # just skip over the work prompt.
         re_prompt = re.compile(r'\s*prompt\s(.*)$')
-        mo = re_prompt.search(arg)
+        mo = re_prompt.search(args)
         if mo:
             self.prompt = mo.group(1)
         else:
