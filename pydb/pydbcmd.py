@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.26 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.27 2006/07/28 09:37:49 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -172,7 +172,7 @@ class Cmd(cmd.Cmd):
         if arg:
             try: 
                 default = int(arg)
-            except ValueError, msg:
+            except ValueError:
                 if cmdname:
                     self.errmsg('%s command: Expecting an integer, got: %s' %
                                 (cmdname, str(arg)))
@@ -215,7 +215,7 @@ class Cmd(cmd.Cmd):
                     # Really should use something custom? 
                     raise ZeroDivisionError
                     
-            except ValueError, msg:
+            except ValueError:
                 if cmdname:
                     self.errmsg(('%s command: Expecting a positive integer, '
                                  + "got: %s") % (cmdname, str(arg)))
@@ -277,7 +277,7 @@ class Cmd(cmd.Cmd):
         """Common routine for reporting messages.
            Derived classed may want to override this to capture output.
            """
-        self.msg_nocr("%s\n" % msg)
+        self.msg_nocr("%s\n" % msg, out)
 
     def msg_nocr(self, msg, out=None):
         """Common routine for reporting messages (no carriage return).
@@ -322,7 +322,7 @@ class Cmd(cmd.Cmd):
                 line = line[:marker].rstrip()
         return line
 
-    def print_location(self, prompt_prefix=line_prefix, print_line=False):
+    def print_location(self, print_line=False):
         """Show where we are. GUI's and front-end interfaces often
         use this to update displays. So it is helpful to make sure
         we give at least some place that's located in a file.      

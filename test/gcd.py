@@ -8,7 +8,7 @@ check_args() raises an uncaught exception when given the wrong number
 of parameters.
 
 """
-import sys,os
+import sys
 
 def check_args():
     if len(sys.argv) != 3:
@@ -17,7 +17,7 @@ def check_args():
     for i in range(2):
         try: 
             sys.argv[i+1] = int(sys.argv[i+1])
-        except ValueError, msg:
+        except ValueError:
             print "** Expecting an integer, got: %s" % repr(sys.argv[i])
             sys.exit(2)
     
@@ -34,8 +34,9 @@ def gcd(a,b):
         return b
     return gcd(b-a, a)
 
-check_args()
+if __name__=='__main__':
+    check_args()
 
-(a, b) = sys.argv[1:3]
-print "The GCD of %d and %d is %d" % (a, b, gcd(a, b))
+    (a, b) = sys.argv[1:3]
+    print "The GCD of %d and %d is %d" % (a, b, gcd(a, b))
 

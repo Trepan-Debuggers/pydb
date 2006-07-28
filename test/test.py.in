@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.24 2006/07/10 08:11:49 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.25 2006/07/28 09:37:50 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
 import difflib, os, pprint, time, sys, unittest
 
@@ -117,7 +117,7 @@ class PdbTests(unittest.TestCase):
         pdb = PdbTest()
         pdb.noninteractive = True
         try:
-            func = getattr(pdb, 'do_complete')
+            hasattr(pdb, 'do_complete')
             print "Have complete"
             pdb.do_complete("c")
             correct = ['c', 'cd', 'cl', 'clear', 'commands',

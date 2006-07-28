@@ -7,5 +7,6 @@ Makefile.in
 except.py
 history.hst
 pm.py
+settrace.py
 test.py
 trace.py

@@ -1,4 +1,4 @@
-"""$Id: display.py,v 1.2 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: display.py,v 1.3 2006/07/28 09:37:49 rockyb Exp $
 Classes to support gdb-like display/undisplay for pydb, the Extended
 Python debugger. Class Display and DisplayNode are defined."""
 
@@ -52,9 +52,9 @@ Num Enb Expression"""
         for dp in Display.displayList:
             if i == dp.number:
                 if flag:
-                   dp.enable()
+                   dp.enableMe()
                 else:
-                   dp.disable()
+                   dp.disableMe()
                 return
 
 class DisplayNode(Display):
@@ -104,9 +104,9 @@ class DisplayNode(Display):
     def deleteMe(self):
         Display.displayList.remove(self)
 
-    def disable(self):
+    def disableMe(self):
         self.enabled = False
 
-    def enable(self):
+    def enableMe(self):
         self.enabled = True
 

@@ -73,7 +73,7 @@ Breakpoint index 'foo' is not a number
 + list
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
-  3  	import sys,os
+  3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
@@ -82,31 +82,32 @@ Breakpoint index 'foo' is not a number
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
- 14  	    print "*** Need number of disks or no parameter"
- 15  	    sys.exit(1)
- 16  	
- 17  	n=3
- 18  	
- 19  	if i_args > 1:
- 20  	  try: 
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
+ 16  	        sys.exit(1)
+ 17  	
+ 18  	    n=3
+ 19  	
+ 20  	    if i_args > 1:
 + list
- 21  	    n = int(sys.argv[1])
- 22  	  except ValueError, msg:
- 23  	    print "** Expecting an integer, got: %s" % repr(sys.argv[1])
- 24  	    sys.exit(2)
- 25  	
- 26  	if n < 1 or n > 100: 
- 27  	    print "*** number of disks should be between 1 and 100" 
- 28  	    sys.exit(2)
- 29  	
- 30  	hanoi(n, "a", "b", "c")
+ 21  	      try: 
+ 22  	        n = int(sys.argv[1])
+ 23  	      except ValueError, msg:
+ 24  	        print "** Expecting an integer, got: %s" % repr(sys.argv[1])
+ 25  	        sys.exit(2)
+ 26  	
+ 27  	    if n < 1 or n > 100: 
+ 28  	        print "*** number of disks should be between 1 and 100" 
+ 29  	        sys.exit(2)
+ 30  	
+ 31  	    hanoi(n, "a", "b", "c")
 [EOF]
 + list -
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
-  3  	import sys,os
+  3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
@@ -115,30 +116,30 @@ Breakpoint index 'foo' is not a number
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
- 14  	    print "*** Need number of disks or no parameter"
- 15  	    sys.exit(1)
- 16  	
- 17  	n=3
- 18  	
- 19  	if i_args > 1:
- 20  	  try: 
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
+ 16  	        sys.exit(1)
+ 17  	
+ 18  	    n=3
+ 19  	
+ 20  	    if i_args > 1:
 + list 10 15
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
- 14  	    print "*** Need number of disks or no parameter"
- 15  	    sys.exit(1)
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
 + list 10 3
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
 + list hanoi.py:12
   2  ->	"""Towers of Hanoi"""
-  3  	import sys,os
+  3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
@@ -147,20 +148,20 @@ Breakpoint index 'foo' is not a number
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
- 14  	    print "*** Need number of disks or no parameter"
- 15  	    sys.exit(1)
- 16  	
- 17  	n=3
- 18  	
- 19  	if i_args > 1:
- 20  	  try: 
- 21  	    n = int(sys.argv[1])
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
+ 16  	        sys.exit(1)
+ 17  	
+ 18  	    n=3
+ 19  	
+ 20  	    if i_args > 1:
+ 21  	      try: 
 + list hanoi
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
-  3  	import sys,os
+  3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
@@ -169,15 +170,15 @@ Breakpoint index 'foo' is not a number
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
  11  	
- 12  	i_args=len(sys.argv)
- 13  	if i_args != 1 and i_args != 2:
- 14  	    print "*** Need number of disks or no parameter"
- 15  	    sys.exit(1)
- 16  	
- 17  	n=3
- 18  	
- 19  	if i_args > 1:
- 20  	  try: 
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
+ 16  	        sys.exit(1)
+ 17  	
+ 18  	    n=3
+ 19  	
+ 20  	    if i_args > 1:
 + list hanoi 10
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
@@ -192,7 +193,7 @@ Breakpoint index 'foo' is not a number
  17  	    for i in range(2):
  18  	        try: 
  19  	            sys.argv[i+1] = int(sys.argv[i+1])
- 20  	        except ValueError, msg:
+ 20  	        except ValueError:
  21  	            print "** Expecting an integer, got: %s" % repr(sys.argv[i])
  22  	            sys.exit(2)
  23  	    
@@ -215,7 +216,7 @@ Breakpoint index 'foo' is not a number
 + set listsi 6
 + list 5
   2  ->	"""Towers of Hanoi"""
-  3  	import sys,os
+  3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:

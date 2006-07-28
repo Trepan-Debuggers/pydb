@@ -1,7 +1,7 @@
 #!@PYTHON@ -t
-# $Id: pm.py.in,v 1.2 2006/06/26 02:04:36 rockyb Exp $ -*- Python -*-
+# $Id: pm.py.in,v 1.3 2006/07/28 09:37:50 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's Post-Mortem (pm) commands "
-import difflib, os, pprint, time, sys, unittest
+import difflib, os, time, sys, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:

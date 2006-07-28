@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.47 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: gdb.py.in,v 1.48 2006/07/28 09:37:49 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -150,7 +150,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.print_location()
         self.lineno = None
 
-    def __complete_subcommand(self, prefix, subcmd, text):
+    def __complete_subcommand(self, subcmd, text):
         """Print a list of completions for subcmd that start with text.
            We get the list of completions from self._*subcmd*_cmds.
            If no completion we return the empty list.
@@ -177,7 +177,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             cmd_prefix=args[0]
         if len(args) > 1:
             if args[0] in pydbcmd.Cmd.complete(self, cmd_prefix, 0):
-                text = self.__complete_subcommand(args, args[0], args[1])
+                text = self.__complete_subcommand(args, args[1])
                 for complete in text:  self.msg(complete)
             return
 
@@ -463,8 +463,9 @@ the previous command number shown. A negative number starts from the end."""
 
     def show_version(self, args):
         """Show what version of the debugger this is"""
+        global _version
         self.msg("""%s version %s.""" %
-                 (_debugger_name, "@PACKAGE_VERSION@"))
+                 (_debugger_name, _version))
 
     def write_history_file(self):
         """Write the command history file -- possibly."""
@@ -1290,14 +1291,14 @@ With an integer argument, perform that many times."""
         linestarts = dict(dis.findlinestarts(co))
 
         i=frame.f_lasti
-        last_stmt = i
         last_line = inspect.getlineno(frame)
+        # last_stmt = i
         # print "++i: %d, len(code): %d" % (i, len(code))
         while i < len(code):
             i += 1
             if i in labels:
                 # print "++last_stmt %d" % i
-                last_stmt = i
+                # last_stmt = i
                 last_line = None
             if i in linestarts and i > 0:
                 # print "++last_line %d" % linestarts[i]

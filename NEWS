@@ -45,6 +45,8 @@
   of files making up the debugger and changes above. Be more precise
   yet again on the subtle differences in how the debugger is invoked.
 
+* Remove pycheck errors; reduce pycheck warnings
+
 1.16 2006-04-27
 
 *  Add gdb "command" - run commands on a breakpoint. Code from current

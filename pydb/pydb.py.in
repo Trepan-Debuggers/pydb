@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.101 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: pydb.py.in,v 1.102 2006/07/28 09:37:49 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -269,7 +269,7 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    opts = process_options(pydb, _debugger_name, program, '@PACKAGE_VERSION@')
+    process_options(pydb, _debugger_name, program, '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to

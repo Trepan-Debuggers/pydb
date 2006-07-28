@@ -1,9 +1,9 @@
-"""$Id: pydbbdb.py,v 1.17 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.18 2006/07/28 09:37:49 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
 """
-import bdb, inspect, time, types
+import bdb, inspect, linecache, time, types
 from repr import Repr
 from fns import *
 
@@ -170,9 +170,11 @@ class Bdb(bdb.Bdb):
             return(os.path.basename(filename))
         return filename
 
-    def format_stack_entry(self, frame_lineno):
-        """Format and return a stack entry gdb-style. """
-        import linecache, repr
+    def format_stack_entry(self, frame_lineno, lprefix=': '):
+        """Format and return a stack entry gdb-style.
+        Note: lprefix is not used. It is kept for compatibility.
+        """
+        import repr
         frame, lineno = frame_lineno
         filename = self.filename(self.canonic_filename(frame))
 
@@ -259,7 +261,6 @@ class Bdb(bdb.Bdb):
         if self.stop_here(frame) or self.linetrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
-            import linecache
             filename = self.filename(self.canonic_filename(frame))
             line = linecache.getline(filename, inspect.getlineno(frame))
             # No don't have a breakpoint. So we are either
