@@ -1,21 +1,23 @@
 (hanoi.py:2):  <module>
 + """Towers of Hanoi"""
 (hanoi.py:3):  <module>
-+ import sys,os
++ import sys
 (hanoi.py:5):  <module>
 + def hanoi(n,a,b,c):
 (hanoi.py:12):  <module>
-+ i_args=len(sys.argv)
++ if __name__=='__main__':
 (hanoi.py:13):  <module>
-+ if i_args != 1 and i_args != 2:
-(hanoi.py:17):  <module>
-+ n=3
-(hanoi.py:19):  <module>
-+ if i_args > 1:
-(hanoi.py:26):  <module>
-+ if n < 1 or n > 100: 
-(hanoi.py:30):  <module>
-+ hanoi(n, "a", "b", "c")
++     i_args=len(sys.argv)
+(hanoi.py:14):  <module>
++     if i_args != 1 and i_args != 2:
+(hanoi.py:18):  <module>
++     n=3
+(hanoi.py:20):  <module>
++     if i_args > 1:
+(hanoi.py:27):  <module>
++     if n < 1 or n > 100: 
+(hanoi.py:31):  <module>
++     hanoi(n, "a", "b", "c")
 --Call--
 (hanoi.py:5):  hanoi
 + def hanoi(n,a,b,c):
@@ -113,8 +115,8 @@
 (hanoi.py:10):  hanoi
 +        hanoi(n-1, c, b, a) 
 --Return--
-(hanoi.py:30):  <module>
-+ hanoi(n, "a", "b", "c")
+(hanoi.py:31):  <module>
++     hanoi(n, "a", "b", "c")
 --Return--
 (<string>:1):  <module>
 +  (bdb.py:366):  run
