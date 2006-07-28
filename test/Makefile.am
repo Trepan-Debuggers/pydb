@@ -35,6 +35,7 @@ check_DATA = \
 
 TESTS = test.py pm.py trace.py
 
-EXTRA_DIST = $(check_DATA) except.py.in pm.py.in test.py.in trace.py.in
+EXTRA_DIST = $(check_DATA) except.py.in pm.py.in \
+	settrace.py.in test.py.in trace.py.in
 
 test: check

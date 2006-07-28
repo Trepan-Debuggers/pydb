@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.65 2006/07/25 09:33:04 rockyb Exp $
+% $Id: libpydb.tex,v 1.66 2006/07/28 00:47:46 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1293,40 +1293,16 @@ Also note that we can issue a \code{restart} which involves some
 hackery. But at least in this case it gets things right.
 
 Rather than trace the entire program, if there is a specific portion
-that you want traced that can be done too. Create a files called
-\code{/tmp/trace-on} and \code{/tmp/trace-off}. \code{/tmp/trace-on}
-might contain this:
-
-\begin{verbatim}
-# Issue debugger commands to set debugger output to
-# go to a file, turn on line tracing, and continue
-set logging file /tmp/dbg.log
-# uncomment the following line if you want to wipe out old dbg.log
-# set logging overwrite on
-set logging redirect on
-set logging on
-set linetrace on
-continue
-\end{verbatim}
-
-and \code{/tmp/trace-off}:
-
-\begin{verbatim}
-# Issue debugger commands to turn off line tracing and continue
-set linetrace off
-continue
-\end{verbatim}
-
-In your script (in the above example it was
-\code{/tmp/hardtodebug.py}), add:
+that you want traced that can be done too, passing a list of debugger
+commands to \code{set_trace}.
 
 \begin{verbatim}
 import pydb 
 # some code here ...
-pydb.set_trace("/tmp/trace-on")
+pydb.set_trace(["set linetrace on", "continue"])
 # This and subsequent lines will be traced
 # more code ...
-pydb.set_trace("/tmp/trace-off")
+pydb.set_trace(["set linetrace off", "continue"])
 \end{verbatim}
 
 There is one final advantage of using \code{set_trace()}.  When one is
@@ -1522,7 +1498,7 @@ expression.  Otherwise this function is similar to
 \function{run()}.
 \end{funcdesc}
 
-\begin{funcdesc}{set_trace}{\optional{opts-dictionary=None,
+\begin{funcdesc}{set_trace}{\optional{dbg_cmds=None,
       add_exception_hook=True}}\label{set-trace}
 Enter the debugger at the statement which follows (in execution) the
 \code{set_trace()} statement. This hard-codes a call to the debugger
@@ -1541,10 +1517,10 @@ When the debugger is quitting, this causes the program to be
 terminated. If you want the program to continue instead, use the
 \code{debugger} function.
 
-Set debugger options are set in the same way as \code{post-mortem}().
-Unless \code{add_exception_hook} is set to \code{False}, we install an
-exception hook to enter the debugger on any otherwise unhandled
-exception.
+You can run debugger commands by passing this as a list to
+\code{set_trace}.  Unless \code{add_exception_hook} is set to
+\code{False}, we install an exception hook to enter the debugger on
+any otherwise unhandled exception.
 
 \end{funcdesc}
 

@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.17 2006/07/13 07:45:09 rockyb Exp $
+"""$Id: fns.py,v 1.18 2006/07/28 00:47:47 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 from optparse import OptionParser
 import inspect, linecache, os, sys, re, traceback, types
@@ -256,6 +256,9 @@ def process_options(pydb, debugger_name, program, pkg_version,
                          action="store", type='string',
                          help="Write debugger's error output "
                          + "(stderr) to FILE")
+    optparser.add_option("-e", "--exec", dest="execute", type="string",
+                        help="list of debugger commands to " +
+                        "execute. Separate the commands with ;;")
 
     # Set up to stop on the first non-option because that's the name
     # of the script to be debugged on arguments following that are
@@ -296,6 +299,9 @@ def process_options(pydb, debugger_name, program, pkg_version,
     # we execute any file specified via --command.
     if opts.command:
         pydb.setup_source(os.path.expanduser(opts.command), True);
+
+    if opts.execute:
+        pydb.cmdqueue = list(opts.execute.split(';;'))
 
     if opts.output:
         try: 

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.99 2006/07/25 13:48:04 rockyb Exp $
+"""$Id: pydb.py.in,v 1.100 2006/07/28 00:47:47 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -90,15 +90,13 @@ def runcall(*args, **kwds):
     p.running=True
     return p.runcall(*args, **kwds)
 
-def set_trace(opts=None, add_exception_hook=True):
+def set_trace(dbg_cmds=None, add_exception_hook=True):
     """Enter the debugger at the calling stack frame.  This is useful to
     hard-code a breakpoint at a given point in a program, even if the code
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
 
-    Opts is an optional dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the pydb instance.
+    cmds is a list of debugger commands you want to run;
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception.
@@ -123,10 +121,8 @@ def set_trace(opts=None, add_exception_hook=True):
     _pydb_trace.curframe=inspect.currentframe()
     _pydb_trace.running = True
 
-    # We put processing opts after the above traceback loop so we will
-    # smash p.mainpyfile if it is given as an option.
-    if opts is not None:
-        for item in opts.items(): exec "p.%s=%s" % item
+    if dbg_cmds != None:
+        _pydb_trace.cmdqueue = list(dbg_cmds)
 
     if add_exception_hook:
         sys.excepthook = exception_hook
