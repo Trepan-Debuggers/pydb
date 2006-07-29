@@ -1,4 +1,4 @@
-1.17cvs
+1.17 2006-07-29
 * Allow entry to the debugger without a script name.
 
 * "examine" command output shows object attributes.
@@ -6,7 +6,7 @@
 
 * "whatis" shows doc strings if there is one.
 
-* Fix a bad bug (at least for me) where we would get the wrong path in
+* Fix a bug where we would get the wrong path in
   tracing through an "import x as y". This happened only if we invoked
   from a directory other than where the debugged program lives and we
   stepped into such an imported method. The fix is to save the the
@@ -22,13 +22,11 @@
 
 * The "turn-on-pydbtrack" command turns removes py-pdbtrack from
   comint-output-filter-functions which was removing the cursor in the
-  source window.
+  source window. Some small bugs removed from turn-on-pydbtrack.
 
-* Tolerance for version 2.3.4. (It's what I have to use at work.)
+* Tolerance for Python version 2.3.4 and 2.5.
 
-* Tolerance for version 2.5
-
-* Add a subcommand class. Used in set, show, info (and possibly more
+* Add a subcommand class. Used in "set", "show", "info" (and possibly more
   down the line). As a result help output now more closely resembles
   gdb's. Thanks to Matt Fleming for finishing what I started.
 
@@ -39,13 +37,23 @@
   communication used in remote debugging and thread debugging
   simpler. Many thanks to Matt Flemming for the patch.
 
-* --output and --error no longer modify program's stdout/stderr.
+* Debugger options --output and --error no longer modify program's 
+  stdout/stderr.
+
+* --exec (-e) added allow debugger commands to be run on startup.
+  Thanks to Matt Fleming
+
+* post-mortem(), pm() and set-trace() interfaces changed. The dictionary 
+  of assignements removed and instead a list of debugger commands has
+  been added. 
 
 * Document least-intrusion principle and changes listed above, list
   of files making up the debugger and changes above. Be more precise
-  yet again on the subtle differences in how the debugger is invoked.
+  on the subtle differences in how the debugger is invoked.
 
 * Remove pycheck errors; reduce pycheck warnings
+
+* Changes have been made to facilitate addition of future features
 
 1.16 2006-04-27
 

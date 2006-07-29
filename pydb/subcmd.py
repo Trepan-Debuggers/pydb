@@ -1,4 +1,4 @@
-"""$Id: subcmd.py,v 1.3 2006/07/25 14:08:01 rockyb Exp $
+"""$Id: subcmd.py,v 1.4 2006/07/29 08:09:33 rockyb Exp $
 Handles gdb-like subcommand processing.
 """
 
@@ -47,7 +47,7 @@ class Subcmd:
         self.subcmds[subcmd_name] = {
             "callback": subcmd_cb,
             "name"    : subcmd_name,
-            "doc"     : getattr(subcmd_cb, "__doc__"),
+            "doc"     : subcmd_cb.__doc__,
             "in_list" : in_list,
             "min"     : min_len}
 

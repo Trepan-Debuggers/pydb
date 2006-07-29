@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.103 2006/07/29 01:52:57 rockyb Exp $
+"""$Id: pydb.py.in,v 1.104 2006/07/29 08:09:32 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -96,7 +96,7 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
 
-    dbg_cmds is a list of debugger commands you want to run.
+    dbg_cmds is an optional list of debugger commands you want to run.
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception.
@@ -215,21 +215,20 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
             except Restart:
                 pass
 
-def pm(opts=None, cmdfile=None, frameno=1):
+def pm(debg_cmds=None, frameno=1):
 
     """Set up post-mortem debugging using the last traceback.  But if
     there is no traceback, we'll assume that sys.exec_info() contains
     what we want and frameno is the index location of where we want
     to start.
 
-    Opts is a dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the @PACKAGE_NAME@ instance."""
+    dbg_cmds is an optional list of debugger commands you want to run.
+    """
 
     # frameno+1 because we are about to add one more level of call
     # in get_last_tb_or_frame_tb
     tb = get_last_tb_or_frame_tb(frameno+1)
-    post_mortem(tb, opts, cmdfile)
+    post_mortem(tb, dbg_cmds)
 
 def exception_hook(type, value, tb, opts=None, cmdfile=None):
     """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.

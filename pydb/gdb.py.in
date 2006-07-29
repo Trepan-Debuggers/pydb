@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.48 2006/07/28 09:37:49 rockyb Exp $
+"""$Id: gdb.py.in,v 1.49 2006/07/29 08:09:32 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1549,7 +1549,7 @@ Handles the receipt of EOF as a command."""
                'set',     'show',      'shell',       'source', 'step',
                'tbreak',  'unalias',   'undisplay',   'up',
                'whatis',  'where'):
-        exec 'def help_%s(self, *arg): self.msg(getattr(self.do_%s, "__doc__"))' \
+        exec 'def help_%s(self, *arg): self.msg(self.do_%s.__doc__)' \
              % (fn, fn)
 
     # Is this the right way to do this?
