@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.68 2006/07/29 02:13:32 rockyb Exp $
+% $Id: libpydb.tex,v 1.69 2006/07/29 02:21:27 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -184,6 +184,13 @@ instead of the current directory.
 
 Run debugger script \var{filename}. This script is run after
 the user's \code{.pydbrc} file.
+
+\item[--{}--exec=\var{command-list}\code{\Large{|}}--e \var{command-list}]\label{exec:command}
+
+Run debugger commands \var{command-list}. Commands should be separated
+by ``\code{;;}''---the same as you would do inside the debugger. You may
+need to quote this option to prevent command shell
+interpretation, e.g. \code{--exec "break 20;; continue"}.
 
 \item[--{}--nx\code{\Large{|}}]\label{switch:nx}
 
