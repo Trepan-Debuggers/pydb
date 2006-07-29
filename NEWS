@@ -24,7 +24,8 @@
   comint-output-filter-functions which was removing the cursor in the
   source window. Some small bugs removed from turn-on-pydbtrack.
 
-* Tested on Python versions 2.3.4, 2.3.5, 2.4, 2.4.3, and 2.5.b1.
+* Tested on Python versions 2.3.4, 2.3.5, 2.4, 2.4.3, and 2.5.b1 on
+  cygwin FreeBSD, GNU/Linux, NetBSD, OSX and Solaris.
 
 * Add a subcommand class. Used in "set", "show", "info" (and possibly more
   down the line). As a result help output now more closely resembles
