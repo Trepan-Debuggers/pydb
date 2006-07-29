@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.67 2006/07/29 01:52:57 rockyb Exp $
+% $Id: libpydb.tex,v 1.68 2006/07/29 02:13:32 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1146,12 +1146,7 @@ Delete the specified alias.
 \section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 
 The module \module{pydb} defines an interactive source code
-debugger\index{debugging} for Python programs.  It supports setting
-(conditional) breakpoints and single stepping at the source-line
-level, inspection of stack frames, source-code listing, and evaluation
-of arbitrary Python code in the context of any stack frame.  It also
-supports disassembly of code and post-mortem debugging and can be
-called under program control.
+debugger\index{debugging} for Python programs.
 
 \file{pydb.py} can be invoked as a script to debug other scripts.  For
 example:
@@ -1175,11 +1170,11 @@ is more useful than quitting the debugger upon program's exit.
 
 The debugger is extensible---it is defined as the class
 \class{Pdb}\withsubitem{(class in pydb)}{\ttindex{Pdb}}.  When
-creating a new \class{Pdb} object, one can optionally specifying the
-key for command completion if it is provided in your Python via
+creating a new \class{Pdb} object, command completion is available if
 \ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
-or \module{pyreadline}. The parameter name here is
-\code{completekey} an its default value is the tab key.
+or \module{pyreadline} is available. In such circumstance, one can
+optionally specifying the key for command completion. The parameter
+name here is \code{completekey} an its default value is the tab key.
 
 The \class{Pdb} extension interface of \class{Gdb} a gdb-like debugger
 command interface. This in turn inherts from \class{Cmd} and
@@ -1198,7 +1193,7 @@ the corresponding methods.
 
 One group of methods that may be useful to subclass would be the
 output methods \method{errmsg}, \method{msg}, and
-\method{msg_nocr}. In early regression development I subclassed these
+\method{msg_nocr}. In early regression development, I subclassed these
 so that I could capture debugger output. It turned out, however, that
 I needed far too many tests and working this way would not scale.
 
@@ -1292,6 +1287,14 @@ just confuse things more.}
 Also note that we can issue a \code{restart} which involves some
 hackery. But at least in this case it gets things right.
 
+There is one final advantage of using \code{set_trace()}.  When one is
+stepping code or has put a breakpoint in code, the interpreter has to
+be involved and calls debugger-checking code written in Python for
+every statement that he debugged program runs. And this has a
+noticeable effect. With \code{set_trace()} there is absolutely no
+overhead (provided there are no other breakpoints set in the program).
+
+\subsubsection{Line tracing}\label{subsubsection-linetracing}
 Rather than trace the entire program, if there is a specific portion
 that you want traced that can be done too, passing a list of debugger
 commands to \code{set_trace}.
@@ -1304,14 +1307,6 @@ pydb.set_trace(["set linetrace on", "continue"])
 # more code ...
 pydb.set_trace(["set linetrace off", "continue"])
 \end{verbatim}
-
-There is one final advantage of using \code{set_trace()}.  When one is
-stepping code or has put a breakpoint in code, the interpreter has to
-be involved and calls debugger-checking code written in Python for
-every statement that he debugged program runs. And this has a
-noticeable effect. With \code{set_trace()} there is absolutely no
-overhead (provided there are no other breakpoints set in the program).
-
 
 \subsection{Entering the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
 
