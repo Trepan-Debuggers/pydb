@@ -149,6 +149,12 @@ Change current directory to DIR.
 .B \-x | \-\-command=FILE
 Execute commands from FILE
 .TP
+.B \-e | \-\-exec
+Run debugger commands command-list. Commands should be separated by
+";;"-the same as you would do inside the debugger. You may need to
+quote this option to prevent command shell interpretation, e.g. --exec
+"break 20;; continue"
+.TP
 .B \-\-error=FILE
 Write debugger's error output (stderr) to FILE
 .TP
