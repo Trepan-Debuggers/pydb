@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.66 2006/07/28 00:47:46 rockyb Exp $
+% $Id: libpydb.tex,v 1.67 2006/07/29 01:52:57 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1436,26 +1436,24 @@ used internally by GNU Emacs debugger \code{gud}.
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
 
-\begin{funcdesc}{pm}{\optional{opts-dictionary=None, cmdfile=None}}
+\begin{funcdesc}{pm}{\optional{dbg_cmds=None, cmdfile=None}}
 Enter post-mortem debugging of the traceback found in
 \code{sys.last_traceback}. Note you may need to have \code{sys}
 imported priort to having the error raised to have sys.last_traceback
 set.
 
-To set debugger options, pass a dictionary of variable, value pairs
-that you want set in \var{opts-dictionary}. For example if you want
-the display listsize to be 20 by default on entry pass
-\code{\{listsize: 20\}}.
+You can run debugger commands by passing this as a list as parameter
+\code{dbg_cmds}. For example if you want the display listsize to be 20
+by default on entry pass \code{["set listsize 20",]}.
 \end{funcdesc}
 
-\begin{funcdesc}{post_mortem}{traceback\optional{opts-dictionary=None,
+\begin{funcdesc}{post_mortem}{traceback\optional{dbg_cmds=None,
   cmdfile=None}}\label{post-mortem}
 Enter post-mortem debugging of the given \var{traceback} object.
 
-To set debugger options, pass a dictionary of variable, value pairs
-that you want set in \var{opts-dictionary}. For example if you want
-the display listsize to be 20 by default on entry pass
-\code{\{listsize: 20\}}.
+You can run debugger commands by passing this as a list as parameter
+\code{dbg_cmds}. For example if you want the display listsize to be 20
+by default on entry pass \code{["set listsize 20",]}.
 
 \end{funcdesc}
 
@@ -1517,8 +1515,8 @@ When the debugger is quitting, this causes the program to be
 terminated. If you want the program to continue instead, use the
 \code{debugger} function.
 
-You can run debugger commands by passing this as a list to
-\code{set_trace}.  Unless \code{add_exception_hook} is set to
+You can run debugger commands by passing this as a list in parameter
+\code{dbg_cmds}.  Unless \code{add_exception_hook} is set to
 \code{False}, we install an exception hook to enter the debugger on
 any otherwise unhandled exception.
 

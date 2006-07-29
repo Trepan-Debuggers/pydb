@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: pm.py.in,v 1.3 2006/07/28 09:37:50 rockyb Exp $ -*- Python -*-
+# $Id: pm.py.in,v 1.4 2006/07/29 01:52:57 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's Post-Mortem (pm) commands "
 import difflib, os, time, sys, unittest
 
@@ -51,7 +51,7 @@ class PdbTests(unittest.TestCase):
             old_stderr = sys.stderr
             sys.stdout = open(outfile, 'w')
             sys.stderr = open(errfile, 'w')
-            pydb.post_mortem(t=t, opts=None,
+            pydb.post_mortem(t=t, dbg_cmds=None,
                              cmdfile=os.path.join(srcdir, 'pm.cmd'))
             sys.stdout.close()
             sys.stderr.close()

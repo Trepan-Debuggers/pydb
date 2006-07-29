@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.102 2006/07/28 09:37:49 rockyb Exp $
+"""$Id: pydb.py.in,v 1.103 2006/07/29 01:52:57 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -96,7 +96,7 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
     is not otherwise being debugged (e.g., when an assertion fails).
     Leaving this the debugger terminates the program.
 
-    cmds is a list of debugger commands you want to run;
+    dbg_cmds is a list of debugger commands you want to run.
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception.
@@ -136,7 +136,7 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
 
 # Post-Mortem interface
 
-def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
+def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
     """Enter debugger read loop after your program has crashed.
 
     If no traceback parameter, t, is supplied, the last traceback and
@@ -144,12 +144,15 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
     contains what we want and frameno is the index location of where
     we want to start.
 
+    dbg_cmds is a list of debugger commands you want to run.
+
     cmdfile is an optional debugger command file you want to run
     "source" on.
 
-    Opts is an optional dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the @PACKAGE_NAME@ instance.
+    frameno specifies how many frames to ignore in the traceback.  The
+    default is 1 - we don't need the call to post_mortem. If you have
+    wrapper functions that call this one, you may want to increase
+    frameno.
     """
 
     p = Pdb()
@@ -172,10 +175,8 @@ def post_mortem(t=None, opts=None, cmdfile=None, frameno=1):
         t = t.tb_next
     p.curframe = t.tb_frame
 
-    # We put processing opts after the above traceback loop so we will
-    # smash p.mainpyfile if it is given as an option.
-    if opts is not None:
-        for item in opts.items(): exec "p.%s=%s" % item
+    if dbg_cmds != None:
+        p.cmdqueue = list(dbg_cmds)
 
     if 0 == len(p._program_sys_argv):
         # Fake program (run command) args since we weren't called with any
