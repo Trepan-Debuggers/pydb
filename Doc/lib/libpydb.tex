@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.70 2006/07/29 08:09:32 rockyb Exp $
+% $Id: libpydb.tex,v 1.71 2006/07/29 10:43:55 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -381,7 +381,6 @@ specifies them. For example \code{set lis 5} is a valid abbrevation for
 \code{info listsize 5} while \code{set li} is not since there is another
 subcommand (\code{linetrace}) which also starts with `li'.
 
-
 \begin{description}
 
 \item[set basename on\code{\Large{|}}off]\label{command:basename}
@@ -424,7 +423,85 @@ executing a statement. By default this is off. Using the command-line
 option \samp{--trace} when invoking \code{pydb} implicitly sets this
 on.  For information on \samp{--trace}, see \ref{switch:trace}.
 
-Using this option will slow down your
+\begin{verbatim}
+$ pydb --basename --trace hanoi.py 2
+(hanoi.py:2): 
++ """Towers of Hanoi"""
+(hanoi.py:3): 
++ import sys
+(hanoi.py:5): 
++ def hanoi(n,a,b,c):
+(hanoi.py:12): 
++ if __name__=='__main__':
+(hanoi.py:13): 
++     i_args=len(sys.argv)
+(hanoi.py:14): 
++     if i_args != 1 and i_args != 2:
+(hanoi.py:18): 
++     n=3
+(hanoi.py:20): 
++     if i_args > 1:
+(hanoi.py:21): 
++       try: 
+(hanoi.py:22): 
++         n = int(sys.argv[1])
+(hanoi.py:27): 
++     if n < 1 or n > 100: 
+(hanoi.py:31): 
++     hanoi(n, "a", "b", "c")
+--Call--
+(hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++     if n-1 > 0:
+(hanoi.py:7):  hanoi
++        hanoi(n-1, a, c, b) 
+--Call--
+(hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++     if n-1 > 0:
+(hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
+Move disk a to c
+(hanoi.py:9):  hanoi
++     if n-1 > 0:
+--Return--
+(hanoi.py:9):  hanoi
++     if n-1 > 0:
+(hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
+Move disk a to b
+(hanoi.py:9):  hanoi
++     if n-1 > 0:
+(hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
+--Call--
+(hanoi.py:5):  hanoi
++ def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++     if n-1 > 0:
+(hanoi.py:8):  hanoi
++     print "Move disk %s to %s" % (a, b)
+Move disk c to b
+(hanoi.py:9):  hanoi
++     if n-1 > 0:
+--Return--
+(hanoi.py:9):  hanoi
++     if n-1 > 0:
+--Return--
+(hanoi.py:10):  hanoi
++        hanoi(n-1, c, b, a) 
+--Return--
+(hanoi.py:31): 
++     hanoi(n, "a", "b", "c")
+--Return--
+(<string>:1): 
++  (bdb.py:366):  run
++                 exec cmd in globals, locals
+\end{verbatim}
+
+Adding linetracing output will slow down your
 program. Unless single stepping through a program, normally the
 debugger is called only at breakpoints or at the call and return of a
 function or method. However when line tracing is turned on, the
