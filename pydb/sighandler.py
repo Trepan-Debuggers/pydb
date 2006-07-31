@@ -1,4 +1,4 @@
-"""$Id $
+"""$Id: sighandler.py,v 1.2 2006/07/31 00:06:24 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 import signal
