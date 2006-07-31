@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.49 2006/07/29 08:09:32 rockyb Exp $
+"""$Id: gdb.py.in,v 1.50 2006/07/31 00:02:44 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -21,6 +21,8 @@ from show    import *
 from pydbcmd import Cmd
 from pydbbdb import Bdb
 
+from sighandler import SigHandler
+
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
     pass
@@ -36,6 +38,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._program_sys_argv    = []   # sys.argv after options are stripped
         self._re_linetrace_delay  = re.compile(r'\s*linetrace\s+delay')
         self._wait_for_mainpyfile = False
+
+        # set up signal handling
+        self._sig_handler = SigHandler(self)
 
         self.__init_info()
         self.__init_set()
@@ -236,10 +241,12 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('args',         self.info_args)
         self.infocmds.add('breakpoints',  self.info_breakpoints)
         self.infocmds.add('display',      self.info_display)
+        self.infocmds.add('handle',       self._sig_handler.info_signal)
         self.infocmds.add('globals',      self.info_globals, 1, False)
         self.infocmds.add('line',         self.info_line)
         self.infocmds.add('locals',       self.info_locals,  1, False)
         self.infocmds.add('program',      self.info_program)
+        self.infocmds.add('signal',       self._sig_handler.info_signal)
         self.infocmds.add('source',       self.info_source)
 
     def __init_set(self):
@@ -1042,6 +1049,19 @@ the default."""
                   % (-i_stack, i_stack-1))
         else:
             self.__adjust_frame(pos=arg, absolute_pos=True)
+
+    def do_handle(self, arg):
+        """Specify how to handle a signal.
+        Args are signals and actions to apply to those signals.
+        Recognized actions include "stop", "nostop", "print", "noprint",
+        "pass", "nopass", "ignore", or "noignore".
+        Stop means reenter debugger if this signal happens (implies print).
+        Print means print a message if this signal happens.
+        Pass means let program see this signal; otherwise program doesn't know.
+        Ignore is a synonym for nopass and noignore is a synonym for pass.
+        Pass and Stop may be combined.
+        """
+        self._sig_handler.action(arg)
 
     def do_ignore(self,arg):
         """ignore bpnumber count
