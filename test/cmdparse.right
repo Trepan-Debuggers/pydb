@@ -316,9 +316,11 @@ info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
 info display -- Expressions to display when program stops, with code numbers
 info globals -- Global variables of current stack frame
+info handle -- Print information about a signal
 info line -- Current line number in source file
 info locals -- Local variables of current stack frame
 info program -- Execution status of the program
+info signal -- Print information about a signal
 info source -- Information about the current Python file
 + #######################################
 + # The below  "help info" lines should

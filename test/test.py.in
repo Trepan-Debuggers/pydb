@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.26 2006/07/29 09:00:03 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.27 2006/07/31 00:14:54 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
 import difflib, os, pprint, time, sys, unittest
 
@@ -20,6 +20,7 @@ class PdbTest(pydb.Pdb):
         self.errLines = []
         self.msgLines = []
         self.msg_last_nocr = False
+        self.stack = self.curframe = self.botframe = None
 
     def errmsg(self, msg):
         self.errLines.append(msg)

@@ -1,15 +1,14 @@
-"""$Id: sighandler.py,v 1.2 2006/07/31 00:06:24 rockyb Exp $
+"""$Id: sighandler.py,v 1.3 2006/07/31 00:14:54 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 import signal
 
 def lookup_signame(num):
-    """Find the corresponding signal number for 'name'. Return None
-    if 'name' is invalid."""
-    if hasattr(signal, name):
-        return getattr(signal, name)
-    else:
-        return None
+    """Find the corresponding signal name for 'num'. Return None
+    if 'num' is invalid."""
+    for signame in signal.__dict__.keys():
+        if signal.__dict__[signame] == num:
+            return signame
 
 def lookup_signum(name):
     """Find the corresponding signal number for 'name'. Return None
@@ -71,20 +70,17 @@ class SigHandler:
         if st:
             if name not in self._sig_stop:
                 self._sig_stop.append(name)
-        else:
-            if name in self._sig_stop:
+        elif name in self._sig_stop:
                 self._sig_stop.pop(self._sig_stop.index(name))
         if pr:
             if name not in self._sig_print:
                 self._sig_print.append(name)
-        else:
-            if name in self._sig_print:
+        elif name in self._sig_print:
                 self._sig_print.pop(self._sig_print.index(name))
         if pa:
             if name not in self._sig_pass:
                 self._sig_pass.append(name)
-        else:
-            if name in self._sig_pass:
+        elif name in self._sig_pass:
                 self._sig_pass.pop(self._sig_pass.index(name))
 
     def info_signal(self, signame):
