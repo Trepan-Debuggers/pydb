@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.3 2006/07/31 00:14:54 rockyb Exp $
+"""$Id: sighandler.py,v 1.4 2006/08/01 15:10:04 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 import signal
@@ -46,13 +46,19 @@ class SigHandler:
 
         # set up signal handling for some known signals
         # SIGKILL is non-maskable. Should we *really* include it here?
-        fatal = ['SIGINT', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL', \
+        fatal = ['SIGINT',  'SIGTRAP',  'SIGTERM', 'SIGQUIT', 'SIGILL', \
                  'SIGKILL', 'SIGSTOP']
+        ignore= ['SIGALRM', 'SIGCHLD',  'SIGURG',  'SIGIO',      'SIGVTALRM'
+                 'SIGPROF', 'SIGWINCH', 'SIGPOLL', 'SIGWAITING', 'SIGLWP',
+                 'SIGCANCEL']
         for sig in self._sig_attr:
             if str(sig) not in fatal:
                 num = lookup_signum(sig)
                 if num:
-                    self._set_sig(sig, (True, True, True))
+                    if str(sig) in ignore:
+                        self._set_sig(sig, (False, False, True))
+                    else:
+                        self._set_sig(sig, (True, True, True))
                     signal.signal(num, self.handle)
             else:
                 self._set_sig(sig, (False, False, True))
