@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.32 2006/07/25 20:13:22 rockyb Exp $
+#$Id: Makefile.am,v 1.33 2006/08/01 14:46:19 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -27,14 +27,15 @@ python_debugger_script := $(DEBUGGER).py
 pkgpython_PYTHON := \
 	$(DEBUGGER)/__init__.py \
         $(DEBUGGER)/$(python_debugger_script) \
-	$(DEBUGGER)/display.py  \
-	$(DEBUGGER)/fns.py	\
-	$(DEBUGGER)/gdb.py	\
-	$(DEBUGGER)/info.py	\
-	$(DEBUGGER)/pydbbdb.py	\
-	$(DEBUGGER)/pydbcmd.py	\
-	$(DEBUGGER)/set.py	\
-	$(DEBUGGER)/show.py	\
+	$(DEBUGGER)/display.py  	\
+	$(DEBUGGER)/fns.py		\
+	$(DEBUGGER)/gdb.py		\
+	$(DEBUGGER)/info.py		\
+	$(DEBUGGER)/pydbbdb.py		\
+	$(DEBUGGER)/pydbcmd.py		\
+	$(DEBUGGER)/set.py		\
+	$(DEBUGGER)/show.py		\
+	$(DEBUGGER)/sighandler.py	\
 	$(DEBUGGER)/subcmd.py 
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
