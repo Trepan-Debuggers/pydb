@@ -1,7 +1,9 @@
-"""$Id: set.py,v 1.4 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: set.py,v 1.5 2006/08/07 01:45:38 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
+
+import re
 
 class SubcmdSet:
 
