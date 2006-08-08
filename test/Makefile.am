@@ -28,6 +28,8 @@ check_DATA = \
 	run.right       \
 	run2.cmd        \
 	run2.right      \
+	sighandler.cmd  \
+	sighandle.right \
 	test.py         \
 	trace-2.5.right \
 	trace.py        \

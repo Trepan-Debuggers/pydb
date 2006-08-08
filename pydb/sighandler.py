@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.4 2006/08/01 15:10:04 rockyb Exp $
+"""$Id: sighandler.py,v 1.5 2006/08/08 01:34:05 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 import signal
@@ -18,6 +18,8 @@ def lookup_signum(name):
     else:
         return None
 
+fatal_signals = ['SIGKILL', 'SIGSTOP']
+
 class SigHandler:
 
     """Store information about what we do when we handle a signal,
@@ -32,62 +34,27 @@ class SigHandler:
     """
     def __init__(self, pydb): 
         self.pydb = pydb
-        # This list contains tuples made up of four items, one tuple for
-        # every signal handler we've created. The tuples contain
-        # (signal_num, stop, print, pass)
-        self._sig_attr = []
-        self._sig_stop = []
-        self._sig_print = []
-        self._sig_pass = []
-
-        for sig in signal.__dict__.keys():
-            if sig.startswith('SIG') and '_' not in sig:
-                self._sig_attr.append(sig)
+        self._sigs = {}
 
         # set up signal handling for some known signals
-        # SIGKILL is non-maskable. Should we *really* include it here?
-        fatal = ['SIGINT',  'SIGTRAP',  'SIGTERM', 'SIGQUIT', 'SIGILL', \
-                 'SIGKILL', 'SIGSTOP']
         ignore= ['SIGALRM', 'SIGCHLD',  'SIGURG',  'SIGIO',      'SIGVTALRM'
                  'SIGPROF', 'SIGWINCH', 'SIGPOLL', 'SIGWAITING', 'SIGLWP',
-                 'SIGCANCEL']
-        for sig in self._sig_attr:
-            if str(sig) not in fatal:
-                num = lookup_signum(sig)
-                if num:
-                    if str(sig) in ignore:
-                        self._set_sig(sig, (False, False, True))
-                    else:
-                        self._set_sig(sig, (True, True, True))
-                    signal.signal(num, self.handle)
-            else:
-                self._set_sig(sig, (False, False, True))
-
-    def _get_sig(self, name):
-        st = name in self._sig_stop
-        pr = name in self._sig_print
-        pa = name in self._sig_pass
-        return (st, pr, pa)
-
-    def _set_sig(self, name, (st, pr, pa)):
-        """Set the actions to be taken when a signal, specified by
-        'name', is received.
-        """
-        if st:
-            if name not in self._sig_stop:
-                self._sig_stop.append(name)
-        elif name in self._sig_stop:
-                self._sig_stop.pop(self._sig_stop.index(name))
-        if pr:
-            if name not in self._sig_print:
-                self._sig_print.append(name)
-        elif name in self._sig_print:
-                self._sig_print.pop(self._sig_print.index(name))
-        if pa:
-            if name not in self._sig_pass:
-                self._sig_pass.append(name)
-        elif name in self._sig_pass:
-                self._sig_pass.pop(self._sig_pass.index(name))
+                 'SIGCANCEL', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL',
+                 'SIGINT']
+        for sig in signal.__dict__.keys():
+            if sig.startswith('SIG') and '_' not in sig:
+                if str(sig) not in fatal_signals:
+                    num = lookup_signum(sig)
+                    if num:
+                        if str(sig) in ignore:
+                            self._sigs[sig] = (False, False, True)
+                        else:
+                            self._sigs[sig] = (True, True, True)
+                            signal.signal(num, self.handle)
+                else:
+                    # Make an entry in the _sig dict for these signals
+                    # even though they cannot be ignored or caught.
+                    self._sigs[sig] = (False, False, True)
 
     def info_signal(self, signame):
         """Print information about a signal"""
@@ -98,18 +65,14 @@ class SigHandler:
             # This has come from pydb's info command
             if len(signame) == 1:
                 self.pydb.msg(header)
-                for sig in self._sig_attr:
-                    s = sig in self._sig_stop
-                    pr = sig in self._sig_print
-                    pa = sig in self._sig_pass
-                    self.pydb.msg(fmt % (sig,s,pr,pa))
+                for sig in self._sigs.keys():
+                    st, pr, pa = self._sigs[sig]
+                    self.pydb.msg(fmt % (sig, st, pr, pa))
             else:
                 self.info_signal(signame[1])
             return
             
-        s = signame in self._sig_stop
-        pr = signame in self._sig_print
-        pa = signame in self._sig_pass
+        s, pr, pa = self._sigs[signame]
         self.pydb.msg(header)
         self.pydb.msg(fmt % (signame, s, pr, pa))
 
@@ -121,74 +84,83 @@ class SigHandler:
             self.info_signal(['handle'])
             return
         args = arg.split()
-        if args[0] in self._sig_attr:
-            if len(args) == 1:
-                self.info_signal(args[0])
-                return
-            # multiple commands might be specified, i.e. 'nopass nostop'
-            for attr in args[1:]:
-                if attr.startswith('no'):
-                    on = False
-                    attr = attr[2:]
-                else:
-                    on = True
-                if attr.startswith('stop'):
-                    self.handle_stop(args[0], on)
-                elif attr.startswith('print'):
-                    self.handle_print(args[0], on)
-                elif attr.startswith('pass'):
-                    self.handle_pass(args[0], on)
-                else:
-                    self.pydb.errmsg('Invalid arguments')
+        try:
+            self._sigs[args[0]]
+        except KeyError:
+            return
+        if len(args) == 1:
+            self.info_signal(args[0])
+            return
+        
+        # We can display information about 'fatal' signals, but not
+        # change their actions.
+        if args[0] in fatal_signals:
+            return
 
-    def handle_stop(self, signum, change):
+        # multiple commands might be specified, i.e. 'nopass nostop'
+        for attr in args[1:]:
+            if attr.startswith('no'):
+                on = False
+                attr = attr[2:]
+            else:
+                on = True
+            if attr.startswith('stop'):
+                self.handle_stop(args[0], on)
+            elif attr.startswith('print'):
+                self.handle_print(args[0], on)
+            elif attr.startswith('pass'):
+                self.handle_pass(args[0], on)
+            else:
+                self.pydb.errmsg('Invalid arguments')
+
+    def handle_stop(self, signame, change):
         """Change whether we stop or not when this signal is caught.
         If 'change' is True your program will stop when this signal
         happens."""
         if not isinstance(change, bool):
             return
-        old_attr = self._get_sig(signum)
+        old_attr = self._sigs[signame]
         st, pr, pa = change, old_attr[1], old_attr[2]
         if st:
             pr = True
-        self._set_sig(signum, (st, pr, pa))
+        self._sigs[signame] = (st, pr, pa)
         return change
 
-    def handle_pass(self, signum, change):
+    def handle_pass(self, signame, change):
         """Change whether we pass this signal to the program (or not)
         when this signal is caught. If change is True, Pydb should allow
         your program to see this signal.
         """
         if not isinstance(change, bool):
             return
-        old_attr = self._get_sig(signum)
+        old_attr = self._sigs[signame]
         st, pr, pa = old_attr[0], old_attr[1], change
-        self._set_sig(signum, (st, pr, pa))
+        self._sigs[signame] = (st, pr, pa)
         return change
 
     # ignore is a synonym for nopass and noignore is a synonym for pass
-    def handle_ignore(self, signum, change):
+    def handle_ignore(self, signame, change):
         if not isinstance(change, bool):
             return
         self.handle_pass(not change)
         return change
 
-    def handle_print(self, signum, change):
+    def handle_print(self, signame, change):
         """Change whether we print or not when this signal is caught."""
         if not isinstance(change, bool):
             return
-        old_attr = self._get_sig(signum)
+        old_attr = self._sigs[signame]
         st, pr, pa = old_attr[0], change, old_attr[2]
         if not change:
             # noprint implies nostop
             st = False
-        self._set_sig(signum, (st, pr, pa))
+        self._sigs[signame] = (st, pr, pa)
         return change
 
     def handle(self, signum, frame):
         """This method is called when a signal is received."""
         sig = lookup_signame(signum)
-        st, pa, pr = self._get_sig(sig)
+        st, pa, pr = self._sigs[sig]
         if pr:
             self.pydb.msg('Program received signal %s' % sig)
         if st:

@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.50 2006/07/31 00:02:44 rockyb Exp $
+"""$Id: gdb.py.in,v 1.51 2006/08/08 01:34:05 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -753,7 +753,7 @@ the .py suffix may be omitted."""
         sys.settrace(None)
         global_vars = self.curframe.f_globals
         local_vars = self.curframe.f_locals
-        p = Pdb()
+        p = Gdb()
         p.prompt  = "(%s) " % self.prompt.strip()
         self.msg("ENTERING RECURSIVE DEBUGGER")
 
