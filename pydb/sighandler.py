@@ -1,6 +1,15 @@
-"""$Id: sighandler.py,v 1.5 2006/08/08 01:34:05 rockyb Exp $
+"""$Id: sighandler.py,v 1.6 2006/08/08 02:04:25 rockyb Exp $
 Handles signal handlers within Pydb.
 """
+#FIXME:
+#  - sigpass routine is probably not right - save old signal handler as
+#    3rd entry of triplet and None if no old handler?
+#  - remove pychecker errors.
+#  - can remove signal handler altogether when
+#         ignore=True, print=False, pass=True
+#  - write real regression tests.
+#  
+#     
 import signal
 
 def lookup_signame(num):
