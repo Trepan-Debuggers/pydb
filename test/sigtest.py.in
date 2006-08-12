@@ -1,0 +1,101 @@
+#!@PYTHON@ -t
+# $Id: sigtest.py.in,v 1.1 2006/08/12 04:34:34 rockyb Exp $
+"Unit test for Extended Python debugger's signal handling commands "
+import os, time, sys, unittest, signal
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+import pydb                
+
+builddir     = "@builddir@"
+if builddir[-1] != os.path.sep:
+    builddir += os.path.sep
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+
+srcdir = "@srcdir@"
+if srcdir[-1] != os.path.sep:
+    srcdir += os.path.sep
+
+pydir        = os.path.join(top_builddir, "pydb")
+pydb_short   = "pydb.py"
+pydb_path    = os.path.join(pydir, pydb_short)
+outfile      = 'sighandler.out'
+program      = 'sigtestexample.py'
+
+class SigTests(unittest.TestCase):
+    def tearDown(self):
+        try:
+            os.unlink(outfile)
+        except OSError:
+            pass
+
+    def create_proc(self, cmds):
+        pid = os.spawnlp(os.P_NOWAIT, pydb_path, pydb_path, '-o',
+                         outfile, '-e', '%s' % cmds, program)
+        time.sleep(1.0)
+        return pid
+
+    def test_pass(self):
+        # Run pydb and turn on passing SIGUSR1 signal to the test programs'
+        # signal handler.  
+        cmds = 'handle SIGUSR1 nostop;;step;;step'
+
+        pid = self.create_proc(cmds)
+
+        os.kill(pid, signal.SIGUSR1)
+        os.waitpid(pid, 0)
+
+
+        f = open('log', 'r')
+        line = f.readline()
+        f.close()
+        self.assertEqual(line, 'signal received\n')
+        os.unlink('log')
+
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+        self.assertFalse('Program received signal' in lines)
+         
+    def test_nopass(self):
+        # Run pydb and intercept the signal SIGUSR1 instead of passing it
+        # to the program.
+        cmds = 'handle SIGUSR1 nopass nostop'
+    
+        pid = self.create_proc(cmds)
+
+        os.kill(pid, signal.SIGUSR1)
+        os.waitpid(pid, 0)
+
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+
+        self.assertEqual(lines[1], 'Program received signal SIGUSR1\n') 
+
+    def test_noprint(self):
+        cmds = "handle SIGUSR1 noprint nopass"
+        pid = self.create_proc(cmds)
+
+        os.kill(pid, signal.SIGUSR1)
+        os.waitpid(pid, 0)
+
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+
+        self.assertFalse('Program received signal SIGUSR1\n' in lines)
+        self.assertRaises(IOError, open, 'log', 'r')
+
+if __name__ == '__main__':
+    unittest.main()

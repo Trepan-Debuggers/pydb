@@ -28,16 +28,16 @@ check_DATA = \
 	run.right       \
 	run2.cmd        \
 	run2.right      \
-	sighandler.cmd  \
-	sighandle.right \
+	sigtest.py      \
+        sigtestexample.py \
 	test.py         \
 	trace-2.5.right \
 	trace.py        \
 	trace.right
 
-TESTS = test.py pm.py trace.py
+TESTS = test.py pm.py trace.py sigtest.py
 
 EXTRA_DIST = $(check_DATA) except.py.in pm.py.in \
-	settrace.py.in test.py.in trace.py.in
+	settrace.py.in test.py.in trace.py.in sigtest.py.in
 
 test: check

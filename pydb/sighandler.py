@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.6 2006/08/08 02:04:25 rockyb Exp $
+"""$Id: sighandler.py,v 1.7 2006/08/12 04:34:34 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #FIXME:
@@ -7,9 +7,8 @@ Handles signal handlers within Pydb.
 #  - remove pychecker errors.
 #  - can remove signal handler altogether when
 #         ignore=True, print=False, pass=True
-#  - write real regression tests.
-#  
 #     
+#
 import signal
 
 def lookup_signame(num):
@@ -44,6 +43,8 @@ class SigHandler:
     def __init__(self, pydb): 
         self.pydb = pydb
         self._sigs = {}
+    
+        self.old_handlers = {}
 
         # set up signal handling for some known signals
         ignore= ['SIGALRM', 'SIGCHLD',  'SIGURG',  'SIGIO',      'SIGVTALRM'
@@ -59,7 +60,8 @@ class SigHandler:
                             self._sigs[sig] = (False, False, True)
                         else:
                             self._sigs[sig] = (True, True, True)
-                            signal.signal(num, self.handle)
+                            old_handler = signal.signal(num, self.handle)
+                            self.old_handlers[num] = old_handler
                 else:
                     # Make an entry in the _sig dict for these signals
                     # even though they cannot be ignored or caught.
@@ -93,9 +95,7 @@ class SigHandler:
             self.info_signal(['handle'])
             return
         args = arg.split()
-        try:
-            self._sigs[args[0]]
-        except KeyError:
+        if not self._sigs.has_key(args[0]):
             return
         if len(args) == 1:
             self.info_signal(args[0])
@@ -131,6 +131,7 @@ class SigHandler:
         old_attr = self._sigs[signame]
         st, pr, pa = change, old_attr[1], old_attr[2]
         if st:
+            # stop keyword implies print
             pr = True
         self._sigs[signame] = (st, pr, pa)
         return change
@@ -151,7 +152,7 @@ class SigHandler:
     def handle_ignore(self, signame, change):
         if not isinstance(change, bool):
             return
-        self.handle_pass(not change)
+        self.handle_pass(signame, not change)
         return change
 
     def handle_print(self, signame, change):
@@ -169,10 +170,17 @@ class SigHandler:
     def handle(self, signum, frame):
         """This method is called when a signal is received."""
         sig = lookup_signame(signum)
-        st, pa, pr = self._sigs[sig]
+        st, pr, pa = self._sigs[sig]
         if pr:
             self.pydb.msg('Program received signal %s' % sig)
         if st:
-            # XXX Rocky what's the best way to handle this? 
             self.pydb.use_rawinput = False
+            self.pydb.step_ignore = 1
             self.pydb.interaction(self.pydb.curframe, None)
+        if pa:
+            # pass the signal to the program by reinstating the old signal
+            # handler and send the signal to this process again
+            old_handler = self.old_handlers[signum]
+            signal.signal(signum, old_handler)
+            import os
+            os.kill(os.getpid(), signum)

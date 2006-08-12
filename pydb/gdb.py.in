@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.51 2006/08/08 01:34:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.52 2006/08/12 04:34:33 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -21,7 +21,7 @@ from show    import *
 from pydbcmd import Cmd
 from pydbbdb import Bdb
 
-from sighandler import SigHandler
+from sighandler import SigHandler, lookup_signame, lookup_signum
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -41,6 +41,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         # set up signal handling
         self._sig_handler = SigHandler(self)
+        self._reset_handler = None
 
         self.__init_info()
         self.__init_set()
@@ -117,6 +118,23 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         except ImportError:
             self.histfile = None
+
+    def trace_dispatch(self, frame, event, arg):
+        for sig in self._sig_handler._sigs.keys():
+            if self._sig_handler._sigs[sig][0] == True:
+                import signal
+                sig_num = lookup_signum(sig)
+                old_handler = signal.getsignal(sig_num)
+                if old_handler != self._sig_handler.handle:
+                    # save the program's signal handler
+                    self._sig_handler.old_handlers[sig_num] = old_handler
+                    
+                    # restore _our_ signal handler
+                    signal.signal(sig_num, self._sig_handler.handle)
+
+        Bdb.trace_dispatch(self, frame, event, arg)
+        return self.trace_dispatch
+
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
