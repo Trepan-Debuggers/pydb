@@ -1,3 +1,7 @@
+1.18cvs 
+
+* GDB-like signal handling courtesy of Matt Fleming
+
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.
 
