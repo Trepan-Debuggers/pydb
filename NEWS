@@ -40,7 +40,7 @@
   instance variable, which could be and often is the same as
   sys.stdout, but doesn't need to be. This change may make
   communication used in remote debugging and thread debugging
-  simpler. Many thanks to Matt Flemming for the patch.
+  simpler. Many thanks to Matt Fleming for the patch.
 
 * Debugger options --output and --error no longer modify program's 
   stdout/stderr.
