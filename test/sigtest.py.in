@@ -1,5 +1,6 @@
 #!@PYTHON@ -t
-# $Id: sigtest.py.in,v 1.1 2006/08/12 04:34:34 rockyb Exp $
+# -*- Python -*-
+# $Id: sigtest.py.in,v 1.2 2006/08/22 20:39:23 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
