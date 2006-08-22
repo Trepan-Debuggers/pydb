@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.7 2006/08/12 04:34:34 rockyb Exp $
+"""$Id: sighandler.py,v 1.8 2006/08/22 01:14:35 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #FIXME:
@@ -178,9 +178,7 @@ class SigHandler:
             self.pydb.step_ignore = 1
             self.pydb.interaction(self.pydb.curframe, None)
         if pa:
-            # pass the signal to the program by reinstating the old signal
-            # handler and send the signal to this process again
+            # pass the signal to the program 
             old_handler = self.old_handlers[signum]
-            signal.signal(signum, old_handler)
-            import os
-            os.kill(os.getpid(), signum)
+            if old_handler:
+                old_handler(signum, frame)

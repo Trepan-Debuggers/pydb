@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.20 2006/07/29 09:00:03 rockyb Exp $
+"""$Id: fns.py,v 1.21 2006/08/22 01:14:35 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -235,6 +235,76 @@ def show_onoff(bool):
         return "on"
     else:
         return "off"
+
+def parse_filepos(obj, arg):
+    """parse_filepos(obj, arg)->(fn, filename, lineno)
+    
+    Parse arg as [filename:]lineno | function
+    Make sure it works for C:\foo\bar.py:12
+    """
+    colon = arg.rfind(':') 
+    if colon >= 0:
+        filename = arg[:colon].rstrip()
+        f = obj.lookupmodule(filename)
+        if not f:
+            obj.errmsg("'%s' not found using sys.path" % filename)
+            return (None, None, None)
+        else:
+            filename = f
+            arg = arg[colon+1:].lstrip()
+        try:
+            lineno = int(arg)
+        except TypeError:
+            obj.errmsg("Bad lineno: %s", str(arg))
+            return (None, filename, None)
+        return (None, filename, lineno)
+    else:
+        # no colon: can be lineno or function
+        return get_brkpt_lineno(obj, arg)
+
+def get_brkpt_lineno(obj, arg):
+    """get_brkpt_lineno(obj,arg)->(filename, file, lineno)
+    
+    See if arg is a line number or a function name.  Return what
+    we've found. None can be returned as a value in the triple.
+
+    obj should be some sort of Gdb object and contain a curframe,
+    errmsg and lineinfo method.
+    """
+    funcname, filename = (None, None)
+    try:
+        # First see if the breakpont is an integer
+        lineno = int(arg)
+        filename = obj.curframe.f_code.co_filename
+    except ValueError:
+        try:
+            func = eval(arg, obj.curframe.f_globals,
+                        obj.curframe.f_locals)
+        except:
+            func = arg
+        try:
+            # See if agument is a function name
+            if hasattr(func, 'im_func'):
+                func = func.im_func
+            code = func.func_code
+            # use co_name to identify the bkpt (function names
+            #could be aliased, but co_name is invariant)
+            lineno = code.co_firstlineno
+            filename = code.co_filename
+        except:
+            # The last possibility is that a breakpoint argument can be
+            # is some sort of file + linenumber.
+            (ok, filename, ln) = obj.lineinfo(arg)
+            if not ok:
+                obj.errmsg(('The specified object %s is not'
+                            +' a function, or not found'
+                            +' along sys.path or no line given.')
+                           % str(repr(arg)))
+                return (None, None, None)
+            funcname = ok
+            lineno = int(ln)
+    return (funcname, filename, lineno)
+
 
 if __name__ == '__main__':
     print "show_onoff(True is %s)" % str(show_onoff(True))

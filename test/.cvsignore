@@ -8,5 +8,6 @@ except.py
 history.hst
 pm.py
 settrace.py
+sigtest.py
 test.py
 trace.py

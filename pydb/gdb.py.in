@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.52 2006/08/12 04:34:33 rockyb Exp $
+"""$Id: gdb.py.in,v 1.53 2006/08/22 01:14:35 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -215,44 +215,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             i += 1
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
 
-    def __get_brkpt_lineno(self, arg):
-        """__get_brkpt_lineno(self,arg)->(filename, file, lineno)
-
-        See if arg is a line number or a function name.  Return what
-        we've found. None can be returned as a value in the triple."""
-        funcname, filename = (None, None)
-        try:
-            # First try as an integer
-            lineno = int(arg)
-            filename = self.curframe.f_code.co_filename
-        except ValueError:
-            try:
-                func = eval(arg, self.curframe.f_globals,
-                            self.curframe.f_locals)
-            except:
-                func = arg
-            try:
-                if hasattr(func, 'im_func'):
-                    func = func.im_func
-                code = func.func_code
-                #use co_name to identify the bkpt (function names
-                #could be aliased, but co_name is invariant)
-                funcname = code.co_name
-                lineno = code.co_firstlineno
-                filename = code.co_filename
-            except:
-                # last thing to try
-                (ok, filename, ln) = self.lineinfo(arg)
-                if not ok:
-                    self.errmsg(('The specified object %s is not'
-                                 +' a function, or not found'
-                                 +' along sys.path or no line given.')
-                                % str(repr(arg)))
-                    return (None, None, None)
-                funcname = ok # ok contains a function name
-                lineno = int(ln)
-        return (funcname, filename, lineno)
-
     def __init_info(self):
         """Initialize info subcommands"""
         self.infocmds=subcmd.Subcmd("info", self.help_info.__doc__)
@@ -295,34 +257,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('logging',     self.show_logging,   2)
         self.showcmds.add('prompt',      self.show_prompt)
         self.showcmds.add('version',     self.show_version)
-
-
-    def __parse_filepos(self, arg):
-        """__parse_filepos(self,arg)->(fn, filename, lineno)
-
-        Parse arg as [filename:]lineno | function
-        Make sure it works for C:\foo\bar.py:12
-        """
-        colon = arg.rfind(':')
-        if colon >= 0:
-            filename = arg[:colon].rstrip()
-            f = self.lookupmodule(filename)
-            if not f:
-                self.errmsg("%s not found from sys.path" %
-                            self._saferepr(filename))
-                return (None, None, None)
-            else:
-                filename = f
-                arg = arg[colon+1:].lstrip()
-            try:
-                lineno = int(arg)
-            except ValueError:
-                self.errmsg('Bad lineno: %s', str(arg))
-                return (None, filename, None)
-            return (None, filename, lineno)
-        else:
-            # no colon; can be lineno or function
-            return self.__get_brkpt_lineno(arg)
 
     # To be overridden in derived debuggers
     def defaultFile(self):
@@ -578,7 +512,7 @@ the .py suffix may be omitted."""
                 # parse stuff after comma: "condition"
                 cond = arg[comma+1:].lstrip()
                 arg = arg[:comma].rstrip()
-            (funcname, filename, lineno) = self.__parse_filepos(arg)
+            (funcname, filename, lineno) = parse_filepos(self, arg)
             if lineno is None: return
 
         # FIXME This default setting doesn't match that used in
@@ -649,7 +583,7 @@ the .py suffix may be omitted."""
                     self.errmsg("Invalid line number (%s)" % arg)
                     return
             else:
-                (funcname, filename, lineno) = self.__get_brkpt_lineno(arg)
+                (funcname, filename, lineno) = get_brkpt_lineno(self, arg)
 
             if lineno is None: return
 
@@ -1177,7 +1111,7 @@ the default."""
                 first = max(1, self.lineno - 2*self.listsize - 1)
             else:
                 args = arg.split()
-                (funcname, filename, first) = self.__parse_filepos(args[0])
+                (funcname, filename, first) = parse_filepos(self, args[0])
                 if first == None and funcname == None:
                     # error should have been shown previously
                     return
@@ -1185,7 +1119,7 @@ the default."""
                     first = max(1, first - (self.listsize/2))
                 elif len(args) == 2:
                     (funcname, last_filename, last) = \
-                               self.__parse_filepos(args[1])
+                               parse_filepos(self, args[1])
                     if filename != last_filename \
                        and filename is not None and last_filename is not None:
                         self.errmsg('filename in the range must be the same')

@@ -47,7 +47,7 @@ Breakpoint 2 set in file hanoi.py, line 22.
 + break ./hanoi.py:0
 *** End of file
 + break ./dbg-test1.sh:1955
-*** './dbg-test1.sh' not found from sys.path
+*** './dbg-test1.sh' not found using sys.path
 + info break
 Num Type          Disp Enb    Where
 1   breakpoint    keep y   at hanoi.py:22

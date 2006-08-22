@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.105 2006/07/29 09:00:03 rockyb Exp $
+"""$Id: pydb.py.in,v 1.106 2006/08/22 01:14:35 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -417,6 +417,10 @@ def main():
         # module search path.
         sys.path[0] = pydb.main_dirname = os.path.dirname(mainpyfile)
 
+    # XXX If a signal has been received we continue in the loop, otherwise
+    # the loop exits for some reason.
+    pydb.sig_received = False
+
     while True:
 
         # Run the debugged script over and over again until we get it
@@ -425,6 +429,9 @@ def main():
         try:
             if mainpyfile:
                 pydb._runscript(mainpyfile)
+                if pydb.sig_received: 
+                    pydb.sig_received = False
+                    continue
             else:
                 pydb._wait_for_mainpyfile = True
                 pydb.interaction(None, None)
