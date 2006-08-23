@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.2 2006/08/22 20:39:23 rockyb Exp $
+# $Id: sigtest.py.in,v 1.3 2006/08/23 02:55:37 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -49,13 +49,12 @@ class SigTests(unittest.TestCase):
     def test_pass(self):
         # Run pydb and turn on passing SIGUSR1 signal to the test programs'
         # signal handler.  
-        cmds = 'handle SIGUSR1 nostop;;step;;step'
+        cmds = 'handle SIGUSR1 nostop;;step;;step;;step;;step'
 
         pid = self.create_proc(cmds)
 
         os.kill(pid, signal.SIGUSR1)
         os.waitpid(pid, 0)
-
 
         f = open('log', 'r')
         line = f.readline()
@@ -71,7 +70,7 @@ class SigTests(unittest.TestCase):
     def test_nopass(self):
         # Run pydb and intercept the signal SIGUSR1 instead of passing it
         # to the program.
-        cmds = 'handle SIGUSR1 nopass nostop'
+        cmds = 'handle SIGUSR1 nopass nostop;;step;;step;;step;;step'
     
         pid = self.create_proc(cmds)
 
@@ -82,10 +81,10 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
 
-        self.assertEqual(lines[1], 'Program received signal SIGUSR1\n') 
+        self.assertEqual(lines[-2], 'Program received signal SIGUSR1\n') 
 
     def test_noprint(self):
-        cmds = "handle SIGUSR1 noprint nopass"
+        cmds = "handle SIGUSR1 noprint nopass;;step;;step;;step;;step"
         pid = self.create_proc(cmds)
 
         os.kill(pid, signal.SIGUSR1)

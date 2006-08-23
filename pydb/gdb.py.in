@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.53 2006/08/22 01:14:35 rockyb Exp $
+"""$Id: gdb.py.in,v 1.54 2006/08/23 02:55:36 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -121,16 +121,16 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
     def trace_dispatch(self, frame, event, arg):
         for sig in self._sig_handler._sigs.keys():
-            if self._sig_handler._sigs[sig][0] == True:
-                import signal
-                sig_num = lookup_signum(sig)
-                old_handler = signal.getsignal(sig_num)
-                if old_handler != self._sig_handler.handle:
-                    # save the program's signal handler
-                    self._sig_handler.old_handlers[sig_num] = old_handler
+            import signal
+            sig_num = lookup_signum(sig)
+            old_handler = signal.getsignal(sig_num)
+            if old_handler != self._sig_handler.handle and old_handler != \
+                signal.SIG_IGN and old_handler != signal.SIG_DFL:
+                # save the program's signal handler
+                self._sig_handler.old_handlers[sig_num] = old_handler
                     
-                    # restore _our_ signal handler
-                    signal.signal(sig_num, self._sig_handler.handle)
+                # restore _our_ signal handler
+                signal.signal(sig_num, self._sig_handler.handle)
 
         Bdb.trace_dispatch(self, frame, event, arg)
         return self.trace_dispatch

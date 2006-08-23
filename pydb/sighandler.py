@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.8 2006/08/22 01:14:35 rockyb Exp $
+"""$Id: sighandler.py,v 1.9 2006/08/23 02:55:36 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #FIXME:
@@ -174,9 +174,14 @@ class SigHandler:
         if pr:
             self.pydb.msg('Program received signal %s' % sig)
         if st:
+            self.pydb.sig_received = True
             self.pydb.use_rawinput = False
             self.pydb.step_ignore = 1
-            self.pydb.interaction(self.pydb.curframe, None)
+            try:
+                self.pydb.interaction(self.pydb.curframe, None)
+            except IOError:
+                # Caused by interrupting self.stdin.readline()
+                pass
         if pa:
             # pass the signal to the program 
             old_handler = self.old_handlers[signum]
