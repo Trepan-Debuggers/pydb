@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.27 2006/07/28 09:37:49 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.28 2006/08/25 12:29:51 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -82,7 +82,7 @@ class Cmd(cmd.Cmd):
             else: exc_type_name = t.__name__
             self.errmsg('%s: %s' % (str(exc_type_name), str(v)))
 
-    ### This Comes from cmd.py 
+    ### This comes from cmd.py with self.stdout.write replaced by self.msg
     def do_help(self, arg):
         """Without argument, print the list of available commands.
         With a command name as argument, print help about that command
@@ -96,11 +96,6 @@ class Cmd(cmd.Cmd):
             except AttributeError:
                 try:
                     doc=getattr(self, 'do_' + first_arg).__doc__
-                    if doc:
-                        # We only print the first line, removing any periods
-                        # if they are the last character on the line
-                        doc = doc[:doc.find('\n')]
-                        if doc[-1] == '.': doc = doc[:-1]
                         self.msg("%s\n" % str(doc))
                         return
                 except AttributeError:
