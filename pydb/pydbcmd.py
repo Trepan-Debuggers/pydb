@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.28 2006/08/25 12:29:51 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.29 2006/08/25 12:33:41 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -96,8 +96,8 @@ class Cmd(cmd.Cmd):
             except AttributeError:
                 try:
                     doc=getattr(self, 'do_' + first_arg).__doc__
-                        self.msg("%s\n" % str(doc))
-                        return
+                    self.msg("%s\n" % str(doc))
+                    return
                 except AttributeError:
                     pass
                 self.msg("%s\n" % str(self.nohelp % (first_arg,)))
