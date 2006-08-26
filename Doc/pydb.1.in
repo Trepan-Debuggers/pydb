@@ -165,7 +165,7 @@ Write debugger's output (stdout) to FILE
 Show lines before executing them. This option also sets --batch.
 .PD
 .SH "SEE ALSO"
-@pythondir@/pdb.doc and http://bashdb.sourceforge.net/pydb/
+@pythondir@/pydb.doc and http://bashdb.sourceforge.net/pydb/
 .SH AUTHOR
 pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
 based on the standard Python debugger pdb.py. Over the many years, pdb.py and
