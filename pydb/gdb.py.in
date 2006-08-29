@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.54 2006/08/23 02:55:36 rockyb Exp $
+"""$Id: gdb.py.in,v 1.55 2006/08/29 02:48:32 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1004,14 +1004,16 @@ the default."""
 
     def do_handle(self, arg):
         """Specify how to handle a signal.
-        Args are signals and actions to apply to those signals.
-        Recognized actions include "stop", "nostop", "print", "noprint",
-        "pass", "nopass", "ignore", or "noignore".
-        Stop means reenter debugger if this signal happens (implies print).
-        Print means print a message if this signal happens.
-        Pass means let program see this signal; otherwise program doesn't know.
-        Ignore is a synonym for nopass and noignore is a synonym for pass.
-        Pass and Stop may be combined.
+        
+Args are signals and actions to apply to those signals.
+recognized actions include "stop", "nostop", "print", "noprint",
+"pass", "nopass", "ignore", or "noignore".
+
+- Stop means reenter debugger if this signal happens (implies print).
+- Print means print a message if this signal happens.
+- Pass means let program see this signal; otherwise program doesn't know.
+- Ignore is a synonym for nopass and noignore is a synonym for pass.
+- Pass and Stop may be combined.
         """
         self._sig_handler.action(arg)
 

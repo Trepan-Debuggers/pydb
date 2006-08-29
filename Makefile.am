@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.34 2006/08/12 04:34:33 rockyb Exp $
+#$Id: Makefile.am,v 1.35 2006/08/29 02:48:31 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,8 @@ pkgpython_PYTHON := \
 	$(DEBUGGER)/set.py		\
 	$(DEBUGGER)/show.py		\
 	$(DEBUGGER)/sighandler.py	\
-	$(DEBUGGER)/subcmd.py 
+	$(DEBUGGER)/subcmd.py 		\
+	$(DEBUGGER)/threaddbg.py
 
 pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
 pkgdatadir = $(pkgpythondir)

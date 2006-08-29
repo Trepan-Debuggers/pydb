@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.106 2006/08/22 01:14:35 rockyb Exp $
+"""$Id: pydb.py.in,v 1.107 2006/08/29 02:48:32 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -63,6 +63,13 @@ def process_options(pydb, debugger_name, prog, pkg_version,
     optparser.add_option("--cd", dest="cd",
                          action="store", type='string', metavar='DIR',
                          help="Change current directory to DIR.")
+    optparser.add_option("--error", dest="errors", metavar='FILE',
+                         action="store", type='string',
+                         help="Write debugger's error output "
+                         + "(stderr) to FILE")
+    optparser.add_option("-e", "--exec", dest="execute", type="string",
+                        help="list of debugger commands to " +
+                        "execute. Separate the commands with ;;")
     optparser.add_option("-n", "--nx", dest="noexecute",
                          action="store_true", default=False, 
                          help="Don't execute commands found in any " +
@@ -71,13 +78,9 @@ def process_options(pydb, debugger_name, prog, pkg_version,
                          action="store", type='string',
                          help="Write debugger's output (stdout) "
                          + "to FILE")
-    optparser.add_option("--error", dest="errors", metavar='FILE',
-                         action="store", type='string',
-                         help="Write debugger's error output "
-                         + "(stderr) to FILE")
-    optparser.add_option("-e", "--exec", dest="execute", type="string",
-                        help="list of debugger commands to " +
-                        "execute. Separate the commands with ;;")
+    optparser.add_option("-T", "--threading", dest="threading",
+                         action="store_true", default=False,
+                         help="Start off with threading debug support")
 
     # Set up to stop on the first non-option because that's the name
     # of the script to be debugged on arguments following that are
@@ -87,7 +90,7 @@ def process_options(pydb, debugger_name, prog, pkg_version,
 
     optparser.disable_interspersed_args()
 
-    # execfile() run out of Bdb.py uses sys.argv, so we have to
+    # execfile() runs out of Bdb.py and uses sys.argv, so we have to
     # clobber it and make it what the debugged script expects. Also
     # the debugged script probably wants to look at sys.argv.
     # So we'll change sys.argv to look like the program were invoked
@@ -95,7 +98,14 @@ def process_options(pydb, debugger_name, prog, pkg_version,
 
     # Save the original just for use in restart (via exec)
     pydb._sys_argv = list(sys.argv)   
+
     (opts, sys.argv) = optparser.parse_args()
+
+    if opts.threading:
+        import threaddbg
+        tpdb = threaddbg.threadDbg()
+        tpdb._sys_argv = pydb._sys_argv
+        pydb = tpdb
 
     if opts.linetrace: opts.noninteractive = True
     pydb.linetrace = opts.linetrace
@@ -150,7 +160,7 @@ def process_options(pydb, debugger_name, prog, pkg_version,
                   opts.errors
             print sys.exc_info()[0]
             sys.exit(2)
-    return opts
+    return (opts, pydb)
 
 class Pdb(Gdb):
 
@@ -390,7 +400,8 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     pydb = Pdb()
-    process_options(pydb, _debugger_name, program, '@PACKAGE_VERSION@')
+    (opts, pydb) = process_options(pydb, _debugger_name, program,
+                                   '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
@@ -451,7 +462,7 @@ def main():
             pydb.msg("The program exited via sys.exit(). Exit status: %s" %
                      str(sys.exc_info()[1]))
             pydb.running = False;
-            if pydb.noninteractive: break
+            if pydb.noninteractive or hasattr(pydb,'desired_thread'): break
         except:
             traceback.print_exc()
             if pydb.noninteractive:
