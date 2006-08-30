@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.1 2006/08/29 02:48:32 rockyb Exp $
+# $Id: threaddbg.py,v 1.2 2006/08/30 07:59:26 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -45,6 +45,8 @@ class threadDbg(pydb.Pdb):
         self.end_thread=-1  # Highest short name in use.
         if hasattr(sys, "_current_frames"):
             self.info_thread = self.info_thread_new
+            self.do_thread   = self.new_do_thread
+        #elif -- FIXME check for threadframe
         else:
             self.info_thread = self.info_thread_old
         self.infocmds.add('thread',  self.info_thread,  2, False)
@@ -111,7 +113,7 @@ class threadDbg(pydb.Pdb):
         self.threading_lock.release()
         thread.exit()
 
-    def do_thread(self, arg):
+    def new_do_thread(self, arg):
         """Use this command to switch between threads.
         The new thread ID must be currently known.
 
@@ -123,12 +125,30 @@ class threadDbg(pydb.Pdb):
             return
 
         if arg in self.traced.keys():
-            if arg == threading.currentThread().getName():
+            cur_thread  = threading.currentThread()
+            thread_name = cur_thread.getName()
+            if arg == thread_name:
                 self.msg("We are that thread. No switch done.")
             else:
-                self.msg("switching to %s" % arg)
-                self.desired_thread = arg
-                return True
+                threads = sys._current_frames()
+                t = self.traced[arg]
+                if t in threads.keys():
+                    frame = threads[t]
+                    (filename, line_no, routine) = \
+                               inspect.getframeinfo(frame)[0:3]
+                    (path, basename)=os.path.split(filename)
+                    ### FIXME: make into a routine and merge with
+                    #### other FIXME.
+                    if basename.startswith('threaddbg.py'):
+                        self.msg("switching to %s" % arg)
+                        self.desired_thread = arg
+                        return True
+                    else:
+                        self.msg("Thread must be blocked in the debugger "
+                                 + "to switch to it.")
+                else:
+                    self.msg("Can't find %s in list of active threads" %
+                             arg)
         else:
             self.msg("Don't know about thread %s" % arg)
             self.info_thread(args=arg, short_display=True)
