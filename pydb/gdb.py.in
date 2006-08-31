@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.55 2006/08/29 02:48:32 rockyb Exp $
+"""$Id: gdb.py.in,v 1.56 2006/08/31 02:52:00 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -11,6 +11,7 @@ import atexit, dis, inspect, linecache, os, pprint
 import bdb, re, subcmd, sys, traceback, types
 
 import pydbcmd, pydbbdb
+import signal
 
 from display import Display, DisplayNode
 from fns     import *
@@ -119,9 +120,14 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         except ImportError:
             self.histfile = None
 
+    ### FIXME: trace_dispatch could be a performance bottleneck. If
+    ### so, consider reassigning the reoutine when don't have any
+    ### signals registered.
+            
     def trace_dispatch(self, frame, event, arg):
+        """Check to see if the signal handler's we are interested have
+        changed. If so we'll intercept them. """
         for sig in self._sig_handler._sigs.keys():
-            import signal
             sig_num = lookup_signum(sig)
             old_handler = signal.getsignal(sig_num)
             if old_handler != self._sig_handler.handle and old_handler != \
@@ -1089,6 +1095,14 @@ recognized actions include "stop", "nostop", "print", "noprint",
             except ValueError, e:
                 self.errmsg('%s failed: %s' % (cmdname, e))
 
+    def do_kill(self, arg):
+        """Forceful quit of the debugger using an OS non-maskable kill
+        signal. When all else fails use this."""
+        if get_confirmation(self, 'Really do a hard kill (y or n)? ',
+                            True):
+            os.kill(os.getpid(), signal.SIGKILL)
+        return True # Not reached
+
     def do_list(self, arg):
         """l(ist) [- | first [last or count]]
 
@@ -1211,7 +1225,7 @@ With an integer argument, perform that many times."""
 
     def do_quit(self, arg):
         """q(uit) or exit - Quit the debugger.  The program being
-        executed is aborted. For now, kill is a synonym for quit."""
+        executed is aborted."""
         self._user_requested_quit = True
         self.running              = False
         self.set_quit()
@@ -1219,7 +1233,7 @@ With an integer argument, perform that many times."""
         # Tell cmdloop to break out of its loop.
         return True
 
-    do_kill = do_q = do_quit
+    do_q = do_quit
 
     def do_restart(self, arg):
         """restart - Restart debugger and program via an exec

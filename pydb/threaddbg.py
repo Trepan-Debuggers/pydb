@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.2 2006/08/30 07:59:26 rockyb Exp $
+# $Id: threaddbg.py,v 1.3 2006/08/31 02:52:00 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -6,23 +6,60 @@
 ### - threadframe tolerance
 ### More complicated:
 ### - Setting curframe to threads to get/set variables there?
-### - 
 
 import bdb, gdb, inspect, os, pydb, sys
 from fns import *
 
 import thread, threading
 
+def is_in_threaddbg_dispatch(f):
+    """Returns True if frame f is the threaddbg dispatch routine"""
+    ## We check on the routine name and filename
+    (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
+    (path, basename)=os.path.split(filename)
+    if routine != 'trace_dispatch' or not basename.startswith('threaddbg.py'):
+        return False
+
+    # One last check to see that local variable breadcrumb exists and
+    # has the magic dynamic value. 
+    if 'breadcrumb' in f.f_locals:
+        if is_in_threaddbg_dispatch == f.f_locals['breadcrumb']:
+            return True
+    return False
+
+## FINISH
+def find_nondebug_frame(f):
+    """Find the first frame that isn't a debugger frame.
+    Generally we want traceback information without polluting
+    it with debugger information.
+        """
+    """Returns the most recent frame that doesn't contain a threaddbg
+    frame as its parent. Note this frame is not part of threaddg.
+    If there is no frame (i.e. no thread debugging) then f would
+    be returned."""
+    return_frame=f
+    while f:
+        if is_in_threaddbg_dispatch(f):
+            # Can't use previous return_frame
+            return_frame = f.back
+        f = f.f_back
+    return return_frame
+
 def stack_trace(obj, f):
     """A mini stack trace routine for threads."""
     f = obj.find_nondebug_frame(f)
     while f:
+        is_in_threaddbg_dispatch(f)
         s = obj.format_stack_entry((f, f.f_lineno))
         obj.msg(" "*4 + s)
         f = f.f_back
 
 class threadDbg(pydb.Pdb):
-
+    """A class to extend the Pdb class to add thread debugging.
+    The notable extensions are gdb-like:
+        info thread - what threads are out there
+        thread - switch thread
+    """
     def __init__(self, completekey='tab', stdin=None, stdout=None):
 
         pydb.Pdb.__init__(self, completekey, stdin, stdout)
@@ -53,37 +90,32 @@ class threadDbg(pydb.Pdb):
         self.setcmds.add ('systrace', self.set_systrace)
         self.showcmds.add('systrace', self.show_systrace)
 
-    ## FIXME: the below is broken if we're in cmd.py (from Python)
-    ## or in bdb.py, etc. One way to make reliable is to look for
-    ## a particular local variable with a certain name and value.
-    ## For this we need to start scanning from the the least recent
-    ## to the most recent and stop a the location prior to finding this
-    ## variable.
-      
     def find_nondebug_frame(self, f):
         """Find the first frame that isn't a debugger frame.
         Generally we want traceback information without polluting
         it with debugger information.
         """
-        if self.systrace:
-            return f
+        if self.systrace: return f
 
-        # FIXME: I don't like this way of doing things.
-        # Consider adding local variable (with a given value)
-        # that indicates a debugger routine.
+        return_frame=f
+        while f:
+            if is_in_threaddbg_dispatch(f) :
+                # Can't use previous return_frame
+                return_frame = f.f_back
+            f = f.f_back
+
+        f = return_frame
+        ### FIXME: would like a routine like is_in_threaddb_dispatch
+        ### but works with threading instead. Decorating or subclassing
+        ### threadding might do the trick.
         (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
         (path, basename)=os.path.split(filename)
-        while path.endswith('pydb') or \
-                  basename.startswith('tpdb.py') \
-                  or basename.endswith('threading.py') \
-                  or basename.endswith('threaddbg.py'):
-            if f.f_back is None: break
+        while basename.startswith('threading.py') and f.f_back:
             f = f.f_back
             (filename, line_no, routine) = \
                        inspect.getframeinfo(f)[0:3]
             (path, basename)=os.path.split(filename)
         return f
-
 
     def add_hook(self):
         """Set new threads to be traced. This is it's own routine
@@ -230,6 +262,13 @@ To get the full stack trace for a specific thread pass in the thread name.
         """Called from Python when some event-like stepping or returning
         occurs
         """
+
+        # The below variable will be used to scan down frames to determine
+        # if trace_dispatch has been called. We key on the variable
+        # name, method name, type of variable and even the value.
+
+        # Note this is the first statement of this method.
+        breadcrumb = is_in_threaddbg_dispatch
 
         # There's some locking interaction between this code and
         # threading code which can cause a deadlock.  So avoid the

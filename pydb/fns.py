@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.21 2006/08/22 01:14:35 rockyb Exp $
+"""$Id: fns.py,v 1.22 2006/08/31 02:52:00 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -45,9 +45,11 @@ def find_function(funcname, filename):
     fp.close()
     return answer
 
-def get_confirmation(obj, prompt):
+def get_confirmation(obj, prompt, default=False):
     """Get a yes/no answer to prompt. obj is an object that has
-    a boolean noninteractive attribute and a msg method."""
+    a boolean noninteractive attribute and a msg method. The default
+    value is used for the return if we aren't interactive.
+    """
     while True and not obj.noninteractive:
         try:
             reply = raw_input(prompt)
@@ -60,7 +62,7 @@ def get_confirmation(obj, prompt):
             return False
         else:
             obj.msg("Please answer y or n.")
-    return False
+    return default
                 
 
 def get_exec_string(frame, max=30):
