@@ -5,8 +5,9 @@
 * Add hard kill. May be needed for thread debugging
 
 * Start thread debugging: 
-    info thread [thread-name] [verbose] - show thread info
-    thread *thread-name*                - switches thread
+    info thread [thread-name] [verbose]    - show thread info
+    thread [thread-name [thread-name]...]  - switches thread
+    qt                                     - quit current thread
 
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.

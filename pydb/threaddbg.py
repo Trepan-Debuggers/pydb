@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.3 2006/08/31 02:52:00 rockyb Exp $
+# $Id: threaddbg.py,v 1.4 2006/08/31 11:16:17 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -14,21 +14,24 @@ import thread, threading
 
 def is_in_threaddbg_dispatch(f):
     """Returns True if frame f is the threaddbg dispatch routine"""
-    ## We check on the routine name and filename
+
+    ## First check that the routine name and prefix of the filename's
+    ## basename are what we expect.
+
     (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
     (path, basename)=os.path.split(filename)
+    print routine, filename
     if routine != 'trace_dispatch' or not basename.startswith('threaddbg.py'):
         return False
 
-    # One last check to see that local variable breadcrumb exists and
+    # Next check to see that local variable breadcrumb exists and
     # has the magic dynamic value. 
     if 'breadcrumb' in f.f_locals:
         if is_in_threaddbg_dispatch == f.f_locals['breadcrumb']:
             return True
     return False
 
-## FINISH
-def find_nondebug_frame(f):
+def is_in_threaddbg(f):
     """Find the first frame that isn't a debugger frame.
     Generally we want traceback information without polluting
     it with debugger information.
@@ -41,7 +44,7 @@ def find_nondebug_frame(f):
     while f:
         if is_in_threaddbg_dispatch(f):
             # Can't use previous return_frame
-            return_frame = f.back
+            return_frame = f.f_back
         f = f.f_back
     return return_frame
 
@@ -66,14 +69,18 @@ class threadDbg(pydb.Pdb):
         self.add_hook()
         self.stack = self.curframe = self.botframe = None
 
-        # desired_thread is the thread we want to switch to after issuing
-        # a "thread <thread-name>" command.
+        # desired_thread is a lists of threads allowed to run.
+        # It is part of the mechanism used to switch threads and thus
+        # We set in the "thread" command. It is cleared then in the
+        # dispatcher after getting one of the desired threads. 
+        # If the variable is None than any thread can run.
         self.desired_thread=None
 
         self.systrace = False
         #self.systrace = True
 
         self.nothread_trace_dispatch = bdb.Bdb.trace_dispatch
+        self.nothread_quit = pydb.Pdb.do_quit
 
         # List of threads that we know about and have the possibility
         # of switching to. This is Indexed by thread name and
@@ -97,14 +104,8 @@ class threadDbg(pydb.Pdb):
         """
         if self.systrace: return f
 
-        return_frame=f
-        while f:
-            if is_in_threaddbg_dispatch(f) :
-                # Can't use previous return_frame
-                return_frame = f.f_back
-            f = f.f_back
+        f = is_in_threaddbg(f)
 
-        f = return_frame
         ### FIXME: would like a routine like is_in_threaddb_dispatch
         ### but works with threading instead. Decorating or subclassing
         ### threadding might do the trick.
@@ -137,6 +138,38 @@ class threadDbg(pydb.Pdb):
         self.running=True
         threading.settrace(self.trace_dispatch)
 
+    def do_quit(self, arg):
+        """If all threads are blocked in the debugger, tacitly quit. If some are not, then issue a warning and prompt for quit."""
+        really_quit = True
+        threads = sys._current_frames()
+        for thread_obj in threading.enumerate():
+            thread_name = thread_obj.getName() 
+            if not thread_name in self.traced.keys():
+                self.msg("I don't know about state of %s"
+                         % thread_name)
+                really_quit = False
+                break
+            t = self.traced[thread_name]
+            if t in threads.keys():
+                frame = threads[t]
+                if not is_in_threaddbg(frame):
+                    self.msg("Thread %s is not blocked by the debugger."
+                             % thread_name)
+                    really_quit = False
+                    break
+            else:
+                self.msg("Thread ID for thread %s not found. Weird."
+                         % thread_name)
+                really_quit = False
+                break
+
+        if not really_quit:
+            really_quit = get_confirmation(self,
+                                           'Really quit anyway (y or n)? ',
+                                      True)
+        if really_quit:
+            return self.nothread_quit(self, arg)
+
     def do_qt(self, arg):
         """Quit the current thread."""
         thread_name=threading.currentThread().getName()
@@ -146,45 +179,57 @@ class threadDbg(pydb.Pdb):
         thread.exit()
 
     def new_do_thread(self, arg):
-        """Use this command to switch between threads.
-        The new thread ID must be currently known.
+        """thread [thread-name1 [thread-name2]..]
 
-        If not thread name is given we'll give information about
-        the current thread. (That is this is the same as "info thread".
-        """
-        if not arg:
+Use this command to specifiy a set of threads which you
+want to switch to. The new thread name must be currently known by the
+debugger.
+
+If no thread name is given, we'll give information about
+the current thread. (That is this is the same as "info thread terse"."""
+        args = arg.split()
+        if len(args) == 0:
             self.info_thread(args=arg, short_display=True)
             return
 
-        if arg in self.traced.keys():
-            cur_thread  = threading.currentThread()
-            thread_name = cur_thread.getName()
-            if arg == thread_name:
-                self.msg("We are that thread. No switch done.")
-            else:
+        retval = False
+        for thread_name in args:
+            if thread_name in self.traced.keys():
+                cur_thread  = threading.currentThread()
                 threads = sys._current_frames()
-                t = self.traced[arg]
+                t = self.traced[thread_name]
                 if t in threads.keys():
                     frame = threads[t]
-                    (filename, line_no, routine) = \
-                               inspect.getframeinfo(frame)[0:3]
-                    (path, basename)=os.path.split(filename)
-                    ### FIXME: make into a routine and merge with
-                    #### other FIXME.
-                    if basename.startswith('threaddbg.py'):
-                        self.msg("switching to %s" % arg)
-                        self.desired_thread = arg
-                        return True
+                    if is_in_threaddbg(frame):
+                        if len(args) == 1:
+                            if thread_name == cur_thread.getName():
+                                self.msg("We are thread %s. No switch done."
+                                         % thread_name)
+                                continue
+                            self.msg("Switching to %s" % thread_name)
+                        else:
+                            self.msg(("Adding %s to list of switchable " +
+                                      "threads") % thread_name)
+
+                        if self.desired_thread:
+                            self.desired_thread.append(thread_name)
+                        else:
+                            self.desired_thread = [thread_name]
+                        retval = True
                     else:
-                        self.msg("Thread must be blocked in the debugger "
-                                 + "to switch to it.")
+                        self.msg("Thread %s is not currently blocked in the"
+                                 + "debugger.")
                 else:
                     self.msg("Can't find %s in list of active threads" %
-                             arg)
-        else:
-            self.msg("Don't know about thread %s" % arg)
-            self.info_thread(args=arg, short_display=True)
+                             thread_name)
+            else:
+                self.msg("Don't know about thread %s" % thread_name)
+
+        if not retval:
+            self.msg("Here are the threads I know about:")
+            self.info_thread(args=[thread_name], short_display=True)
             self.msg(str(self.traced))
+        return retval
 
     # For Python before 2.5b1
     def info_thread_old(self, args, short_display=False):
@@ -201,24 +246,36 @@ class threadDbg(pydb.Pdb):
 
     # For Python on or after 2.5b1
     def info_thread_new(self, args, short_display=False):
-        """IDs of currently known threads.
+        """info thread [thread-name] [terse|verbose]
+List all currently-known thread name(s).
 
-If no thread name is given, we list info for all threads. For exach thread
-we give:
+If no thread name is given, we list info for all threads. Unlese a
+terse listing, for each thread we give:
+
   - the class, thread name, and status as <Class(Thread-n, status)>
   - the top-most call-stack information for that thread. Generally
     the top-most calls into the debugger and dispatcher are omitted unless
-    set systrace is True. If 'verbose' appended to the end of the command,
-    then the entire stack trace is given for each frame.
+    set systrace is True.
+
+    If 'verbose' appended to the end of the command, then the entire
+    stack trace is given for each frame.
+    If 'terse' is appended we just list the thread name and thread id.
 
 To get the full stack trace for a specific thread pass in the thread name.
 """
         threads = sys._current_frames()
 
-        all_verbose = len(args) == 2 and args[1].startswith('verbose')
+        all_verbose = False
+        if len(args) == 2:
+            if args[1].startswith('verbose'):
+                all_verbose = True
+            elif args[1].startswith('terse'):
+                short_display = True
+
         if len(args) > 1 and not all_verbose:
             if args[1] not in self.traced.keys():
-                self.msg("Don't know about thread %s" % args[1])
+                if not short_display:
+                    self.msg("Don't know about thread %s" % args[1])
                 self.msg(str(self.traced))
                 return
             thread_name = args[1]
@@ -301,8 +358,8 @@ To get the full stack trace for a specific thread pass in the thread name.
 
         while not self._user_requested_quit: 
             # See if there was a request to switch to a specific thread
-            while self.desired_thread not in (None,
-                                              threading.currentThread().getName()):
+            while self.desired_thread is not None \
+                  and thread_name not in self.desired_thread:
                 self.threading_cond.acquire()
                 self.threading_cond.wait()
                 self.threading_cond.release()
@@ -310,8 +367,8 @@ To get the full stack trace for a specific thread pass in the thread name.
             # One at a time, please.
             self.threading_lock.acquire()
             have_single_entry_lock = True
-            if self.desired_thread in (None,
-                                       threading.currentThread().getName()):
+            if self.desired_thread is None \
+                  or thread_name in self.desired_thread:
                 break
 
             if self._user_requested_quit: break
@@ -371,7 +428,7 @@ To get the full stack trace for a specific thread pass in the thread name.
         self.run(statement, globals=globals_, locals=locals_)
 
     def set_systrace(self, args):
-        """Set whether tracebacks inlcude debugger and threading routines"""
+        """Set whether tracebacks include debugger and threading routines"""
         try:
             self.systrace = self.get_onoff(args[1])
         except ValueError:
