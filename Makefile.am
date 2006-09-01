@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.35 2006/08/29 02:48:31 rockyb Exp $
+#$Id: Makefile.am,v 1.36 2006/09/01 10:55:57 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,9 @@
 #    02110-1301 USA.
 
 SUBDIRS := test emacs
+
+# Install the main debugger script as pydb, not pydb.py
+program_transform_name := s,pydb.py,pydb,
 
 # Basename of debugger, used to form help doc, python script and script
 # installed in an executable directory.
@@ -51,7 +54,7 @@ man1_MANS = Doc/$(DEBUGGER).$(EXT)
 # forces a changed pydb.py to get created whenever pydb.py.in changes.
 noinst_SCRIPTS := $(python_PYTHON)
 
-bin_SCRIPTS := $(DEBUGGER)
+bin_SCRIPTS := $(DEBUGGER)/$(python_debugger_script)
 
 PHONY := $(DEBUGGER) test
 
@@ -68,19 +71,6 @@ clean-generic:
 
 test: check
 check: pydb/pydb.py pydb/gdb.py test/test.py test/pm.py test/sigtest.py
-
-# 
-# For the executable, we make a symbolic link to the python program,
-# and make sure it is executable. Configuration should have put the 
-# proper name to the python interpreter into the beginning.
-#
-install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
-	if ! test -d "$(DESTDIR)$(bindir)"; then \
-	  test -z "$(DESTDIR)$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"; \
-	fi
-	rm -f "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)" || true;
-	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
-	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
