@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.4 2006/08/31 11:16:17 rockyb Exp $
+# $Id: threaddbg.py,v 1.5 2006/09/01 01:31:10 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -20,7 +20,7 @@ def is_in_threaddbg_dispatch(f):
 
     (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
     (path, basename)=os.path.split(filename)
-    print routine, filename
+    ## print routine, filename
     if routine != 'trace_dispatch' or not basename.startswith('threaddbg.py'):
         return False
 
@@ -138,6 +138,31 @@ class threadDbg(pydb.Pdb):
         self.running=True
         threading.settrace(self.trace_dispatch)
 
+    def do_frame(self, arg):
+        """frame [Thread-Name] frame-number
+        Move the current frame to the specified frame number. If a
+        Thread-Name is given move the current frame to that.
+
+        If using gdb dialect up matches the gdb: 0 is the most recent
+        frame.  Otherwise we match Python's stack: 0 is the oldest
+        frame.
+
+        A negative number indicates position from the other end.
+        So 'frame -1' moves when gdb dialect is in effect moves
+        to the oldest frame, and 'frame 0' moves to the newest frame."""
+        args = arg.split()
+        if len(args) > 0 and args[0] in self.traced.keys():
+            t = self.traced[args[0]]
+            threads = sys._current_frames()
+            if t in threads.keys():
+                frame = threads[t]
+                self.stack, self.curindex = self.get_stack(frame, None)
+            if len(args) == 1:
+                arg = '0'
+            else:
+                arg = args[1]
+        pydb.Pdb.do_frame(self, arg)
+
     def do_quit(self, arg):
         """If all threads are blocked in the debugger, tacitly quit. If some are not, then issue a warning and prompt for quit."""
         really_quit = True
@@ -162,13 +187,14 @@ class threadDbg(pydb.Pdb):
                          % thread_name)
                 really_quit = False
                 break
-
+        self.msg("Quit for threading not done yet. Try kill")
+        return
         if not really_quit:
             really_quit = get_confirmation(self,
                                            'Really quit anyway (y or n)? ',
-                                      True)
+                                           True)
         if really_quit:
-            return self.nothread_quit(self, arg)
+            self.nothread_quit(self, arg)
 
     def do_qt(self, arg):
         """Quit the current thread."""
@@ -229,6 +255,10 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.msg("Here are the threads I know about:")
             self.info_thread(args=[thread_name], short_display=True)
             self.msg(str(self.traced))
+        else:
+            self.threading_cond.acquire()
+            self.threading_cond.notify()
+            self.threading_cond.release()
         return retval
 
     # For Python before 2.5b1
@@ -332,23 +362,14 @@ To get the full stack trace for a specific thread pass in the thread name.
         # problem rather than try to cope with it - don't trace
         # into threading.
 
-        # FIXME the below code is not clean or reliable.
-
+        # FIXME: the below code is not clean or reliable.
+        #        Make more like is_in_threaddbg
         (filename, line_no, routine) = inspect.getframeinfo(frame)[0:3]
         (path, basename)=os.path.split(filename)
         if basename.startswith('threading.py'):
             return self.trace_dispatch
 
         thread_name = threading.currentThread().getName()
-
-        # This is not right either. It is a lame attempt to get around
-        # hanging threading.joins()
-
-        if self._user_requested_quit:
-            self.remove_hook()
-            if len(self.traced.keys())==1:
-                thread.exit()
-            return self.trace_dispatch
 
         # Record in my own table a list of thread names
         if not thread_name in self.traced.keys():
@@ -405,6 +426,10 @@ To get the full stack trace for a specific thread pass in the thread name.
                          (threading.currentThread().getName(),
                           thread.get_ident()))
                 self._user_requested_quit = True
+                self.desired_thread = None
+                self.threading_cond.acquire()
+                self.threading_cond.notify()
+                self.threading_cond.release()
                 self.threading_lock.release()
                 thread.exit()
                 return

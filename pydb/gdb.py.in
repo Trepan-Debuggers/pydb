@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.56 2006/08/31 02:52:00 rockyb Exp $
+"""$Id: gdb.py.in,v 1.57 2006/09/01 01:31:10 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -343,7 +343,10 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
     def setup(self, frame, traceback=None):
         """Initialization done before entering the debugger-command
-        loop. We return 1 if we should NOT enter the debugger-command
+        loop. In particular we set up the call stack used for local
+        variable lookup and frame/up/down commands.
+
+        We return True if we should NOT enter the debugger-command
         loop."""
         self.forget()
         if frame:
