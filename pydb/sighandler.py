@@ -1,10 +1,9 @@
-"""$Id: sighandler.py,v 1.9 2006/08/23 02:55:36 rockyb Exp $
+"""$Id: sighandler.py,v 1.10 2006/09/02 02:43:47 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #FIXME:
 #  - sigpass routine is probably not right - save old signal handler as
 #    3rd entry of triplet and None if no old handler?
-#  - remove pychecker errors.
 #  - can remove signal handler altogether when
 #         ignore=True, print=False, pass=True
 #     
@@ -108,16 +107,16 @@ class SigHandler:
 
         # multiple commands might be specified, i.e. 'nopass nostop'
         for attr in args[1:]:
-            if attr.startswith('no'):
+            if 'no'.startswith(attr):
                 on = False
                 attr = attr[2:]
             else:
                 on = True
-            if attr.startswith('stop'):
+            if 'stop'.startswith(attr):
                 self.handle_stop(args[0], on)
-            elif attr.startswith('print'):
+            elif 'print'.startswith(attr) and len(attr) >= 2:
                 self.handle_print(args[0], on)
-            elif attr.startswith('pass'):
+            elif 'pass'.startswith(attr):
                 self.handle_pass(args[0], on)
             else:
                 self.pydb.errmsg('Invalid arguments')

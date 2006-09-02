@@ -1,4 +1,4 @@
-"""$Id: subcmd.py,v 1.4 2006/07/29 08:09:33 rockyb Exp $
+"""$Id: subcmd.py,v 1.5 2006/09/02 02:43:47 rockyb Exp $
 Handles gdb-like subcommand processing.
 """
 
@@ -119,39 +119,39 @@ if __name__=='__main__':
 
 
     gdb=FakeGdb()
-    info=Subcmd('info',
-                """Generic command for showing things about the program being debugged.
+    infocmd=Subcmd('info',
+                   """Generic command for showing things about the program being debugged.
              """)
 
-    info.add('args', gdb.info_args)
-    info.add('break', gdb.info_break)
-    show=Subcmd('show',
-                """Generic command for showing things about the debugger.""")
-    show.add('args', gdb.show_args)
-    show.add('basename', gdb.show_basename,)
-    show.add('cmdtrace', gdb.show_cmdtrace)
+    infocmd.add('args', gdb.info_args)
+    infocmd.add('break', gdb.info_break)
+    showcmd=Subcmd('show',
+                   """Generic command for showing things about the debugger.""")
+    showcmd.add('args', gdb.show_args)
+    showcmd.add('basename', gdb.show_basename,)
+    showcmd.add('cmdtrace', gdb.show_cmdtrace)
 
-    show.help(gdb, '')
+    showcmd.help(gdb, '')
     print "-" * 20
-    show.help(gdb, "args")
+    showcmd.help(gdb, "args")
     print "-" * 20
-    show.do(gdb, "args", "")
+    showcmd.do(gdb, "args", "")
     print "-" * 20
-    info.help(gdb, '')
+    infocmd.help(gdb, '')
     print "-" * 20
-    info.help(gdb, 'basename')
-    set=Subcmd('set',
+    infocmd.help(gdb, 'basename')
+    setcmd=Subcmd('set',
              """This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command.""")
 
-    set.add('args', gdb.set_args)
-    set.add('basename', gdb.set_basename)
+    setcmd.add('args', gdb.set_args)
+    setcmd.add('basename', gdb.set_basename)
     print "-" * 20
-    set.help(gdb, '')
+    setcmd.help(gdb, '')
     print "-" * 20
-    set.help(gdb, 'basename')
+    setcmd.help(gdb, 'basename')
     print "-" * 20
-    set.do(gdb, 'basename', 'off')
+    setcmd.do(gdb, 'basename', 'off')
 
-    print show.list()
+    print showcmd.list()
 
