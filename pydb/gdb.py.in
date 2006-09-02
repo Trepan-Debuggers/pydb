@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.57 2006/09/01 01:31:10 rockyb Exp $
+"""$Id: gdb.py.in,v 1.58 2006/09/02 10:41:19 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1099,12 +1099,20 @@ recognized actions include "stop", "nostop", "print", "noprint",
                 self.errmsg('%s failed: %s' % (cmdname, e))
 
     def do_kill(self, arg):
-        """Forceful quit of the debugger using an OS non-maskable kill
-        signal. When all else fails use this."""
-        if get_confirmation(self, 'Really do a hard kill (y or n)? ',
-                            True):
+        """kill [unconditionally]
+
+Kill execution of program being debugged.
+
+Equivalent of kill -KILL <pid>. This is an unmaskable signal. When all
+else fails, e.g. in thread code, use this.
+
+If 'unconditionally' is given, no questions are asked. Otherwise, if
+we are in interactive mode, we'll prompt to make sure.
+"""
+        if len(arg) > 0 and 'unconditionally'.startswith(arg) or \
+               get_confirmation(self, 'Really do a hard kill (y or n)? ',
+                                True):
             os.kill(os.getpid(), signal.SIGKILL)
-        return True # Not reached
 
     def do_list(self, arg):
         """l(ist) [- | first [last or count]]
@@ -1368,6 +1376,29 @@ assignment to the variable __return__."""
             args = arg.split()
             self.showcmds.do(self, args[0], args)
 
+    def do_signal(self, arg):
+        """signal [signum|signame]
+
+Send a signal to the debugged process.
+"""
+        if arg =='':
+            signum = 0
+        else:
+            try: 
+                signum = int(arg)
+                if lookup_signame(signum) == None:
+                    self.msg("Signal number %d not a known signal number."
+                             % signum)
+                    return
+            except ValueError:
+                signum = lookup_signum(arg)
+                if signum == None:
+                    self.msg("Signal name %s not a known signal name."
+                             % arg)
+                    return
+        os.kill(os.getpid(), signum)
+
+        
     def do_source(self, arg):
         """source FILE
         Read commands from a file named FILE.

@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.6 2006/09/02 01:46:28 rockyb Exp $
+# $Id: threaddbg.py,v 1.7 2006/09/02 10:41:19 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -193,7 +193,7 @@ class threadDbg(pydb.Pdb):
                          % thread_name)
                 really_quit = False
                 break
-        self.msg("Quit for threading not done yet. Try kill")
+        self.msg("Quit for threading not done yet. Try kill.")
         return
         if not really_quit:
             really_quit = get_confirmation(self,

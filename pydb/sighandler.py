@@ -1,9 +1,8 @@
-"""$Id: sighandler.py,v 1.10 2006/09/02 02:43:47 rockyb Exp $
+"""$Id: sighandler.py,v 1.11 2006/09/02 10:41:19 rockyb Exp $
 Handles signal handlers within Pydb.
 """
-#FIXME:
-#  - sigpass routine is probably not right - save old signal handler as
-#    3rd entry of triplet and None if no old handler?
+#TODO:
+#  - Doublecheck handle_pass and other routines.
 #  - can remove signal handler altogether when
 #         ignore=True, print=False, pass=True
 #     
@@ -13,16 +12,21 @@ import signal
 def lookup_signame(num):
     """Find the corresponding signal name for 'num'. Return None
     if 'num' is invalid."""
-    for signame in signal.__dict__.keys():
-        if signal.__dict__[signame] == num:
-            return signame
+    signames = signal.__dict__
+    if num not in signames.values(): return None
+    for signame in signames.keys():
+        if signames[signame] == num: return signame
+    # Something went wrong. Should have returned above
 
 def lookup_signum(name):
     """Find the corresponding signal number for 'name'. Return None
     if 'name' is invalid."""
-    if hasattr(signal, name):
+    if (name.startswith('SIG') and hasattr(signal, name)):
         return getattr(signal, name)
     else:
+        name = "SIG"+name
+        if hasattr(signal, name):
+            return getattr(signal, name)
         return None
 
 fatal_signals = ['SIGKILL', 'SIGSTOP']
