@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.5 2006/08/07 01:45:38 rockyb Exp $
+"""$Id: set.py,v 1.6 2006/09/03 11:41:48 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -46,6 +46,16 @@ Follow this command with any number of args, to be passed to the program."""
             self.cmdtrace = self.get_onoff(args[1])
         except ValueError:
             pass
+
+    def set_debug_signal(self, args):
+        """Set the signal sent to a process to trigger debugging."""
+        try:
+            exec 'from signal import %s' % args[1]
+        except ImportError:
+            self.errmsg('Invalid signal')
+            return
+        self.debug_signal = args[1]
+        self.msg('debug-signal set to: %s' % self.debug_signal)
 
     def set_history(self, args):
         """Generic command for setting command history parameters."""
@@ -144,3 +154,10 @@ set logging redirect [on|off]""")
             self.prompt = mo.group(1)
         else:
             self.errmsg("Something went wrong trying to find the prompt")
+
+    def set_target_address(self, args):
+        """Set the address of a target."""
+        self.target_addr = "".join(["%s " % a for a in args[1:]])
+        self.target_addr = self.target_addr.strip()
+        self.msg('target address set to %s' % self.target_addr)
+

@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.29 2006/08/25 12:33:41 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.30 2006/09/03 11:41:48 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -359,3 +359,83 @@ class Cmd(cmd.Cmd):
     def undefined_cmd(self, cmd, subcmd):
         """Error message when subcommand asked for but doesn't exist"""
         self.errmsg("Undefined %s command \"%s\"." % (cmd, subcmd))
+
+    #### From SoC project. Look over.
+    def _rebind_input(self, new_input):
+        self.stdin = new_input
+
+    def _rebind_output(self, new_output):
+        self.stdout.flush()
+        self.stdout = new_output
+        if not hasattr(self.stdout, 'flush'):
+            self.stdout.flush = lambda: None
+
+    def remote_onecmd(self, line):
+        """ All commands in 'line' are sent across this object's connection
+        instance variable.
+        """
+        if not line:
+            # Execute the previous command
+            line = self.lastcmd
+        # This is the simplest way I could think of to do this without
+        # breaking any of the inherited code from pydb/pdb. If we're a
+        # remote client, always call 'rquit' (remote quit) when connected to
+        # a pdbserver. This executes extra code to allow the client and server
+        # to quit cleanly.
+        if 'quit'.startswith(line):
+            line = 'rquit'
+            self.connection.write(line)
+            # Reset the onecmd method
+            self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+            self.do_rquit(None)
+            return
+        if 'detach'.startswith(line):
+            self.connection.write('rdetach')
+            self.do_detach(None)
+        self.connection.write(line)
+        ret = self.connection.readline()
+        if ret == '':
+            self.errmsg('Connection closed unexpectedly')
+            self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+            self.do_rquit(None)
+        # The output from the command that we've just sent to the server
+        # is returned along with the prompt of that server. So we keep reading
+        # until we find our prompt.
+        i = 1
+        while self.local_prompt not in ret:
+            if i == 100:
+                # We're probably _never_ going to get that data and that
+                # connection is probably dead.
+                self.errmsg('Connection died unexpectedly')
+                self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+                self.do_rquit(None)
+            else:
+                ret += self.connection.readline()
+                i += 1
+
+        # Some 'special' actions must be taken depending on the data returned
+        if 'restart_now' in ret:
+            self.connection.write('ACK:restart_now')
+            self.errmsg('Pdbserver restarting..')
+            # We've acknowledged a restart, which means that a new pdbserver
+            # process is started, so we have to connect all over again.
+            self._disconnect()
+            time.sleep(3.0)
+            if not self.do_target(self.target_addr):
+                # We cannot trust these variables below to be in a
+                # stable state. i.e. if the pdbserver doesn't come back up.
+                self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+                return
+        self.msg_nocr(ret)
+        self.lastcmd = line
+        return
+
+    def _disconnect(self):
+        """ Disconnect a connection. """
+        self.connection.disconnect()
+        self.connection = None
+        self.target = 'local'
+        if hasattr(self, 'local_prompt'):
+            self.prompt = self.local_prompt
+            self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+

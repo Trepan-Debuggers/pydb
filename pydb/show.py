@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.3 2006/07/25 14:15:43 rockyb Exp $
+"""$Id: show.py,v 1.4 2006/09/03 11:41:48 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -28,6 +28,15 @@ Follow this command with any number of args, to be passed to the program."""
     def show_cmdtrace(self, args):
         "Show if we are to show debugger commands before running"
         self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
+
+    def show_debug_signal(self, arg):
+        """Show the signal currently used for triggering debugging
+        of an already running process.
+        """
+        if not self.debug_signal:
+            self.msg('debug-signal not set.')
+            return
+        self.msg('debug-signal is %s' % self.debug_signal)
 
     def show_directories(self, args):
         """Current search path for finding source files.
@@ -69,3 +78,8 @@ $cdir in the path means the compilation directory of the source file."""
                 self.msg("Output will be sent only to the log file.")
             else:
                 self.msg("Output will be logged and displayed.")
+
+    def show_target_address(self, arg):
+        """Show the address of the current target."""
+        self.msg('target-address is %s.' % self.target_addr.__repr__())
+

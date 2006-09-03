@@ -1,4 +1,4 @@
-"""$Id: info.py,v 1.4 2006/07/28 01:36:47 rockyb Exp $
+"""$Id: info.py,v 1.5 2006/09/03 11:41:48 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -119,3 +119,8 @@ The short command name is L."""
             return
         self.msg('Current Python file is %s' %
                  self.filename(self.canonic_filename(self.curframe)))
+
+    def info_target(self, args):
+        """Display information about the current target."""
+        self.msg('target is %s' % self.target)
+

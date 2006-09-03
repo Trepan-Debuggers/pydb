@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.58 2006/09/02 10:41:19 rockyb Exp $
+"""$Id: gdb.py.in,v 1.59 2006/09/03 11:41:48 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -44,14 +44,16 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._sig_handler = SigHandler(self)
         self._reset_handler = None
 
-        self.__init_info()
-        self.__init_set()
-        self.__init_show()
+        self.__init_info()   # Initialize 'info' subcommands
+        self.__init_set()    # Initialize 'set' subcommands
+        self.__init_show()   # Initialize 'show' subcommands
 
         self.basename        = False
+        self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
+        self.lastcmd         = ''     # last debugger command run
         self.linetrace       = False
         self.linetrace_delay = 0
         self.listsize        = 10
@@ -63,13 +65,17 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.mainpyfile      = ''
         self.maxargstrsize   = 30     # max length to show of parameter string
         self.moduletodebug   = ""
-        self.noninteractive  = False
+        self.noninteractive  = False   # Controls whether to prompt on
+                                       # potentially dangerous commands.
         self.originalpath    = sys.path[:]
+        self.orig_stdin      = self.stdin
+        self.orig_stdout     = self.stdout
         self.running         = False
         self.search_path     = '$cdir:$cwd'  # source name search path
-        self.stop_reason     = None   # Why are we in the debugger?
-        self._sys_argv       = []     # exec sys.argv, e.g. may include pydb
+        self.stop_reason     = None    # Why are we in the debugger?
+        self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
+        self.target          = 'local' # local connections by default
 
 
         # associates a command list to breakpoint numbers
@@ -224,45 +230,50 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     def __init_info(self):
         """Initialize info subcommands"""
         self.infocmds=subcmd.Subcmd("info", self.help_info.__doc__)
-        self.infocmds.add('args',         self.info_args)
-        self.infocmds.add('breakpoints',  self.info_breakpoints)
-        self.infocmds.add('display',      self.info_display)
-        self.infocmds.add('handle',       self._sig_handler.info_signal)
-        self.infocmds.add('globals',      self.info_globals, 1, False)
-        self.infocmds.add('line',         self.info_line)
-        self.infocmds.add('locals',       self.info_locals,  1, False)
-        self.infocmds.add('program',      self.info_program)
-        self.infocmds.add('signal',       self._sig_handler.info_signal)
-        self.infocmds.add('source',       self.info_source)
+        self.infocmds.add('args',           self.info_args)
+        self.infocmds.add('breakpoints',    self.info_breakpoints)
+        self.infocmds.add('display',        self.info_display)
+        self.infocmds.add('handle',         self._sig_handler.info_signal)
+        self.infocmds.add('globals',        self.info_globals, 1, False)
+        self.infocmds.add('line',           self.info_line)
+        self.infocmds.add('locals',         self.info_locals,  1, False)
+        self.infocmds.add('program',        self.info_program)
+        self.infocmds.add('signal',         self._sig_handler.info_signal)
+        self.infocmds.add('source',         self.info_source)
+        self.infocmds.add('target',         self.info_target)
 
     def __init_set(self):
         """Initialize set subcommands"""
-        self.setcmds=subcmd.Subcmd("set", self.help_set.__doc__)
-        self.setcmds.add('args',         self.set_args)
-        self.setcmds.add('basename',     self.set_basename)
-        self.setcmds.add('cmdtrace',     self.set_cmdtrace)
-        self.setcmds.add('history',      self.set_history)
-        self.setcmds.add('interactive',  self.set_interactive)
-        self.setcmds.add('linetrace',    self.set_linetrace, 3)
-        self.setcmds.add('listsize',     self.set_listsize,  3)
-        self.setcmds.add('logging',      self.set_logging,   2)
-        self.setcmds.add('prompt',       self.set_prompt)
+        self.setcmds=subcmd.Subcmd("set",   self.help_set.__doc__)
+        self.setcmds.add('args',            self.set_args)
+        self.setcmds.add('basename',        self.set_basename)
+        self.setcmds.add('cmdtrace',        self.set_cmdtrace)
+        self.setcmds.add('debug-signal',    self.set_debug_signal)
+        self.setcmds.add('history',         self.set_history)
+        self.setcmds.add('interactive',     self.set_interactive)
+        self.setcmds.add('linetrace',       self.set_linetrace, 3)
+        self.setcmds.add('listsize',        self.set_listsize,  3)
+        self.setcmds.add('logging',         self.set_logging,   2)
+        self.setcmds.add('prompt',          self.set_prompt)
+        self.setcmds.add('target-address',  self.set_target_address)
 
     def __init_show(self):
         """Initialize show subcommands"""
         self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
-        self.showcmds.add('args',        self.show_args)
-        self.showcmds.add('basename',    self.show_basename)
-        self.showcmds.add('cmdtrace',    self.show_cmdtrace,    2)
-        self.showcmds.add('commands',    self.show_commands,    2, False)
-        self.showcmds.add('directories', self.show_directories, 1)
-        self.showcmds.add('history',     self.show_history)
-        self.showcmds.add('interactive', self.show_interactive)
-        self.showcmds.add('linetrace',   self.show_linetrace, 3)
-        self.showcmds.add('listsize',    self.show_listsize,  3)
-        self.showcmds.add('logging',     self.show_logging,   2)
-        self.showcmds.add('prompt',      self.show_prompt)
-        self.showcmds.add('version',     self.show_version)
+        self.showcmds.add('args',           self.show_args)
+        self.showcmds.add('basename',       self.show_basename)
+        self.showcmds.add('debug-signal',   self.show_debug_signal)
+        self.showcmds.add('cmdtrace',       self.show_cmdtrace,    2)
+        self.showcmds.add('commands',       self.show_commands,    2, False)
+        self.showcmds.add('directories',    self.show_directories, 1)
+        self.showcmds.add('history',        self.show_history)
+        self.showcmds.add('interactive',    self.show_interactive)
+        self.showcmds.add('linetrace',      self.show_linetrace, 3)
+        self.showcmds.add('listsize',       self.show_listsize,  3)
+        self.showcmds.add('logging',        self.show_logging,   2)
+        self.showcmds.add('prompt',         self.show_prompt)
+        self.showcmds.add('target-address', self.show_target_address)
+        self.showcmds.add('version',        self.show_version)
 
     # To be overridden in derived debuggers
     def defaultFile(self):
@@ -487,6 +498,37 @@ alias ps pi self
             self.msg("%s = %s" % (args[0], self.aliases[args[0]]))
         else:
             self.aliases[args[0]] = ' '.join(args[1:])
+
+    def do_attach(self, addr):
+
+        """attach pid
+
+Attach to a process outside of Pdb.  Give the process ID you want to
+attach to. The process setup for that PID should have been done via
+pdbserver."""
+
+        if not self.target_addr:
+            self.errmsg('No target address is set')
+            return
+        try:
+            pid = int(addr)
+        except ValueError:
+            # no PID
+            self.errmsg('You must specify a process ID to attach to.')
+            return
+        if not self.debug_signal:
+            from signal import SIGUSR1
+            self.debug_signal = SIGUSR1
+        try:
+            os.kill(pid, self.debug_signal)
+        except OSError, err:
+            self.errmsg(err)
+            return
+
+        # XXX this still needs removing
+        time.sleep(1.0)
+        
+        self.do_target(self.target_addr)
 
     def do_break(self, arg, temporary = 0):
         """b(reak) {[file:]lineno | function} [, condition]
@@ -1222,6 +1264,76 @@ With an integer argument, perform that many times."""
         except:
             pass
 
+    def do_pdbserver(self, args):
+        """pdbserver protocol protocol-opts 
+
+Allow a debugger to connect to this session.  The first argument is
+the type or protocol that is used for this connection.
+
+A protocal can be either 'tcp', 'serial' or a Python class that is
+currently importable via the normal lookup mechanisms.
+
+The next and last argument is a protocol-specific parameter. For TCP
+give a hostname and portnumber separated by a colon,
+e.g. localhost:8000
+
+For a serial device give the line name e.g. /dev/ttyS1.
+
+Examples:
+    pdbserver tcp localhost:8080
+    pdbserver serial /dev/ttyS1
+    pdbserver fifo.ConnectionClass /tmp/pdb.fifo
+"""
+        try:
+            target, comm_opts = args.split(' ')
+        except ValueError:
+            self.errmsg('Invalid arguments')
+            return
+        if 'remote' in self.target:
+            self.errmsg('Already connected remotely')
+            return
+        if target == 'tcp':
+            try:
+                from connection import (ConnectionServerTCP, ConnectionFailed)
+                self.connection = ConnectionServerTCP()
+            except ImportError:
+                self.errmsg('Could not load ConnectionServerTCP class')
+                return
+        elif target == 'serial':
+            try:
+                from connection import (ConnectionSerial, ConnectionFailed)
+                self.connection = ConnectionSerial()
+            except ImportError:
+                self.errmsg('Could not load ConnectionSerial class')
+                return
+        else:
+            if '.' in target:
+                base = target[:target.rfind('.')]
+                target = target[target.rfind('.')+1:]
+                try:
+                    exec 'from ' + base + ' import (' + target + \
+                     ', ConnectionFailed)'
+                except ImportError:
+                    self.errmsg('Unknown protocol')
+                    return
+            else:
+                try:
+                    __import__(target)
+                except ImportError:
+                    self.errmsg('Unknown protocol')
+                    return
+            self.connection = eval(target+'()')
+        try:
+            self.msg('Listening on: %s' % comm_opts)
+            self.connection.connect(comm_opts)
+        except ConnectionFailed, err:
+            self.errmsg("Failed to connect to %s: (%s)" % (comm_opts, err))
+            return
+        self.pdbserver_addr = comm_opts
+        self.target = 'remote-pdbserver'
+        self._rebind_input(self.connection)
+        self._rebind_output(self.connection)
+        
     def do_pp(self, arg):
         """pp expression
         Pretty-print the value of the expression."""
@@ -1246,16 +1358,38 @@ With an integer argument, perform that many times."""
 
     do_q = do_quit
 
+    def do_rdetach(self, arg):
+        """ The rdetach command is performed on the pdbserver, it cleans
+        things up when the client has detached from this process.
+        Control returns to the file being debugged and execution of that
+        file continues.
+        """
+        if self.target == 'local':
+            self.msg("This command is applicable only on remote connections.")
+            return
+        self._rebind_input(self.orig_stdin)
+        self._rebind_output(self.orig_stdout)
+
+        self.cmdqueue.append('continue')  # Continue execution
+
     def do_restart(self, arg):
         """restart - Restart debugger and program via an exec
         call. All state is lost, and new copy of the debugger is used."""
 
-        if self._sys_argv[0]:
-            self.msg("Re exec'ing\n\t%s" % self._sys_argv)
-            os.execvp(self._sys_argv[0], self._sys_argv)
+        # We don't proceed with the restart until the action has been
+        # ACK'd by any connected clients
+        if self.connection != None:
+            self.msg('restarting (connection)')
+            line = ""
+            while not 'ACK:restart_now' in line:
+                line = self.connection.readline()
+            self.do_rquit(None)
         else:
-            self.msg("No exectuable file specified.")
-
+            if self._sys_argv[0]:
+                self.msg("Re exec'ing\n\t%s" % self._sys_argv)
+                os.execvp(self._sys_argv[0], self._sys_argv)
+            else:
+                self.msg("No exectuable file specified.")
 
     def do_return(self, arg):
         """Make selected stack frame return to its caller. Control
@@ -1430,6 +1564,91 @@ With an integer argument, step that many times."""
         return True
 
     do_s = do_step
+
+    def do_target(self, args):
+        """ Connect to a target machine or process.
+The first argument is the type or protocol of the target machine
+(which can be the name of a class that is available either in the current
+working directory or in Python's PYTHONPATH environment variable).
+Remaining arguments are interpreted by the target protocol.  For more
+information on the arguments for a particular protocol, type
+`help target ' followed by the protocol name.
+
+List of target subcommands:
+
+target serial device-name -- Use a remote computer via a serial line
+target tcp hostname:port -- Use a remote computer via a socket connection
+"""
+        if not args:
+            args = self.target_addr
+        try:
+            target, addr = args.split(' ')
+        except ValueError:
+            self.errmsg('Invalid arguments')
+            return False
+        # If addr is ':PORT' fill in 'localhost' as the hostname
+        if addr[0] == ':':
+            addr = 'localhost'+addr[:]
+        if 'remote' in self.target:
+            self.errmsg('Already connected to a remote machine.')
+            return False
+        if target == 'tcp':
+            # TODO: need to save state of current debug session
+            if self.connection: self.connection.disconnect()
+            try:
+                from connection import (ConnectionClientTCP, ConnectionFailed)
+                self.connection = ConnectionClientTCP()
+                    
+            except ImportError:
+                self.errmsg('Could not import ConnectionClientTCP')
+                return False
+        elif target == 'serial':
+            if self.connection: self.connection.disconnect()
+            try:
+                from mconnection import (ConnectionSerial,
+                                         ConnectionFailed)
+                self.connection = ConnectionSerial()
+            except ImportError:
+                self.errmsg('Could not import ConnectionSerial')
+                return False
+        elif target == 'fifo':
+            if self.connection: self.connection.disconnect()
+            try:
+                from mconnection import (ConnectionClientFIFO,
+                                         ConnectionFailed)
+                self.connection = ConnectionClientFIFO()
+            except ImportError:
+                self.errmsg('Could not import ConnectionClientFIFO')
+                return False
+        else:
+            cls = target[target.rfind('.')+1:]
+            path = target[:target.rfind('.')]
+            exec 'from ' + path + ' import ' + cls + ', ConnectionFailed'
+            self.connection = eval(cls+'()')
+        try:
+            self.connection.connect(addr)
+        except ConnectionFailed, err:
+            self.errmsg("Failed to connect to %s: (%s)" % (addr, err))
+            return False
+        # This interpreter no longer interprets commands but sends
+        # them straight across this object's connection to a server.
+        # XXX: In the remote_onecmd method we use the local_prompt string
+        # to find where the end of the message from the server is. We
+        # really need a way to get the prompt from the server for checking
+        # in remote_onecmd, because it may be different to this client's.
+        self.local_prompt = self.prompt
+        self.prompt = ""
+        self.target_addr = target + " " + addr
+        line = self.connection.readline()
+        if line == '':
+            self.errmsg('Connection closed unexpectedly')
+            self.do_quit(None)
+        while '(MPdb)' not in line:
+            line = self.connection.readline()
+        self.msg_nocr(line)
+        self.onecmd = self.remote_onecmd
+        self.target = 'remote-client'
+        return True
 
     def do_tbreak(self, arg):
         """tbreak  [ ([filename:]lineno | function) [, condition] ]

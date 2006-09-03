@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.107 2006/08/29 02:48:32 rockyb Exp $
+"""$Id: pydb.py.in,v 1.108 2006/09/03 11:41:48 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -24,13 +24,15 @@ __all__ = ["Pdb",     "exception_hook", "help",
            "runcall", "runeval",
            "set_trace"]
 
+old_handler = None
+
 def init():
     global program
     global _re_linetrace_delay
 
     program = os.path.basename(sys.argv[0])
 
-def process_options(pydb, debugger_name, prog, pkg_version,
+def process_options(p, debugger_name, prog, pkg_version,
                     option_list=None):
     """Handle debugger options. Use option_list if you want are writing
     another main program and want to extend the existing set of debugger
@@ -68,16 +70,25 @@ def process_options(pydb, debugger_name, prog, pkg_version,
                          help="Write debugger's error output "
                          + "(stderr) to FILE")
     optparser.add_option("-e", "--exec", dest="execute", type="string",
-                        help="list of debugger commands to " +
-                        "execute. Separate the commands with ;;")
+                         help="list of debugger commands to " +
+                         "execute. Separate the commands with ;;")
     optparser.add_option("-n", "--nx", dest="noexecute",
                          action="store_true", default=False, 
                          help="Don't execute commands found in any " +
                          "initialization files")
+    optparser.add_option("--pdbserver", dest="pdbserver",
+                         help="Start the debugger and execute the pdbserver " \
+                         + "command. The arguments should be of the form," \
+                         + " 'protocol address scriptname'."),
     optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
                          help="Write debugger's output (stdout) "
                          + "to FILE")
+    optparser.add_option("--pid", dest="pid",
+                         help="Attach to running process PID.")
+    optparser.add_option("-t", "--target", dest="target",
+                         help="Specify a target to connect to. Arguments" \
+                         + " should be of form, 'protocol address'."),
     optparser.add_option("-T", "--threading", dest="threading",
                          action="store_true", default=False,
                          help="Start off with threading debug support")
@@ -97,44 +108,53 @@ def process_options(pydb, debugger_name, prog, pkg_version,
     # directly
 
     # Save the original just for use in restart (via exec)
-    pydb._sys_argv = list(sys.argv)   
+    p._sys_argv = list(sys.argv)   
 
     (opts, sys.argv) = optparser.parse_args()
 
-    if opts.threading:
+    if opts.target:
+        target(opts.target, opts, p)
+        sys.exit()
+    elif opts.pdbserver:
+        pdbserver(opts.pdbserver, p)
+        sys.exit()
+    elif opts.threading:
         import threaddbg
         tpdb = threaddbg.threadDbg()
-        tpdb._sys_argv = pydb._sys_argv
-        pydb = tpdb
+        tpdb._sys_argv = p._sys_argv
+        p = tpdb
+    elif opts.pid:
+        target(opts.pid, opts, p)
+        sys.exit()
 
     if opts.linetrace: opts.noninteractive = True
-    pydb.linetrace = opts.linetrace
-    pydb.noninteractive = opts.noninteractive
+    p.linetrace = opts.linetrace
+    p.noninteractive = opts.noninteractive
 
     # --nx or -n
     if not opts.noexecute:
         # Read $HOME/.pydbrc and ./.pydbrc
         if 'HOME' in os.environ:
             envHome = os.environ['HOME']
-            pydb.setup_source("%s.%src" % (envHome, debugger_name))
-        pydb.setup_source(".%src" % debugger_name);
+            p.setup_source("%s.%src" % (envHome, debugger_name))
+        p.setup_source(".%src" % debugger_name);
 
     if opts.cd:
         os.chdir(opts.cd)
 
-    if opts.basename: pydb.basename = True
+    if opts.basename: p.basename = True
 
     # As per gdb, first we execute user initialization files and then
     # we execute any file specified via --command.
     if opts.command:
-        pydb.setup_source(os.path.expanduser(opts.command), True);
+        p.setup_source(os.path.expanduser(opts.command), True);
 
     if opts.execute:
-        pydb.cmdqueue = list(opts.execute.split(';;'))
+        p.cmdqueue = list(opts.execute.split(';;'))
 
     if opts.output:
         try: 
-            pydb.stdout = open(opts.output, 'w')
+            p.stdout = open(opts.output, 'w')
 
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.output
@@ -149,7 +169,7 @@ def process_options(pydb, debugger_name, prog, pkg_version,
 
     if opts.errors:
         try: 
-            pydb.stderr = open(opts.errors, 'w')
+            p.stderr = open(opts.errors, 'w')
         except IOError, (errno, strerror):
             print "I/O in opening debugger output file %s" % opts.errors
             print "error(%s): %s" % (errno, strerror)
@@ -160,7 +180,7 @@ def process_options(pydb, debugger_name, prog, pkg_version,
                   opts.errors
             print sys.exc_info()[0]
             sys.exit(2)
-    return (opts, pydb)
+    return (opts, p)
 
 class Pdb(Gdb):
 
@@ -172,9 +192,155 @@ class Pdb(Gdb):
     def __init__(self, completekey='tab', stdin=None, stdout=None):
         Gdb.__init__(self, completekey, stdin, stdout)
 
+# -- end class Pdb
+
 #########################################################
-# Alternative top-level calls
+# Other top-level routines
 #########################################################
+
+def exception_hook(type, value, tb, opts=None, cmdfile=None):
+    """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.
+
+    cmdfile is an optional debugger command file you want to run
+    "source" on.
+
+    Opts is an optional dictionary of debugger variables you want set;
+    the key is the variable name and the value is the value to give
+    the variable in the @PACKAGE_NAME@ instance.
+
+    To use add this to your Python program
+       import sys
+       sys.excepthook = @PACKAGE_NAME@.exception_hook
+    """
+    traceback.print_exception(type, value, tb)
+    post_mortem(tb, opts, cmdfile, 0)
+
+
+# print help
+def help():
+    doc_file='%s.doc' % _debugger_name
+    for dirname in sys.path:
+        fullname = os.path.join(dirname, _debugger_name, doc_file)
+        if os.path.exists(fullname):
+            sts = os.system('${PAGER-more} '+fullname)
+            if sts: print 'Pager exit status: %s' % str(sts)
+            break
+    else:
+        print ("Sorry, can't find the help file '%s' along the "
+                  + "Python search path") % doc_file
+
+def pdbserver(addr, p):
+    """Set up to allow a program to be debugged from outside of the
+    processes. To take control a debugger front end connects to
+    'addr', which a protocol-specific address, i.e.  tcp = 'tcp
+    mydomainname.com:9876' serial = 'serial /dev/ttyC0'.
+
+    The name is reminiscent of gdbserver.
+    """
+    p.do_pdbserver(addr)
+    while True:
+        try:
+            p._runscript(p.mainpyfile)
+            if p._user_requested_quit: break
+        except Restart:
+            sys.argv = list(p._program_sys_argv)
+            p.msg('Restarting')
+
+# Post-Mortem interface
+
+def pm(dbg_cmds=None, frameno=1):
+
+    """Set up post-mortem debugging using the last traceback.  But if
+    there is no traceback, we'll assume that sys.exec_info() contains
+    what we want and frameno is the index location of where we want
+    to start.
+
+    dbg_cmds is an optional list of debugger commands you want to run.
+    """
+
+    # frameno+1 because we are about to add one more level of call
+    # in get_last_tb_or_frame_tb
+    tb = get_last_tb_or_frame_tb(frameno+1)
+    post_mortem(tb, dbg_cmds)
+
+def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
+    """Enter debugger read loop after your program has crashed.
+
+    If no traceback parameter, t, is supplied, the last traceback and
+    if that doesn't exist either we'll assume that sys.exec_info()
+    contains what we want and frameno is the index location of where
+    we want to start.
+
+    dbg_cmds is a list of debugger commands you want to run.
+
+    cmdfile is an optional debugger command file you want to run
+    "source" on.
+
+    frameno specifies how many frames to ignore in the traceback.  The
+    default is 1 - we don't need the call to post_mortem. If you have
+    wrapper functions that call this one, you may want to increase
+    frameno.
+    """
+
+    p = Pdb()
+    p.reset()
+    p.running = False
+    re_bogus_file = re.compile("^<.+>$")
+
+    if t is None:
+        # frameno+1 because we are about to add one more level of call
+        # in get_last_tb_or_frame_tb
+        t = get_last_tb_or_frame_tb(frameno+1)
+
+    # t has least-recent traceback entry first. We want the most-recent
+    # entry. Also we'll pick out a mainpyfile name if it hasn't previously
+    # been set.
+    while t.tb_next is not None:
+        filename = t.tb_frame.f_code.co_filename
+        if 0 == len(p.mainpyfile) and not re_bogus_file.match(filename):
+            p.mainpyfile = filename
+        t = t.tb_next
+    p.curframe = t.tb_frame
+
+    if dbg_cmds != None:
+        p.cmdqueue = list(dbg_cmds)
+
+    if 0 == len(p._program_sys_argv):
+        # Fake program (run command) args since we weren't called with any
+        p._program_sys_argv = list(sys.argv[1:])
+        p._program_sys_argv[:0] = [p.mainpyfile]
+
+    if 0 == len(p._sys_argv):
+        # Fake script invocation (restart) args since we don don't have any
+        p._sys_argv = list(p._program_sys_argv)
+        p._sys_argv[:0] = [_debugger_name]
+
+    if cmdfile is not None:
+        p.do_source(cmdfile)
+
+    try:
+
+        # FIXME: This can be called from except hook in which case we
+        # need this. Dunno why though.
+        try:
+            _pydb_trace.set_trace(t.tb_frame)
+        except:
+            pass
+
+        p.interaction(t.tb_frame, t)
+    except Restart:
+        while True:
+            sys.argv = list(p._program_sys_argv)
+            p.msg("Restarting %s with arguments:\n\t%s"
+                  % (p.filename(p.mainpyfile),
+                     " ".join(p._program_sys_argv[1:])))
+            try:
+                p._runscript(p.mainpyfile)
+                if p._user_requested_quit:
+                    break
+                if p.noninteractive: break
+            except Restart:
+                pass
 
 def run(statement, globals=None, locals=None):
 
@@ -265,132 +431,56 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
         # older versions
         _pydb_trace.set_trace()
 
-# Post-Mortem interface
-
-def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
-    """Enter debugger read loop after your program has crashed.
-
-    If no traceback parameter, t, is supplied, the last traceback and
-    if that doesn't exist either we'll assume that sys.exec_info()
-    contains what we want and frameno is the index location of where
-    we want to start.
-
-    dbg_cmds is a list of debugger commands you want to run.
-
-    cmdfile is an optional debugger command file you want to run
-    "source" on.
-
-    frameno specifies how many frames to ignore in the traceback.  The
-    default is 1 - we don't need the call to post_mortem. If you have
-    wrapper functions that call this one, you may want to increase
-    frameno.
+def signal_handler(signum, frame):
+    """ This signal handler replaces the programs signal handler
+    for the 'signum' signal (by default SIGUSR1). When a program
+    receives this signal, it creates a pdbserver.
+    Debugger clients can then attach to this pdbserver via it's pid.
     """
-
-    p = Pdb()
+    p = Pydb()
+    p._sys_argv = list(sys.argv)
     p.reset()
-    p.running = False
-    re_bogus_file = re.compile("^<.+>$")
+    p.running = True
+    p.currentframe = frame
 
-    if t is None:
-        # frameno+1 because we are about to add one more level of call
-        # in get_last_tb_or_frame_tb
-        t = get_last_tb_or_frame_tb(frameno+1)
+    # Clear up namespace
+    del frame.f_globals['pydb']
 
-    # t has least-recent traceback entry first. We want the most-recent
-    # entry. Also we'll pick out a mainpyfile name if it hasn't previously
-    # been set.
-    while t.tb_next is not None:
-        filename = t.tb_frame.f_code.co_filename
-        if 0 == len(p.mainpyfile) and not re_bogus_file.match(filename):
-            p.mainpyfile = filename
-        t = t.tb_next
-    p.curframe = t.tb_frame
+    p.do_pdbserver(pdbserver_addr)
+    p.set_trace(frame)
 
-    if dbg_cmds != None:
-        p.cmdqueue = list(dbg_cmds)
+    import signal
+    global oldhandler
+    if oldhandler is not None:
+        # Pass along the signal
+        signal.signal(signum, old_handler)
 
-    if 0 == len(p._program_sys_argv):
-        # Fake program (run command) args since we weren't called with any
-        p._program_sys_argv = list(sys.argv[1:])
-        p._program_sys_argv[:0] = [p.mainpyfile]
+# The value of 'opts' dictates whether we call do_target or do_attach, there
+# were two separate top-level routines for these options, but apart from
+# choosing which do_* to call, the code was the same so it made sense to merge.
+def target(addr, opts, p):
+    """ Connect this debugger to a pdbserver at 'addr'. 'addr' is
+    a protocol-specific address. i.e.
+    tcp = 'tcp mydomainname.com:9876'
+    serial = 'serial /dev/ttyC0'
 
-    if 0 == len(p._sys_argv):
-        # Fake script invocation (restart) args since we don don't have any
-        p._sys_argv = list(p._program_sys_argv)
-        p._sys_argv[:0] = [_debugger_name]
-
-    if cmdfile is not None:
-        p.do_source(cmdfile)
-
-    try:
-
-        # FIXME: This can be called from except hook in which case we
-        # need this. Dunno why though.
+    'opts' an the OptionParser object. If opts.target is True, call do_target.
+    If opts.pid is true, call do_attach.
+    """
+    p.reset()
+    if opts.target:
+        p.do_target(addr)
+    elif opts.pid:
+        pid = addr[:addr.find(' ')]
+        addr = addr[addr.find(' ')+1:]
+        p.do_set('target ' + addr)
+        p.do_attach(pid)
+    while True:
         try:
-            _pydb_trace.set_trace(t.tb_frame)
+            p.cmdloop()
+            if p._user_requested_quit: break
         except:
-            pass
-
-        p.interaction(t.tb_frame, t)
-    except Restart:
-        while True:
-            sys.argv = list(p._program_sys_argv)
-            p.msg("Restarting %s with arguments:\n\t%s"
-                  % (p.filename(p.mainpyfile),
-                     " ".join(p._program_sys_argv[1:])))
-            try:
-                p._runscript(p.mainpyfile)
-                if p._user_requested_quit:
-                    break
-                if p.noninteractive: break
-            except Restart:
-                pass
-
-def pm(debg_cmds=None, frameno=1):
-
-    """Set up post-mortem debugging using the last traceback.  But if
-    there is no traceback, we'll assume that sys.exec_info() contains
-    what we want and frameno is the index location of where we want
-    to start.
-
-    dbg_cmds is an optional list of debugger commands you want to run.
-    """
-
-    # frameno+1 because we are about to add one more level of call
-    # in get_last_tb_or_frame_tb
-    tb = get_last_tb_or_frame_tb(frameno+1)
-    post_mortem(tb, dbg_cmds)
-
-def exception_hook(type, value, tb, opts=None, cmdfile=None):
-    """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.
-
-    cmdfile is an optional debugger command file you want to run
-    "source" on.
-
-    Opts is an optional dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the @PACKAGE_NAME@ instance.
-
-    To use add this to your Python program
-       import sys
-       sys.excepthook = @PACKAGE_NAME@.exception_hook
-    """
-    traceback.print_exception(type, value, tb)
-    post_mortem(tb, opts, cmdfile, 0)
-
-
-# print help
-def help():
-    doc_file='%s.doc' % _debugger_name
-    for dirname in sys.path:
-        fullname = os.path.join(dirname, _debugger_name, doc_file)
-        if os.path.exists(fullname):
-            sts = os.system('${PAGER-more} '+fullname)
-            if sts: print 'Pager exit status: %s' % str(sts)
             break
-    else:
-        print ("Sorry, can't find the help file '%s' along the "
-                  + "Python search path") % doc_file
 
 #########################################################
 # Main program
@@ -399,9 +489,9 @@ def help():
 def main():
     """Routine which gets run if we were invoked directly"""
 
-    pydb = Pdb()
-    (opts, pydb) = process_options(pydb, _debugger_name, program,
-                                   '@PACKAGE_VERSION@')
+    p = Pdb()
+    (opts, p) = process_options(p, _debugger_name, program,
+                                '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
@@ -416,9 +506,9 @@ def main():
         # Save the DEBUGGED programs arguments. This is in case
         # the debugged script munges these, we have a good copy to use
         # for restart
-        pydb._program_sys_argv = list(sys.argv)
+        p._program_sys_argv = list(sys.argv)
 
-        mainpyfile = pydb._program_sys_argv[0] # Get script filename.
+        mainpyfile = p._program_sys_argv[0] # Get script filename.
         if not os.path.exists(mainpyfile):
             print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
                   % mainpyfile
@@ -426,11 +516,11 @@ def main():
 
         # Replace @PACKAGE_NAME@'s dir with script's dir in front of
         # module search path.
-        sys.path[0] = pydb.main_dirname = os.path.dirname(mainpyfile)
+        sys.path[0] = p.main_dirname = os.path.dirname(mainpyfile)
 
     # XXX If a signal has been received we continue in the loop, otherwise
     # the loop exits for some reason.
-    pydb.sig_received = False
+    p.sig_received = False
 
     while True:
 
@@ -439,52 +529,52 @@ def main():
 
         try:
             if mainpyfile:
-                pydb._runscript(mainpyfile)
-                if pydb.sig_received: 
-                    pydb.sig_received = False
+                p._runscript(mainpyfile)
+                if p.sig_received: 
+                    p.sig_received = False
                     continue
             else:
-                pydb._wait_for_mainpyfile = True
-                pydb.interaction(None, None)
+                p._wait_for_mainpyfile = True
+                p.interaction(None, None)
 
-            if pydb._user_requested_quit: break
-            if pydb.noninteractive: break
-            pydb.msg("The program finished and will be restarted")
+            if p._user_requested_quit: break
+            if p.noninteractive: break
+            p.msg("The program finished and will be restarted")
         except Restart:
-            if pydb._program_sys_argv:
-                sys.argv = list(pydb._program_sys_argv)
-                pydb.msg("Restarting %s with arguments:\n\t%s"
-                         % (pydb.filename(mainpyfile),
-                            " ".join(pydb._program_sys_argv[1:])))
+            if p._program_sys_argv:
+                sys.argv = list(p._program_sys_argv)
+                p.msg("Restarting %s with arguments:\n\t%s"
+                      % (p.filename(mainpyfile),
+                         " ".join(p._program_sys_argv[1:])))
             else: break
         except SystemExit:
             # In most cases SystemExit does not warrant a post-mortem session.
-            pydb.msg("The program exited via sys.exit(). Exit status: %s" %
+            p.msg("The program exited via sys.exit(). Exit status: %s" %
                      str(sys.exc_info()[1]))
-            pydb.running = False;
-            if pydb.noninteractive or hasattr(pydb,'desired_thread'): break
+            p.running = False;
+            if p.noninteractive or hasattr(p,'desired_thread'): break
         except:
             traceback.print_exc()
-            if pydb.noninteractive:
-                pydb.errmsg("Uncaught exception.")
+            if p.noninteractive:
+                p.errmsg("Uncaught exception.")
                 break
-            pydb.errmsg("Uncaught exception. Entering post mortem debugging")
-            pydb.errmsg( "Running 'c' or 'step' will restart the program")
-            pydb.running = False;
+            p.errmsg("Uncaught exception. Entering post mortem debugging")
+            p.errmsg( "Running 'c' or 'step' will restart the program")
+            p.running = False;
             t = sys.exc_info()[2]
             while t.tb_next is not None:
                 t = t.tb_next
             try:
-                pydb.interaction(t.tb_frame,t)
+                p.interaction(t.tb_frame,t)
             except Restart:
-                sys.argv = list(pydb._program_sys_argv)
-                pydb.msg("Restarting %s with arguments:\n\t%s"
-                         % (pydb.filename(mainpyfile),
-                            " ".join(pydb._program_sys_argv[1:])))
+                sys.argv = list(p._program_sys_argv)
+                p.msg("Restarting %s with arguments:\n\t%s"
+                         % (p.filename(mainpyfile),
+                            " ".join(p._program_sys_argv[1:])))
             else:
-                pydb.msg("Post mortem debugger finished.")
-                pydb.msg(mainpyfile + " will be restarted")
-        pydb.step_ignore = 0
+                p.msg("Post mortem debugger finished.")
+                p.msg(mainpyfile + " will be restarted")
+        p.step_ignore = 0
 
 init()
 
