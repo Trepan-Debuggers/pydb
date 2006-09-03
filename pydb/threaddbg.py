@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.7 2006/09/02 10:41:19 rockyb Exp $
+# $Id: threaddbg.py,v 1.8 2006/09/03 00:33:09 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -159,6 +159,8 @@ class threadDbg(pydb.Pdb):
             if t in threads.keys():
                 self.curframe_thread_name = args[0]
                 frame                     = threads[t]
+                #newframe                  = self.find_nondebug_frame(frame)
+                #if newframe is not None:  frame = newframe
                 self.stack, self.curindex = self.get_stack(frame, None)
             if len(args) == 1:
                 arg = '0'

@@ -1,0 +1,110 @@
+#!@PYTHON@ -t
+# -*- Python -*-
+# $Id: sighandle.py.in,v 1.1 2006/09/03 00:33:09 rockyb Exp $
+"Unit test for Extended Python debugger's signal handling commands "
+import os, time, sys, unittest, signal
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+import pydb, sighandler
+
+builddir     = "@builddir@"
+if builddir[-1] != os.path.sep:
+    builddir += os.path.sep
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+
+srcdir = "@srcdir@"
+if srcdir[-1] != os.path.sep:
+    srcdir += os.path.sep
+
+pydir        = os.path.join(top_builddir, "pydb")
+pydb_short   = "pydb.py"
+pydb_path    = os.path.join(pydir, pydb_short)
+outfile      = 'sighandler.out'
+program      = 'sigtestexample.py'
+
+class PdbTest(pydb.Pdb):
+    def __init__(self):
+        pydb.Pdb.__init__(self)
+        self.errLines = []
+        self.msgLines = []
+        self.msg_last_nocr = False
+        self.stack = self.curframe = self.botframe = None
+
+    def resetmsg(self):
+        self.msgLines=[]
+
+    def errmsg(self, msg):
+        self.errLines.append(msg)
+
+    def msg(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = False
+
+    def msg_nocr(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = True
+
+class SigTests(unittest.TestCase):
+    def test_signum_name(self):
+        """Test that signal name and number lookup work """
+        for signum in range(signal.NSIG):
+            signame = sighandler.lookup_signame(signum)
+            if signame is not None:
+                self.assertEqual(signum, sighandler.lookup_signum(signame))
+                # Try without the SIG prefix
+                self.assertEqual(signum, sighandler.lookup_signum(signame[3:]))
+
+    def test_settings(self):
+        """Test setting signals"""
+        p = PdbTest()
+        h = sighandler.SigHandler(p)
+        # Set to known value
+        h.action('SIGUSR1 print pass stop')
+        h.info_signal('USR1')
+        correct = ["Signal        Stop	Print	Pass to program",
+                   "SIGUSR1       True	True	True"]
+        self.assertEqual(p.msgLines, correct)
+        p.resetmsg()
+        # noprint implies no stop
+        h.action('SIGUSR1 noprint pass')
+        h.info_signal('USR1')
+        correct = ["Signal        Stop	Print	Pass to program",
+                   "SIGUSR1       False	False	True"]
+        self.assertEqual(p.msgLines, correct)
+        # stop keyword implies print
+        p.resetmsg()
+        h.action('SIGUSR1 stop')
+        h.info_signal('USR1')
+        correct = ["Signal        Stop	Print	Pass to program",
+                   "SIGUSR1       True	True	True"]
+        self.assertEqual(p.msgLines, correct)
+         
+##     To be continued...
+##     def test_pass(self):
+##         pass
+
+##     def test_print(self):
+##         pass
+
+##     def test_ignore(self):
+##         pass
+
+if __name__ == '__main__':
+    unittest.main()
