@@ -8,6 +8,7 @@ except.py
 history.hst
 pm.py
 settrace.py
+sighandle.py
 sigtest.py
 test.py
 trace.py
