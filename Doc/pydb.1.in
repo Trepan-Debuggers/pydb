@@ -63,13 +63,26 @@ Clear a breakpoint at \c
 .B continue
 Continue running your program (after stopping, e.g. at a breakpoint).
 .TP
-.BI delete \fR[\fIbreakpoint-numbers\fR]
+.B delete \fR[\fIbreakpoint-numbers\fR]
 \&
 Delete breakpoints by number.
+.TP
+.B disassemble \fR[\fIlocation\fR]
+\&
+Disassemble Python instructions
 .TP
 .BI examine " expr"\c
 \&
 Give type/object and value information about expression.
+.TP
+.B finish
+Run until the completion of the current function or method.
+.TP
+.BI frame " frame-number"
+Set the stack frame to \fIframe-number\fR for purposes of examinine local variables. For positioning relative to the current frame, use 
+.B up
+or 
+.B down.
 .TP
 .B help \fR[\|\fIname\fR\|]
 Show information about pydb command \c
@@ -97,6 +110,11 @@ Pretty print the value of an expression.
 .BI print " expr"\c
 \&
 Display the value of an expression.
+.TP
+.BI source " filename"\c
+\&
+Read and execute the lines in file \fIfilename\fR as a series of debugger 
+commands.
 .TP
 .B quit
 Exit from the debugger.

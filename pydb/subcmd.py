@@ -1,4 +1,4 @@
-"""$Id: subcmd.py,v 1.5 2006/09/02 02:43:47 rockyb Exp $
+"""$Id: subcmd.py,v 1.6 2006/09/04 07:30:18 rockyb Exp $
 Handles gdb-like subcommand processing.
 """
 
@@ -8,6 +8,7 @@ class Subcmd:
         self.name=name
         self.doc=doc
         self.subcmds={}
+        self.cmdlist=[]
 
     def lookup(self, subcmd_prefix):
         """Find subcmd in self.subcmds"""
@@ -50,6 +51,9 @@ class Subcmd:
             "doc"     : subcmd_cb.__doc__,
             "in_list" : in_list,
             "min"     : min_len}
+
+        # We keep a list of subcommands to assist command completion
+        self.cmdlist.append(subcmd_name)
 
     def do(self, obj, subcmd_name, arg):
         """Run subcmd_name with args using obj for the environent"""

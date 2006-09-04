@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.59 2006/09/03 11:41:48 rockyb Exp $
+"""$Id: gdb.py.in,v 1.60 2006/09/04 07:30:18 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -191,13 +191,13 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
            If no completion we return the empty list.
            """
         matches = []
-        try:
-            cmdlist = getattr(self, "_%s_cmds" % subcmd)
-            for word in cmdlist:
-                if word.startswith(text):
-                    matches.append("%s %s" % (subcmd, word))
-        except AttributeError:
-            pass
+        subcmd_name = "%scmds" % subcmd[0]
+        if hasattr(self, subcmd_name):
+            subcmd_obj = getattr(self, subcmd_name)
+            if hasattr(subcmd_obj, "cmdlist"):
+                for word in subcmd_obj.cmdlist:
+                    if word.startswith(text):
+                        matches.append("%s %s" % (subcmd[0], word))
         return matches
 
     def __do_complete(self, arg):
@@ -211,7 +211,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             args = arg.split()
             cmd_prefix=args[0]
         if len(args) > 1:
-            if args[0] in pydbcmd.Cmd.complete(self, cmd_prefix, 0):
+            complete_cmds = pydbcmd.Cmd.complete(self, cmd_prefix, 0)
+            if complete_cmds is not None and args[0] in complete_cmds:
                 text = self.__complete_subcommand(args, args[1])
                 for complete in text:  self.msg(complete)
             return
@@ -228,7 +229,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
 
     def __init_info(self):
-        """Initialize info subcommands"""
+        """Initialize info subcommands. Note: instance variable name
+        has to be infocmds ('info' + 'cmds') for subcommand completion
+        to work."""
         self.infocmds=subcmd.Subcmd("info", self.help_info.__doc__)
         self.infocmds.add('args',           self.info_args)
         self.infocmds.add('breakpoints',    self.info_breakpoints)
@@ -243,7 +246,10 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('target',         self.info_target)
 
     def __init_set(self):
-        """Initialize set subcommands"""
+        """Initialize set subcommands. Note: instance variable name
+        has to be setcmds ('set' + 'cmds') for subcommand completion
+        to work."""
+
         self.setcmds=subcmd.Subcmd("set",   self.help_set.__doc__)
         self.setcmds.add('args',            self.set_args)
         self.setcmds.add('basename',        self.set_basename)
@@ -258,7 +264,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('target-address',  self.set_target_address)
 
     def __init_show(self):
-        """Initialize show subcommands"""
+        """Initialize show subcommands. Note: instance variable name
+        has to be setcmds ('set' + 'cmds') for subcommand completion
+        to work."""
         self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
         self.showcmds.add('args',           self.show_args)
         self.showcmds.add('basename',       self.show_basename)
@@ -859,7 +867,7 @@ the default."""
                 bp.disable()
 
     def do_disassemble(self, arg):
-        """disassemble [arg]
+        """disassemble [location]
         With no argument disassemble at the current frame location.
         With a numeric argument, disassemble at the frame location at that
         line number. With a class, method, function, code or string argument
