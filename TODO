@@ -1,5 +1,3 @@
-Add gdb-style signal handling
-
 Add watchpoints. (Mentioned in pdbimprovements)
 
 The main pydb.py file size has been reduced but it is still bit
@@ -24,8 +22,6 @@ Should check into getting this integrated with ipython's "run -d".  It
 has a history mechanism and pydb should too. If it is possible to use
 a class form ipython or a class that's out there, that should be done.
 
-The examine command needs to deal with arbitrary objects better.
-
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.9 2006/07/25 01:30:22 rockyb Exp $
+$Id: TODO,v 1.10 2006/09/04 03:45:17 rockyb Exp $
