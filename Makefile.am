@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.39 2006/09/05 01:37:03 rockyb Exp $
+#$Id: Makefile.am,v 1.40 2006/09/05 01:38:24 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ clean-generic:
 	-rm $(top_builddir)/pydb/*.pyc
 
 test: check
-check: pydb/pydb.py pydb/gdb.py test/connect.py test/pm.py test/settrace.py test/sighandle.py test/sigtest.py test/test.py trace/pm.py 
+check: pydb/pydb.py pydb/gdb.py test/connect.py test/pm.py test/settrace.py test/sighandle.py test/sigtest.py test/test.py test/pm.py 
 
 # 
 # For the executable, we make a symbolic link to the python program,
