@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.71 2006/07/29 10:43:55 rockyb Exp $
+% $Id: libpydb.tex,v 1.72 2006/09/05 01:37:03 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -572,6 +572,12 @@ blanks specified. Furthermore the prompt may change in the future to
 add a history number. It is generally not advisable to change the
 prompt.}
 
+\item[set target-address \var{target_addr}]\label{command:target}
+
+This sets up an address so that remote processes can connect this
+process and debug it. See also \code{attach}, \code{target} and
+\code{show target-address}.
+
 \end{description}
 
 \subsubsection{Show ({\tt show}) \label{subsubsection-show}}
@@ -639,6 +645,14 @@ Show whether logging overwrites or appends to the log file.
 \item[show prompt]
 
 Show the current debugger prompt.
+
+\item[show target-address]
+
+If you are debugging a remote program, this command can be used to
+show the connection parameters. This command doesn't make sense if
+you are not debugging a remote program. See also \code{set target-address}
+and \code{attach}.
+
 
 \item[show version]
 

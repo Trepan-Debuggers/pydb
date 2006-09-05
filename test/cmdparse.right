@@ -307,7 +307,7 @@ show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default
 show logging -- Show logging options
 show prompt -- Show debugger's prompt
-show target-address -- Show the address of the current target
+show target-address -- Show connection parameters used in remote debugging
 show version -- Show what version of the debugger this is
 + help show listsize
 Show number of source lines the debugger will list by default

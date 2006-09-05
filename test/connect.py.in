@@ -1,0 +1,249 @@
+#!@PYTHON@ -t
+
+# This unit test doesn't use any of the debugger code. It is meant solely
+# to test the connection classes.
+
+import os
+import sys
+import socket
+import time
+import thread
+import unittest
+
+from socket import gaierror
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+# Global vars
+__addr__ = 'localhost:8002'
+MAXTRIES = 100
+TESTFN = 'device'
+
+sys.path.append("..")
+from connection import (ConnectionServerTCP, ConnectionClientTCP,
+                        ConnectionSerial, ConnectionServerFIFO,
+                        ConnectionClientFIFO, ConnectionFailed,
+                        ReadError, WriteError)
+
+# Try to connect the client to addr either until we've tried MAXTRIES
+# times or until it succeeds.
+def repeatedConnect(client, addr):
+    for i in range(MAXTRIES):
+        try:
+            client.connect(addr)
+            if client.connected: break
+        except ConnectionFailed:
+                pass
+
+class TestTCPConnections(unittest.TestCase):
+    def setUp(self):
+        self.server = ConnectionServerTCP()
+        self.client = ConnectionClientTCP()
+
+    def test_ClientConnectToServer(self):
+        thread.start_new_thread(repeatedConnect, (self.client, __addr__))
+        self.server.connect(__addr__)
+        self.server.disconnect()
+
+##     def test_ClientConnectAndRead(self):
+##         thread.start_new_thread(repeatedConnect, (self.client,__addr__))
+##         self.server.connect(__addr__)
+
+##         self.server.write("good")
+##         line = self.client.readline()
+##         self.assertEqual("good", line, "Could not read from server")
+##         self.client.write('success')
+##         line = self.server.readline()
+##         self.assertEqual('success\n', line, 'Could not read from client')
+
+    def test_DisconnectDisconnected(self):
+        s = ConnectionServerTCP()
+
+        s.disconnect()
+        s.disconnect()
+
+##     def test_Readline(self):
+##         thread.start_new_thread(repeatedConnect, (self.client,__addr__))
+##         self.server.connect(__addr__)
+
+##         self.client.write('good')
+##         line = self.server.readline()
+##         self.assertEquals('good\n', line, 'Could not read first line.')
+
+##         self.server.disconnect()
+
+    def test_ErrorAddressAlreadyInUse(self):
+        thread.start_new_thread(repeatedConnect, (self.client, __addr__))
+        self.server.connect(__addr__)
+
+        # Set up second server on same port and do not reuse the addr
+        s = ConnectionServerTCP()
+        self.assertRaises(ConnectionFailed, s.connect, __addr__, False)
+
+##     def test_InvalidServerAddress(self):
+##         addr = 'fff.209320909xcmnm2iu3-=0-0-z.,x.,091209:2990'
+##         self.assertRaises(ConnectionFailed, self.server.connect, addr)
+
+    def test_ConnectionRefused(self):
+        self.assertRaises(ConnectionFailed, self.client.connect, __addr__)
+
+    def test_InvalidAddressPortPair(self):
+        addr = 'localhost 8000'
+        self.assertRaises(ConnectionFailed, self.server.connect, addr)
+
+##     def test_ServerReadError(self):
+##         thread.start_new_thread(self.server.connect, (__addr__,))
+
+##         while not self.server._sock:
+##             time.sleep(0.1)
+            
+##         repeatedConnect(self.client, __addr__)
+
+##         # Wait to make _absolutely_ sure that the client has connected
+##         while not self.server.output:
+##             time.sleep(0.1)
+##         self.client.disconnect()
+##         self.assertRaises(ReadError, self.server.readline)
+
+##         self.server.disconnect()
+
+##         thread.start_new_thread(self.client.connect, (__addr__,))
+##         self.server.connect(__addr__)
+
+##         self.server.disconnect()
+##         self.assertRaises(ReadError, self.client.readline)
+
+    def tear_Down(self):
+        self.server.disconnect()
+        self.client.disconnect()
+    
+class TestSerialConnections(unittest.TestCase):
+    """ This test just uses a file instead of a serial device, which
+    on *nix systems is just files anyway.
+    """
+    def setUp(self):
+        self.server = ConnectionSerial()
+        self.client = ConnectionSerial()
+        fd = open(TESTFN, "wr+")
+        fd.close()
+        self.server.connect(TESTFN)
+        self.client.connect(TESTFN)
+        
+    def test_ClientToServerConnect(self):
+        self.client.disconnect()
+        self.server.disconnect()
+
+    def test_ClientWriteRead(self):
+        self.client.write('success!')
+        line = self.server.readline()
+        self.assertEquals('success!\n', line, 'Could not read from client.')
+
+        # Unfortunately the text file doesn't erase what we've written like a
+        # device of stream, so we have to close the the file and re-open it.
+        self.server.disconnect()
+        self.server.connect(TESTFN)
+        self.server.write('great!')
+        line = self.client.readline()
+        self.assertEquals('great!\n', line, 'Could not read from server.')
+
+    def test_DisconnectDisconnected(self):
+        self.server.disconnect()
+
+    def test_Readline(self):
+        self.client.write('success!\nNext line.')
+        self.client.disconnect()
+        line = self.server.readline()
+        self.assertEquals('success!\n', line, 'Could not read first line')
+        line = self.server.readline()
+        self.assertEquals('Next line.\n', line, 'Could not read second line.')
+        line = self.server.readline()
+        self.assertEquals('', line, 'Could not read third line.')
+
+    def test_InvalidFilename(self):
+        client = ConnectionSerial()
+        self.assertRaises(ConnectionFailed, client.connect,
+                          '/dev/pleasepleasepleasedontexit')
+
+    def tearDown(self):
+        self.server.disconnect()
+        self.client.disconnect()
+        os.remove(TESTFN)
+
+class TestFIFOConnections(unittest.TestCase):
+    def setUp(self):
+        self.server = ConnectionServerFIFO()
+        self.client = ConnectionClientFIFO()
+
+##     def test_Connect(self):
+##         thread.start_new_thread(self.client.connect, ('test_file',))
+##         self.server.connect('test_file')
+
+##     def test_ReadWrite(self):
+##         thread.start_new_thread(self.client.connect, ('test_file',))
+##         self.server.connect('test_file')
+
+##         # Server write, client read
+##         self.server.write('Tim The Enchanter!\n')
+
+##         # Wait for the thread to catch up
+##         while not self.client.input:
+##             pass
+##         line = self.client.readline()
+##         self.assertEquals('Tim The Enchanter!\n', line)
+
+##         # Client write, server read
+##         self.client.write('received\n')
+##         line = self.server.readline()
+##         self.assertEquals('received\n', line)
+
+##     def test_MultipleDisconnect(self):
+##         self.client.disconnect()
+##         self.server.disconnect()
+
+##     def test_ReadError(self):
+##         thread.start_new_thread(self.client.connect, ('test_file',))
+##         self.server.connect('test_file')
+
+##         while not self.client.input:
+##             pass
+
+##         self.client.disconnect()
+##         self.assertRaises(ReadError, self.server.readline)
+
+##         self.client.connect('test_file')
+
+##         self.server.disconnect()
+##         self.assertRaises(ReadError, self.client.readline)
+
+##     def test_WriteError(self):
+##         thread.start_new_thread(self.client.connect, ('test_file',))
+##         self.server.connect('test_file')
+
+##         while not self.client.input:
+##             pass
+
+##         self.client.disconnect()
+##         self.assertRaises(WriteError, self.server.write, 'spam\n')
+
+##         self.client.connect('test_file')
+
+##         self.server.disconnect()
+##         self.assertRaises(WriteError, self.client.write, 'Ni!\n')
+
+    def test_InvalidPipe(self):
+        self.assertRaises(ConnectionFailed,self.client.connect, 'invalid')
+        os.unlink('invalid0')
+
+    def tear_Down(self):
+        self.client.disconnect()
+        self.server.disconnect()
+
+if __name__ == '__main__':
+    unittest.main()

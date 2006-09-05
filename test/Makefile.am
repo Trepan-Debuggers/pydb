@@ -9,6 +9,7 @@ check_DATA = \
 	cmdparse.right    \
 	comm1.cmd         \
 	comm2.cmd         \
+	connect.py        \
 	except.py         \
 	filebug.cmd       \
 	filebug.py        \
@@ -36,7 +37,7 @@ check_DATA = \
 	trace.py          \
 	trace.right
 
-TESTS = test.py pm.py trace.py sighandle.py sigtest.py
+TESTS = test.py pm.py trace.py sighandle.py sigtest.py connect.py
 
 EXTRA_DIST = $(check_DATA) except.py.in pm.py.in \
 	settrace.py.in test.py.in trace.py.in sighandle.py.in sigtest.py.in

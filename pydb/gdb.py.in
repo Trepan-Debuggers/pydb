@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.60 2006/09/04 07:30:18 rockyb Exp $
+"""$Id: gdb.py.in,v 1.61 2006/09/05 01:37:03 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -51,6 +51,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.basename        = False
         self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
+        self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
         self.lastcmd         = ''     # last debugger command run
@@ -76,6 +77,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
         self.target          = 'local' # local connections by default
+        self.target_addr     = ''      # target address used by 'attach'
 
 
         # associates a command list to breakpoint numbers
@@ -1287,15 +1289,18 @@ e.g. localhost:8000
 
 For a serial device give the line name e.g. /dev/ttyS1.
 
+For a FIFO, give the FIFO name to use in communication.
+
 Examples:
     pdbserver tcp localhost:8080
     pdbserver serial /dev/ttyS1
-    pdbserver fifo.ConnectionClass /tmp/pdb.fifo
+    pdbserver fifo /tmp/pdb.fifo
+    pdbserver myprotocolClass protocol-options
 """
         try:
             target, comm_opts = args.split(' ')
         except ValueError:
-            self.errmsg('Invalid arguments')
+            self.errmsg('Need a protocol and protocol options')
             return
         if 'remote' in self.target:
             self.errmsg('Already connected remotely')
@@ -1313,6 +1318,13 @@ Examples:
                 self.connection = ConnectionSerial()
             except ImportError:
                 self.errmsg('Could not load ConnectionSerial class')
+                return
+        elif target == 'fifo':
+            try:
+                from connection import (ConnectionServerFIFO, ConnectionFailed)
+                self.connection = ConnectionServerFIFO()
+            except ImportError:
+                self.errmsg('Could not load ConnectionServerFIFO class')
                 return
         else:
             if '.' in target:

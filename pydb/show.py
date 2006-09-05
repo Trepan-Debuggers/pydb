@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.4 2006/09/03 11:41:48 rockyb Exp $
+"""$Id: show.py,v 1.5 2006/09/05 01:37:03 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -80,6 +80,14 @@ $cdir in the path means the compilation directory of the source file."""
                 self.msg("Output will be logged and displayed.")
 
     def show_target_address(self, arg):
-        """Show the address of the current target."""
-        self.msg('target-address is %s.' % self.target_addr.__repr__())
+
+        """Show connection parameters used in remote debugging.
+
+This command doesn't make sense if you are not debugging a remote
+program. See also 'set target-address' and 'attach'."""
+
+        if self.target == 'local':
+            self.msg("Debugging is local. No target address.")
+        else:
+            self.msg('target-address is %s.' % self.target_addr.__repr__())
 
