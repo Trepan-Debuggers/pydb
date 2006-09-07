@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.5 2006/09/03 00:57:40 rockyb Exp $
+# $Id: sigtest.py.in,v 1.6 2006/09/07 01:23:27 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -39,11 +39,22 @@ class SigTests(unittest.TestCase):
             os.unlink(outfile)
         except OSError:
             pass
+        try:
+            os.unlink('log')
+        except OSError:
+            pass
 
-    def create_proc(self, cmds):
-        pid = os.spawnlp(os.P_NOWAIT, pydb_path, pydb_path, '-o',
-                         outfile, '-e', '%s' % cmds, program)
-        time.sleep(1.0)
+    def create_pydb_proc(self, cmds,arg=None):
+        """Run pydb on program with command string 'cmds', and pass arg if
+        that is given. Debugger output is stored in outfile. Note that
+        there is also output produced by the debugged program.
+        """
+        if arg:
+            pid = os.spawnlp(os.P_WAIT, pydb_path, pydb_path, '-o',
+                             outfile, '-e', '%s' % cmds, program, arg)
+        else:
+            pid = os.spawnlp(os.P_NOWAIT, pydb_path, pydb_path, '-o',
+                             outfile, '-e', '%s' % cmds, program)
         return pid
 
     def test_signum_name(self):
@@ -55,55 +66,32 @@ class SigTests(unittest.TestCase):
                 # Try without the SIG prefix
                 self.assertEqual(signum, sighandler.lookup_signum(signame[3:]))
 
-##     def test_pass(self):
-##         # Run pydb and turn on passing SIGUSR1 signal to the test programs'
-##         # signal handler.  
-##         cmds = 'handle SIGUSR1 nostop;;step 4;;quit'
+    def test_noprint_nostop_pass(self):
+        """Check to see the debugger does not intercepts a USR1 signal,
+        doesn't print intercepting it but passes it along to the program."""
 
-##         pid = self.create_proc(cmds)
+        self.tearDown()
+        cmds = 'handle SIGUSR1 noprint nostop pass;;next 10;;quit'
+        pid = self.create_pydb_proc(cmds, 'signal')
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+        self.assertFalse('Program received signal SIGUSR1\n' in lines) 
 
-##         os.kill(pid, signal.SIGUSR1)
-##         os.waitpid(pid, 0)
-
-##         f = open('log', 'r')
-##         line = f.readline()
-##         f.close()
-##         self.assertEqual(line, 'signal received\n')
-##         os.unlink('log')
-
-##         f = open(outfile, 'r')
-##         lines = f.readlines()
-##         f.close()
-##         self.assertFalse('Program received signal' in lines)
-         
-##     def test_nopass(self):
-##         # Run pydb and intercept the signal SIGUSR1 instead of passing it
-##         # to the program.
-##         cmds = 'handle SIGUSR1 nopass nostop;;step 4;;quit'
-    
-##         pid = self.create_proc(cmds)
-
-##         os.kill(pid, signal.SIGUSR1)
-##         os.waitpid(pid, 0)
-
-##         f = open(outfile, 'r')
-##         lines = f.readlines()
-##         f.close()
-
-##         self.assertEqual(lines[-2], 'Program received signal SIGUSR1\n') 
-
-    def test_noprint(self):
-        cmds = "handle SIGUSR1 noprint nopass;;step 4;;step;;quit"
-        pid = self.create_proc(cmds)
-
-        os.kill(pid, signal.SIGUSR1)
-        os.waitpid(pid, 0)
-
+    def test_print_nostop_nopass(self):
+        """Check to see the debugger intercepts a USR1 signal,
+        prints it and doesn't pass it along to the program.
+        """
+        self.tearDown()
+        ## FIXME: 'continue' can't be used because
+        ## debugger optimization arrange not call the dispatcher
+        cmds = "handle SIGUSR1 print nostop nopass;;next 10;;quit"
+        pid = self.create_pydb_proc(cmds, 'signal')
         f = open(outfile, 'r')
         lines = f.readlines()
         f.close()
 
-        self.assertFalse('Program received signal SIGUSR1\n' in lines)
+        self.assertTrue('Program received signal SIGUSR1\n' in lines)
         self.assertRaises(IOError, open, 'log', 'r')
 
 if __name__ == '__main__':

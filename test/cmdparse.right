@@ -285,6 +285,7 @@ set linetrace -- Set line execution tracing and delay on tracing
 set listsize -- Set number of source lines the debugger will list by default
 set logging -- Set logging options
 set prompt -- Set debugger's prompt
+set systrace -- Set whether we allow tracing the debugger
 set target-address -- Set the address of a target
 + help set linesize
 *** Unknown 'help set' subcommand linesize
@@ -307,6 +308,7 @@ show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default
 show logging -- Show logging options
 show prompt -- Show debugger's prompt
+show systrace -- Show whether tracebacks include debugger routines
 show target-address -- Show connection parameters used in remote debugging
 show version -- Show what version of the debugger this is
 + help show listsize

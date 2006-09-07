@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.8 2006/09/03 00:33:09 rockyb Exp $
+# $Id: threaddbg.py,v 1.9 2006/09/07 01:23:26 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -76,9 +76,6 @@ class threadDbg(pydb.Pdb):
         # If the variable is None than any thread can run.
         self.desired_thread=None
 
-        self.systrace = False
-        #self.systrace = True
-
         self.thread_name             = threading.currentThread().getName()
         self.curframe_thread_name    = self.thread_name
         self.nothread_trace_dispatch = bdb.Bdb.trace_dispatch
@@ -97,7 +94,6 @@ class threadDbg(pydb.Pdb):
             self.info_thread = self.info_thread_old
         self.infocmds.add('thread',  self.info_thread,  2, False)
         self.setcmds.add ('systrace', self.set_systrace)
-        self.showcmds.add('systrace', self.show_systrace)
 
     def find_nondebug_frame(self, f):
         """Find the first frame that isn't a debugger frame.
@@ -495,13 +491,3 @@ the current thread. (That is this is the same as "info thread terse"."""
         statement = 'execfile( "%s")' % filename
         self.run(statement, globals=globals_, locals=locals_)
 
-    def set_systrace(self, args):
-        """Set whether tracebacks include debugger and threading routines"""
-        try:
-            self.systrace = self.get_onoff(args[1])
-        except ValueError:
-            pass
-
-    def show_systrace(self, args):
-        """Showt whether tracebacks inlcude debugger and threading routines"""
-        self.msg("Systrace is %s." % show_onoff(self.systrace))

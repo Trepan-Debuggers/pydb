@@ -1,9 +1,9 @@
-"""$Id: set.py,v 1.6 2006/09/03 11:41:48 rockyb Exp $
+"""$Id: set.py,v 1.7 2006/09/07 01:23:26 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
 
-import re
+import inspect, re
 
 class SubcmdSet:
 
@@ -154,6 +154,18 @@ set logging redirect [on|off]""")
             self.prompt = mo.group(1)
         else:
             self.errmsg("Something went wrong trying to find the prompt")
+
+    def set_systrace(self, args):
+        """Set whether we allow tracing the debugger."""
+        try:
+            self.systrace = self.get_onoff(args[1])
+            if self.systrace:
+                frame = inspect.currentframe()
+                self.stack, self.curindex = self.get_stack(frame, None)
+                self.curframe = self.stack[self.curindex][0]
+
+        except ValueError:
+            pass
 
     def set_target_address(self, args):
         """Set the address of a target."""

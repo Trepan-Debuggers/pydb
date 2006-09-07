@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.61 2006/09/05 01:37:03 rockyb Exp $
+"""$Id: gdb.py.in,v 1.62 2006/09/07 01:23:26 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -76,6 +76,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.stop_reason     = None    # Why are we in the debugger?
         self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
+
+        self.systrace        = False   # Debug the debugger?
+
         self.target          = 'local' # local connections by default
         self.target_addr     = ''      # target address used by 'attach'
 
@@ -263,6 +266,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('listsize',        self.set_listsize,  3)
         self.setcmds.add('logging',         self.set_logging,   2)
         self.setcmds.add('prompt',          self.set_prompt)
+        self.setcmds.add ('systrace',       self.set_systrace)
         self.setcmds.add('target-address',  self.set_target_address)
 
     def __init_show(self):
@@ -282,6 +286,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('listsize',       self.show_listsize,  3)
         self.showcmds.add('logging',        self.show_logging,   2)
         self.showcmds.add('prompt',         self.show_prompt)
+        self.showcmds.add('systrace',       self.show_systrace)
         self.showcmds.add('target-address', self.show_target_address)
         self.showcmds.add('version',        self.show_version)
 
@@ -370,6 +375,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         We return True if we should NOT enter the debugger-command
         loop."""
         self.forget()
+        if self.systrace:
+            frame = inspect.currentframe()
         if frame:
             self.stack, self.curindex = self.get_stack(frame, traceback)
             self.curframe = self.stack[self.curindex][0]
