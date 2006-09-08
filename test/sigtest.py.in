@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.6 2006/09/07 01:23:27 rockyb Exp $
+# $Id: sigtest.py.in,v 1.7 2006/09/08 10:04:41 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -77,6 +77,24 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
         self.assertFalse('Program received signal SIGUSR1\n' in lines) 
+        f = open('log', 'r')
+        line = f.readline()
+        f.close()
+        self.assertEqual(line, 'signal received\n')
+        os.unlink('log')
+
+    def test_noprint_nostop_nopass(self):
+        """Check to see the debugger does not intercepts a USR1 signal,
+        doesn't print intercepting and doesn't pass it along to the program."""
+
+        self.tearDown()
+        cmds = 'handle SIGUSR1 noprint nostop nopass;;next 10;;quit'
+        pid = self.create_pydb_proc(cmds, 'signal')
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+        self.assertFalse('Program received signal SIGUSR1\n' in lines) 
+        self.assertRaises(IOError, open, 'log', 'r')
 
     def test_print_nostop_nopass(self):
         """Check to see the debugger intercepts a USR1 signal,
@@ -93,6 +111,28 @@ class SigTests(unittest.TestCase):
 
         self.assertTrue('Program received signal SIGUSR1\n' in lines)
         self.assertRaises(IOError, open, 'log', 'r')
+
+    def test_print_nostop_pass(self):
+        """Check to see the debugger intercepts a USR1 signal,
+        prints it and passes it along to the program.
+        """
+        self.tearDown()
+        ## FIXME: 'continue' can't be used because
+        ## debugger optimization arrange not call the dispatcher
+        cmds = "handle SIGUSR1 print nostop pass;;next 10;;quit"
+        pid = self.create_pydb_proc(cmds, 'signal')
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+
+        self.assertTrue('Program received signal SIGUSR1\n' in lines)
+        f = open('log', 'r')
+        line = f.readline()
+        f.close()
+        self.assertEqual(line, 'signal received\n')
+        os.unlink('log')
+
+    ### FIXME: add stop tests.
 
 if __name__ == '__main__':
     unittest.main()

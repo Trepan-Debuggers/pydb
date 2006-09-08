@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.64 2006/09/08 00:44:37 rockyb Exp $
+"""$Id: gdb.py.in,v 1.65 2006/09/08 10:04:40 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1077,11 +1077,12 @@ Args are signals and actions to apply to those signals.
 recognized actions include "stop", "nostop", "print", "noprint",
 "pass", "nopass", "ignore", or "noignore".
 
-- Stop means reenter debugger if this signal happens (implies print).
+- Stop means reenter debugger if this signal happens (implies print and
+  nopass).
 - Print means print a message if this signal happens.
 - Pass means let program see this signal; otherwise program doesn't know.
 - Ignore is a synonym for nopass and noignore is a synonym for pass.
-- Pass and Stop may be combined.
+- Pass and Stop may not be combined. (This is different from gdb)
         """
         self.sigmgr.action(arg)
 

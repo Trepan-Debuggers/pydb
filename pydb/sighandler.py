@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.13 2006/09/08 00:01:31 rockyb Exp $
+"""$Id: sighandler.py,v 1.14 2006/09/08 10:04:40 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -63,8 +63,9 @@ class SignalManager:
             if signame.startswith('SIG') and '_' not in signame:
                 self.siglist.append(signame)
                 if signame not in fatal_signals + ignore:
-                    self.sigs[signame] = SigHandler(signame, pydb.msg, True,
-                                                    True)
+                    self.sigs[signame] = self.SigHandler(signame, pydb.msg,
+                                                         pydb.set_trace,
+                                                         True)
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
         if signame not in self.sigs.keys():
@@ -73,7 +74,7 @@ class SignalManager:
             return
             
         sig_obj = self.sigs[signame]
-        self.pydb.msg(self.info_fmt % (signame, str(sig_obj.stop),
+        self.pydb.msg(self.info_fmt % (signame, str(sig_obj.stop is not None),
                                        str(sig_obj.print_method is not None),
                                        str(sig_obj.pass_along)))
 
@@ -144,10 +145,13 @@ class SignalManager:
         """Set whether we stop or not when this signal is caught.
         If 'set_stop' is True your program will stop when this signal
         happens."""
-        self.sigs[signame].stop = set_stop
-        # stop keyword implies print
         if set_stop:
+            self.sigs[signame].stop = self.pydb.set_trace
+            # stop keyword implies print AND nopass
             self.sigs[signame].print_method = self.pydb.msg
+            self.sigs[signame].pass_along   = False
+        else:
+            self.sigs[signame].stop = None
         return set_stop
 
     def handle_pass(self, signame, set_pass):
@@ -156,6 +160,9 @@ class SignalManager:
         your program to see this signal.
         """
         self.sigs[signame].pass_along = set_pass
+        if set_pass:
+            # Pass implies nostop
+            self.sigs[signame].stop = None
         return set_pass
 
     def handle_ignore(self, signame, set_ignore):
@@ -171,52 +178,45 @@ class SignalManager:
         else:
             # noprint implies nostop
             self.sigs[signame].print_method = None
-            self.sigs[signame].stop = False
+            self.sigs[signame].stop         = None
         return set_print
 
-class SigHandler:
+    ## SigHandler is a class private to SignalManager
+    class SigHandler:
+        """Store information about what we do when we handle a signal,
 
-    """Store information about what we do when we handle a signal,
+        - Do we print/not print when signal is caught
+        - Do we pass/not pass the signal to the program
+        - Do we stop/not stop when signal is caught
 
-    - Do we print/not print when signal is caught
-    - Do we pass/not pass the signal to the program
-    - Do we stop/not stop when signal is caught
+        Parameters:
+           signame : name of signal (e.g. SIGUSR1 or USR1)
+           print_method routine to use for "print"
+           stop routine to call to invoke debugger when stopping
+           pass_along: True is signal is to be passed to user's handler
+        """
+        def __init__(self, signame, print_method, stop, pass_along=True):
 
-    All the methods to change these attributes return None on error, or
-    True or False if we have set the action (pass/print/stop) for a signal
-    handler.
-    """
-    def __init__(self, signame, print_method, stop=True, pass_along=True): 
-        self.pass_along   = pass_along
-        self.print_method = print_method
-        self.signame      = signame
-        self.signum       = lookup_signum(signame)
-        self.stop         = stop
+            self.signum = lookup_signum(signame)
+            if not self.signum: return
 
-        if self.signum:
-            self.old_handler = signal.getsignal(self.signum)
-        else:
-            self.old_handler = None
+            self.old_handler  = signal.getsignal(self.signum)
+            self.pass_along   = pass_along
+            self.print_method = print_method
+            self.signame      = signame
+            self.stop         = stop
+            return
 
-
-    def handle(self, signum, frame):
-        """This method is called when a signal is received."""
-        if self.print_method:
-            self.print_method('Program received signal %s' % self.signame)
-        if self.stop:
-##             FIGURE OUT WHAT TO DO
-##             self.pydb.sig_received = True
-##             self.pydb.use_rawinput = False
-##             self.pydb.step_ignore = 1
-##             try:
-##                 self.pydb.interaction(self.pydb.curframe, None)
-##             except IOError:
-##                 # Caused by interrupting self.stdin.readline()
-            pass
-        if self.pass_along:
-            # pass the signal to the program 
-            if self.old_handler:
-                self.old_handler(signum, frame)
+        def handle(self, signum, frame):
+            """This method is called when a signal is received."""
+            if self.print_method:
+                self.print_method('Program received signal %s' % self.signame)
+            if self.stop:
+                self.stop(frame)
+            elif self.pass_along:
+                # pass the signal to the program 
+                if self.old_handler:
+                    self.old_handler(signum, frame)
 
 # When invoked as main program, do some basic tests of a couple of functions
 if __name__=='__main__':
@@ -232,16 +232,16 @@ if __name__=='__main__':
     h = SignalManager(p)
     # Set to known value
     h.action('SIGUSR1 print pass stop')
-    h.info_signal('USR1')
+    h.info_signal(['USR1'])
     # noprint implies no stop
     h.action('SIGUSR1 noprint')
-    h.info_signal('USR1')
+    h.info_signal(['USR1'])
     h.action('foo nostop')
     # stop keyword implies print
     h.action('SIGUSR1 stop')
-    h.info_signal('SIGUSR1')
+    h.info_signal(['SIGUSR1'])
     h.action('SIGUSR1 noprint')
-    h.info_signal('SIGUSR1')
+    h.info_signal(['SIGUSR1'])
     h.action('SIGUSR1 nopass')
-    h.info_signal('SIGUSR1')
+    h.info_signal(['SIGUSR1'])
     
