@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sighandle.py.in,v 1.1 2006/09/03 00:33:09 rockyb Exp $
+# $Id: sighandle.py.in,v 1.2 2006/09/08 00:01:36 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -74,24 +74,24 @@ class SigTests(unittest.TestCase):
     def test_settings(self):
         """Test setting signals"""
         p = PdbTest()
-        h = sighandler.SigHandler(p)
+        h = sighandler.SignalManager(p)
         # Set to known value
         h.action('SIGUSR1 print pass stop')
-        h.info_signal('USR1')
+        h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Pass to program",
                    "SIGUSR1       True	True	True"]
         self.assertEqual(p.msgLines, correct)
         p.resetmsg()
         # noprint implies no stop
         h.action('SIGUSR1 noprint pass')
-        h.info_signal('USR1')
+        h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Pass to program",
                    "SIGUSR1       False	False	True"]
         self.assertEqual(p.msgLines, correct)
         # stop keyword implies print
         p.resetmsg()
         h.action('SIGUSR1 stop')
-        h.info_signal('USR1')
+        h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Pass to program",
                    "SIGUSR1       True	True	True"]
         self.assertEqual(p.msgLines, correct)

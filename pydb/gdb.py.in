@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.62 2006/09/07 01:23:26 rockyb Exp $
+"""$Id: gdb.py.in,v 1.63 2006/09/08 00:01:30 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -22,7 +22,7 @@ from show    import *
 from pydbcmd import Cmd
 from pydbbdb import Bdb
 
-from sighandler import SigHandler, lookup_signame, lookup_signum
+from sighandler import SignalManager, lookup_signame, lookup_signum
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -41,8 +41,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._wait_for_mainpyfile = False
 
         # set up signal handling
-        self._sig_handler = SigHandler(self)
-        self._reset_handler = None
+        self.sigmgr          = SignalManager(self)
+        self._reset_handler  = None
 
         self.__init_info()   # Initialize 'info' subcommands
         self.__init_set()    # Initialize 'set' subcommands
@@ -138,16 +138,16 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     def trace_dispatch(self, frame, event, arg):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
-        for sig in self._sig_handler._sigs.keys():
-            sig_num = lookup_signum(sig)
-            old_handler = signal.getsignal(sig_num)
-            if old_handler != self._sig_handler.handle and old_handler != \
-                signal.SIG_IGN and old_handler != signal.SIG_DFL:
+        for signame in self.sigmgr.sigs.keys():
+            signum = lookup_signum(signame)
+            old_handler = signal.getsignal(signum)
+            if old_handler != self.sigmgr.sigs[signame].handle \
+                   and old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
                 # save the program's signal handler
-                self._sig_handler.old_handlers[sig_num] = old_handler
+                self.sigmgr.sigs[signame].old_hander = old_handler
                     
                 # restore _our_ signal handler
-                signal.signal(sig_num, self._sig_handler.handle)
+                signal.signal(signum, self.sigmgr.sigs[signame].handle)
 
         Bdb.trace_dispatch(self, frame, event, arg)
         return self.trace_dispatch
@@ -241,12 +241,12 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('args',           self.info_args)
         self.infocmds.add('breakpoints',    self.info_breakpoints)
         self.infocmds.add('display',        self.info_display)
-        self.infocmds.add('handle',         self._sig_handler.info_signal)
+        self.infocmds.add('handle',         self.sigmgr.info_signal)
         self.infocmds.add('globals',        self.info_globals, 1, False)
         self.infocmds.add('line',           self.info_line)
         self.infocmds.add('locals',         self.info_locals,  1, False)
         self.infocmds.add('program',        self.info_program)
-        self.infocmds.add('signal',         self._sig_handler.info_signal)
+        self.infocmds.add('signal',         self.sigmgr.info_signal)
         self.infocmds.add('source',         self.info_source)
         self.infocmds.add('target',         self.info_target)
 
@@ -1083,7 +1083,7 @@ recognized actions include "stop", "nostop", "print", "noprint",
 - Ignore is a synonym for nopass and noignore is a synonym for pass.
 - Pass and Stop may be combined.
         """
-        self._sig_handler.action(arg)
+        self.sigmgr.action(arg)
 
     def do_ignore(self,arg):
         """ignore bpnumber count
