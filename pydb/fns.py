@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.22 2006/08/31 02:52:00 rockyb Exp $
+"""$Id: fns.py,v 1.23 2006/09/08 00:44:37 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -117,6 +117,17 @@ def get_last_tb_or_frame_tb(frameno=1):
         pass
     return traceback
 
+def print_dict(s, obj, title):
+    if hasattr(obj, "__dict__"):
+        d=obj.__dict__
+        if type(d) == types.DictType or type(d) == types.DictProxyType:
+            s += "\n%s:\n" % title
+            keys = d.keys()
+            keys.sort()
+            for key in keys:
+                s+="  '%s':\t%s\n" % (key, d[key])
+    return s
+
 def print_obj(arg, frame, format=None, short=False):
     """Return a string representation of an object """
     try:
@@ -138,18 +149,10 @@ def print_obj(arg, frame, format=None, short=False):
         s += '\ntype = %s' % type(val)
         # Try to list the members of a class.
         # Not sure if this is correct or the
-        # best way to do. 
+        # best way to do.
+        s = print_dict(s, val, "object variables")
         if hasattr(val, "__class__"):
-            cl=val.__class__
-            if hasattr(cl, "__dict__"):
-                d=cl.__dict__
-                if type(d) == types.DictType \
-                       or type(d) == types.DictProxyType:
-                    s += "\nattributes:\n"
-                    keys = d.keys()
-                    keys.sort()
-                    for key in keys:
-                        s+="  '%s':\t%s\n" % (key, d[key])
+            s = print_dict(s, val.__class__, "class variables")
     return s
 
 pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}
