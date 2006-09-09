@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.14 2006/09/08 10:04:40 rockyb Exp $
+"""$Id: sighandler.py,v 1.15 2006/09/09 01:24:08 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -65,7 +65,7 @@ class SignalManager:
                 if signame not in fatal_signals + ignore:
                     self.sigs[signame] = self.SigHandler(signame, pydb.msg,
                                                          pydb.set_trace,
-                                                         True)
+                                                         False)
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
         if signame not in self.sigs.keys():

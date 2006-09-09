@@ -1,6 +1,6 @@
 1.18cvs 
 
-* GDB-like signal handling largely from part of Matt Fleming's 2006
+* GDB-like signal handling. Some code based on Matt Fleming's 2006
   Summer-of-Code project. Gdb's "handle" and "signal" commands.
 
 * Add hard kill. May be needed for thread debugging.

@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.7 2006/09/08 10:04:41 rockyb Exp $
+# $Id: sigtest.py.in,v 1.8 2006/09/09 01:24:08 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -132,7 +132,21 @@ class SigTests(unittest.TestCase):
         self.assertEqual(line, 'signal received\n')
         os.unlink('log')
 
-    ### FIXME: add stop tests.
+    def test_print_stop(self):
+        """Check to see the debugger intercepts a USR1 signal and stops."""
+
+        self.tearDown()
+        ## FIXME next 5 and 'continue' are used because the dispatcher
+        ## is faulty in detecting the signal change when just continue
+        ## is used.
+        cmds = 'set basename on;;handle SIGUSR1 print stop;;next 5;;continue;;where;;quit'
+        pid = self.create_pydb_proc(cmds, 'signal')
+        f = open(outfile, 'r')
+        lines = f.readlines()
+        f.close()
+        self.assertTrue('Program received signal SIGUSR1\n' in lines)
+        self.assertTrue("-> 0 <module>() called from file 'sigtestexample.py' at line 21\n" in lines)
+        self.assertRaises(IOError, open, 'log', 'r')
 
 if __name__ == '__main__':
     unittest.main()
