@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.15 2006/09/09 01:24:08 rockyb Exp $
+"""$Id: sighandler.py,v 1.16 2006/09/09 11:50:26 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -7,7 +7,7 @@ Handles signal handlers within Pydb.
 #         ignore=True, print=False, pass=True
 #     
 #
-import signal
+import signal, sys
 
 def lookup_signame(num):
     """Find the corresponding signal name for 'num'. Return None
@@ -212,7 +212,11 @@ class SignalManager:
             if self.print_method:
                 self.print_method('Program received signal %s' % self.signame)
             if self.stop:
-                self.stop(frame)
+                if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
+                    self.stop(frame)
+                else:
+                    # older versions
+                    self.stop()
             elif self.pass_along:
                 # pass the signal to the program 
                 if self.old_handler:

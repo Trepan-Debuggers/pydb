@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.65 2006/09/08 10:04:40 rockyb Exp $
+"""$Id: gdb.py.in,v 1.66 2006/09/09 11:50:26 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1315,21 +1315,21 @@ Examples:
             return
         if target == 'tcp':
             try:
-                from connection import (ConnectionServerTCP, ConnectionFailed)
+                from connection import ConnectionServerTCP, ConnectionFailed
                 self.connection = ConnectionServerTCP()
             except ImportError:
                 self.errmsg('Could not load ConnectionServerTCP class')
                 return
         elif target == 'serial':
             try:
-                from connection import (ConnectionSerial, ConnectionFailed)
+                from connection import ConnectionSerial, ConnectionFailed
                 self.connection = ConnectionSerial()
             except ImportError:
                 self.errmsg('Could not load ConnectionSerial class')
                 return
         elif target == 'fifo':
             try:
-                from connection import (ConnectionServerFIFO, ConnectionFailed)
+                from connection import ConnectionServerFIFO, ConnectionFailed
                 self.connection = ConnectionServerFIFO()
             except ImportError:
                 self.errmsg('Could not load ConnectionServerFIFO class')
@@ -1624,7 +1624,7 @@ target tcp hostname:port -- Use a remote computer via a socket connection
             # TODO: need to save state of current debug session
             if self.connection: self.connection.disconnect()
             try:
-                from connection import (ConnectionClientTCP, ConnectionFailed)
+                from connection import ConnectionClientTCP, ConnectionFailed
                 self.connection = ConnectionClientTCP()
                     
             except ImportError:
@@ -1633,8 +1633,7 @@ target tcp hostname:port -- Use a remote computer via a socket connection
         elif target == 'serial':
             if self.connection: self.connection.disconnect()
             try:
-                from mconnection import (ConnectionSerial,
-                                         ConnectionFailed)
+                from mconnection import ConnectionSerial, ConnectionFailed
                 self.connection = ConnectionSerial()
             except ImportError:
                 self.errmsg('Could not import ConnectionSerial')
@@ -1642,8 +1641,7 @@ target tcp hostname:port -- Use a remote computer via a socket connection
         elif target == 'fifo':
             if self.connection: self.connection.disconnect()
             try:
-                from mconnection import (ConnectionClientFIFO,
-                                         ConnectionFailed)
+                from mconnection import ConnectionClientFIFO, ConnectionFailed
                 self.connection = ConnectionClientFIFO()
             except ImportError:
                 self.errmsg('Could not import ConnectionClientFIFO')

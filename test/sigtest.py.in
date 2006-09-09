@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.8 2006/09/09 01:24:08 rockyb Exp $
+# $Id: sigtest.py.in,v 1.9 2006/09/09 11:50:30 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -76,7 +76,7 @@ class SigTests(unittest.TestCase):
         f = open(outfile, 'r')
         lines = f.readlines()
         f.close()
-        self.assertFalse('Program received signal SIGUSR1\n' in lines) 
+        self.assertEqual(False,'Program received signal SIGUSR1\n' in lines) 
         f = open('log', 'r')
         line = f.readline()
         f.close()
@@ -93,7 +93,7 @@ class SigTests(unittest.TestCase):
         f = open(outfile, 'r')
         lines = f.readlines()
         f.close()
-        self.assertFalse('Program received signal SIGUSR1\n' in lines) 
+        self.assertEqual(False,'Program received signal SIGUSR1\n' in lines) 
         self.assertRaises(IOError, open, 'log', 'r')
 
     def test_print_nostop_nopass(self):
@@ -109,7 +109,7 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
 
-        self.assertTrue('Program received signal SIGUSR1\n' in lines)
+        self.assertEqual(True,'Program received signal SIGUSR1\n' in lines)
         self.assertRaises(IOError, open, 'log', 'r')
 
     def test_print_nostop_pass(self):
@@ -125,7 +125,7 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
 
-        self.assertTrue('Program received signal SIGUSR1\n' in lines)
+        self.assertEqual(True,'Program received signal SIGUSR1\n' in lines)
         f = open('log', 'r')
         line = f.readline()
         f.close()
@@ -144,8 +144,11 @@ class SigTests(unittest.TestCase):
         f = open(outfile, 'r')
         lines = f.readlines()
         f.close()
-        self.assertTrue('Program received signal SIGUSR1\n' in lines)
-        self.assertTrue("-> 0 <module>() called from file 'sigtestexample.py' at line 21\n" in lines)
+        self.assertEqual(True, 'Program received signal SIGUSR1\n' in lines)
+        if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
+            self.assertEqual(True,
+                             "-> 0 <module>() called from file 'sigtestexample.py' at line 21\n"
+                             in lines)
         self.assertRaises(IOError, open, 'log', 'r')
 
 if __name__ == '__main__':
