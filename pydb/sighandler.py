@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.16 2006/09/09 11:50:26 rockyb Exp $
+"""$Id: sighandler.py,v 1.17 2006/09/12 07:02:43 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -66,6 +66,20 @@ class SignalManager:
                     self.sigs[signame] = self.SigHandler(signame, pydb.msg,
                                                          pydb.set_trace,
                                                          False)
+    def check_and_adjust_sighandlers(self):
+        """Check to see if the signal handler's we are interested have
+        changed. If so we'll intercept them. """
+        for signame in self.sigs.keys():
+            signum = lookup_signum(signame)
+            old_handler = signal.getsignal(signum)
+            if old_handler != self.sigs[signame].handle \
+                   and old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
+                # save the program's signal handler
+                self.sigs[signame].old_handler = old_handler
+                    
+                # restore _our_ signal handler
+                signal.signal(signum, self.sigs[signame].handle)
+
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
         if signame not in self.sigs.keys():

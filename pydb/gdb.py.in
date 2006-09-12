@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.67 2006/09/12 02:23:35 rockyb Exp $
+"""$Id: gdb.py.in,v 1.68 2006/09/12 07:02:43 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -12,6 +12,7 @@ import bdb, re, subcmd, sys, traceback, types
 
 import pydbcmd, pydbbdb
 import signal
+import sighandler
 
 from display import Display, DisplayNode
 from fns     import *
@@ -22,7 +23,6 @@ from show    import *
 from pydbcmd import Cmd
 from pydbbdb import Bdb
 
-from sighandler import SignalManager, lookup_signame, lookup_signum
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -41,7 +41,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._wait_for_mainpyfile = False
 
         # set up signal handling
-        self.sigmgr          = SignalManager(self)
+        self.sigmgr          = sighandler.SignalManager(self)
         self._reset_handler  = None
 
         self.__init_info()   # Initialize 'info' subcommands
@@ -51,6 +51,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.basename        = False
         self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
+        self.dbg_pydb        = False   # Debug the debugger?
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
@@ -73,19 +74,27 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.orig_stdout     = self.stdout
         self.running         = False
         self.search_path     = '$cdir:$cwd'  # source name search path
+        self.sigcheck        = True
         self.stop_reason     = None    # Why are we in the debugger?
         self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
 
-        self.dbg_pydb        = False   # Debug the debugger?
 
         self.target          = 'local' # local connections by default
         self.target_addr     = ''      # target address used by 'attach'
 
+        # self.break_anywhere, self.set_continue and
+        # self.trace_dispatch are changed depending on the value of
+        # 'set sigcheck'.  We may "decorate", in the design pattern
+        # sense, the routines from bdb, so we need to save them.
+        self.break_anywhere_bdb  = Bdb.break_anywhere
+        self.set_continue_bdb    = Bdb.set_continue
         self.trace_dispatch_bdb  = Bdb.trace_dispatch
 
-        ## FIXME: for now we'll tun on signal trace dispatching
-        self.trace_dispatch  = self.trace_signal_dispatch
+        ## FIXME: for now we'll turn on signal trace dispatching
+        self.break_anywhere  = self.break_anywhere_gdb
+        self.set_continue    = self.set_continue_gdb
+        self.trace_dispatch  = self.trace_dispatch_gdb
 
         # associates a command list to breakpoint numbers
         self.commands = {}
@@ -135,27 +144,21 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         except ImportError:
             self.histfile = None
 
+    def break_anywhere_gdb(self, frame):
+        """Decorate bdb break_anyhwere to consider the sigcheck and
+        linetrace flags."""
+        if self.sigcheck or self.linetrace: return True
+        return self.break_anywhere(frame)
+
     ### FIXME: trace_dispatch could be a performance bottleneck. If
     ### so, consider reassigning the reoutine when don't have any
     ### signals registered.
             
-    def trace_signal_dispatch(self, frame, event, arg):
+    def trace_dispatch_gdb(self, frame, event, arg):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
-        for signame in self.sigmgr.sigs.keys():
-            signum = lookup_signum(signame)
-            old_handler = signal.getsignal(signum)
-            if old_handler != self.sigmgr.sigs[signame].handle \
-                   and old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
-                # save the program's signal handler
-                self.sigmgr.sigs[signame].old_handler = old_handler
-                    
-                # restore _our_ signal handler
-                signal.signal(signum, self.sigmgr.sigs[signame].handle)
-
-        self.trace_dispatch_bdb(self, frame, event, arg)
-        return self.trace_dispatch
-
+        self.sigmgr.check_and_adjust_sighandlers()
+        return self.trace_dispatch_bdb(self, frame, event, arg)
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
@@ -271,6 +274,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('listsize',        self.set_listsize,  3)
         self.setcmds.add('logging',         self.set_logging,   2)
         self.setcmds.add('prompt',          self.set_prompt)
+        self.setcmds.add('sigcheck',        self.set_sigcheck)
         self.setcmds.add('target-address',  self.set_target_address)
 
     def __init_show(self):
@@ -291,6 +295,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('listsize',       self.show_listsize,  3)
         self.showcmds.add('logging',        self.show_logging,   2)
         self.showcmds.add('prompt',         self.show_prompt)
+        self.showcmds.add('sigcheck',       self.show_sigcheck)
         self.showcmds.add('target-address', self.show_target_address)
         self.showcmds.add('version',        self.show_version)
 
@@ -370,6 +375,13 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if not do_loop:
             # Tell cmdloop to break out of its loop.
             return True
+
+    def set_continue_gdb(self):
+        """Like bdb's set_continue but we don't have the run fast
+        option"""
+        self.stopframe = self.botframe
+        self.returnframe = None
+        self.quitting = 0
 
     def setup(self, frame, traceback=None):
         """Initialization done before entering the debugger-command
@@ -1552,12 +1564,12 @@ Send a signal to the debugged process.
         else:
             try: 
                 signum = int(arg)
-                if lookup_signame(signum) == None:
+                if sighandler.lookup_signame(signum) == None:
                     self.msg("Signal number %d not a known signal number."
                              % signum)
                     return
             except ValueError:
-                signum = lookup_signum(arg)
+                signum = sighandler.lookup_signum(arg)
                 if signum == None:
                     self.msg("Signal name %s not a known signal name."
                              % arg)

@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.8 2006/09/12 02:23:35 rockyb Exp $
+"""$Id: set.py,v 1.9 2006/09/12 07:02:43 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -44,6 +44,18 @@ Follow this command with any number of args, to be passed to the program."""
         """Set to show lines read from the debugger command file"""
         try:
             self.cmdtrace = self.get_onoff(args[1])
+        except ValueError:
+            pass
+
+    def set_dbg_pydb(self, args):
+        """Set whether we allow tracing the debugger."""
+        try:
+            self.dbg_pydb = self.get_onoff(args[1])
+            if self.dbg_pydb:
+                frame = inspect.currentframe()
+                self.stack, self.curindex = self.get_stack(frame, None)
+                self.curframe = self.stack[self.curindex][0]
+
         except ValueError:
             pass
 
@@ -155,15 +167,29 @@ set logging redirect [on|off]""")
         else:
             self.errmsg("Something went wrong trying to find the prompt")
 
-    def set_dbg_pydb(self, args):
-        """Set whether we allow tracing the debugger."""
-        try:
-            self.dbg_pydb = self.get_onoff(args[1])
-            if self.dbg_pydb:
-                frame = inspect.currentframe()
-                self.stack, self.curindex = self.get_stack(frame, None)
-                self.curframe = self.stack[self.curindex][0]
+    def set_sigcheck(self, args):
+        """Set signal handler checking/adjusting.
 
+If turned on, we will intercept every statement to see if any of the
+signal handlers that the debugger has installed have changed. If so we
+will change the handler have changed reassign it to work as indicated
+by the action we've got recorded for it."""
+
+        try:
+            sigcheck = self.get_onoff(args[1])
+            if sigcheck != self.sigcheck:
+                if sigcheck:
+                    # Turn on signal checking/adjusting
+                    self.sigmgr.check_and_adjust_sighandlers()
+                    self.break_anywhere = self.break_anywhere_gdb
+                    self.set_continue   = self.set_continue_gdb
+                    self.trace_dispatch = self.trace_dispatch_gdb
+                else:
+                    # Turn off signal checking/adjusting
+                    self.break_anywhere = self.break_anywhere_bdb
+                    self.set_continue   = self.set_continue_bdb
+                    self.trace_dispatch = self.trace_dispatch_bdb
+            self.sigcheck = sigcheck
         except ValueError:
             pass
 
