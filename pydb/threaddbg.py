@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.9 2006/09/07 01:23:26 rockyb Exp $
+# $Id: threaddbg.py,v 1.10 2006/09/12 02:23:35 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -93,14 +93,14 @@ class threadDbg(pydb.Pdb):
         else:
             self.info_thread = self.info_thread_old
         self.infocmds.add('thread',  self.info_thread,  2, False)
-        self.setcmds.add ('systrace', self.set_systrace)
+        self.setcmds.add ('dbg_pydb', self.set_dbg_pydb)
 
     def find_nondebug_frame(self, f):
         """Find the first frame that isn't a debugger frame.
         Generally we want traceback information without polluting
         it with debugger information.
         """
-        if self.systrace: return f
+        if self.dbg_pydb: return f
 
         f = is_in_threaddbg(f)
 
@@ -245,7 +245,7 @@ terse listing, for each thread we give:
   - the class, thread name, and status as <Class(Thread-n, status)>
   - the top-most call-stack information for that thread. Generally
     the top-most calls into the debugger and dispatcher are omitted unless
-    set systrace is True.
+    set debug-pydb is True.
 
     If 'verbose' appended to the end of the command, then the entire
     stack trace is given for each frame.

@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.6 2006/09/07 01:23:26 rockyb Exp $
+"""$Id: show.py,v 1.7 2006/09/12 02:23:35 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -79,9 +79,9 @@ $cdir in the path means the compilation directory of the source file."""
             else:
                 self.msg("Output will be logged and displayed.")
 
-    def show_systrace(self, args):
+    def show_dbg_pydb(self, args):
         """Show whether tracebacks include debugger routines"""
-        self.msg("Systrace is %s." % show_onoff(self.systrace))
+        self.msg("Dbg_pydb is %s." % show_onoff(self.dbg_pydb))
 
     def show_target_address(self, arg):
 

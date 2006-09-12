@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.7 2006/09/07 01:23:26 rockyb Exp $
+"""$Id: set.py,v 1.8 2006/09/12 02:23:35 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -155,11 +155,11 @@ set logging redirect [on|off]""")
         else:
             self.errmsg("Something went wrong trying to find the prompt")
 
-    def set_systrace(self, args):
+    def set_dbg_pydb(self, args):
         """Set whether we allow tracing the debugger."""
         try:
-            self.systrace = self.get_onoff(args[1])
-            if self.systrace:
+            self.dbg_pydb = self.get_onoff(args[1])
+            if self.dbg_pydb:
                 frame = inspect.currentframe()
                 self.stack, self.curindex = self.get_stack(frame, None)
                 self.curframe = self.stack[self.curindex][0]

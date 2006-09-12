@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.66 2006/09/09 11:50:26 rockyb Exp $
+"""$Id: gdb.py.in,v 1.67 2006/09/12 02:23:35 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -77,11 +77,15 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
 
-        self.systrace        = False   # Debug the debugger?
+        self.dbg_pydb        = False   # Debug the debugger?
 
         self.target          = 'local' # local connections by default
         self.target_addr     = ''      # target address used by 'attach'
 
+        self.trace_dispatch_bdb  = Bdb.trace_dispatch
+
+        ## FIXME: for now we'll tun on signal trace dispatching
+        self.trace_dispatch  = self.trace_signal_dispatch
 
         # associates a command list to breakpoint numbers
         self.commands = {}
@@ -135,7 +139,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     ### so, consider reassigning the reoutine when don't have any
     ### signals registered.
             
-    def trace_dispatch(self, frame, event, arg):
+    def trace_signal_dispatch(self, frame, event, arg):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
         for signame in self.sigmgr.sigs.keys():
@@ -149,7 +153,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                 # restore _our_ signal handler
                 signal.signal(signum, self.sigmgr.sigs[signame].handle)
 
-        Bdb.trace_dispatch(self, frame, event, arg)
+        self.trace_dispatch_bdb(self, frame, event, arg)
         return self.trace_dispatch
 
 
@@ -259,6 +263,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('args',            self.set_args)
         self.setcmds.add('basename',        self.set_basename)
         self.setcmds.add('cmdtrace',        self.set_cmdtrace)
+        self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
         self.setcmds.add('debug-signal',    self.set_debug_signal)
         self.setcmds.add('history',         self.set_history)
         self.setcmds.add('interactive',     self.set_interactive)
@@ -266,7 +271,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('listsize',        self.set_listsize,  3)
         self.setcmds.add('logging',         self.set_logging,   2)
         self.setcmds.add('prompt',          self.set_prompt)
-        self.setcmds.add ('systrace',       self.set_systrace)
         self.setcmds.add('target-address',  self.set_target_address)
 
     def __init_show(self):
@@ -276,6 +280,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
         self.showcmds.add('args',           self.show_args)
         self.showcmds.add('basename',       self.show_basename)
+        self.showcmds.add('debug-pydb',     self.show_dbg_pydb)
         self.showcmds.add('debug-signal',   self.show_debug_signal)
         self.showcmds.add('cmdtrace',       self.show_cmdtrace,    2)
         self.showcmds.add('commands',       self.show_commands,    2, False)
@@ -286,7 +291,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('listsize',       self.show_listsize,  3)
         self.showcmds.add('logging',        self.show_logging,   2)
         self.showcmds.add('prompt',         self.show_prompt)
-        self.showcmds.add('systrace',       self.show_systrace)
         self.showcmds.add('target-address', self.show_target_address)
         self.showcmds.add('version',        self.show_version)
 
@@ -375,7 +379,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         We return True if we should NOT enter the debugger-command
         loop."""
         self.forget()
-        if self.systrace:
+        if self.dbg_pydb:
             frame = inspect.currentframe()
         if frame:
             self.stack, self.curindex = self.get_stack(frame, traceback)
