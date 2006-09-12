@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.17 2006/09/12 07:02:43 rockyb Exp $
+"""$Id: sighandler.py,v 1.18 2006/09/12 23:58:46 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -64,7 +64,7 @@ class SignalManager:
                 self.siglist.append(signame)
                 if signame not in fatal_signals + ignore:
                     self.sigs[signame] = self.SigHandler(signame, pydb.msg,
-                                                         pydb.set_trace,
+                                                         pydb.set_next,
                                                          False)
     def check_and_adjust_sighandlers(self):
         """Check to see if the signal handler's we are interested have
@@ -88,7 +88,8 @@ class SignalManager:
             return
             
         sig_obj = self.sigs[signame]
-        self.pydb.msg(self.info_fmt % (signame, str(sig_obj.stop is not None),
+        self.pydb.msg(self.info_fmt % (signame,
+                                       str(sig_obj.stop_method  is not None),
                                        str(sig_obj.print_method is not None),
                                        str(sig_obj.pass_along)))
 
@@ -160,12 +161,12 @@ class SignalManager:
         If 'set_stop' is True your program will stop when this signal
         happens."""
         if set_stop:
-            self.sigs[signame].stop = self.pydb.set_trace
+            self.sigs[signame].stop_method = self.pydb.set_next
             # stop keyword implies print AND nopass
             self.sigs[signame].print_method = self.pydb.msg
             self.sigs[signame].pass_along   = False
         else:
-            self.sigs[signame].stop = None
+            self.sigs[signame].stop_method  = None
         return set_stop
 
     def handle_pass(self, signame, set_pass):
@@ -176,7 +177,7 @@ class SignalManager:
         self.sigs[signame].pass_along = set_pass
         if set_pass:
             # Pass implies nostop
-            self.sigs[signame].stop = None
+            self.sigs[signame].stop_method = None
         return set_pass
 
     def handle_ignore(self, signame, set_ignore):
@@ -192,7 +193,7 @@ class SignalManager:
         else:
             # noprint implies nostop
             self.sigs[signame].print_method = None
-            self.sigs[signame].stop         = None
+            self.sigs[signame].stop_method  = None
         return set_print
 
     ## SigHandler is a class private to SignalManager
@@ -218,19 +219,15 @@ class SignalManager:
             self.pass_along   = pass_along
             self.print_method = print_method
             self.signame      = signame
-            self.stop         = stop
+            self.stop_method  = stop
             return
 
         def handle(self, signum, frame):
             """This method is called when a signal is received."""
             if self.print_method:
                 self.print_method('Program received signal %s' % self.signame)
-            if self.stop:
-                if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
-                    self.stop(frame)
-                else:
-                    # older versions
-                    self.stop()
+            if self.stop_method:
+                self.stop_method(frame)
             elif self.pass_along:
                 # pass the signal to the program 
                 if self.old_handler:
