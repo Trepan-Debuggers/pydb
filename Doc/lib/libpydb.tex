@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.72 2006/09/05 01:37:03 rockyb Exp $
+% $Id: libpydb.tex,v 1.73 2006/09/13 01:49:27 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -399,6 +399,17 @@ Show lines as they are read from the debugger command file (or
 regression tests, but it may be helpful in tracking down a problem in
 your \code{.pydbrc} file.
 
+\item[set debug-pydb on\code{\Large{|}}off]\label{command:debug-pydb}
+
+Set whether we allow tracing the debugger. This is used for debugging
+pydb and getting access to some of its object variables. 
+
+When \code{debug-pydb} is ``on'', the most recent side of the stack
+frame will be located somewhere in the debugger; you'll need to adjust
+the frame ``up'' to get where the program was before entering the
+debugger. (In some versions this and some situations \code{frame 6}
+gets you out of the debugger and into the debugged program.
+
 \item[set history filename \var{filename}]\label{command:hist-filename}
 
 Set the filename in which to record the command history.
@@ -424,7 +435,7 @@ option \samp{--trace} when invoking \code{pydb} implicitly sets this
 on.  For information on \samp{--trace}, see \ref{switch:trace}.
 
 \begin{verbatim}
-$ pydb --basename --trace hanoi.py 2
+# pydb --basename --trace hanoi.py 2
 (hanoi.py:2): 
 + """Towers of Hanoi"""
 (hanoi.py:3): 
@@ -572,6 +583,15 @@ blanks specified. Furthermore the prompt may change in the future to
 add a history number. It is generally not advisable to change the
 prompt.}
 
+\item[set sigcheck on\code{\Large{|}}off]\label{command:sigwatch}
+
+Turning this on causes the debugger to check after every statement
+whether a signal handler has changed from one of those that is to be
+handled by the debugger. Because this may add a bit of overhead to the
+running of the debugged program, by default it is set off. However if
+you want to ensure that the debugger takes control when a particular
+signal is encountered you should set this on.
+
 \item[set target-address \var{target_addr}]\label{command:target}
 
 This sets up an address so that remote processes can connect this
@@ -611,6 +631,11 @@ This command is available only if a
 \ulink{\module{readline}}{http://docs.python.org/lib/module-readline.html}
 module is available and supports the history saving.
 
+\item[show debug-pydb]
+
+Show whether the debugging the debugger is set.
+See also \ref{command:debug-pydb}
+
 \item[show history]
 
 Generic command for showing command history parameters. The command
@@ -645,6 +670,11 @@ Show whether logging overwrites or appends to the log file.
 \item[show prompt]
 
 Show the current debugger prompt.
+
+\item[show sigcheck]
+
+Show whether the debugger checks for reassignment of signal handlers.
+See also \ref{command:sigwatch}
 
 \item[show target-address]
 

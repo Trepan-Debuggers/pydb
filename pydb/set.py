@@ -1,9 +1,9 @@
-"""$Id: set.py,v 1.9 2006/09/12 07:02:43 rockyb Exp $
+"""$Id: set.py,v 1.10 2006/09/13 01:49:29 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
 
-import inspect, re
+import inspect, re, sighandler
 
 class SubcmdSet:
 
@@ -48,7 +48,11 @@ Follow this command with any number of args, to be passed to the program."""
             pass
 
     def set_dbg_pydb(self, args):
-        """Set whether we allow tracing the debugger."""
+        """Set whether we allow tracing the debugger.
+
+This is used for debugging pydb and getting access to some of its
+object variables.
+"""
         try:
             self.dbg_pydb = self.get_onoff(args[1])
             if self.dbg_pydb:
@@ -61,12 +65,26 @@ Follow this command with any number of args, to be passed to the program."""
 
     def set_debug_signal(self, args):
         """Set the signal sent to a process to trigger debugging."""
+        if len(args) <= 1:
+            self.errmsg('Need a signal name or number')
+        signame = args[1]
         try:
-            exec 'from signal import %s' % args[1]
-        except ImportError:
-            self.errmsg('Invalid signal')
-            return
-        self.debug_signal = args[1]
+            signum  = int(signame)
+            signame = sighandler.lookup_signame(signum) 
+            if signame is None:
+                self.errmsg('Invalid signal number: %d' % signum)
+                return
+        except:
+            signum = sighandler.lookup_signum(signame)
+            if signum is not None:
+                # Canonicalize name
+                signame = sighandler.lookup_signame(signum)
+            else:
+                self.errmsg('Invalid signal name: %s' % signame)
+                return
+        self.debug_signal = signame
+        self.do_handle("%s noprint nostop pass" % signame)
+        ## FIXME assign signal handler here.
         self.msg('debug-signal set to: %s' % self.debug_signal)
 
     def set_history(self, args):
@@ -170,10 +188,12 @@ set logging redirect [on|off]""")
     def set_sigcheck(self, args):
         """Set signal handler checking/adjusting.
 
-If turned on, we will intercept every statement to see if any of the
-signal handlers that the debugger has installed have changed. If so we
-will change the handler have changed reassign it to work as indicated
-by the action we've got recorded for it."""
+Turning this on causes the debugger to check after every statement
+whether a signal handler has changed from one of those that is to be
+handled by the debugger. Because this may add a bit of overhead to the
+running of the debugged program, by default it is set off. However if
+you want to ensure that the debugger takes control when a particular
+signal is encountered you should set this on."""
 
         try:
             sigcheck = self.get_onoff(args[1])
