@@ -1,11 +1,11 @@
-"""$Id: connection.py,v 1.1 2006/09/08 15:54:24 rockyb Exp $
-Lower-level classes to support out-of-process (or out of computer)
-communication.
+"""$Id: connection.py,v 1.2 2006/09/14 10:47:05 rockyb Exp $
+Lower-level classes to support communication between separate
+processes which might reside be on separate computers.
 
 Can be used remote debugging via a socket or via a serial
 communication line, or via a FIFO.
 
-From Matt Fleming's 2006 Google Summer of Code project.
+Modified from Matt Fleming's 2006 Google Summer of Code project.
 """
 
 NotImplementedMessage = "This method must be overriden in a subclass"
@@ -124,7 +124,7 @@ class ConnectionServerTCP(ConnectionInterface):
                 self._sock.bind((self.host, self.port))
             except socket.error, e:
                 # Use e[1] as a more detailed error message
-                raise ConnectionFailed, e[1]
+                raise IOError, e[1]
             self._sock.listen(1)
             self.listening = True
         self.output, addr = self._sock.accept()
@@ -208,44 +208,76 @@ class ConnectionClientTCP(ConnectionInterface):
 
 ### This might go in a different file
 import os
-class ConnectionServerFIFO(ConnectionInterface):
-    """ This class implements a named pipe for communication between
-    a pdbserver and client.
+
+class ConnectionFIFO(ConnectionInterface):
+    """A class for communicating akin to a named pipe. Since I haven't
+    been able to figure out how to make os.mkfifo work, we'll use two
+    files instead. Each process reads on one and writes on the
+    other. The read of one is attached to the write of the other and
+    vice versa.
     """
-    def __init__(self):
-        ConnectionInterface.__init__(self)
-        self.input = self.output = self._filename = self._mode = None
 
-    def connect(self, name, mode=0644):
-        self._filename = name
-        self._file_in = self._filename+'0'
-        self._file_out = self._filename+'1'
-        self._mode = mode
+    def __init__(self, is_server, filename):
+        """is_server is a boolean which is used to ensure that the
+        read FIFO of one process is attachd tothe write FIFO of the
+        other. We arbitrarily call one the 'server' and one the
+        'client'.
+        """
+        ConnectionInterface.__init__(self, filename)
+        ## FIXME check to see if is_server is boolean? 
+        self.is_server = is_server
+        self.filename  = filename
+        self.fname_in   = self.infile()
+        self.fname_out  = self.outfile()
+        self.open_outfile()
+            
+        self.inp = self.mode = None
+        
+    def connect(self, mode=0644):
+        """Set up FIFOs for read and write connections based on the
+        filename parameter passed. If no filename parameter is given,
+        use the filename specified on instance creation.
+
+        If there is a problem creating the FIFO we will return a
+        ConnectionFailed exception."""
+
+        self.mode = mode
         try:
-            os.mkfifo(self._file_in, self._mode)
-            os.mkfifo(self._file_out, self._mode)
-        except OSError, e:
-            raise ConnectionFailed, e[1]
-        self.input = open(self._file_in, 'r')
-        self.output = open(self._file_out, 'w')
-
+            self.inp = open(self.fname_in, 'r')
+        except IOError, e:
+            raise ConnectionFailed, "%s: %s:" % (self.fname_out, e[1])
+        
     def disconnect(self):
-        """ Disconnect from the named pipe. """
-        if not self.input or not self.output:
+        if not self.inp or not self.outp:
             return
-        self.output.close()
-        self.input.close()
-        self.input = self.output = None
-        os.unlink(self._file_in)
-        os.unlink(self._file_out)
+        self.outp.close()
+        self.inp.close()
+        self.inp = self.outp = None
 
-
-    def readline(self):
-        """ Read a line from the named pipe. """
+    def infile(self):
+        """Return the input FIFO name for the object"""
+        if self.is_server:
+            return self.filename + ".in"
+        else:
+            return self.filename + ".out"
+        
+    def open_outfile(self):
+        """Return the output FIFO name for the object"""
         try:
-            # Using readline allows the data to be read quicker, don't
-            # know why.
-            line = self.input.readline()
+            self.outp = open(self.fname_out, 'w')
+        except IOError, e:
+            raise ConnectionFailed, e[1]
+
+    def outfile(self):
+        """Return the output FIFO name for the object"""
+        if self.is_server:
+            return self.filename + ".out"
+        else:
+            return self.filename + ".in"
+        
+    def readline(self):
+        try:
+            line = self.inp.readline()
         except IOError, e:
             raise ReadError, e[1]
         if not line:
@@ -255,51 +287,54 @@ class ConnectionServerFIFO(ConnectionInterface):
     def write(self, msg):
         if msg[-1] != '\n': msg += '\n'
         try:
-            self.output.write(msg)
-            self.output.flush()
-        except IOError, e:
-            raise WriteError, e[1]
-
-class ConnectionClientFIFO(ConnectionInterface):
-    """ This class is the client class for accessing a named pipe
-    used for communication between client and pdbserver.
-    """
-    def __init__(self):
-        ConnectionInterface.__init__(self)
-        self.input = self.output = self._filename = self._mode = None
-        
-    def connect(self, name, mode=0644):
-        self._filename = name
-        self._file_in = self._filename+'1'
-        self._file_out = self._filename+'0'
-        self._mode = mode
-        try:
-            self.output = open(self._file_out, 'w')
-            self.input = open(self._file_in, 'r')
-        except IOError, e:
-            raise ConnectionFailed, e[1]
-        
-    def disconnect(self):
-        if not self.input or not self.output:
-            return
-        self.output.close()
-        self.input.close()
-        self.input = self.output = None
-
-    def readline(self):
-        try:
-            line = self.input.readline()
-        except IOError, e:
-            raise ReadError, e[1]
-        if not line:
-            raise ReadError, 'Connection closed'
-        return line
-
-    def write(self, msg):
-        if msg[-1] != '\n': msg += '\n'
-        try:
-            self.output.write(msg)
-            self.output.flush()
+            self.outp.write(msg)
+            self.outp.flush()
         except IOError, e:
             raise WriteError, e[1]
         
+# When invoked as main program, do some basic tests 
+if __name__=='__main__':
+    # FIFO test
+    import os, thread
+    
+    fname='test_file'
+    server = ConnectionFIFO(is_server=True, filename=fname)
+    client = ConnectionFIFO(is_server=False, filename=fname)
+    thread.start_new_thread(server.connect, ())
+    client.connect()
+    line = 'this is a test\n'
+    client.write(line)
+    ### FIXME
+    import time
+    time.sleep(0.05)
+
+    l2 = server.readline()
+    assert l2 == line
+    line = 'Another test\n'
+    server.write(line)
+    l2 = client.readline()
+    assert l2 == line
+    client.disconnect()
+    server.disconnect()
+
+    # TCP test
+    port   = 8000
+    while True:
+        addr   = '127.0.0.1:%d' % port
+        server = ConnectionServerTCP()
+        try:
+            thread.start_new_thread(server.connect, (addr,))
+            print "port: %d" % port
+            break
+        except IOError, e:
+            if e == 'Address already in use':
+                if port < 8010:
+                    port += 1
+                    print "port: %d" % port
+                    continue
+            import sys
+            sys.exit(0)
+            
+    client = ConnectionClientTCP()
+    client.disconnect()
+    server.disconnect()
