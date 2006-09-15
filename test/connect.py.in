@@ -29,12 +29,12 @@ TESTFN = 'device'
 
 sys.path.append("..")
 from connection import ConnectionServerTCP, ConnectionClientTCP, \
-     ConnectionSerial, ConnectionServerFIFO, ConnectionClientFIFO, \
+     ConnectionSerial, ConnectionFIFO, ConnectionFIFO, \
      ConnectionFailed, ReadError, WriteError
 
-# Try to connect the client to addr either until we've tried MAXTRIES
-# times or until it succeeds.
 def repeatedConnect(client, addr):
+    """Try to connect the client to addr either until we've tried MAXTRIES
+    times or until it succeeds."""
     for i in range(MAXTRIES):
         try:
             client.connect(addr)
@@ -47,56 +47,16 @@ class TestTCPConnections(unittest.TestCase):
         self.server = ConnectionServerTCP()
         self.client = ConnectionClientTCP()
 
-    def test_ClientConnectToServer(self):
-        thread.start_new_thread(repeatedConnect, (self.client, __addr__))
-        self.server.connect(__addr__)
-        self.server.disconnect()
-
-##     def test_ClientConnectAndRead(self):
-##         thread.start_new_thread(repeatedConnect, (self.client,__addr__))
+##     def test_ErrorAddressAlreadyInUse(self):
+##         thread.start_new_thread(repeatedConnect, (self.client, __addr__))
 ##         self.server.connect(__addr__)
 
-##         self.server.write("good")
-##         line = self.client.readline()
-##         self.assertEqual("good", line, "Could not read from server")
-##         self.client.write('success')
-##         line = self.server.readline()
-##         self.assertEqual('success\n', line, 'Could not read from client')
+##         # Set up second server on same port and do not reuse the addr
+##         s = ConnectionServerTCP()
+##         self.assertRaises(ConnectionFailed, s.connect, __addr__, False)
 
-    def test_DisconnectDisconnected(self):
-        s = ConnectionServerTCP()
-
-        s.disconnect()
-        s.disconnect()
-
-##     def test_Readline(self):
-##         thread.start_new_thread(repeatedConnect, (self.client,__addr__))
-##         self.server.connect(__addr__)
-
-##         self.client.write('good')
-##         line = self.server.readline()
-##         self.assertEquals('good\n', line, 'Could not read first line.')
-
-##         self.server.disconnect()
-
-    def test_ErrorAddressAlreadyInUse(self):
-        thread.start_new_thread(repeatedConnect, (self.client, __addr__))
-        self.server.connect(__addr__)
-
-        # Set up second server on same port and do not reuse the addr
-        s = ConnectionServerTCP()
-        self.assertRaises(ConnectionFailed, s.connect, __addr__, False)
-
-##     def test_InvalidServerAddress(self):
-##         addr = 'fff.209320909xcmnm2iu3-=0-0-z.,x.,091209:2990'
-##         self.assertRaises(ConnectionFailed, self.server.connect, addr)
-
-    def test_ConnectionRefused(self):
-        self.assertRaises(ConnectionFailed, self.client.connect, __addr__)
-
-    def test_InvalidAddressPortPair(self):
-        addr = 'localhost 8000'
-        self.assertRaises(ConnectionFailed, self.server.connect, addr)
+##     def test_ConnectionRefused(self):
+##         self.assertRaises(ConnectionFailed, self.client.connect, __addr__)
 
 ##     def test_ServerReadError(self):
 ##         thread.start_new_thread(self.server.connect, (__addr__,))
@@ -176,70 +136,12 @@ class TestSerialConnections(unittest.TestCase):
         self.client.disconnect()
         os.remove(TESTFN)
 
-class TestFIFOConnections(unittest.TestCase):
-    def setUp(self):
-        self.server = ConnectionServerFIFO()
-        self.client = ConnectionClientFIFO()
-
-##     def test_Connect(self):
-##         thread.start_new_thread(self.client.connect, ('test_file',))
-##         self.server.connect('test_file')
-
-##     def test_ReadWrite(self):
-##         thread.start_new_thread(self.client.connect, ('test_file',))
-##         self.server.connect('test_file')
-
-##         # Server write, client read
-##         self.server.write('Tim The Enchanter!\n')
-
-##         # Wait for the thread to catch up
-##         while not self.client.input:
-##             pass
-##         line = self.client.readline()
-##         self.assertEquals('Tim The Enchanter!\n', line)
-
-##         # Client write, server read
-##         self.client.write('received\n')
-##         line = self.server.readline()
-##         self.assertEquals('received\n', line)
-
-##     def test_MultipleDisconnect(self):
-##         self.client.disconnect()
-##         self.server.disconnect()
-
-##     def test_ReadError(self):
-##         thread.start_new_thread(self.client.connect, ('test_file',))
-##         self.server.connect('test_file')
-
-##         while not self.client.input:
-##             pass
-
-##         self.client.disconnect()
-##         self.assertRaises(ReadError, self.server.readline)
-
-##         self.client.connect('test_file')
-
-##         self.server.disconnect()
-##         self.assertRaises(ReadError, self.client.readline)
-
-##     def test_WriteError(self):
-##         thread.start_new_thread(self.client.connect, ('test_file',))
-##         self.server.connect('test_file')
-
-##         while not self.client.input:
-##             pass
-
-##         self.client.disconnect()
-##         self.assertRaises(WriteError, self.server.write, 'spam\n')
-
-##         self.client.connect('test_file')
-
-##         self.server.disconnect()
-##         self.assertRaises(WriteError, self.client.write, 'Ni!\n')
-
     def test_InvalidPipe(self):
-        self.assertRaises(ConnectionFailed,self.client.connect, 'invalid')
-        os.unlink('invalid0')
+        fname='invalid'
+        self.assertRaises(ConnectionFailed,self.client.connect, fname)
+        client_fname = fname+'0'
+        if os.path.exists(client_fname):
+            os.unlink(client_fname)
 
     def tear_Down(self):
         self.client.disconnect()

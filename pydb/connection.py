@@ -1,4 +1,4 @@
-"""$Id: connection.py,v 1.2 2006/09/14 10:47:05 rockyb Exp $
+"""$Id: connection.py,v 1.3 2006/09/15 08:44:27 rockyb Exp $
 Lower-level classes to support communication between separate
 processes which might reside be on separate computers.
 
@@ -124,7 +124,7 @@ class ConnectionServerTCP(ConnectionInterface):
                 self._sock.bind((self.host, self.port))
             except socket.error, e:
                 # Use e[1] as a more detailed error message
-                raise IOError, e[1]
+                raise ConnectionFailed, e[1]
             self._sock.listen(1)
             self.listening = True
         self.output, addr = self._sock.accept()
@@ -248,9 +248,13 @@ class ConnectionFIFO(ConnectionInterface):
             raise ConnectionFailed, "%s: %s:" % (self.fname_out, e[1])
         
     def disconnect(self):
+        """Close input and output files and remove from the filesystem
+        the output file."""
         if not self.inp or not self.outp:
             return
         self.outp.close()
+        if type(self.outfile) == type("") and os.path.exists(self.outfile):
+            os.unlink(self.outfile)
         self.inp.close()
         self.inp = self.outp = None
 
@@ -318,7 +322,7 @@ if __name__=='__main__':
     server.disconnect()
 
     # TCP test
-    port   = 8000
+    port = 8000
     while True:
         addr   = '127.0.0.1:%d' % port
         server = ConnectionServerTCP()
