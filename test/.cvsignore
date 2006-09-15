@@ -10,5 +10,6 @@ pm.py
 settrace.py
 sighandle.py
 sigtest.py
+tcp_connect.py
 test.py
 trace.py
