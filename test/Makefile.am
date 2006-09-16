@@ -1,3 +1,23 @@
+#$Id: Makefile.am,v 1.24 2006/09/16 14:54:06 rockyb Exp $
+#   Copyright (C) 2006 Rocky Bernstein
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#    02110-1301 USA.
+
+# SUBDIRS := thread
+
 check_DATA = \
 	brkpt1.cmd        \
 	brkpt1.right      \
@@ -30,6 +50,8 @@ check_DATA = \
 	run2.cmd          \
 	run2.right        \
 	sighandle.py      \
+	sighandler.cmd    \
+	sighandler.right  \
 	sigtest.py        \
         sigtestexample.py \
 	test.py           \

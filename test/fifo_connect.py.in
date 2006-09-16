@@ -1,0 +1,48 @@
+#!/usr/local/bin/python -t
+# $d$ -*- Python -*-
+
+# This unit test doesn't use any of the debugger code. It is meant solely
+# to test the connection classes.
+
+import os, sys, thread, unittest
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+import connection
+
+class TestFIFOConnections(unittest.TestCase):
+
+    def test_client_server(self):
+        """Test that the we can read and write between a FIFO client and
+        server"""
+        fname='fifotest'
+        server = connection.ConnectionFIFO(is_server=True)
+        client = connection.ConnectionFIFO(is_server=False)
+        thread.start_new_thread(server.connect, (fname,))
+        client.connect(fname)
+        line = 'this is a test\n'
+        client.write(line)
+        ### FIXME
+        import time
+        time.sleep(0.05)
+
+        l2 = server.readline()
+        self.assertEqual(l2, line, "client to server")
+        line = 'Another test\n'
+        server.write(line)
+        l2 = client.readline()
+        self.assertEqual(l2, line, "server to client")
+        client.disconnect()
+        server.disconnect()
+        # And again just to see what will happen
+        server.disconnect()
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.28 2006/09/04 07:30:19 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.29 2006/09/16 14:54:06 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
 import difflib, os, pprint, time, sys, unittest
 
@@ -162,6 +162,12 @@ class PdbTests(unittest.TestCase):
                             pythonfile='%sfilebug.py' %srcdir)
         self.assertEqual(True, result, "filebug")
         
+    def test_handle(self):
+        """Unit test handle processing."""
+        result=run_debugger(testname='sighandler',
+                            pythonfile='%shanoi.py' % srcdir)
+        self.assertEqual(True, result, "sighandler")
+
     def test_history(self):
         """Test the 'history' debugger command."""
         try:

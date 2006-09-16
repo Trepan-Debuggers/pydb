@@ -5,6 +5,9 @@ import os
 #prof2.py should work but takes a long time to run.
 #tests=['t2.py', 'thread1.py', 'q.py', 'prof2.py']
 tests=['t2.py', 'thread1.py', 'q.py']
+print "=" * 60
+cmd='../../pydb/pydb.py --threading --command=thread-switch.cmd q.py'
+os.system(cmd)
 for test in tests:
     print "=" * 60
     print test

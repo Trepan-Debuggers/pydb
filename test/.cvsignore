@@ -4,7 +4,9 @@
 *.pyo
 Makefile
 Makefile.in
+connect.py
 except.py
+fifo_connect.py
 history.hst
 pm.py
 settrace.py

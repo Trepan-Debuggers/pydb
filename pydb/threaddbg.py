@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.11 2006/09/16 08:24:12 rockyb Exp $
+# $Id: threaddbg.py,v 1.12 2006/09/16 14:54:05 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -148,22 +148,29 @@ class threadDbg(pydb.Pdb):
         So 'frame -1' moves when gdb dialect is in effect moves
         to the oldest frame, and 'frame 0' moves to the newest frame."""
         args = arg.split()
-        if len(args) > 0 and args[0] in self.traced.keys():
-            t = self.traced[args[0]]
-            threads = sys._current_frames()
-            if t in threads.keys():
-                self.curframe_thread_name = args[0]
-                frame                     = threads[t]
-                #newframe                  = self.find_nondebug_frame(frame)
-                #if newframe is not None:  frame = newframe
-                self.stack, self.curindex = self.get_stack(frame, None)
-            if len(args) == 1:
-                arg = '0'
-            else:
-                arg = args[1]
+        if len(args) > 0:
+            try:
+                int(arg)
+                # Must be frame command without a thread name
+            except ValueError:
+                if args[0] not in self.traced.keys():
+                    self.msg("Don't know about thread %s" % args[0])
+                    return
+                t = self.traced[args[0]]
+                threads = sys._current_frames()
+                if t in threads.keys():
+                    self.curframe_thread_name = args[0]
+                    frame                     = threads[t]
+                    #newframe = self.find_nondebug_frame(frame)
+                    #if newframe is not None:  frame = newframe
+                    self.stack, self.curindex = self.get_stack(frame, None)
+                if len(args) == 1:
+                    arg = '0'
+                else:
+                    arg = ' '.join(args[1:])
 
         self.thread_name = threading.currentThread().getName()
-        
+
         pydb.Pdb.do_frame(self, arg)
 
     def do_quit(self, arg):
@@ -352,7 +359,9 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.msg("Here are the threads I know about:")
             self.info_thread(args=[thread_name], short_display=True)
             self.msg(str(self.traced))
+            return False
         else:
+            # Here's where we arrange to switch threads
             self.threading_cond.acquire()
             self.threading_cond.notify()
             self.threading_cond.release()
