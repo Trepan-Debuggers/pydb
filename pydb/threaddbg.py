@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.12 2006/09/16 14:54:05 rockyb Exp $
+# $Id: threaddbg.py,v 1.13 2006/09/16 23:49:18 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
@@ -77,6 +77,7 @@ class threadDbg(pydb.Pdb):
 
         self.thread_name             = threading.currentThread().getName()
         self.curframe_thread_name    = self.thread_name
+        self.nothread_do_break       = pydb.Pdb.do_break
         self.nothread_trace_dispatch = bdb.Bdb.trace_dispatch
         self.nothread_quit = pydb.Pdb.do_quit
 
@@ -134,6 +135,35 @@ class threadDbg(pydb.Pdb):
         self.threading_imported=True
         self.running=True
         threading.settrace(self.trace_dispatch)
+
+    def do_break(self, arg, temporary=0):
+        """b(reak) {[file:]lineno | function} [thread Thread-name] [, condition]
+With a line number argument, set a break there in the current
+file.  With a function name, set a break at first executable line
+of that function.  Without argument, list all breaks.  If a second
+argument is present, it is a string specifying an expression
+which must evaluate to true before the breakpoint is honored.
+
+The line number may be prefixed with a filename and a colon,
+to specify a breakpoint in another file (probably one that
+hasn't been loaded yet).  The file is searched for on sys.path;
+the .py suffix may be omitted.
+
+If a thread name is given we will stop only if the the thread has that name."""
+        
+        # Decorate non-thread break to strip out 'thread Thread-name'
+        args = arg.split()
+        thread_name = None
+        if len(args) > 2 and args[1] == 'thread':
+            thread_name = args[2]
+            if thread_name not in self.traced.keys():
+                self.msg("Don't know about thread %s" % thread_name)
+                if not get_confirmation(self, 'Really set anyway (y or n)? '):
+                    return
+            del args[1:3]
+            arg = ' '.join(args)
+        self.nothread_do_break(self, arg, temporary=temporary,
+                               thread_name=thread_name)
 
     def do_frame(self, arg):
         """frame [Thread-Name] frame-number
@@ -197,12 +227,12 @@ class threadDbg(pydb.Pdb):
                          % thread_name)
                 really_quit = False
                 break
-        self.msg("Quit for threading not done yet. Try kill.")
-        return
         if not really_quit:
             really_quit = get_confirmation(self,
                                            'Really quit anyway (y or n)? ',
                                            True)
+        self.msg("Quit for threading not done yet. Try kill.")
+        return
         if really_quit:
             self.nothread_quit(self, arg)
 

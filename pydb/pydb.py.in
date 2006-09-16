@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.110 2006/09/16 19:07:43 rockyb Exp $
+"""$Id: pydb.py.in,v 1.111 2006/09/16 23:49:18 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -30,7 +30,10 @@ def init():
     global program
     global _re_linetrace_delay
 
-    program = os.path.basename(sys.argv[0])
+    if len(sys.argv) > 0:
+        program = os.path.basename(sys.argv[0])
+    else:
+        program = "*Unknown*"
 
 def process_options(p, debugger_name, prog, pkg_version,
                     option_list=None):

@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.73 2006/09/16 19:07:43 rockyb Exp $
+"""$Id: gdb.py.in,v 1.74 2006/09/16 23:49:18 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -533,7 +533,7 @@ alias ps pi self
         else:
             self.aliases[args[0]] = ' '.join(args[1:])
 
-    def do_break(self, arg, temporary = 0):
+    def do_break(self, arg, temporary = 0, thread_name=None):
         """b(reak) {[file:]lineno | function} [, condition]
 With a line number argument, set a break there in the current
 file.  With a function name, set a break at first executable line
@@ -589,8 +589,14 @@ the .py suffix may be omitted."""
             if err: self.errmsg(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
-                self.msg("Breakpoint %d set in file %s, line %d."
-                         % (bp.number, self.filename(bp.file), bp.line))
+                if thread_name is None:
+                    self.msg("Breakpoint %d set in file %s, line %d."
+                             % (bp.number, self.filename(bp.file), bp.line))
+                else:
+                    bp.thread_name = thread_name
+                    self.msg("Breakpoint %d set in file %s, line %d, thread %s."
+                             % (bp.number, self.filename(bp.file), bp.line,
+                                thread_name))
 
     do_b = do_break
 

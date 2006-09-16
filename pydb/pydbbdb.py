@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.19 2006/09/16 16:15:53 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.20 2006/09/16 23:49:18 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -127,7 +127,11 @@ class Bdb(bdb.Bdb):
         # flag says ok to delete temp. bp
         (bp, flag) = bdb.effective(filename, lineno, frame)
         if bp:
+            ## This is new when we have thread debugging.
             self.currentbp = bp.number
+            if hasattr(bp, 'thread_name') and hasattr(self, 'thread_name') \
+                   and bp.thread_name != self.thread_name:
+                    return False
             if (flag and bp.temporary):
                 #### ARG. All for the below name change.
                 self.do_delete(str(bp.number))
