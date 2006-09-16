@@ -4,9 +4,7 @@
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
 
-import os, select, socket, sys, threading, time, unittest
-
-from socket import gaierror
+import os, sys, threading, time, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -17,15 +15,17 @@ if top_srcdir[-1] != os.path.sep:
     top_srcdir += os.path.sep
 sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
+import connection
+
 debug=True
 
 class TestTCPConnections(unittest.TestCase):
 
-    def setUp(self, host='127.0.0.1', port=8000):
-        self.port = port
-        self.host = host
-        self.server = ConnectionServerTCP()
-        self.client = ConnectionClientTCP()
+    def setUp(self):
+        self.port = 8000
+        self.host = '127.0.0.1'
+        self.server = connection.ConnectionServerTCP()
+        self.client = connection.ConnectionClientTCP()
 
     def tear_Down(self):
         self.server.disconnect()
@@ -38,14 +38,14 @@ class TestTCPConnections(unittest.TestCase):
             if self.server._sock is None:
                 time.sleep(0.01)
             else:
-                for i in range(MAXTRIES):
+                for j in range(MAXTRIES):
                     try:
                         self.client.connect(self.addr)
                         if self.client.connected:
                             if debug:
                                 print "client connected"
                             return True
-                    except ConnectionFailed, e:
+                    except connection.ConnectionFailed, e:
                         if debug: print e
             
         if debug: print "Client can't connect"
@@ -60,7 +60,7 @@ class TestTCPConnections(unittest.TestCase):
                 self.server.connect(self.addr)
                 if debug: print "Listening on socket %s" % self.addr
                 return True
-            except ConnectionFailed, e:
+            except connection.ConnectionFailed, e:
                 if e[0] == 'Address already in use':
                     self.port += 1
                     print "Trying port %d" % self.port
@@ -98,12 +98,14 @@ class TestTCPConnections(unittest.TestCase):
     def test_invalid_address_port_pair(self):
         """Test an erroneous connection name"""
         addr = 'localhost 8000'
-        self.assertRaises(ConnectionFailed, self.server.connect, addr)
+        self.assertRaises(connection.ConnectionFailed,
+                          self.server.connect, addr)
 
     def test_invalid_server_address(self):
         """Test an erroneous server address"""
         addr = 'fff.209320909xcmnm2iu3-=0-0-z.,x.,091209:2990'
-        self.assertRaises(ConnectionFailed, self.server.connect, addr)
+        self.assertRaises(connection.ConnectionFailed,
+                          self.server.connect, addr)
 
 if __name__ == '__main__':
     unittest.main()

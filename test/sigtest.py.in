@@ -1,8 +1,8 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.12 2006/09/12 23:58:47 rockyb Exp $
+# $Id: sigtest.py.in,v 1.13 2006/09/16 01:04:25 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
-import os, time, sys, unittest, signal
+import os, sys, unittest, signal
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -13,7 +13,7 @@ if top_srcdir[-1] != os.path.sep:
     top_srcdir += os.path.sep
 sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
-import pydb, sighandler
+import sighandler
 
 builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:

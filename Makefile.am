@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.42 2006/09/15 08:44:25 rockyb Exp $
+#$Id: Makefile.am,v 1.43 2006/09/16 01:04:23 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,10 @@ clean-generic:
 	-rm $(top_builddir)/pydb/*.pyc
 
 test: check-recusive
-check-recursive: pydb/pydb.py pydb/gdb.py test/connect.py test/pm.py test/settrace.py test/sighandle.py test/sigtest.py test/tcp_connect.py test/test.py
+check-recursive: pydb/pydb.py pydb/gdb.py \
+	test/connect.py test/fifo_connect.py \
+	test/pm.py test/settrace.py test/sighandle.py test/sigtest.py \
+	test/tcp_connect.py test/test.py
 
 # 
 # For the executable, we make a symbolic link to the python program,

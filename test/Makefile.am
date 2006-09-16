@@ -37,7 +37,8 @@ check_DATA = \
 	trace.py          \
 	trace.right
 
-TESTS = test.py pm.py trace.py sighandle.py sigtest.py connect.py
+TESTS = test.py pm.py trace.py sighandle.py sigtest.py connect.py \
+	tcp_connect.py fifo_connect.py
 
 EXTRA_DIST = $(check_DATA) except.py.in pm.py.in \
 	settrace.py.in test.py.in trace.py.in sighandle.py.in sigtest.py.in
