@@ -10,6 +10,10 @@
     thread [thread-name [thread-name]...]  - switches thread
     qt                                     - quit current thread
 
+* Fix bug in handling tbreak caused by the difference in semantics between
+  pdb's 'clear' command and pdb's (which this 'delete' and has a different
+  meaning for 'clear'.
+
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.
 

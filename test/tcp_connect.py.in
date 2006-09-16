@@ -82,6 +82,8 @@ class TestTCPConnections(unittest.TestCase):
         """Test that the we can read and write between a TCP client and
         server"""
         if not self.setup_client_and_server():
+            self.server.disconnect()
+            self.client.disconnect()
             return 
         self.server.write("good")
         line = self.client.readline()

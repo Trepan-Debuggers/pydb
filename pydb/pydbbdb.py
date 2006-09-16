@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.18 2006/07/28 09:37:49 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.19 2006/09/16 16:15:53 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -106,6 +106,34 @@ class Bdb(bdb.Bdb):
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
                      (bp.hits, ss), out)
+
+    def break_here(self, frame):
+        """This routine is almost copy of bdb.py's routine. Alas what pdb
+        calls clear gdb calls delete and gdb's clear command is different.
+        I tried saving/restoring method names, but that didn't catch
+        all of the places break_here was called.
+        """
+        filename = self.canonic(frame.f_code.co_filename)
+        if not filename in self.breaks:
+            return False
+        lineno = frame.f_lineno
+        if not lineno in self.breaks[filename]:
+            # The line itself has no breakpoint, but maybe the line is the
+            # first line of a function with breakpoint set by function name.
+            lineno = frame.f_code.co_firstlineno
+            if not lineno in self.breaks[filename]:
+                return False
+
+        # flag says ok to delete temp. bp
+        (bp, flag) = bdb.effective(filename, lineno, frame)
+        if bp:
+            self.currentbp = bp.number
+            if (flag and bp.temporary):
+                #### ARG. All for the below name change.
+                self.do_delete(str(bp.number))
+            return True
+        else:
+            return False
 
     def canonic(self, filename):
 
