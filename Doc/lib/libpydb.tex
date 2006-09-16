@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.73 2006/09/13 01:49:27 rockyb Exp $
+% $Id: libpydb.tex,v 1.74 2006/09/16 19:07:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1442,8 +1442,17 @@ It is also to possible enter the debugger after a crash or traceback
 even though the program was not started via \code{pydb}. This is
 called \emph{post-mortem debugging}.
 
-Basically all you do is \code{import pydb} (if that hasn't been done
-already), and call \code{pydb.pm()}.
+There are in fact three possibilities. The first way requires
+modification to your program but does require that the program was run
+from the Python interpreter shell. The second possibility doesn't
+require being in the Python interpreter shell, but does require
+modification to your program. The third possibility is if you had
+started using \code{pydb}
+
+\subsubsection{Post-Mortem Debugging within a Python Interpreter Shell
+({\tt pydb.pm()})}
+Here, all you do is \code{import pydb} (if that hasn't
+been done already), and call \code{pydb.pm()}.
 
 To make this more concrete we will give an example. We have the
 following text \code{mymodule.py}
@@ -1483,12 +1492,29 @@ exception and \code{sys.last_traceback} will not be defined.
 If you have a traceback stored say in variable \code{t}, instead of 
 \code{pydb.pm()} above, use \code{pydb.post_mortem(t)}.
 
+\subsubsection{Post-Mortem Debugging arranged within a Python Script
+  ({\tt pydb.exception_hook})}
+
+If you didn't start your program inside a Python interpreter shell,
+there you can still get into the debugger when an exception
+occurs. Here you need to arrange for this possibility adding to the
+script these lines:
+
+\begin{verbatim}
+  import sys
+  sys.excepthook = pydb.exception_hook
+\end{verbatim}
+
+
+\subsubsection{Post-Mortem Debugging within {\tt pydb}}
 When invoked as a script, \code{pydb} will automatically enter
 post-mortem debugging if the program being debugged exits
-abnormally. After post-mortem debugging (or after normal exit of the
+abnormally. 
+
+After post-mortem debugging (or after normal exit of the
 program), \code{pydb} will restart the program.  Automatic restarting
-preserves \code{pydb}'s state (such as breakpoints) and in most cases is more
-useful than quitting the debugger upon the program's exit.
+preserves \code{pydb}'s state (such as breakpoints) and in most cases
+is more useful than quitting the debugger upon the program's exit.
 
 \subsection{Yet Another Method of Invocation}
 
@@ -1558,6 +1584,23 @@ used internally by GNU Emacs debugger \code{gud}.
 
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
+
+\begin{funcdesc}{exception_hook}{type, value, tb, dbg_cmds=None,
+    cmdfile=None}
+
+An exception hook to call \code{pydb}'s post-mortem debugger.
+
+\code{cmdfile} is an optional debugger command file you want to 
+\code{source} commands on.
+
+\code{dbg_cmds} is a list of debugger commands you want to run.
+
+To use add this to your Python program:
+\begin{verbatim}
+       import sys
+       sys.excepthook = @PACKAGE_NAME@.exception_hook
+\end{verbatim}
+\end{funcdesc}
 
 \begin{funcdesc}{pm}{\optional{dbg_cmds=None}}
 Enter post-mortem debugging of the traceback found in
@@ -1770,10 +1813,21 @@ Set subcommands. (Well, most of them).
 
 Show subcommands. (Well, most of them).
 
+\item[sighandler.py]
+
+Classes and routines which help in signal handling. Of the classes
+there is a signal handler manager class, \code{SignalManager}, and a
+class that is used by the signal handler that the program sees,
+\code{SigHandler}.
+
 \item[subcmd.py]
 
 Implements a sub-command class for handling \code{info}, \code{set},
 and \code{show} subcommand processing.
+
+\item[threaddbg.py]
+
+Implements thread debugging.
 
 \end{description}
 

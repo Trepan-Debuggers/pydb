@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.109 2006/09/16 08:24:12 rockyb Exp $
+"""$Id: pydb.py.in,v 1.110 2006/09/16 19:07:43 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -198,23 +198,20 @@ class Pdb(Gdb):
 # Other top-level routines
 #########################################################
 
-def exception_hook(type, value, tb, opts=None, cmdfile=None):
+def exception_hook(type, value, tb, dbg_cmds=None, cmdfile=None):
     """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.
 
     cmdfile is an optional debugger command file you want to run
     "source" on.
 
-    Opts is an optional dictionary of debugger variables you want set;
-    the key is the variable name and the value is the value to give
-    the variable in the @PACKAGE_NAME@ instance.
+    dbg_cmds is a list of debugger commands you want to run.
 
     To use add this to your Python program
        import sys
        sys.excepthook = @PACKAGE_NAME@.exception_hook
     """
     traceback.print_exception(type, value, tb)
-    post_mortem(tb, opts, cmdfile, 0)
-
+    post_mortem(tb, dbg_cmds, cmdfile, 0)
 
 # print help
 def help():
@@ -229,22 +226,22 @@ def help():
         print ("Sorry, can't find the help file '%s' along the "
                   + "Python search path") % doc_file
 
-def pdbserver(addr, p):
-    """Set up to allow a program to be debugged from outside of the
-    processes. To take control a debugger front end connects to
-    'addr', which a protocol-specific address, i.e.  tcp = 'tcp
-    mydomainname.com:9876' serial = 'serial /dev/ttyC0'.
+## def pdbserver(addr, p):
+##     """Set up to allow a program to be debugged from outside of the
+##     processes. To take control a debugger front end connects to
+##     'addr', which a protocol-specific address, i.e.  tcp = 'tcp
+##     mydomainname.com:9876' serial = 'serial /dev/ttyC0'.
 
-    The name is reminiscent of gdbserver.
-    """
-    p.do_pdbserver(addr)
-    while True:
-        try:
-            p._runscript(p.mainpyfile)
-            if p._user_requested_quit: break
-        except Restart:
-            sys.argv = list(p._program_sys_argv)
-            p.msg('Restarting')
+##     The name is reminiscent of gdbserver.
+##     """
+##     p.do_pdbserver(addr)
+##     while True:
+##         try:
+##             p._runscript(p.mainpyfile)
+##             if p._user_requested_quit: break
+##         except Restart:
+##             sys.argv = list(p._program_sys_argv)
+##             p.msg('Restarting')
 
 # Post-Mortem interface
 
@@ -431,29 +428,29 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
         # older versions
         _pydb_trace.set_trace()
 
-def signal_handler(signum, frame):
-    """ This signal handler replaces the program's signal handler
-    for the 'signum' signal (by default SIGUSR1). When a program
-    receives this signal, it creates a pdbserver.
-    Debugger clients can then attach to this pdbserver via it's pid.
-    """
-    p = Pydb()
-    p._sys_argv = list(sys.argv)
-    p.reset()
-    p.running = True
-    p.currentframe = frame
+## def signal_handler(signum, frame):
+##     """ This signal handler replaces the program's signal handler
+##     for the 'signum' signal (by default SIGUSR1). When a program
+##     receives this signal, it creates a pdbserver.
+##     Debugger clients can then attach to this pdbserver via it's pid.
+##     """
+##     p = Pydb()
+##     p._sys_argv = list(sys.argv)
+##     p.reset()
+##     p.running = True
+##     p.currentframe = frame
 
-    # Clear up namespace
-    del frame.f_globals['pydb']
+##     # Clear up namespace
+##     del frame.f_globals['pydb']
 
-    p.do_pdbserver(pdbserver_addr)
-    p.set_trace(frame)
+##     p.do_pdbserver(pdbserver_addr)
+##     p.set_trace(frame)
 
-    import signal
-    global oldhandler
-    if oldhandler is not None:
-        # Pass along the signal
-        signal.signal(signum, old_handler)
+##     import signal
+##     global oldhandler
+##     if oldhandler is not None:
+##         # Pass along the signal
+##         signal.signal(signum, old_handler)
 
 ## # The value of 'opts' dictates whether we call do_target or do_attach, there
 ## # were two separate top-level routines for these options, but apart from
