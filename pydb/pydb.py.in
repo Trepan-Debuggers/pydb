@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.108 2006/09/03 11:41:48 rockyb Exp $
+"""$Id: pydb.py.in,v 1.109 2006/09/16 08:24:12 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -432,7 +432,7 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
         _pydb_trace.set_trace()
 
 def signal_handler(signum, frame):
-    """ This signal handler replaces the programs signal handler
+    """ This signal handler replaces the program's signal handler
     for the 'signum' signal (by default SIGUSR1). When a program
     receives this signal, it creates a pdbserver.
     Debugger clients can then attach to this pdbserver via it's pid.
@@ -455,32 +455,32 @@ def signal_handler(signum, frame):
         # Pass along the signal
         signal.signal(signum, old_handler)
 
-# The value of 'opts' dictates whether we call do_target or do_attach, there
-# were two separate top-level routines for these options, but apart from
-# choosing which do_* to call, the code was the same so it made sense to merge.
-def target(addr, opts, p):
-    """ Connect this debugger to a pdbserver at 'addr'. 'addr' is
-    a protocol-specific address. i.e.
-    tcp = 'tcp mydomainname.com:9876'
-    serial = 'serial /dev/ttyC0'
+## # The value of 'opts' dictates whether we call do_target or do_attach, there
+## # were two separate top-level routines for these options, but apart from
+## # choosing which do_* to call, the code was the same so it made sense to merge.
+## def target(addr, opts, p):
+##     """ Connect this debugger to a pdbserver at 'addr'. 'addr' is
+##     a protocol-specific address. i.e.
+##     tcp = 'tcp mydomainname.com:9876'
+##     serial = 'serial /dev/ttyC0'
 
-    'opts' an the OptionParser object. If opts.target is True, call do_target.
-    If opts.pid is true, call do_attach.
-    """
-    p.reset()
-    if opts.target:
-        p.do_target(addr)
-    elif opts.pid:
-        pid = addr[:addr.find(' ')]
-        addr = addr[addr.find(' ')+1:]
-        p.do_set('target ' + addr)
-        p.do_attach(pid)
-    while True:
-        try:
-            p.cmdloop()
-            if p._user_requested_quit: break
-        except:
-            break
+##     'opts' an the OptionParser object. If opts.target is True, call do_target.
+##     If opts.pid is true, call do_attach.
+##     """
+##     p.reset()
+##     if opts.target:
+##         p.do_target(addr)
+##     elif opts.pid:
+##         pid = addr[:addr.find(' ')]
+##         addr = addr[addr.find(' ')+1:]
+##         p.do_set('target ' + addr)
+##         p.do_attach(pid)
+##     while True:
+##         try:
+##             p.cmdloop()
+##             if p._user_requested_quit: break
+##         except:
+##             break
 
 #########################################################
 # Main program

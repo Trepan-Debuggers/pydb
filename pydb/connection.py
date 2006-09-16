@@ -1,4 +1,4 @@
-"""$Id: connection.py,v 1.3 2006/09/15 08:44:27 rockyb Exp $
+"""$Id: connection.py,v 1.4 2006/09/16 08:24:12 rockyb Exp $
 Lower-level classes to support communication between separate
 processes which might reside be on separate computers.
 
@@ -41,6 +41,8 @@ class ConnectionInterface(object):
         connected to this server.
         """
         raise NotImplementedError, NotImplementedMessage
+
+# end ConnectionInterface
 
 ### This might go in a different file
 # Note: serial protocol does not require the distinction between server and
@@ -92,6 +94,7 @@ class ConnectionSerial(ConnectionInterface):
         except IOError, e:
             raise WriteError, e[1]
 
+# end class ConnectionSerial
 
 ### This might go in a different file
 import socket
@@ -154,6 +157,8 @@ class ConnectionServerTCP(ConnectionInterface):
         except socket.error, e:
             raise WriteError, e[1]
 
+# end ConnectionServerTCP
+
 class ConnectionClientTCP(ConnectionInterface):
     """ A class that allows a connection to be made from a debugger
     to a server via TCP.
@@ -206,6 +211,8 @@ class ConnectionClientTCP(ConnectionInterface):
         self._sock = None
         self.connected = False
 
+#end ConnectionClientTCP
+
 ### This might go in a different file
 import os
 
@@ -217,29 +224,29 @@ class ConnectionFIFO(ConnectionInterface):
     vice versa.
     """
 
-    def __init__(self, is_server, filename):
+    def __init__(self, is_server):
         """is_server is a boolean which is used to ensure that the
         read FIFO of one process is attachd tothe write FIFO of the
         other. We arbitrarily call one the 'server' and one the
         'client'.
         """
-        ConnectionInterface.__init__(self, filename)
+        ConnectionInterface.__init__(self)
         ## FIXME check to see if is_server is boolean? 
         self.is_server = is_server
-        self.filename  = filename
-        self.fname_in   = self.infile()
-        self.fname_out  = self.outfile()
-        self.open_outfile()
-            
-        self.inp = self.mode = None
+        self.inp = self.mode = self.filename = None
         
-    def connect(self, mode=0644):
+    def connect(self, filename, mode=0644):
         """Set up FIFOs for read and write connections based on the
         filename parameter passed. If no filename parameter is given,
         use the filename specified on instance creation.
 
         If there is a problem creating the FIFO we will return a
         ConnectionFailed exception."""
+
+        self.filename  = filename
+        self.fname_in  = self.infile()
+        self.fname_out = self.outfile()
+        self.open_outfile()
 
         self.mode = mode
         try:
@@ -296,16 +303,60 @@ class ConnectionFIFO(ConnectionInterface):
         except IOError, e:
             raise WriteError, e[1]
         
+# end ConnectionFIFO
+
+def import_hook(target):
+    cls = target[target.rfind('.')+1:]
+    target = target[:target.rfind('.')]
+    try:
+        pkg = __import__(target, globals(), locals(), [])
+    except ImportError:
+        return None
+    return getattr(pkg, cls)
+ 
+class ConnectionClientFactory:
+
+    """A factory class that provides a connection for use with a client
+    for example, with a target function.
+    """
+    @staticmethod
+    def create(target):
+        if target.lower() == 'tcp':
+            return ConnectionClientTCP()
+        elif target.lower() == 'serial':
+            return ConnectionSerial()
+        elif target.lower() == 'fifo':
+            return ConnectionFIFO(is_server=True)
+        else:
+            return import_hook(target)
+
+class ConnectionServerFactory:
+
+    """A factory class that provides a connection to be used with
+    a pdbserver.
+    """
+    @staticmethod
+    def create(target):
+        if target.lower() == 'tcp':
+            return ConnectionServerTCP()
+        elif target.lower() == 'serial':
+            return ConnectionSerial()
+        elif target.lower() == 'fifo':
+            import os
+            return ConnectionFIFO(is_server=True)
+        else:
+            return import_hook(target)
+
 # When invoked as main program, do some basic tests 
 if __name__=='__main__':
     # FIFO test
     import os, thread
     
     fname='test_file'
-    server = ConnectionFIFO(is_server=True, filename=fname)
-    client = ConnectionFIFO(is_server=False, filename=fname)
-    thread.start_new_thread(server.connect, ())
-    client.connect()
+    server = ConnectionFIFO(is_server=True)
+    client = ConnectionFIFO(is_server=False)
+    thread.start_new_thread(server.connect, (fname,))
+    client.connect(filename=fname)
     line = 'this is a test\n'
     client.write(line)
     ### FIXME
@@ -331,7 +382,7 @@ if __name__=='__main__':
             print "port: %d" % port
             break
         except IOError, e:
-            if e == 'Address already in use':
+            if e[0] == 'Address already in use':
                 if port < 8010:
                     port += 1
                     print "port: %d" % port

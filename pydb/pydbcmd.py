@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.30 2006/09/03 11:41:48 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.31 2006/09/16 08:24:12 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -361,6 +361,19 @@ class Cmd(cmd.Cmd):
         self.errmsg("Undefined %s command \"%s\"." % (cmd, subcmd))
 
     #### From SoC project. Look over.
+    def _disconnect(self):
+        """ Disconnect a connection. """
+        if self.connection:
+            self.connection.disconnect()
+            self._rebind_output(self.orig_stdout)
+            self._rebind_input(self.orig_stdin)
+            self.connection = None
+            if hasattr(self, 'local_prompt') and self.local_prompt is not None:
+                self.prompt      = self.local_prompt
+                self.local_prompt = None
+                self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+        self.target = 'local'
+
     def _rebind_input(self, new_input):
         self.stdin = new_input
 
@@ -386,7 +399,7 @@ class Cmd(cmd.Cmd):
             line = 'rquit'
             self.connection.write(line)
             # Reset the onecmd method
-            self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+            self.onecmd = pydb.Pdb.onecmd
             self.do_rquit(None)
             return
         if 'detach'.startswith(line):
@@ -402,12 +415,12 @@ class Cmd(cmd.Cmd):
         # is returned along with the prompt of that server. So we keep reading
         # until we find our prompt.
         i = 1
-        while self.local_prompt not in ret:
+        while ret.find('(Pydb)') != -1:
             if i == 100:
                 # We're probably _never_ going to get that data and that
                 # connection is probably dead.
                 self.errmsg('Connection died unexpectedly')
-                self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
+                self.onecmd = pydb.Pdb.onecmd
                 self.do_rquit(None)
             else:
                 ret += self.connection.readline()
@@ -429,13 +442,4 @@ class Cmd(cmd.Cmd):
         self.msg_nocr(ret)
         self.lastcmd = line
         return
-
-    def _disconnect(self):
-        """ Disconnect a connection. """
-        self.connection.disconnect()
-        self.connection = None
-        self.target = 'local'
-        if hasattr(self, 'local_prompt'):
-            self.prompt = self.local_prompt
-            self.onecmd = lambda x: pydb.Pdb.onecmd(self, x)
 

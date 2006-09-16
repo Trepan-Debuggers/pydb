@@ -1,11 +1,10 @@
-# $Id: threaddbg.py,v 1.10 2006/09/12 02:23:35 rockyb Exp $
+# $Id: threaddbg.py,v 1.11 2006/09/16 08:24:12 rockyb Exp $
 
 ### TODO
 ### - set break on specific threads
 ### - Go over for robustness, 
 ### - threadframe tolerance
 ### More complicated:
-### - Setting curframe to threads to get/set variables there?
 
 import bdb, gdb, inspect, os, pydb, sys
 from fns import *

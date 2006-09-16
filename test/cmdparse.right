@@ -279,7 +279,6 @@ set args -- Set argument list to give program being debugged when it is started
 set basename -- Set short filenames (the basename) in debug output
 set cmdtrace -- Set to show lines read from the debugger command file
 set debug-pydb -- Set whether we allow tracing the debugger
-set debug-signal -- Set the signal sent to a process to trigger debugging
 set history -- Generic command for setting command history parameters
 set interactive -- Set whether we are interactive
 set linetrace -- Set line execution tracing and delay on tracing
@@ -287,7 +286,6 @@ set listsize -- Set number of source lines the debugger will list by default
 set logging -- Set logging options
 set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
-set target-address -- Set the address of a target
 + help set linesize
 *** Unknown 'help set' subcommand linesize
 + help set listsize
@@ -302,7 +300,6 @@ show basename -- Show if we are to show short of long filenames
 show cmdtrace -- Show if we are to show debugger commands before running
 show commands -- Show the history of commands you typed
 show debug-pydb -- Show whether tracebacks include debugger routines
-show debug-signal -- Show the signal currently used for triggering debugging
 show directories -- Current search path for finding source files
 show history -- Generic command for showing command history parameters
 show interactive -- Show whether we are interactive
@@ -311,7 +308,6 @@ show listsize -- Show number of source lines the debugger will list by default
 show logging -- Show logging options
 show prompt -- Show debugger's prompt
 show sigcheck -- Show status of signal checking/adjusting
-show target-address -- Show connection parameters used in remote debugging
 show version -- Show what version of the debugger this is
 + help show listsize
 Show number of source lines the debugger will list by default
@@ -330,7 +326,6 @@ info locals -- Local variables of current stack frame
 info program -- Execution status of the program
 info signal -- Print information about a signal
 info source -- Information about the current Python file
-info target -- Display information about the current target
 + #######################################
 + # The below  "help info" lines should
 + # have '.' append to the end whereas
