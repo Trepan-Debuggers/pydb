@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.70 2006/09/16 14:54:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.71 2006/09/16 14:55:37 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -159,7 +159,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
         self.sigmgr.check_and_adjust_sighandlers()
-        return self.trace_dispatch_old(self, frame, event, arg)
+        return self.trace_dispatch_old(frame, event, arg)
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
