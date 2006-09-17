@@ -12,4 +12,5 @@ handle SIGKILL stop
 info handle SIGKILL
 handle SIGSTOP print
 info signal SIGSTOP
+info signal INT
 quit
