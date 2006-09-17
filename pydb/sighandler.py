@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.19 2006/09/17 01:11:05 rockyb Exp $
+"""$Id: sighandler.py,v 1.20 2006/09/17 07:44:18 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -111,7 +111,7 @@ class SignalManager:
 
         if signame not in self.siglist:
             try_signame = 'SIG'+signame
-            if try_signame not in self.sigs.keys():
+            if try_signame not in self.siglist:
                 self.pydb.msg("%s is not a signal name I know about."
                               % signame)
                 return
