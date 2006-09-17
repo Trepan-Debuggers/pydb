@@ -1,13 +1,12 @@
-# $Id: threaddbg.py,v 1.13 2006/09/16 23:49:18 rockyb Exp $
+# $Id: threaddbg.py,v 1.14 2006/09/17 01:11:05 rockyb Exp $
 
 ### TODO
-### - set break on specific threads
 ### - Go over for robustness, 
 ### - threadframe tolerance
 ### More complicated:
 
-import bdb, gdb, inspect, os, pydb, sys
-from fns import *
+import bdb, inspect, os, pydb, sys
+import fns
 
 import thread, threading
 
@@ -158,7 +157,8 @@ If a thread name is given we will stop only if the the thread has that name."""
             thread_name = args[2]
             if thread_name not in self.traced.keys():
                 self.msg("Don't know about thread %s" % thread_name)
-                if not get_confirmation(self, 'Really set anyway (y or n)? '):
+                if not fns.get_confirmation(self,
+                                            'Really set anyway (y or n)? '):
                     return
             del args[1:3]
             arg = ' '.join(args)
@@ -228,9 +228,9 @@ If a thread name is given we will stop only if the the thread has that name."""
                 really_quit = False
                 break
         if not really_quit:
-            really_quit = get_confirmation(self,
-                                           'Really quit anyway (y or n)? ',
-                                           True)
+            really_quit = fns.get_confirmation(self,
+                                               'Really quit anyway (y or n)? ',
+                                               True)
         self.msg("Quit for threading not done yet. Try kill.")
         return
         if really_quit:

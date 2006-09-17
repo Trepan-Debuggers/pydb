@@ -6,12 +6,7 @@
 
 import os
 import sys
-import socket
-import time
-import thread
 import unittest
-
-from socket import gaierror
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -29,8 +24,7 @@ TESTFN = 'device'
 
 sys.path.append("..")
 from connection import ConnectionServerTCP, ConnectionClientTCP, \
-     ConnectionSerial, ConnectionFIFO, ConnectionFIFO, \
-     ConnectionFailed, ReadError, WriteError
+     ConnectionSerial, ConnectionFailed
 
 def repeatedConnect(client, addr):
     """Try to connect the client to addr either until we've tried MAXTRIES

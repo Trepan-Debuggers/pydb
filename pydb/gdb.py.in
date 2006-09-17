@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.74 2006/09/16 23:49:18 rockyb Exp $
+"""$Id: gdb.py.in,v 1.75 2006/09/17 01:11:05 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -8,13 +8,13 @@ _debugger_name = '@PACKAGE_NAME@'
 _version = '@PACKAGE_VERSION@'
 
 import atexit, dis, inspect, linecache, os, pprint
-import bdb, re, subcmd, sys, traceback, types
+import bdb, re, subcmd, sys, types
 
 import pydbcmd, pydbbdb
 import signal
 import sighandler
 
-from connection import ConnectionServerFactory, ConnectionClientFactory, ConnectionFailed
+## from connection import ConnectionServerFactory, ConnectionClientFactory, ConnectionFailed
 from display    import Display, DisplayNode
 from fns        import *
 from info       import *

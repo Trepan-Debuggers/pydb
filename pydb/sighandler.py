@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.18 2006/09/12 23:58:46 rockyb Exp $
+"""$Id: sighandler.py,v 1.19 2006/09/17 01:11:05 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -7,7 +7,7 @@ Handles signal handlers within Pydb.
 #         ignore=True, print=False, pass=True
 #     
 #
-import signal, sys
+import signal
 
 def lookup_signame(num):
     """Find the corresponding signal name for 'num'. Return None

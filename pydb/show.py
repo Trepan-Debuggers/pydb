@@ -1,8 +1,8 @@
-"""$Id: show.py,v 1.8 2006/09/12 07:02:43 rockyb Exp $
+"""$Id: show.py,v 1.9 2006/09/17 01:11:05 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-from fns import *
+import fns
 
 class SubcmdShow:
 
@@ -23,15 +23,15 @@ Follow this command with any number of args, to be passed to the program."""
 
     def show_basename(self, args):
         """Show if we are to show short of long filenames"""
-        self.msg("basename is %s." % show_onoff(self.basename))
+        self.msg("basename is %s." % fns.show_onoff(self.basename))
 
     def show_cmdtrace(self, args):
         "Show if we are to show debugger commands before running"
-        self.msg("cmdtrace is %s." % show_onoff(self.cmdtrace))
+        self.msg("cmdtrace is %s." % fns.show_onoff(self.cmdtrace))
 
     def show_dbg_pydb(self, args):
         """Show whether tracebacks include debugger routines"""
-        self.msg("Dbg_pydb is %s." % show_onoff(self.dbg_pydb))
+        self.msg("Dbg_pydb is %s." % fns.show_onoff(self.dbg_pydb))
 
     def show_debug_signal(self, arg):
         """Show the signal currently used for triggering debugging
@@ -51,11 +51,11 @@ $cdir in the path means the compilation directory of the source file."""
     def show_interactive(self, args):
         """Show whether we are interactive"""
         self.msg("interactive is %s." %
-                 show_onoff(not self.noninteractive))
+                 fns.show_onoff(not self.noninteractive))
 
     def show_linetrace(self, args):
         "Show the line tracing status. Can also add 'delay'"
-        self.msg("line tracing is %s." % show_onoff(self.linetrace))
+        self.msg("line tracing is %s." % fns.show_onoff(self.linetrace))
 
     def show_logging(self, args):
         "Show logging options"
@@ -66,10 +66,10 @@ $cdir in the path means the compilation directory of the source file."""
             elif args[1] == 'overwrite':
                 self.msg('Whether logging overwrites or appends to the'
                          + ' log file is %s.'
-                         % show_onoff(self.logging_overwrite))
+                         % fns.show_onoff(self.logging_overwrite))
             elif args[1] == 'redirect':
                 self.msg('The logging output mode is %s.' %
-                         show_onoff(self.logging_redirect))
+                         fns.show_onoff(self.logging_redirect))
             else:
                 self.undefined_cmd("show logging", args[1])
         else:
@@ -86,7 +86,7 @@ $cdir in the path means the compilation directory of the source file."""
     def show_sigcheck(self, args):
         """Show status of signal checking/adjusting.
 See also set sigcheck."""
-        self.msg("sigcheck is %s." % show_onoff(self.sigcheck))
+        self.msg("sigcheck is %s." % fns.show_onoff(self.sigcheck))
 
     def show_target_address(self, arg):
 

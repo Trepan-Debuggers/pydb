@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.111 2006/09/16 23:49:18 rockyb Exp $
+"""$Id: pydb.py.in,v 1.112 2006/09/17 01:11:05 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -14,6 +14,8 @@ _version = '@PACKAGE_VERSION@'
 
 import inspect, os, re, sys, traceback
 
+import fns
+
 from optparse import OptionParser
 
 from gdb import Gdb
@@ -25,6 +27,8 @@ __all__ = ["Pdb",     "exception_hook", "help",
            "set_trace"]
 
 old_handler = None
+_pydb_trace = None
+program     = '*Unknown*'
 
 def init():
     global program
@@ -115,20 +119,20 @@ def process_options(p, debugger_name, prog, pkg_version,
 
     (opts, sys.argv) = optparser.parse_args()
 
-    if opts.target:
-        target(opts.target, opts, p)
-        sys.exit()
-    elif opts.pdbserver:
-        pdbserver(opts.pdbserver, p)
-        sys.exit()
-    elif opts.threading:
+##     if opts.target:
+##         target(opts.target, opts, p)
+##         sys.exit()
+##     elif opts.pdbserver:
+##         pdbserver(opts.pdbserver, p)
+##         sys.exit()
+    if opts.threading:
         import threaddbg
         tpdb = threaddbg.threadDbg()
         tpdb._sys_argv = p._sys_argv
         p = tpdb
-    elif opts.pid:
-        target(opts.pid, opts, p)
-        sys.exit()
+##     elif opts.pid:
+##         target(opts.pid, opts, p)
+##         sys.exit()
 
     if opts.linetrace: opts.noninteractive = True
     p.linetrace = opts.linetrace
@@ -260,7 +264,7 @@ def pm(dbg_cmds=None, frameno=1):
 
     # frameno+1 because we are about to add one more level of call
     # in get_last_tb_or_frame_tb
-    tb = get_last_tb_or_frame_tb(frameno+1)
+    tb = fns.get_last_tb_or_frame_tb(frameno+1)
     post_mortem(tb, dbg_cmds)
 
 def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
@@ -290,7 +294,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
     if t is None:
         # frameno+1 because we are about to add one more level of call
         # in get_last_tb_or_frame_tb
-        t = get_last_tb_or_frame_tb(frameno+1)
+        t = fns.get_last_tb_or_frame_tb(frameno+1)
 
     # t has least-recent traceback entry first. We want the most-recent
     # entry. Also we'll pick out a mainpyfile name if it hasn't previously

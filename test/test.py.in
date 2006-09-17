@@ -1,7 +1,7 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.29 2006/09/16 14:54:06 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.30 2006/09/17 01:11:06 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
-import difflib, os, pprint, time, sys, unittest
+import difflib, os, time, sys, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
