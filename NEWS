@@ -1,18 +1,19 @@
 1.18cvs 
 
+* Start thread debugging: 
+    info thread [thread-name] [terse|verbose]    - show thread info
+    thread [thread-name [thread-name]...]  - switches thread
+    qt                                     - quit current thread
+    can set a breakpoint on a specific thread name.
+
 * GDB-like signal handling. Some code based on Matt Fleming's 2006
   Summer-of-Code project. Gdb's "handle" and "signal" commands.
 
 * Add hard kill. May be needed for thread debugging.
 
-* Start thread debugging: 
-    info thread [thread-name] [terse|verbose]    - show thread info
-    thread [thread-name [thread-name]...]  - switches thread
-    qt                                     - quit current thread
-
-* Fix bug in handling tbreak caused by the difference in semantics between
-  pdb's 'clear' command and pdb's (which calls this 'delete' and has a
-  different meaning for 'clear').
+* Fix bug in handling temporary breakpoints (tbreak) caused by the
+  difference in semantics between pdb's 'clear' command and pdb's
+  (which calls this 'delete' and has a different meaning for 'clear').
 
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.
