@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.14 2006/09/17 01:11:05 rockyb Exp $
+# $Id: threaddbg.py,v 1.15 2006/09/17 01:21:47 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -398,8 +398,8 @@ the current thread. (That is this is the same as "info thread terse"."""
         return retval
 
     def print_frame_thread(self):
-        """Print the thread name and current frame thread name, if it is
-        different from the thread name, to Pdb print_location"""
+        """Print the thread name and current frame thread name to Pdb's
+        print_location, if it is different from the thread name."""
         thread_name = threading.currentThread().getName()
         if self.curframe_thread_name != thread_name:
             self.msg("Frame thread is %s, Current thread is %s" %
@@ -408,8 +408,9 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.msg("Current thread is %s" % thread_name)
 
     def print_location(self, print_line=False):
-        """ Add thread name and current frame thread name, if it is
-        different from the thread name, to Pdb print_location"""
+        """Add thread name and current frame thread name to Pdb's
+        print_location, if it is different from the thread name."""
+        # Decorator pattern
         self.print_frame_thread()
         pydb.Pdb.print_location(self, print_line)
 
