@@ -1,4 +1,4 @@
-"""$Id: connection.py,v 1.4 2006/09/16 08:24:12 rockyb Exp $
+"""$Id: connection.py,v 1.5 2006/09/17 00:17:16 rockyb Exp $
 Lower-level classes to support communication between separate
 processes which might reside be on separate computers.
 
@@ -319,7 +319,7 @@ class ConnectionClientFactory:
     """A factory class that provides a connection for use with a client
     for example, with a target function.
     """
-    @staticmethod
+    # @staticmethod
     def create(target):
         if target.lower() == 'tcp':
             return ConnectionClientTCP()
@@ -335,7 +335,7 @@ class ConnectionServerFactory:
     """A factory class that provides a connection to be used with
     a pdbserver.
     """
-    @staticmethod
+    # @staticmethod
     def create(target):
         if target.lower() == 'tcp':
             return ConnectionServerTCP()

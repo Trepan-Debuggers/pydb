@@ -1,10 +1,10 @@
 #!/usr/local/bin/python -t
-# $d$ -*- Python -*-
+# $Id: fifo_connect.py.in,v 1.2 2006/09/17 00:17:16 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
 
-import os, sys, thread, unittest
+import os, sys, thread, time, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -26,12 +26,12 @@ class TestFIFOConnections(unittest.TestCase):
         server = connection.ConnectionFIFO(is_server=True)
         client = connection.ConnectionFIFO(is_server=False)
         thread.start_new_thread(server.connect, (fname,))
+        for i in range(10):
+            if not hasattr(server, 'outp') or server.outp is None:
+                time.sleep(0.05)
         client.connect(fname)
         line = 'this is a test\n'
         client.write(line)
-        ### FIXME
-        import time
-        time.sleep(0.05)
 
         l2 = server.readline()
         self.assertEqual(l2, line, "client to server")
