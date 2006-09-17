@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.75 2006/09/17 00:49:50 rockyb Exp $
+% $Id: libpydb.tex,v 1.76 2006/09/17 08:50:54 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -352,6 +352,10 @@ Show the list of breakpoints.
 
 Show the global variables. See \ref{command:info-globals}. 
 
+\item[info handle]
+
+Show the signal handling status. See \ref{command:info-handle}. 
+
 \item[info line]
 
 Show the current line number in source file. If a function name is
@@ -366,6 +370,10 @@ Show the local variables. See \ref{command:info-locals}.
 Show the execution status of the program. The possible status is that
 the program is not running (e.g. in post-mortem dump), or the program is
 ``stoppped'' and if stopped at a breakpoint that is shown as well.
+
+\item[info signal]
+
+Alias for \code{info handle}. See \ref{command:info-handle}. 
 
 \item[info source]
 
@@ -674,7 +682,7 @@ Show the current debugger prompt.
 \item[show sigcheck]
 
 Show whether the debugger checks for reassignment of signal handlers.
-See also \ref{command:sigwatch}
+See also \ref{command:sigwatch} and \ref{subsection-signal}.
 
 \item[show target-address]
 
@@ -1271,6 +1279,119 @@ Delete the specified alias.
 
 \end{description}
 
+\subsection{Signal handling ({\tt handle}, {\tt info handle}, {\tt signal})\label{subsection-signal}}
+
+Partly as a result of the Matthew Fleming's Google 2006 Summer of Code
+project, \code{pydb} contains signal handling similar to \code{gdb}.
+
+A signal is an asynchronous event that can happen in a program.  Note:
+only the main thread can intercept a signal, so if the main thread is
+blocked, handling of the signal will be delayed.
+
+The operating system defines the possible kinds of signals, and gives
+each kind a name and a number.  For example, in Unix \code{SIGINT} is
+the signal a program gets when you type an interrupt character (often
+\code{C-c}); \code{SIGALRM} occurs when the alarm clock timer goes off
+(which happens only if your program has requested an alarm).
+
+When \code{pydb} changes signal handlers, it saves any value that the
+debugged script might have installed. 
+
+The debugger also installs an interrupt handler \code{SIGINT} so that
+errant programs can be interrupted and you can find out where the
+program was when you interrupted it.
+
+Some signals, including \code{SIGALRM}, are a normal part of the
+functioning of your program.  Others, such as \code{SIGSEGV}, indicate
+errors; these signals are fatal--they kill your program immediately if the
+program has not specified in advance some other way to handle the signal.
+\code{SIGINT} does not indicate an error in your program, but it is normally
+fatal so it can carry out the purpose of the interrupt: to kill the program.
+
+\code{pydb} has the ability to detect any occurrence of a signal in
+your program.  You tell \code{pydb} in advance what to do for each
+kind of signal.  In the course of running the program, signal handlers
+may be changed, and the debugger has the ability to watch for this
+possibility and act accordingly. However since this adds a bit of
+overhead it is turned off by default. \code{set sigcheck} and
+\code{show sigcheck} can be used to set/show whether this checking is
+done.
+
+Normally, \code{pydb} is set up to let the non-erroneous signals like
+\code{SIGALRM} be silently passed to your program (so as not to
+interfere with their role in the program's functioning) but to stop
+your program immediately whenever an error signal happens.  You can
+change these settings with the \code{handle} command.
+
+\subsubsection{Intercepting Signals ({\tt handle})}
+
+\begin{description}
+\item[handle \var{signal} \var{keywords}\ldots]
+Change the way the debugger handles signal \var{signal}.  \var{signal}
+can be the number of a signal or its name (with or without the
+\code{SIG} at the beginning); The \var{keywords} say what change to
+make.
+\end{description}
+
+The keywords allowed by the \code{handle} command can be abbreviated.
+Their full names are:
+
+\begin{description}
+\item[stop]
+The debugger should stop your program when this signal happens.  This implies
+the \code{print} keyword as well.
+
+\item[nostop]
+The debugger should not stop your program when this signal happens.  It may
+still print a message telling you that the signal has come in.
+
+\item[print]
+The debugger should print a message when this signal happens.
+
+\item[noprint]
+The debugger should not mention the occurrence of the signal at all.  
+
+\item[pass]
+The debugger should allow your program to see this signal; your program
+can handle the signal, or else it may terminate if the signal is fatal
+and not handled.  \code{pass} and \code{noignore} are synonyms.
+
+\item[nopass]
+The debugger should not allow your program to see this signal.
+\code{nopass} and \code{ignore} are synonyms.
+\end{description}
+
+\subsubsection{Showing Signal-handling status ({\tt info handle}, {\tt
+    info signals})}\label{command:info-handle}
+\begin{description}
+\item[info handle \optional{\var{signal-name}\code{\Large{|}}\var{signal-number}}]
+If a signal name or number is given just the information regarding
+that signal is shown. Here's an example:
+
+\begin{verbatim}
+  (Pydb) info handle INT
+  Signal        Stop	Print	Pass to program
+  SIGINT        True	True	False
+\end{verbatim}
+
+
+If no signal name or number is given, print a table of all the kinds
+of signals and how the debugger has been told to handle each one.  You
+can use this to see the signal numbers of all the defined types of
+signals.  
+
+\code{info signal} is an alias for \code{info handle}.
+
+\end{description}
+
+\subsubsection{Sending your program a signal ({\tt signal})}
+\begin{description}
+\item[signal \{\var{signal-name} \code{\Large{|}} \var{signal-number}\}]
+You can use the \code{signal} command send a signal to your
+program. Supply either the signal name, e.g. \code{SIGINT}, or
+\code{INT} or the signal number, e.g. \code{15}.
+\end{description}
+
 \section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 
 The module \module{pydb} defines an interactive source code
@@ -1447,7 +1568,7 @@ modification to your program but does require that the program be run
 from the Python interpreter shell. The second possibility doesn't
 require one to be inside the Python interpreter shell, but does require
 modification to your program. The third possibility is if you had
-started using \code{pydb}
+started using \code{pydb}.
 
 \subsubsection{Post-Mortem Debugging within a Python Interpreter Shell
 ({\tt pydb.pm()})}
