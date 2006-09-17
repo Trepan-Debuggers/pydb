@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.13 2006/09/16 01:04:25 rockyb Exp $
+# $Id: sigtest.py.in,v 1.14 2006/09/17 00:31:00 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, sys, unittest, signal
 
@@ -141,9 +141,14 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
         self.assertEqual(True, 'Program received signal SIGUSR1\n' in lines)
-        self.assertEqual(True,
-                         "-> 0 <module>() called from file 'sigtestexample.py' at line 21\n"
-                         in lines)
+        if sys.version_info[0:2] == (2, 3):
+            self.assertEqual(True,
+                             "-> 0 in file 'sigtestexample.py' at line 21\n"
+                             in lines)
+        else:
+            self.assertEqual(True,
+                             "-> 0 <module>() called from file 'sigtestexample.py' at line 21\n"
+                             in lines)
         self.assertRaises(IOError, open, 'log', 'r')
 
 if __name__ == '__main__':
