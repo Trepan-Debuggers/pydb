@@ -1,9 +1,8 @@
-# $Id: threaddbg.py,v 1.15 2006/09/17 01:21:47 rockyb Exp $
+# $Id: threaddbg.py,v 1.16 2006/09/17 13:47:37 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
 ### - threadframe tolerance
-### More complicated:
 
 import bdb, inspect, os, pydb, sys
 import fns
@@ -77,6 +76,7 @@ class threadDbg(pydb.Pdb):
         self.thread_name             = threading.currentThread().getName()
         self.curframe_thread_name    = self.thread_name
         self.nothread_do_break       = pydb.Pdb.do_break
+        self.nothread_do_tbreak      = pydb.Pdb.do_tbreak
         self.nothread_trace_dispatch = bdb.Bdb.trace_dispatch
         self.nothread_quit = pydb.Pdb.do_quit
 
@@ -167,16 +167,13 @@ If a thread name is given we will stop only if the the thread has that name."""
 
     def do_frame(self, arg):
         """frame [Thread-Name] frame-number
-        Move the current frame to the specified frame number. If a
-        Thread-Name is given move the current frame to that.
+Move the current frame to the specified frame number. If a
+Thread-Name is given, move the current frame to that.
 
-        If using gdb dialect up matches the gdb: 0 is the most recent
-        frame.  Otherwise we match Python's stack: 0 is the oldest
-        frame.
-
-        A negative number indicates position from the other end.
-        So 'frame -1' moves when gdb dialect is in effect moves
-        to the oldest frame, and 'frame 0' moves to the newest frame."""
+0 is the most recent frame. A negative number indicates position from
+the other end.  So 'frame -1' moves when gdb dialect is in
+effect moves to the oldest frame, and 'frame 0' moves to the
+newest frame."""
         args = arg.split()
         if len(args) > 0:
             try:
@@ -236,6 +233,37 @@ If a thread name is given we will stop only if the the thread has that name."""
         if really_quit:
             self.nothread_quit(self, arg)
 
+    def do_tbreak(self, arg):
+        """tbreak {[file:]lineno | function} [thread Thread-name] [, condition]
+
+Set a temporary breakpoint. Arguments are like the "break" command.
+Like "break" except the breakoint is only temporary,
+so it will be deleted when hit.
+
+If a thread name is given we will stop only if the the thread has that name."""
+        
+        # Decorate non-thread break to strip out 'thread Thread-name'
+        args = arg.split()
+        thread_name = None
+        if len(args) > 2 and args[1] == 'thread':
+            thread_name = args[2]
+            if thread_name not in self.traced.keys():
+                self.msg("Don't know about thread %s" % thread_name)
+                if not fns.get_confirmation(self,
+                                            'Really set anyway (y or n)? '):
+                    return
+            del args[1:3]
+            arg = ' '.join(args)
+        self.nothread_do_tbreak(self, arg, thread_name)
+
+    def do_qt(self, arg):
+        """Quit the current thread."""
+        thread_name=threading.currentThread().getName()
+        self.msg( "quitting thread %s"  % thread_name)
+        del self.traced[thread_name]
+        self.threading_lock.release()
+        thread.exit()
+
     def do_where(self, arg):
         """where [count]
 
@@ -247,14 +275,6 @@ If a thread name is given we will stop only if the the thread has that name."""
         self.print_frame_thread()
         pydb.Pdb.do_where(self, arg)
         
-    def do_qt(self, arg):
-        """Quit the current thread."""
-        thread_name=threading.currentThread().getName()
-        self.msg( "quitting thread %s"  % thread_name)
-        del self.traced[thread_name]
-        self.threading_lock.release()
-        thread.exit()
-
     # For Python before 2.5b1
     def info_thread_old(self, args, short_display=False):
         """IDs of currently known threads."""
@@ -275,7 +295,7 @@ If a thread name is given we will stop only if the the thread has that name."""
         """info thread [thread-name] [terse|verbose]
 List all currently-known thread name(s).
 
-If no thread name is given, we list info for all threads. Unlese a
+If no thread name is given, we list info for all threads. Unless a
 terse listing, for each thread we give:
 
   - the class, thread name, and status as <Class(Thread-n, status)>

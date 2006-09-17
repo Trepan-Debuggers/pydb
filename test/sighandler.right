@@ -3,14 +3,16 @@ SIGHUP        True	True	False
 Signal        Stop	Print	Pass to program
 SIGHUP        True	True	False
 Signal        Stop	Print	Pass to program
-SIGINT        False	False	True
+SIGINT        True	True	False
 Signal        Stop	Print	Pass to program
 SIGINT        False	False	True
 Signal        Stop	Print	Pass to program
-SIGINT        False	False	True
+SIGINT        False	True	True
+Signal        Stop	Print	Pass to program
+SIGINT        False	False	False
 Signal        Stop	Print	Pass to program
 SIGKILL       False	False	True
 Signal        Stop	Print	Pass to program
 SIGSTOP       False	False	True
 Signal        Stop	Print	Pass to program
-SIGINT        False	False	True
+SIGINT        False	False	False

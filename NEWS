@@ -15,6 +15,8 @@
   difference in semantics between pdb's 'clear' command and pdb's
   (which calls this 'delete' and has a different meaning for 'clear').
 
+* 'examine' command now shows object's instance variables.
+
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.
 

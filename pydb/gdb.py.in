@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.75 2006/09/17 01:11:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.76 2006/09/17 13:47:37 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1498,12 +1498,12 @@ With an integer argument, step that many times."""
 
     do_s = do_step
 
-    def do_tbreak(self, arg):
+    def do_tbreak(self, arg, thread_name=None):
         """tbreak  [ ([filename:]lineno | function) [, condition] ]
         Set a temporary breakpoint. Arguments are like the "break" command.
         Like "break" except the breakoint is only temporary,
         so it will be deleted when hit."""
-        self.do_break(arg, 1)
+        self.do_break(arg, 1, thread_name)
 
     def do_unalias(self, arg):
         """unalias name

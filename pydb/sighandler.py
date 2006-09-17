@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.20 2006/09/17 07:44:18 rockyb Exp $
+"""$Id: sighandler.py,v 1.21 2006/09/17 13:47:37 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -51,8 +51,7 @@ class SignalManager:
         # set up signal handling for these known signals
         ignore= ['SIGALRM', 'SIGCHLD',  'SIGURG',  'SIGIO',      'SIGVTALRM'
                  'SIGPROF', 'SIGWINCH', 'SIGPOLL', 'SIGWAITING', 'SIGLWP',
-                 'SIGCANCEL', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL',
-                 'SIGINT']
+                 'SIGCANCEL', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL']
 
         self.info_fmt='%-14s%-4s\t%-4s\t%s'
         self.header  = self.info_fmt % ('Signal', 'Stop', 'Print',
@@ -66,6 +65,8 @@ class SignalManager:
                     self.sigs[signame] = self.SigHandler(signame, pydb.msg,
                                                          pydb.set_next,
                                                          False)
+        self.action('SIGINT stop print nopass')
+
     def check_and_adjust_sighandlers(self):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
@@ -133,7 +134,7 @@ class SignalManager:
             if not self.sigs.has_key(signame):
                 return
         if len(args) == 1:
-            self.info_signal(signame)
+            self.info_signal([signame])
             return
         # We can display information about 'fatal' signals, but not
         # change their actions.
@@ -246,6 +247,7 @@ if __name__=='__main__':
     p = pydb.Pdb()
     h = SignalManager(p)
     # Set to known value
+    h.action('SIGUSR1')
     h.action('SIGUSR1 print pass stop')
     h.info_signal(['USR1'])
     # noprint implies no stop

@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.78 2006/09/17 09:42:48 rockyb Exp $
+% $Id: libpydb.tex,v 1.79 2006/09/17 13:47:36 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -722,7 +722,7 @@ place in your program.  There is nothing unusual about this because
 different breakpoints can have different conditions associated with them.
 
 \begin{description}
-\item[b(reak) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}\optional{, \var{condition}}}]
+\item[b(reak) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}\optional{, \var{condition}}}]\label{command:break}
 
 With a \var{lineno} argument, set a break at that line number in the
 current file.  With a \var{function} argument, set a break at the
@@ -739,10 +739,14 @@ Without an argument, list all breaks, including for each breakpoint:
 the number of times that breakpoint has been hit, the current
 ignore count, and the associated condition if any.
 
-\item[tbreak \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}\optional{, \var{condition}}}]
+If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
+
+\item[tbreak \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}\optional{, \var{condition}}}]\label{command:tbreak}
 
 Temporary breakpoint, which is removed automatically when it is
 first hit.  The arguments are the same as those for \code{break}.
+
+If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
 
 \item[cl(ear) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}}]
 
@@ -757,7 +761,6 @@ frame is executing.
 
 See also the \code{delete} command below which clears breakpoints by
 number.
-
 \item[commands \optional{\optional{\var{bpnumber}}}]
 
 Set commands to be executed when a breakpoint is hit.
@@ -1011,6 +1014,8 @@ move that many positions.
 Move the current frame to the specified frame number. A negative
 number indicates position from the end, so \code{frame -1} moves to 
 the newest frame, and \code{frame 0} moves to the oldest frame.
+
+If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
 
 \end{description}
 
@@ -1396,7 +1401,7 @@ program. Supply either the signal name, e.g. \code{SIGINT}, or
 \end{description}
 
 \subsection{Thread debugging ({\tt thread}, {\tt info thread}, {\tt
-    qt})\label{subsection-thread}}
+    qt}, {\tt frame}, {\tt break})\label{subsection-thread}}
 
 Thread debugging is a bit experimental. By default it is not turned
 on, since it adds a bit of additional complexity. To turn it on, pass
@@ -1407,13 +1412,14 @@ change the behavior if one is not careful.
 
 So we generally take a conservative approach. We will allow switching
 threads only between those known to be in a state that they can be
-switched to safely (and for all practical purposes this means they've
-been blocked by the debugger.
+switched to safely; for all practical purposes this means they've been
+blocked by the debugger.
 
 One will get the most information using Python 2.5 or having
-threadframe installed. However since the debugger keeps its own
-information about threads, one can still get some information when
-this is not the case.
+\ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
+installed with versions prior to 2.5. However since the debugger keeps
+its own information about threads, one can still get some information
+when this is not the case.
 
 The debugger also relies on the
 \ulink{\module{threading}}{http://docs.python.org/lib/module-threading.html}
@@ -1507,9 +1513,32 @@ Quit the specified thread. Use with caution; there may be other
 threads be waiting on events that this thread can only give.
 \end{description}
 
-\subsubsection{Setting the frame to a non-current thread ({\tt frame})}
+\subsubsection{Thread Extensions to the {\tt frame} and {\tt break} commands}\label{command:thread-extensions}
 
-\subsubsection{Setting a breakpoint at a specific thread ({\tt break})\label{command:break-thread}}
+When thread debugging is turned on you can also specify whether or not
+a breakpoint should occur at a point across all threads or only on a
+specific thread.
+
+If Python version 2.5 or greater is installed or
+\ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
+with a older vrsion of Python is installed, you can inspect and change
+local variables from other thread frames.
+
+\begin{description}
+\item[frame \optional{\var{Thread-Name}} \var{frame-number}]
+Move the current frame to the specified frame number. If a
+\var{Thread-Name} is given, move the current frame to that.
+\item[b(reak)
+  \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}
+  \optional{thread \var{thread-name}} \optional{, \var{condition}}}]
+See \ref{command:break}. If a specific thread name is given then a
+  breakpoint will occur only when in that thread.
+
+\item[tbreak
+  \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function} \optional{thread \var{thread-name}}\optional{, \var{condition}}}]
+\end{description}
+See \ref{command:tbreak}. If a specific thread name is given then a
+  breakpoint will occur only when in that thread.
 
 \section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 

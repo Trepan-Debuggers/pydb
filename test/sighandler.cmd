@@ -9,7 +9,7 @@ handle SIGINT nopass noprint nostop
 info signal SIGINT
 # try changing fatal signal handlers (which are unchangable)
 handle SIGKILL stop
-info handle SIGKILL
+info handle KILL
 handle SIGSTOP print
 info signal SIGSTOP
 info signal INT
