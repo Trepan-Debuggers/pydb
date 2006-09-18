@@ -1,8 +1,7 @@
-# $Id: threaddbg.py,v 1.16 2006/09/17 13:47:37 rockyb Exp $
+# $Id: threaddbg.py,v 1.17 2006/09/18 01:09:06 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
-### - threadframe tolerance
 
 import bdb, inspect, os, pydb, sys
 import fns
@@ -78,7 +77,7 @@ class threadDbg(pydb.Pdb):
         self.nothread_do_break       = pydb.Pdb.do_break
         self.nothread_do_tbreak      = pydb.Pdb.do_tbreak
         self.nothread_trace_dispatch = bdb.Bdb.trace_dispatch
-        self.nothread_quit = pydb.Pdb.do_quit
+        self.nothread_quit           = pydb.Pdb.do_quit
 
         # List of threads that we know about and have the possibility
         # of switching to. This is Indexed by thread name and
@@ -88,9 +87,12 @@ class threadDbg(pydb.Pdb):
         if hasattr(sys, "_current_frames"):
             self.info_thread = self.info_thread_new
             self.do_thread   = self.new_do_thread
-        #elif -- FIXME check for threadframe
         else:
-            self.info_thread = self.info_thread_old
+            try:
+                import threadframe
+                self.info_thread = self.info_threadframe
+            except:
+                self.info_thread = self.info_thread_old
         self.infocmds.add('thread',  self.info_thread,  2, False)
         self.setcmds.add ('dbg_pydb', self.set_dbg_pydb)
 
@@ -108,12 +110,23 @@ class threadDbg(pydb.Pdb):
         ### threadding might do the trick.
         (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
         (path, basename)=os.path.split(filename)
-        while basename.startswith('threading.py') and f.f_back:
+        while basename.startswith('threading.py') or \
+                  routine == 'trace_dispatch_gdb' and f.f_back:
             f = f.f_back
             (filename, line_no, routine) = \
                        inspect.getframeinfo(f)[0:3]
             (path, basename)=os.path.split(filename)
         return f
+
+    def get_threadframe_frame(self, thread_name):
+        """Return the frame having thread name that we look up
+        in self.traced."""
+        if thread_name not in self.traced.keys():
+            return None
+        import threadframe
+        frames = threadframe.dict()
+        thread_id = self.traced[thread_name]
+        return frames[thread_id]
 
     def add_hook(self):
         """Set new threads to be traced. This is it's own routine
@@ -180,17 +193,33 @@ newest frame."""
                 int(arg)
                 # Must be frame command without a thread name
             except ValueError:
-                if args[0] not in self.traced.keys():
-                    self.msg("Don't know about thread %s" % args[0])
+                thread_name = args[0]
+                if thread_name not in self.traced.keys():
+                    self.msg("Don't know about thread %s" % thread_name)
                     return
-                t = self.traced[args[0]]
-                threads = sys._current_frames()
-                if t in threads.keys():
-                    self.curframe_thread_name = args[0]
-                    frame                     = threads[t]
-                    #newframe = self.find_nondebug_frame(frame)
-                    #if newframe is not None:  frame = newframe
-                    self.stack, self.curindex = self.get_stack(frame, None)
+                t = self.traced[thread_name]
+                if hasattr(sys, '_current_frames'):
+                    threads = sys._current_frames()
+                    if t in threads.keys():
+                        self.curframe_thread_name = thread_name
+                        frame                     = threads[t]
+                        #newframe = self.find_nondebug_frame(frame)
+                        #if newframe is not None:  frame = newframe
+                        self.stack, self.curindex = self.get_stack(frame, None)
+                else:
+                    try:
+                        import threadframe
+                        frame = self.get_threadframe_frame(thread_name)
+                        if frame is not None:
+                            self.stack, self.curindex = self.get_stack(frame,
+                                                                       None)
+                        else:
+                            self.msg("Can't find thread %s" % thread_name)
+                            return
+                    except:
+                        self.msg("Frame selection not supported. Upgrade to")
+                        self.msg("Python 2.5 or install threadframe.")
+                        return
                 if len(args) == 1:
                     arg = '0'
                 else:
@@ -275,20 +304,79 @@ If a thread name is given we will stop only if the the thread has that name."""
         self.print_frame_thread()
         pydb.Pdb.do_where(self, arg)
         
-    # For Python before 2.5b1
+    # For Python before 2.5b1 and no threadframe module
     def info_thread_old(self, args, short_display=False):
         """IDs of currently known threads."""
-        self.msg("Current thread is %s" %
-                 threading.currentThread().getName())
-        if short_display: return
+        self.thread_name = threading.currentThread().getName()
+        if len(args) == 2:
+            if args[1].startswith('terse'):
+                self.info_thread_terse()
+                return
+
+        if len(args) > 1:
+            if args[1] not in self.traced.keys():
+                self.msg("Don't know about thread %s" % args[1])
+                self.info_thread_terse()
+                return
+
+        self.msg("Current thread is %s" % self.thread_name)
+
+        if len(args) == 3 and args[2].startswith('terse'):
+            self.info_thread_terse(args[2])
+            return
+
         for t in threading.enumerate():
             self.msg(t)
-        thread_name_list = self.traced.keys()
-        thread_name_list.sort()
-        for thread_name in self.thread_name_list:
-            if self.traced[thread_name]: 
-                self.msg("%s: %ld" % (str(thread_name),
-                                      self.traced[thread_name]))
+        self.info_thread_terse()
+
+    # For Python with threadframe
+    def info_threadframe(self, args, short_display=False):
+        """info thread [thread-name] [terse|verbose]
+List all currently-known thread name(s).
+
+If no thread name is given, we list info for all threads. A terse
+listing just gives the thread name and thread id.
+
+If 'verbose' appended to the end of the command, then the entire
+stack trace is given for each frame.
+"""
+        import threadframe
+        frames = threadframe.dict()
+
+        self.thread_name = threading.currentThread().getName()
+        all_verbose = False
+        if len(args) == 2:
+            if args[1].startswith('verbose'):
+                all_verbose = True
+            elif args[1].startswith('terse'):
+                self.info_thread_terse()
+                return
+
+        if len(args) > 1 and not all_verbose:
+            if args[1] not in self.traced.keys():
+                self.msg("Don't know about thread %s" % args[1])
+                self.info_thread_terse()
+                return
+
+            thread_id = self.traced[args[1]]
+            frame     = frames[thread_id]
+            frame     = self.find_nondebug_frame(frame)
+            stack_trace(self, frame)
+            return
+
+        self.msg("Current thread is %s" % self.thread_name)
+
+        thread_id2name = {}
+        for thread_name in self.traced.keys():
+            if self.get_threadframe_frame(thread_name) is not None:
+                thread_id2name[self.traced[thread_name]] = thread_name
+            
+        for thread_id in frames.keys():
+            if thread_id in thread_id2name.keys():
+                thread_name = thread_id2name[thread_id]
+                self.msg("Stack trace for thread %s:" % thread_name)
+            frame = self.find_nondebug_frame(frames[thread_id])
+            stack_trace(self, frame)
 
     # For Python on or after 2.5b1
     def info_thread_new(self, args, short_display=False):
@@ -309,6 +397,7 @@ terse listing, for each thread we give:
 
 To get the full stack trace for a specific thread pass in the thread name.
 """
+        self.thread_name = threading.currentThread().getName()
         threads = sys._current_frames()
 
         all_verbose = False
@@ -316,23 +405,15 @@ To get the full stack trace for a specific thread pass in the thread name.
             if args[1].startswith('verbose'):
                 all_verbose = True
             elif args[1].startswith('terse'):
-                short_display = True
+                self.info_thread_terse()
+                return
 
         if len(args) > 1 and not all_verbose:
             if args[1] not in self.traced.keys():
-                if short_display:
-                    for thread_name in self.traced:
-                        if thread_name == threading.currentThread().getName():
-                            prefix='-> '
-                        else:
-                            prefix='   '
-                        self.msg("%s%s: %d" % (prefix, thread_name,
-                                               self.traced[thread_name]))
-                else:
-                    self.msg("Don't know about thread %s" % args[1])
-                    self.msg(str(self.traced))
-                 
+                self.msg("Don't know about thread %s" % args[1])
+                self.info_thread_terse()
                 return
+
             thread_name = args[1]
             for t in threads.keys():
                 if t==self.traced[thread_name]:
@@ -343,8 +424,6 @@ To get the full stack trace for a specific thread pass in the thread name.
 
         self.msg("Current thread is %s" %
                  threading.currentThread().getName())
-
-        if short_display: return
 
         for t in threads.keys():
             f = threads[t]
@@ -358,6 +437,29 @@ To get the full stack trace for a specific thread pass in the thread name.
             if all_verbose:
                 stack_trace(self, f)
 
+    def info_thread_line(self, thread_name):
+        if thread_name == self.thread_name:
+            prefix='-> '
+        else:
+            prefix='   '
+
+        self.msg("%s%s: %d" % (prefix, thread_name,
+                               self.traced[thread_name]))
+
+    def info_thread_terse(self, arg=None):
+        if arg is not None:
+            if thread_name in self.traced_keys():
+                self.info_thread_line(thread_name)
+            else:
+                self.msg("Don't know about thread %s" % thread_name)
+            return
+
+        # Show all threads
+        thread_name_list = self.traced.keys()
+        thread_name_list.sort()
+        for thread_name in thread_name_list:
+            self.info_thread_line(thread_name)
+                
     def new_do_thread(self, arg):
         """thread [thread-name1 [thread-name2]..]
 
@@ -545,8 +647,8 @@ the current thread. (That is this is the same as "info thread terse"."""
                     "__builtins__" : __builtins__,
                     }
 
-        ### FIXME Add other stuff from pydbcmd's _runscript
         locals_ = globals_
         statement = 'execfile( "%s")' % filename
+        self.running = True
         self.run(statement, globals=globals_, locals=locals_)
 
