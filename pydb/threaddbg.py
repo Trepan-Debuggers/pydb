@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.17 2006/09/18 01:09:06 rockyb Exp $
+# $Id: threaddbg.py,v 1.18 2006/09/18 01:29:50 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -110,8 +110,8 @@ class threadDbg(pydb.Pdb):
         ### threadding might do the trick.
         (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
         (path, basename)=os.path.split(filename)
-        while basename.startswith('threading.py') or \
-                  routine == 'trace_dispatch_gdb' and f.f_back:
+        while (basename.startswith('threading.py') or 
+               routine == 'trace_dispatch_gdb') and f.f_back:
             f = f.f_back
             (filename, line_no, routine) = \
                        inspect.getframeinfo(f)[0:3]
@@ -203,23 +203,21 @@ newest frame."""
                     if t in threads.keys():
                         self.curframe_thread_name = thread_name
                         frame                     = threads[t]
-                        #newframe = self.find_nondebug_frame(frame)
-                        #if newframe is not None:  frame = newframe
-                        self.stack, self.curindex = self.get_stack(frame, None)
                 else:
                     try:
                         import threadframe
                         frame = self.get_threadframe_frame(thread_name)
-                        if frame is not None:
-                            self.stack, self.curindex = self.get_stack(frame,
-                                                                       None)
-                        else:
+                        if frame is None:
                             self.msg("Can't find thread %s" % thread_name)
                             return
                     except:
                         self.msg("Frame selection not supported. Upgrade to")
                         self.msg("Python 2.5 or install threadframe.")
                         return
+
+                newframe = self.find_nondebug_frame(frame)
+                if newframe is not None:  frame = newframe
+                self.stack, self.curindex = self.get_stack(frame, None)
                 if len(args) == 1:
                     arg = '0'
                 else:
@@ -432,9 +430,10 @@ To get the full stack trace for a specific thread pass in the thread name.
             # Print location where thread was created and line number
             s = str(threading._active[t]) + "\n    "
             s += self.format_stack_entry((f, f.f_lineno))
+            self.msg('-' * 30)
             self.msg(s)
             f = f.f_back
-            if all_verbose:
+            if all_verbose and f:
                 stack_trace(self, f)
 
     def info_thread_line(self, thread_name):
