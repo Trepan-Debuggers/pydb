@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.112 2006/09/17 01:11:05 rockyb Exp $
+"""$Id: pydb.py.in,v 1.113 2006/09/19 09:23:00 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -27,7 +27,7 @@ __all__ = ["Pdb",     "exception_hook", "help",
            "set_trace"]
 
 old_handler = None
-_pydb_trace = None
+## _pydb_trace = None  # needs NOT to be set.
 program     = '*Unknown*'
 
 def init():
@@ -391,7 +391,7 @@ def runcall(*args, **kwds):
     p.running=True
     return p.runcall(*args, **kwds)
 
-def set_trace(dbg_cmds=None, add_exception_hook=True):
+def set_trace(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
     """Enter the debugger at the calling stack frame.  This is useful to
     hard-code a breakpoint at a given point in a program, even if the code
     is not otherwise being debugged (e.g., when an assertion fails).
@@ -408,7 +408,11 @@ def set_trace(dbg_cmds=None, add_exception_hook=True):
             print "Your program should not use _pydb_trace"
             return
     except NameError:
-        _pydb_trace = Pdb()
+        if add_threaddbg:
+            import threaddbg
+            _pydb_trace = threaddbg.threadDbg()
+        else:
+            _pydb_trace = Pdb()
         _pydb_trace.reset()
         _pydb_trace._program_sys_argv = list(sys.argv)
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
