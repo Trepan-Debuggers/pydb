@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.76 2006/09/17 13:47:37 rockyb Exp $
+"""$Id: gdb.py.in,v 1.77 2006/09/19 08:43:50 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -249,13 +249,13 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('args',           self.info_args)
         self.infocmds.add('breakpoints',    self.info_breakpoints)
         self.infocmds.add('display',        self.info_display)
-        self.infocmds.add('handle',         self.sigmgr.info_signal)
+        self.infocmds.add('handle',         self.sigmgr.info_signal, 1, False)
         self.infocmds.add('globals',        self.info_globals, 1, False)
         self.infocmds.add('line',           self.info_line)
         self.infocmds.add('locals',         self.info_locals,  1, False)
         self.infocmds.add('program',        self.info_program)
-        self.infocmds.add('signal',         self.sigmgr.info_signal)
-        self.infocmds.add('source',         self.info_source)
+        self.infocmds.add('signal',         self.sigmgr.info_signal, 2, False)
+        self.infocmds.add('source',         self.info_source, 2)
         ## self.infocmds.add('target',         self.info_target)
 
     def __init_set(self):
