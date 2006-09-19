@@ -38,4 +38,10 @@ Num Type          Disp Enb    Where
 4   breakpoint    keep y   at gcd.py:11
 + delete 4
 Deleted breakpoint 4
++ tbreak 31
+Breakpoint 5 set in file gcd.py, line 31.
++ continue
+Deleted breakpoint 5
++ info break
+No breakpoints.
 + quit
