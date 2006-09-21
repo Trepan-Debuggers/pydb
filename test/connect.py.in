@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $d$ -*- Python -*-
+# $Id: connect.py.in,v 1.5 2006/09/21 08:56:54 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.

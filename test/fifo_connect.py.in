@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: fifo_connect.py.in,v 1.3 2006/09/21 01:13:41 rockyb Exp $ -*- Python -*-
+# $Id: fifo_connect.py.in,v 1.4 2006/09/21 08:56:54 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
@@ -33,6 +33,16 @@ class TestFIFOConnections(unittest.TestCase):
         line = 'this is a test\n'
         client.write(line)
 
+        for i in range(10):
+            if not os.path.exists('fifotest.out'):
+                time.sleep(0.05)
+            else:
+                break
+
+        self.assertEqual(True, os.path.exists('fifotest.out'))
+        for i in range(10):
+            if not hasattr(server, 'inp') or server.inp is None:
+                time.sleep(0.05)
         l2 = server.readline()
         self.assertEqual(l2, line, "client to server")
         line = 'Another test\n'

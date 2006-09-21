@@ -1,4 +1,4 @@
-"""$Id: connection.py,v 1.5 2006/09/17 00:17:16 rockyb Exp $
+"""$Id: connection.py,v 1.6 2006/09/21 08:56:53 rockyb Exp $
 Lower-level classes to support communication between separate
 processes which might reside be on separate computers.
 
@@ -249,6 +249,11 @@ class ConnectionFIFO(ConnectionInterface):
         self.open_outfile()
 
         self.mode = mode
+        if self.is_server:
+            # Wait for a connection from a client
+            import time
+            while not os.path.exists(self.fname_in):
+                time.sleep(0.5)
         try:
             self.inp = open(self.fname_in, 'r')
         except IOError, e:
@@ -260,8 +265,9 @@ class ConnectionFIFO(ConnectionInterface):
         if not self.inp or not self.outp:
             return
         self.outp.close()
-        if type(self.outfile) == type("") and os.path.exists(self.outfile):
-            os.unlink(self.outfile)
+        outfile = self.outfile()
+        if outfile is not None and os.path.exists(outfile):
+            os.unlink(outfile)
         self.inp.close()
         self.inp = self.outp = None
 
