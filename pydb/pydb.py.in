@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.113 2006/09/19 09:23:00 rockyb Exp $
+"""$Id: pydb.py.in,v 1.114 2006/09/21 12:50:58 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -536,8 +536,8 @@ def main():
         # right.
 
         try:
-            if mainpyfile:
-                p._runscript(mainpyfile)
+            if p._program_sys_argv and p._program_sys_argv[0]:
+                p._runscript(p._program_sys_argv[0])
                 if p.sig_received: 
                     p.sig_received = False
                     continue
