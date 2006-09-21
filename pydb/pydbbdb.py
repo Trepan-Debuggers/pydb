@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.20 2006/09/16 23:49:18 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.21 2006/09/21 21:21:16 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -12,7 +12,7 @@ class Bdb(bdb.Bdb):
     def __init__(self):
         bdb.Bdb.__init__(self)
 
-        # A 0 value means stop on this occurance. A positive value means to
+        # A 0 value means stop on this occurrence. A positive value means to
         # skip that many more step/next's.
         self.step_ignore = 0
 
