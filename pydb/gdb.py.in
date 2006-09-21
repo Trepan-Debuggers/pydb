@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.78 2006/09/21 10:16:24 rockyb Exp $
+"""$Id: gdb.py.in,v 1.79 2006/09/21 12:43:45 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -999,20 +999,16 @@ No arg means to have no executable file and no symbols."""
                if get_confirmation(self,
                                    "Discard symbol table from %s'? (y or n)"
                                    % self.mainpyfile):
-                   module = fns.file2module(self.mainpyfile)
-                   ## ?? del module
-               self.mainpyfile == ""
-               ## sys.path = self.originalpath[:]
+                   # XXX how to clean up name space ??
+                   self._program_sys_argv = None
+                   self.mainpyfile == ""
         else:
             # XXX how to clean up name space ??
-##            if self.moduletodebug:
-##                try:
-##                    # del self.moduletodebug
-##                    self.moduletodebug = ''
-##                except:
-##                    pass
-            self._runscript(fname)
-
+            self.mainpyfile=fname
+            self._program_sys_argv = [self.mainpyfile]
+            self._runscript(self.mainpyfile)
+            # Fake up curframe? 
+            return self.quitting
 
     def do_finish(self, arg):
         """finish
