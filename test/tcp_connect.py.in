@@ -1,5 +1,5 @@
-#!/usr/local/bin/python -t
-# $d$ -*- Python -*-
+#!@PYTHON@ -t
+# $Id: tcp_connect.py.in,v 1.4 2006/09/21 01:13:41 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
