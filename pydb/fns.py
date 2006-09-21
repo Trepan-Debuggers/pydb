@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.23 2006/09/08 00:44:37 rockyb Exp $
+"""$Id: fns.py,v 1.24 2006/09/21 09:45:51 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -313,8 +313,14 @@ def get_brkpt_lineno(obj, arg):
 
 if __name__ == '__main__':
     print "show_onoff(True is %s)" % str(show_onoff(True))
+    assert show_onoff(True) == 'on'
     print "show_onoff(False is %s)" % str(show_onoff(False))
+    assert show_onoff(False) == 'off'
     print "search_file('fns.py', '.', '.'): %s" % search_file("fns.py",
                                                               "$cwd:$cdir",
                                                               ".")
+    assert printf(31, "/o") == '037'
+    assert printf(31, "/t") == '00011111'
+    assert printf(33, "/c") == '!'
+    assert printf(33, "/x") == '0x21'
 

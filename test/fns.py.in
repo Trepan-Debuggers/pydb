@@ -1,0 +1,32 @@
+#!@PYTHON@ -t
+# $Id: fns.py.in,v 1.1 2006/09/21 09:45:51 rockyb Exp $ -*- Python -*-
+
+# This unit test doesn't use any of the debugger code. It is meant solely
+# to test the connection classes.
+
+import os, sys, thread, time, unittest
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+import fns
+
+class TestFns(unittest.TestCase):
+
+    def test(self):
+       """Test various routines in fns.py"""
+       self.assertEqual(fns.show_onoff(True), 'on')
+       self.assertEqual(fns.show_onoff(False), 'off')
+       self.assertEqual( fns.printf(31, "/o"), '037')
+       self.assertEqual( fns.printf(31, "/t"), '00011111')
+       self.assertEqual( fns.printf(33, "/c"), '!')
+       self.assertEqual( fns.printf(33, "/x"), '0x21')
+
+if __name__ == '__main__':
+    unittest.main()
