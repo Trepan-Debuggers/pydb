@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.24 2006/09/21 09:45:51 rockyb Exp $
+"""$Id: fns.py,v 1.25 2006/09/21 10:16:24 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -23,6 +23,15 @@ def checkline(obj, filename, lineno):
         obj.errmsg('Blank or comment')
         return 0
     return lineno
+
+def file2module(filename):
+    """Given a file name extract the most likely module name. """
+    basename = os.path.basename(filename)
+    if '.' in basename:
+         pos = basename.rfind('.')
+         return basename[:pos]
+    else:
+         return basename
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % funcname)
@@ -323,4 +332,4 @@ if __name__ == '__main__':
     assert printf(31, "/t") == '00011111'
     assert printf(33, "/c") == '!'
     assert printf(33, "/x") == '0x21'
-
+    assert file2module("/tmp/gcd.py") == 'gcd'

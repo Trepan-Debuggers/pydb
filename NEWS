@@ -17,6 +17,9 @@
 
 * 'examine' command now shows object's instance variables.
 
+* add gdb 'FILE' command: allow loading/running a file from within
+  pydb. (The old pydb from ddd had it too.)
+
 1.17 2006-07-29
 * Allow entry to the debugger without a script name.
 

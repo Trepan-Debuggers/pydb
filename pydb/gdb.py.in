@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.77 2006/09/19 08:43:50 rockyb Exp $
+"""$Id: gdb.py.in,v 1.78 2006/09/21 10:16:24 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -983,45 +983,36 @@ the default."""
 
     do_x = do_examine
 
-#    def do_file(self, fname):
-#
-#        """ Use FILE as program to be debugged.  It is compiled and
-#        becomes is the program executed when you use the `run'
-#        command.  If FILE cannot be found as specified, your execution
-#        directory path ($PATH) is searched for a command of that name.
-#        No arg means to have no executable file and no symbols."""
-#
-#        if fname == "":
-#            if self.mainpyfile == "":
-#                print 'No exec file now.\nNo symbol file now.'
-#                return
-#            else:
-#                # should confirm this per
-#                #Discard symbol table from `/work/.../ddd/cxxtest'? (y or n) n
-#                # XXX
-#                # del module
-#                sys.path = self.originalpath[:]
-#                self.mainpyfile == ""
-#        else:
-#            path, module = os.path.split(fname)
-#            module = module.split('.')[0]
-#            sys.path = self.originalpath[:]
-#            sys.path.insert(0, path)
-#            # XXX how to clean up name space ??
-#            if self.moduletodebug:
-#                try:
-#                    # del self.moduletodebug
-#                    self.moduletodebug = ''
-#                except:
-#                    pass
-#            line = "import " + module + '\n'
-#            code = compile(line, '<stdin>', 'single')
-#            global_vars = self.curframe.f_globals
-#            local_vars = self.curframe.f_locals
-#            exec code in global_vars, local_vars
-#            # Could print 'Reading symbols from fname...done.' for gdb conformance
-#            self.mainpyfile = fname
-#            self.moduletodebug = module
+    def do_file(self, fname):
+        """ Use FILE as program to be debugged.
+It is compiled and becomes is the program executed when you use the `run'
+command.  If FILE cannot be found as specified, your execution
+directory path ($PATH) is searched for a command of that name.
+No arg means to have no executable file and no symbols."""
+        
+        if fname == "":
+           if self.mainpyfile == "":
+               self.msg('No exec file now.\nNo symbol file now.')
+               return
+           else:
+               # should confirm this per
+               if get_confirmation(self,
+                                   "Discard symbol table from %s'? (y or n)"
+                                   % self.mainpyfile):
+                   module = fns.file2module(self.mainpyfile)
+                   ## ?? del module
+               self.mainpyfile == ""
+               ## sys.path = self.originalpath[:]
+        else:
+            # XXX how to clean up name space ??
+##            if self.moduletodebug:
+##                try:
+##                    # del self.moduletodebug
+##                    self.moduletodebug = ''
+##                except:
+##                    pass
+            self._runscript(fname)
+
 
     def do_finish(self, arg):
         """finish
