@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.80 2006/09/19 09:22:59 rockyb Exp $
+% $Id: libpydb.tex,v 1.81 2006/09/22 00:35:28 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1113,9 +1113,16 @@ environment). The prompt is changed to indicate nested behavior. See
 
 \end{description}
 
-\subsection{Restarting a Python Script ({\tt restart}, {\tt run})\label{subsection-restart}}
+\subsection{Starting/Restarting a Python Script ({\tt restart}, {\tt run})\label{subsection-restart}}
 
 \begin{description}
+
+\item[file \optional{\var{filename}}\label{command:file}]
+
+Use \var{filename} as the Python program to be debugged.
+It is compiled and becomes is the program executed when you use the `run'
+command.  If no filename is given, this means to set things so there
+is no Python file.
 
 \item[restart \var{args...}]\label{command:restart}
 

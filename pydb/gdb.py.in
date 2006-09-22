@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.79 2006/09/21 12:43:45 rockyb Exp $
+"""$Id: gdb.py.in,v 1.80 2006/09/22 00:35:28 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -984,11 +984,10 @@ the default."""
     do_x = do_examine
 
     def do_file(self, fname):
-        """ Use FILE as program to be debugged.
+        """Use FILE as the Python program to be debugged.
 It is compiled and becomes is the program executed when you use the `run'
-command.  If FILE cannot be found as specified, your execution
-directory path ($PATH) is searched for a command of that name.
-No arg means to have no executable file and no symbols."""
+command.  If no filename is given, this means to set things so there
+is no Python file."""
         
         if fname == "":
            if self.mainpyfile == "":
