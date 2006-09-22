@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
-# $Id: trace.py.in,v 1.6 2006/09/17 01:11:06 rockyb Exp $ -*- Python -*-
-"Unit test for Extended Python debugger "
+# $Id: trace.py.in,v 1.7 2006/09/22 00:20:42 rockyb Exp $ -*- Python -*-
+"Unit test of program execution tracing using the Extended Python debugger "
 import difflib, os, time, sys, unittest
 
 top_builddir = "@top_builddir@"
