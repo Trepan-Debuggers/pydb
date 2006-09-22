@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.18 2006/09/18 01:29:50 rockyb Exp $
+# $Id: threaddbg.py,v 1.19 2006/09/22 03:07:04 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -94,7 +94,6 @@ class threadDbg(pydb.Pdb):
             except:
                 self.info_thread = self.info_thread_old
         self.infocmds.add('thread',  self.info_thread,  2, False)
-        self.setcmds.add ('dbg_pydb', self.set_dbg_pydb)
 
     def find_nondebug_frame(self, f):
         """Find the first frame that isn't a debugger frame.
