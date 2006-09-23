@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.21 2006/09/17 13:47:37 rockyb Exp $
+"""$Id: sighandler.py,v 1.22 2006/09/23 06:15:05 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -79,7 +79,11 @@ class SignalManager:
                 self.sigs[signame].old_handler = old_handler
                     
                 # restore _our_ signal handler
-                signal.signal(signum, self.sigs[signame].handle)
+                try:
+                    signal.signal(signum, self.sigs[signame].handle)
+                except ValueError:
+                    # Probably not in main thread
+                    break
 
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""

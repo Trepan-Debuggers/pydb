@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.19 2006/09/22 03:07:04 rockyb Exp $
+# $Id: threaddbg.py,v 1.20 2006/09/23 06:15:05 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -7,6 +7,7 @@ import bdb, inspect, os, pydb, sys
 import fns
 
 import thread, threading
+from gdb import Restart
 
 def is_in_threaddbg_dispatch(f):
     """Returns True if frame f is the threaddbg dispatch routine"""
@@ -86,13 +87,17 @@ class threadDbg(pydb.Pdb):
         self.end_thread=-1  # Highest short name in use.
         if hasattr(sys, "_current_frames"):
             self.info_thread = self.info_thread_new
+            self.traceall    = self.traceall_new
             self.do_thread   = self.new_do_thread
         else:
             try:
                 import threadframe
                 self.info_thread = self.info_threadframe
+                self.traceall    = self.traceall_threadframe
             except:
                 self.info_thread = self.info_thread_old
+                self.traceall    = lambda obj: None
+        ## self.traceall()
         self.infocmds.add('thread',  self.info_thread,  2, False)
 
     def find_nondebug_frame(self, f):
@@ -109,7 +114,11 @@ class threadDbg(pydb.Pdb):
         ### threadding might do the trick.
         (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
         (path, basename)=os.path.split(filename)
-        while (basename.startswith('threading.py') or 
+        while (basename.startswith('threading.py') or
+               basename.startswith('gdb.py') or
+               basename.startswith('threaddbg.py') or
+               basename.startswith('subcmd.py') or
+               basename.startswith('pydb.py') or
                routine == 'trace_dispatch_gdb') and f.f_back:
             f = f.f_back
             (filename, line_no, routine) = \
@@ -427,7 +436,8 @@ To get the full stack trace for a specific thread pass in the thread name.
             f = self.find_nondebug_frame(f)
 
             # Print location where thread was created and line number
-            s = str(threading._active[t]) + "\n    "
+            if t in threading._active:
+                s = str(threading._active[t]) + "\n    "
             s += self.format_stack_entry((f, f.f_lineno))
             self.msg('-' * 30)
             self.msg(s)
@@ -618,7 +628,18 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.print_location()
         else:
             try:
+                print "nothread_trace_dispatch"
+                old_botframe = self.botframe
+                if self.stepping:
+                    self.botframe = frame
                 self.nothread_trace_dispatch(self, frame, event, arg)
+                self.botframe = old_botframe
+            except Restart:
+                sys.argv = list(self._program_sys_argv)
+                self.msg("Restart not finished yet")
+                # self.msg("Should Restart %s with arguments:\n\t%s"
+                #         % (self.filename(sys.argv[0]),
+                #            " ".join(self._program_sys_argv[1:])))
             except bdb.BdbQuit:
                 self.msg("Requesting exit from %s (id %lu)" %
                          (threading.currentThread().getName(),
@@ -650,3 +671,22 @@ the current thread. (That is this is the same as "info thread terse"."""
         self.running = True
         self.run(statement, globals=globals_, locals=locals_)
 
+    def traceall_new(self):
+        """Make sure all frames are set to be traced under the Python 2.5
+        regime. This would needed if we started debugging mid-way via
+        say set_trace and threads have already been created.
+        """
+        threads = sys._current_frames()
+        for t in threads.keys():
+            frame = self.find_nondebug_frame(threads[t])
+            self.set_trace(frame)
+
+    def traceall_threadframe(self):
+        """Make sure all frames are set to be traced under the threadframe
+        regime. This would needed if we started debugging mid-way via
+        say set_trace and threads have already been created."""
+        import threadframe
+        frames = threadframe.dict()
+        for frame in frames:
+            frame = self.find_nondebug_frame(frame)
+            self.set_trace(frame)

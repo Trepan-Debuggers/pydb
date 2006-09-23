@@ -4,9 +4,9 @@ import time
 import thread
 
 def myfunction(string,sleeptime,lock,*args):
-    pydb.set_trace()
     while 1:
 	#entering critical section
+        pydb.set_trace(add_threaddbg=True)
         lock.acquire() 
         print string," Now Sleeping after Lock acquired for ",sleeptime
         time.sleep(sleeptime) 
@@ -16,7 +16,6 @@ def myfunction(string,sleeptime,lock,*args):
         time.sleep(sleeptime) # why?
 
 if __name__=="__main__":
-
     lock=thread.allocate_lock()
     thread.start_new_thread(myfunction,("Thread No:1",1,lock))
     thread.start_new_thread(myfunction,("Thread No:2",1,lock))
