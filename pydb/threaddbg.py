@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.20 2006/09/23 06:15:05 rockyb Exp $
+# $Id: threaddbg.py,v 1.21 2006/09/23 06:18:02 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -628,12 +628,7 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.print_location()
         else:
             try:
-                print "nothread_trace_dispatch"
-                old_botframe = self.botframe
-                if self.stepping:
-                    self.botframe = frame
                 self.nothread_trace_dispatch(self, frame, event, arg)
-                self.botframe = old_botframe
             except Restart:
                 sys.argv = list(self._program_sys_argv)
                 self.msg("Restart not finished yet")
