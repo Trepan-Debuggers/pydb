@@ -2,7 +2,6 @@
 
 * Start thread debugging: 
     info thread [thread-name] [terse|verbose]    - show thread info
-    thread [thread-name [thread-name]...]  - switches thread
     qt                                     - quit current thread
     can set a breakpoint on a specific thread name.
 

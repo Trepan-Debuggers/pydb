@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.81 2006/09/23 06:15:05 rockyb Exp $
+"""$Id: gdb.py.in,v 1.82 2006/09/24 23:48:23 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -79,6 +79,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.stop_reason     = None    # Why are we in the debugger?
         self._sys_argv       = []      # exec sys.argv, e.g. may include pydb
         self.set_history_length   = None
+        self.stepping        = False   # used in thread debugging
 
 
         self.target          = 'local' # local connections by default
@@ -748,7 +749,9 @@ the .py suffix may be omitted."""
             # stopping if there were no breakpoints.
             self.step_ignore = -1
             self.set_step()
+            self.stepping = True
         else:
+            self.stepping = False
             self.set_continue()
 
         # Tell cmdloop to break out of its loop.
@@ -1025,9 +1028,11 @@ is no Python file."""
         Continue execution until the current function returns."""
         if not self.is_running(): return
         self.set_return(self.curframe)
+        self.stepping = False
         if self.linetrace:
+            self.stepping    = True
             self.step_ignore = -1
-            self.stopframe = None
+            self.stopframe   = None
 
         # Tell cmdloop to break out of its loop.
         return True
@@ -1488,6 +1493,7 @@ With an integer argument, step that many times."""
         except ValueError:
             return
 
+        self.stepping = True
         self.set_step()
         # Tell cmdloop to break out of its loop.
         return True

@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.21 2006/09/23 06:18:02 rockyb Exp $
+# $Id: threaddbg.py,v 1.22 2006/09/24 23:48:24 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -73,6 +73,7 @@ class threadDbg(pydb.Pdb):
         # If the variable is None than any thread can run.
         self.desired_thread=None
 
+        self.thread_id               = thread.get_ident()
         self.thread_name             = threading.currentThread().getName()
         self.curframe_thread_name    = self.thread_name
         self.nothread_do_break       = pydb.Pdb.do_break
@@ -86,17 +87,16 @@ class threadDbg(pydb.Pdb):
         self.traced = {}
         self.end_thread=-1  # Highest short name in use.
         if hasattr(sys, "_current_frames"):
-            self.info_thread = self.info_thread_new
-            self.traceall    = self.traceall_new
-            self.do_thread   = self.new_do_thread
+            self.do_tracethread  = self.new_do_tracethread
+            ## self.do_thread       = self.new_do_thread
+            self.info_thread     = self.info_thread_new
         else:
             try:
                 import threadframe
-                self.info_thread = self.info_threadframe
-                self.traceall    = self.traceall_threadframe
+                self.do_tracethread = self.threadframe_do_tracethread
+                self.info_thread    = self.info_threadframe
             except:
                 self.info_thread = self.info_thread_old
-                self.traceall    = lambda obj: None
         ## self.traceall()
         self.infocmds.add('thread',  self.info_thread,  2, False)
 
@@ -268,6 +268,14 @@ newest frame."""
         if really_quit:
             self.nothread_quit(self, arg)
 
+    def do_qt(self, arg):
+        """Quit the current thread."""
+        thread_name=threading.currentThread().getName()
+        self.msg( "quitting thread %s"  % thread_name)
+        del self.traced[thread_name]
+        self.threading_lock.release()
+        thread.exit()
+
     def do_tbreak(self, arg):
         """tbreak {[file:]lineno | function} [thread Thread-name] [, condition]
 
@@ -291,13 +299,31 @@ If a thread name is given we will stop only if the the thread has that name."""
             arg = ' '.join(args)
         self.nothread_do_tbreak(self, arg, thread_name)
 
-    def do_qt(self, arg):
-        """Quit the current thread."""
-        thread_name=threading.currentThread().getName()
-        self.msg( "quitting thread %s"  % thread_name)
-        del self.traced[thread_name]
-        self.threading_lock.release()
-        thread.exit()
+    def do_tracethread(self, args):
+        """Set to trace all threads. However Python 2.5 or the threadframe
+        module is needed for this and it appear you have neither installed.
+        """
+        pass
+
+    def new_do_tracethread(self, args):
+        """Make sure all frames are set to be traced under the Python 2.5
+        regime. This would needed if we started debugging mid-way via
+        say set_trace and threads have already been created.
+        """
+        threads = sys._current_frames()
+        for t in threads.keys():
+            frame = self.find_nondebug_frame(threads[t])
+            self.set_trace(frame)
+
+    def threadframe_do_tracethread(self, args):
+        """Make sure all frames are set to be traced under the threadframe
+        regime. This would needed if we started debugging mid-way via
+        say set_trace and threads have already been created."""
+        import threadframe
+        frames = threadframe.dict()
+        for frame in frames:
+            frame = self.find_nondebug_frame(frame)
+            self.set_trace(frame)
 
     def do_where(self, arg):
         """where [count]
@@ -383,6 +409,7 @@ stack trace is given for each frame.
                 self.msg("Stack trace for thread %s:" % thread_name)
             frame = self.find_nondebug_frame(frames[thread_id])
             stack_trace(self, frame)
+        self.info_thread_terse()
 
     # For Python on or after 2.5b1
     def info_thread_new(self, args, short_display=False):
@@ -444,6 +471,7 @@ To get the full stack trace for a specific thread pass in the thread name.
             f = f.f_back
             if all_verbose and f:
                 stack_trace(self, f)
+        self.info_thread_terse()
 
     def info_thread_line(self, thread_name):
         if thread_name == self.thread_name:
@@ -468,64 +496,64 @@ To get the full stack trace for a specific thread pass in the thread name.
         for thread_name in thread_name_list:
             self.info_thread_line(thread_name)
                 
-    def new_do_thread(self, arg):
-        """thread [thread-name1 [thread-name2]..]
+##     def new_do_thread(self, arg):
+##         """thread [thread-name1 [thread-name2]..]
 
-Use this command to specifiy a set of threads which you
-want to switch to. The new thread name must be currently known by the
-debugger.
+## Use this command to specifiy a set of threads which you
+## want to switch to. The new thread name must be currently known by the
+## debugger.
 
-If no thread name is given, we'll give information about
-the current thread. (That is this is the same as "info thread terse"."""
-        args = arg.split()
-        if len(args) == 0:
-            self.info_thread(args=arg, short_display=True)
-            return
+## If no thread name is given, we'll give information about
+## the current thread. (That is this is the same as "info thread terse"."""
+##         args = arg.split()
+##         if len(args) == 0:
+##             self.info_thread(args=arg, short_display=True)
+##             return
 
-        retval = False
-        for thread_name in args:
-            if thread_name in self.traced.keys():
-                cur_thread  = threading.currentThread()
-                threads = sys._current_frames()
-                t = self.traced[thread_name]
-                if t in threads.keys():
-                    frame = threads[t]
-                    if is_in_threaddbg(frame):
-                        if len(args) == 1:
-                            if thread_name == cur_thread.getName():
-                                self.msg("We are thread %s. No switch done."
-                                         % thread_name)
-                                continue
-                            self.msg("Switching to %s" % thread_name)
-                        else:
-                            self.msg(("Adding %s to list of switchable " +
-                                      "threads") % thread_name)
+##         retval = False
+##         for thread_name in args:
+##             if thread_name in self.traced.keys():
+##                 cur_thread  = threading.currentThread()
+##                 threads = sys._current_frames()
+##                 t = self.traced[thread_name]
+##                 if t in threads.keys():
+##                     frame = threads[t]
+##                     if is_in_threaddbg(frame):
+##                         if len(args) == 1:
+##                             if thread_name == cur_thread.getName():
+##                                 self.msg("We are thread %s. No switch done."
+##                                          % thread_name)
+##                                 continue
+##                             self.msg("Switching to %s" % thread_name)
+##                         else:
+##                             self.msg(("Adding %s to list of switchable " +
+##                                       "threads") % thread_name)
 
-                        if self.desired_thread:
-                            self.desired_thread.append(thread_name)
-                        else:
-                            self.desired_thread = [thread_name]
-                        retval = True
-                    else:
-                        self.msg("Thread %s is not currently blocked in the"
-                                 + "debugger.")
-                else:
-                    self.msg("Can't find %s in list of active threads" %
-                             thread_name)
-            else:
-                self.msg("Don't know about thread %s" % thread_name)
+##                         if self.desired_thread:
+##                             self.desired_thread.append(thread_name)
+##                         else:
+##                             self.desired_thread = [thread_name]
+##                         retval = True
+##                     else:
+##                         self.msg("Thread %s is not currently blocked in the"
+##                                  + "debugger.")
+##                 else:
+##                     self.msg("Can't find %s in list of active threads" %
+##                              thread_name)
+##             else:
+##                 self.msg("Don't know about thread %s" % thread_name)
 
-        if not retval:
-            self.msg("Here are the threads I know about:")
-            self.info_thread(args=[thread_name], short_display=True)
-            self.msg(str(self.traced))
-            return False
-        else:
-            # Here's where we arrange to switch threads
-            self.threading_cond.acquire()
-            self.threading_cond.notify()
-            self.threading_cond.release()
-        return retval
+##         if not retval:
+##             self.msg("Here are the threads I know about:")
+##             self.info_thread(args=[thread_name], short_display=True)
+##             self.msg(str(self.traced))
+##             return False
+##         else:
+##             # Here's where we arrange to switch threads
+##             self.threading_cond.acquire()
+##             self.threading_cond.notify()
+##             self.threading_cond.release()
+##         return retval
 
     def print_frame_thread(self):
         """Print the thread name and current frame thread name to Pdb's
@@ -575,11 +603,12 @@ the current thread. (That is this is the same as "info thread terse"."""
         if basename.startswith('threading.py'):
             return self.trace_dispatch
 
-        self.thread_name = threading.currentThread().getName()
+        last_thread_id   = self.thread_id
+        self.thread_id   = thread.get_ident()
 
         # Record in my own table a list of thread names
         if not self.thread_name in self.traced.keys():
-            self.traced[self.thread_name] = thread.get_ident()
+            self.traced[self.thread_name] = self.thread_id
 
         have_single_entry_lock = False
 
@@ -627,26 +656,35 @@ the current thread. (That is this is the same as "info thread terse"."""
             self.setup(frame)
             self.print_location()
         else:
-            try:
-                self.nothread_trace_dispatch(self, frame, event, arg)
-            except Restart:
-                sys.argv = list(self._program_sys_argv)
-                self.msg("Restart not finished yet")
-                # self.msg("Should Restart %s with arguments:\n\t%s"
-                #         % (self.filename(sys.argv[0]),
-                #            " ".join(self._program_sys_argv[1:])))
-            except bdb.BdbQuit:
-                self.msg("Requesting exit from %s (id %lu)" %
-                         (threading.currentThread().getName(),
-                          thread.get_ident()))
-                self._user_requested_quit = True
-                self.desired_thread = None
-                self.threading_cond.acquire()
-                self.threading_cond.notify()
-                self.threading_cond.release()
-                self.threading_lock.release()
-                thread.exit()
-                return
+            while True:
+                try:
+                    if self.stepping and last_thread_id != self.thread_id:
+                        botframe = self.botframe
+                        self.botframe = frame
+                        #print "Thread switch %s %d %d" % (self.thread_name,
+                        #                                  last_thread_id,
+                        #                                  self.thread_id)
+                    self.nothread_trace_dispatch(self, frame, event, arg)
+                    break
+                except Restart:
+                    sys.argv = list(self._program_sys_argv)
+                    self.msg("'run' command not implimented for thread " +
+                             "debugging. Try 'restart'.")
+                    # self.msg("Should Restart %s with arguments:\n\t%s"
+                    #         % (self.filename(sys.argv[0]),
+                    #            " ".join(self._program_sys_argv[1:])))
+                except bdb.BdbQuit:
+                    self.msg("Requesting exit from %s (id %lu)" %
+                             (threading.currentThread().getName(),
+                              thread.get_ident()))
+                    self._user_requested_quit = True
+                    self.desired_thread = None
+                    self.threading_cond.acquire()
+                    self.threading_cond.notify()
+                    self.threading_cond.release()
+                    self.threading_lock.release()
+                    thread.exit()
+                    return
 
         self.threading_lock.release()
         return self.trace_dispatch
@@ -665,23 +703,3 @@ the current thread. (That is this is the same as "info thread terse"."""
         statement = 'execfile( "%s")' % filename
         self.running = True
         self.run(statement, globals=globals_, locals=locals_)
-
-    def traceall_new(self):
-        """Make sure all frames are set to be traced under the Python 2.5
-        regime. This would needed if we started debugging mid-way via
-        say set_trace and threads have already been created.
-        """
-        threads = sys._current_frames()
-        for t in threads.keys():
-            frame = self.find_nondebug_frame(threads[t])
-            self.set_trace(frame)
-
-    def traceall_threadframe(self):
-        """Make sure all frames are set to be traced under the threadframe
-        regime. This would needed if we started debugging mid-way via
-        say set_trace and threads have already been created."""
-        import threadframe
-        frames = threadframe.dict()
-        for frame in frames:
-            frame = self.find_nondebug_frame(frame)
-            self.set_trace(frame)

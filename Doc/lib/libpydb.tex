@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.81 2006/09/22 00:35:28 rockyb Exp $
+% $Id: libpydb.tex,v 1.82 2006/09/24 23:48:23 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1498,19 +1498,19 @@ stack trace is given for each frame.
 
 \end{description}
 
-\subsubsection{Switching between threads ({\tt
-    thread})\label{command:thread}}
-
-You can switch between those threads that the debugger knows about and
-is stopped at a point inside the debugger.
-
-\begin{description}
-\item[thread \var{thread-name}] 
-Suspend the current thread and switch
-to the indicated thread. However the Python statement that was in
-progress before the debugger was entered will complete before the
-switch is done. 
-\end{description}
+%\subsubsection{Switching between threads ({\tt
+%    thread})\label{command:thread}}
+%
+%You can switch between those threads that the debugger knows about and
+%is stopped at a point inside the debugger.
+%
+%\begin{description}
+%\item[thread \var{thread-name}] 
+%Suspend the current thread and switch
+%to the indicated thread. However the Python statement that was in
+%progress before the debugger was entered will complete before the
+%switch is done. 
+%\end{description}
 
 \subsubsection{Quitting a thread ({\tt qt})\label{command:qt}}
 \begin{description}
