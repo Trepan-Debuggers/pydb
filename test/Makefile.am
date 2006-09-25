@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.26 2006/09/22 00:20:42 rockyb Exp $
+#$Id: Makefile.am,v 1.27 2006/09/25 00:08:13 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,9 @@ check_DATA = \
 	comm2.cmd         \
 	connect.py        \
 	except.py         \
+	file.cmd          \
+	file.right        \
+	file-2.5.right    \
 	filebug.cmd       \
 	filebug.py        \
 	filebug.right     \
