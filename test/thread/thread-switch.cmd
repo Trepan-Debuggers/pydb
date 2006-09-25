@@ -8,6 +8,6 @@ frame 0
 frame FakeThreadName
 frame MainThread
 where
-thread Thread-1
-info thread terse
+# thread Thread-1
+# info thread terse
 kill unconditionally
