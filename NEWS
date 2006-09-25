@@ -1,4 +1,4 @@
-1.18cvs 
+1.18 2006-09-25
 
 * Start thread debugging: 
     info thread [thread-name] [terse|verbose]    - show thread info

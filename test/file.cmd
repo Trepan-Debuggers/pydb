@@ -1,11 +1,11 @@
 # 
 # Test of the 'file' command
-# $Id: file.cmd,v 1.1 2006/09/25 00:08:13 rockyb Exp $
+# $Id: file.cmd,v 1.2 2006/09/25 00:23:57 rockyb Exp $
 #
 set cmd on
 file hanoi.py
 info line
-where
+where 2
 step 2
-where
+where 2
 quit
