@@ -28,24 +28,28 @@ Some (but by no means all) of the features and changes from pdb.py:
 
 <li>non-interactive POSIX-shell like line tracing.
 
-<li>Restart program saving settings (gdb's <tt>run</tt>) or a pure
-<tt>exec</tt> restart (reloads the entire debugger)
+<li>thread debugging. (Experimental)
 
 <li>Many gdb commands.
+
+<li>gdb-style signal handling
+
+<li>gdb-like help with subcommand-specific help available on
+  <tt>info</tt>, <tt>set</tt>, or <tt>show</tt> subcommands;
+  e.g. <tt>help info line</tt> works
+
+<li>Restart program saving settings (gdb's <tt>run</tt>) or a pure
+<tt>exec</tt> restart (reloads the entire debugger)
 
 <li>debugger is installed in binary directory; i.e. one runs "pydb script..."
   rather than "python pdb.py script..."
 
 <li>debugger accepts debugger options; e.g. redirecting debugger output
 
-<li>Add Perl's "examine" to show info about a symbol.  For functions,
+<li>Perl's "examine" command to show info about a symbol.  For functions,
   methods, classes and modules the documentation string if any is printed.
-  For functions, we also show the argument list. More work is needed here
-  to recurse fields of an arbitrary object and show that.
-
-<li> gdb-like help with subcommand-specific help available on
-  <tt>info</tt>, <tt>set</tt>, or <tt>show</tt> subcommands;
-  e.g. <tt>help info line</tt> works
+  For functions, we also show the argument list. For objects, instance
+  variables of the class and object are shown.
 
 <li>More <a href="http://bashdb.sourceforge.net/pydb/pydb/lib/index.html">
 extensive and complete documentation</a>.
@@ -116,6 +120,6 @@ version</a> of ddd is required.)
 src="http://sourceforge.net/sflogo.php?group_id=61395&amp;type=1"
 alt="SourceForge Logo" border="0" height="31" width="88">></a>
 
-<i>$Id: index.html,v 1.14 2006/09/05 01:35:45 rockyb Exp $</i>
+<i>$Id: index.html,v 1.15 2006/09/25 22:56:53 rockyb Exp $</i>
 </body>
 </html>
