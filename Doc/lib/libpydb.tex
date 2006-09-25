@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.82 2006/09/24 23:48:23 rockyb Exp $
+% $Id: libpydb.tex,v 1.83 2006/09/25 23:46:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -148,6 +148,26 @@ will not necessarily be the one specified in the magic field (the
 first line of the file), but will be the Python interpreter that the
 debugger specifies. (In most cases they'll be the same and/or it won't
 matter.)
+
+If you are familiar with the stock debugger \code{pdb}, you may feel
+the urge to write a wrapper script. As indicated above, you shouldn't
+have to if \code{pydb} got installed properly and a symbolic link was
+inserted.
+
+That said, if installation didn't work or you want to create a shell
+wrapper script, sure, you can. Here's an example from a SUSE GNU/Linux
+box.
+
+Looking at the output from \code{make install} I see pydb was
+installed in \code{/usr/lib/python2.4/site-packages}. Therefore save
+the following in a script and put it somewhere in your \code{PATH}
+(and make it executable):
+
+\begin{verbatim}
+  #!/bin/sh
+  export PYTHONPATH="/usr/lib/python2.4/site-packages/:$PYTHONPATH:"
+  /usr/lib/python2.4/site-packages/pydb/pydb.py $*
+\end{verbatim}
 
 A detailed list of options is given next. 
 
@@ -1211,7 +1231,7 @@ second argument is less than the first, it is a count. \var{first} and
 \end{description}
 
 \subsection{Interfacing to the debugger ({\tt alias}, {\tt complete}, 
-{\tt help}, {\tt quit}, {\tt source}, {\tt unalias})\label{subsection-misc}}
+{\tt help}, {\tt quit}, {\tt kill}, {\tt source}, {\tt unalias})\label{subsection-misc}}
 
 \begin{description}
 
@@ -1273,8 +1293,17 @@ subcommand. For example \code{help info line} give help about the
 
 \item[q(uit)]\label{command:quit}
 
-Quit the debugger. The program being executed is aborted. For now,
-\code{kill} is a synonym for quit.
+Quit the debugger. The program being executed is aborted.
+
+\item[kill \optional{unconditional}]\label{command:kill}
+
+A non-maskable or ``hard'' kill. Basically, the program sends itself
+\code{kill -9}. This may be needed to get out of the debugger when
+doing thread debugging.
+
+Since this is drastic, normally we prompt in interactive sessions
+whether this is really what you want to do. If however
+``unconditional'' is added, no questions are asked.
 
 \item[source \var{filename}]\label{command:source}
 
@@ -1286,7 +1315,7 @@ An error in any command terminates execution of the command and
 control is returned to the console.
 
 For tracking down problems with command files, see the \samp{set
-cmdtrace on} debugger command, \ref{command:cmdtrace}. 
+cmdtrace on} debugger command. See \ref{command:cmdtrace}. 
 
 \item[unalias \var{name}]\label{command:unalias}
 
@@ -1411,16 +1440,21 @@ program. Supply either the signal name, e.g. \code{SIGINT}, or
     qt}, {\tt frame}, {\tt break})\label{subsection-thread}}
 
 Thread debugging is a bit experimental. By default it is not turned
-on, since it adds a bit of additional complexity. To turn it on, pass
-the \code{--threading} option on the \code{pydb} invocation.
+on, since it adds a bit of additional complexity. For example, you may
+need to issue an additional \code{step} command to get into your
+program initially.
+
+To turn thread debugging on, pass the \code{--threading} option on the
+\code{pydb} invocation.
 
 Tests have shown that one can easily cause a deadlock in trying to
-change the behavior if one is not careful.
-
-So we generally take a conservative approach. We will allow switching
-threads only between those known to be in a state that they can be
-switched to safely; for all practical purposes this means they've been
-blocked by the debugger.
+change the behavior if one is not careful. At present we don't have a
+way to issue a \code{run} command, although the hard \code{restart}
+works. See \ref{subsection-restart}. Also, to quit we haven't worked
+out a sure-fire method to terminate gracefully like you can do when
+there are no threads. We have however added a \code{kill} command. See
+\ref{command:kill} for information on \code{kill}. This is a little
+brutal, but at present it is about the best that can be done.
 
 One will get the most information using Python 2.5 or having
 \ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
@@ -1458,18 +1492,24 @@ Here is an example:
 \begin{verbatim}
 (Pydb) info thread 
 Current thread is Thread-3
+------------------------------
 <Consumer(Thread-3, started)>
-    trace_dispatch_gdb(self=<threaddbg.threadDbg ins...) called from file 'None' at line 162
+    run(self=<Consumer(Thread-3, star...) called from file 'q.py' at line 38
+------------------------------
 <Consumer(Thread-2, started)>
-    trace_dispatch_gdb(self=<threaddbg.threadDbg ins...) called from file 'None' at line 162
+    get(self=<Queue.Queue instance at...) called from file 'Queue.py' at line 165
+------------------------------
 <Producer(Thread-1, started)>
-    trace_dispatch_gdb(self=<threaddbg.threadDbg ins...) called from file 'None' at line 162
+    run(self=<Producer(Thread-1, star...) called from file 'q.py' at line 21
 <_MainThread(MainThread, started)>
-    <module>() called from file 'q.py' at line 52
+   MainThread: -1209960784
+-> Thread-1: -1212503136
+   Thread-2: -1220895840
+   Thread-3: -1229288544
 \end{verbatim}
 
-If \code{terse} is appended we just list the thread name and thread
-id. Here's an example:
+If \code{terse} is appended, we just list the bottom portion: the thread
+name and thread id. Here's an example:
 
 \begin{verbatim}
 (Pydb) info thread terse
@@ -1522,14 +1562,16 @@ threads be waiting on events that this thread can only give.
 
 \subsubsection{Thread Extensions to the {\tt frame} and {\tt break} commands}\label{command:thread-extensions}
 
-When thread debugging is turned on you can also specify whether or not
-a breakpoint should occur at a point across all threads or only on a
-specific thread.
+When thread debugging is turned on, a couple of normal \code{pydb}
+commands allow for a thread name to be indicated. In particular, you
+can whether or not a breakpoint should occur at a point across all
+threads or only on a specific thread. 
 
-If Python version 2.5 or greater is installed or
+And iff Python version 2.5 or greater is installed or
 \ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
 with a older vrsion of Python is installed, you can inspect and change
-local variables from other thread frames.
+local variables from other thread frames via an expanded \code{frame}
+command.
 
 \begin{description}
 \item[frame \optional{\var{Thread-Name}} \var{frame-number}]
