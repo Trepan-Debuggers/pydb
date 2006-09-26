@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.114 2006/09/21 12:50:58 rockyb Exp $
+"""$Id: pydb.py.in,v 1.115 2006/09/26 05:43:51 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -127,9 +127,11 @@ def process_options(p, debugger_name, prog, pkg_version,
 ##         sys.exit()
     if opts.threading:
         import threaddbg
-        tpdb = threaddbg.threadDbg()
+        tpdb           = threaddbg.threadDbg()
         tpdb._sys_argv = p._sys_argv
-        p = tpdb
+        p              = tpdb
+        # Get us out of <module>() called from file '<string>' at line 1
+        p.step_ignore  = 1  
 ##     elif opts.pid:
 ##         target(opts.pid, opts, p)
 ##         sys.exit()

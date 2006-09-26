@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.22 2006/09/24 23:48:24 rockyb Exp $
+# $Id: threaddbg.py,v 1.23 2006/09/26 05:43:51 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -8,6 +8,10 @@ import fns
 
 import thread, threading
 from gdb import Restart
+
+def id2threadName(thread_id):
+    """Turn a thread id into a thread name. Works in Python 2.5 or greater."""
+    return threading.Thread.getName(threading._active[thread_id])
 
 def is_in_threaddbg_dispatch(f):
     """Returns True if frame f is the threaddbg dispatch routine"""
@@ -300,25 +304,30 @@ If a thread name is given we will stop only if the the thread has that name."""
         self.nothread_do_tbreak(self, arg, thread_name)
 
     def do_tracethread(self, args):
-        """Set to trace all threads. However Python 2.5 or the threadframe
-        module is needed for this and it appear you have neither installed.
-        """
+
+        """Set to trace all threads. However Python 2.5 or the
+threadframe module is needed for this and it appear you have neither
+installed."""
+
         pass
 
     def new_do_tracethread(self, args):
-        """Make sure all frames are set to be traced under the Python 2.5
-        regime. This would needed if we started debugging mid-way via
-        say set_trace and threads have already been created.
-        """
+
+        """Make sure all frames are set to be traced under the Python
+2.5 regime. This would needed if we started debugging mid-way via say
+set_trace and threads have already been created.  """
+
         threads = sys._current_frames()
         for t in threads.keys():
             frame = self.find_nondebug_frame(threads[t])
             self.set_trace(frame)
 
     def threadframe_do_tracethread(self, args):
-        """Make sure all frames are set to be traced under the threadframe
-        regime. This would needed if we started debugging mid-way via
-        say set_trace and threads have already been created."""
+
+        """Make sure all frames are set to be traced under the
+threadframe regime. This would needed if we started debugging mid-way
+via say set_trace and threads have already been created."""
+
         import threadframe
         frames = threadframe.dict()
         for frame in frames:
@@ -328,11 +337,11 @@ If a thread name is given we will stop only if the the thread has that name."""
     def do_where(self, arg):
         """where [count]
 
-        Print a stack trace, with the most recent frame at the top.
-        With a positive number, print at most many entries.
-        An arrow indicates the 'current frame', which determines the
-        context of most commands.  'bt' and 'T' are short command
-        names for this."""
+Print a stack trace, with the most recent frame at the top.  With a
+positive number, print at most many entries.  An arrow indicates the
+'current frame', which determines the context of most commands.  'bt'
+and 'T' are short command names for this."""
+        # Decorate old 'where' to show current thread.
         self.print_frame_thread()
         pydb.Pdb.do_where(self, arg)
         
@@ -455,23 +464,30 @@ To get the full stack trace for a specific thread pass in the thread name.
                     stack_trace(self, f)
                     return
 
-        self.msg("Current thread is %s" %
-                 threading.currentThread().getName())
-
-        for t in threads.keys():
+        thread_key_list = threads.keys()
+        thread_key_list.sort(key=id2threadName)
+        for t in thread_key_list:
             f = threads[t]
             f = self.find_nondebug_frame(f)
 
+            s = ''
             # Print location where thread was created and line number
             if t in threading._active:
-                s = str(threading._active[t]) + "\n    "
+                thread_name = id2threadName(t)
+                if thread_name == self.thread_name:
+                    prefix='-> '
+                else:
+                    prefix='   '
+                s += "%s%s" % (prefix, str(threading._active[t]))
+                if all_verbose:
+                    s += ": %d" % t
+                s += "\n    "
             s += self.format_stack_entry((f, f.f_lineno))
-            self.msg('-' * 30)
+            self.msg('-' * 40)
             self.msg(s)
             f = f.f_back
             if all_verbose and f:
                 stack_trace(self, f)
-        self.info_thread_terse()
 
     def info_thread_line(self, thread_name):
         if thread_name == self.thread_name:
