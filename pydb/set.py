@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.10 2006/09/13 01:49:29 rockyb Exp $
+"""$Id: set.py,v 1.11 2006/09/26 02:01:10 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -173,6 +173,13 @@ set logging file FILENAME
 set logging overwrite [on|off]
 set logging redirect [on|off]""")
 
+
+    def set_maxargsize(self, args):
+        """Set maximum size to use in showing argument parameters"""
+        try:
+            self.maxargstrsize = self.get_int(args[1])
+        except ValueError:
+            pass
 
     def set_prompt(self, args):
         """Set debugger's prompt"""

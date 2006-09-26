@@ -56,6 +56,8 @@ line tracing is on.
 + set linetrace off
 + show linetrace
 line tracing is off.
++ show maxargsize
+Maximum number of characters in an argument list is 100
 + ########################################
 + ###  bad enable disable
 + ########################################
@@ -284,6 +286,7 @@ set interactive -- Set whether we are interactive
 set linetrace -- Set line execution tracing and delay on tracing
 set listsize -- Set number of source lines the debugger will list by default
 set logging -- Set logging options
+set maxargsize -- Set maximum size to use in showing argument parameters
 set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
 + help set linesize
@@ -306,6 +309,7 @@ show interactive -- Show whether we are interactive
 show linetrace -- Show the line tracing status. Can also add 'delay'
 show listsize -- Show number of source lines the debugger will list by default
 show logging -- Show logging options
+show maxargsize -- Show number maximum number of characters in argument list
 show prompt -- Show debugger's prompt
 show sigcheck -- Show status of signal checking/adjusting
 show version -- Show what version of the debugger this is

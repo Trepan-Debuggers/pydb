@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.17 2006/07/25 01:30:26 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.18 2006/09/26 02:01:10 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -43,6 +43,7 @@ set linetrace on
 show linetrace
 set linetrace off
 show linetrace
+show maxargsize
 ########################################
 ###  bad enable disable
 ########################################

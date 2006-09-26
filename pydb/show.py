@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.9 2006/09/17 01:11:05 rockyb Exp $
+"""$Id: show.py,v 1.10 2006/09/26 02:01:10 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -57,6 +57,11 @@ $cdir in the path means the compilation directory of the source file."""
         "Show the line tracing status. Can also add 'delay'"
         self.msg("line tracing is %s." % fns.show_onoff(self.linetrace))
 
+    def show_listsize(self, args):
+        """Show number of source lines the debugger will list by default."""
+        self.msg("Number of lines to show in listing is %s."
+                 %  self.listsize)
+
     def show_logging(self, args):
         "Show logging options"
         if len(args) > 1 and args[1]:
@@ -82,6 +87,11 @@ $cdir in the path means the compilation directory of the source file."""
                 self.msg("Output will be sent only to the log file.")
             else:
                 self.msg("Output will be logged and displayed.")
+
+    def show_maxargsize(self, args):
+        """Show number maximum number of characters in argument list."""
+        self.msg("Maximum number of characters in an argument list is %s"
+                 %  self.maxargstrsize)
 
     def show_sigcheck(self, args):
         """Show status of signal checking/adjusting.

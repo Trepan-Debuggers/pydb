@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.83 2006/09/25 07:50:49 rockyb Exp $
+"""$Id: gdb.py.in,v 1.84 2006/09/26 02:01:10 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -66,7 +66,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         self.main_dirname    = os.curdir
         self.mainpyfile      = ''
-        self.maxargstrsize   = 30     # max length to show of parameter string
+        self.maxargstrsize   = 100     # max length to show of parameter string
         self.moduletodebug   = ""
         self.noninteractive  = False   # Controls whether to prompt on
                                        # potentially dangerous commands.
@@ -277,6 +277,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('linetrace',       self.set_linetrace, 3)
         self.setcmds.add('listsize',        self.set_listsize,  3)
         self.setcmds.add('logging',         self.set_logging,   2)
+        self.setcmds.add('maxargsize',      self.set_maxargsize, 2)
         self.setcmds.add('prompt',          self.set_prompt)
         self.setcmds.add('sigcheck',        self.set_sigcheck)
         ## self.setcmds.add('target-address',  self.set_target_address)
@@ -295,9 +296,10 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('directories',    self.show_directories, 1)
         self.showcmds.add('history',        self.show_history)
         self.showcmds.add('interactive',    self.show_interactive)
-        self.showcmds.add('linetrace',      self.show_linetrace, 3)
-        self.showcmds.add('listsize',       self.show_listsize,  3)
-        self.showcmds.add('logging',        self.show_logging,   2)
+        self.showcmds.add('linetrace',      self.show_linetrace,   3)
+        self.showcmds.add('listsize',       self.show_listsize,    3)
+        self.showcmds.add('logging',        self.show_logging,     2)
+        self.showcmds.add('maxargsize',     self.show_maxargsize,  2)
         self.showcmds.add('prompt',         self.show_prompt)
         self.showcmds.add('sigcheck',       self.show_sigcheck)
         ## self.showcmds.add('target-address', self.show_target_address)
