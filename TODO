@@ -1,5 +1,9 @@
 Remote debugging
-add continue [Thread-name] for threading?
+add for threading:
+   continue [Thread-name] 
+   step [count] Thread-name
+   next [count] Thread-name
+
 reinstate "thread" command? 
 
 The list of allowed signals might be in a separate list from the signals
@@ -39,4 +43,4 @@ a class form ipython or a class that's out there, that should be done.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.12 2006/09/24 23:48:22 rockyb Exp $
+$Id: TODO,v 1.13 2006/09/27 12:01:57 rockyb Exp $
