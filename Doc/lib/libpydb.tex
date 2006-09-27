@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.83 2006/09/25 23:46:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.84 2006/09/27 11:38:13 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -856,6 +856,9 @@ Execute the current line, stop at the first possible occasion
 (either in a function that is called or on the next line in the
 current function).
 
+Note that if thread debugging is enabled, the next statement may be in a
+different thread.
+
 \item[n(ext) \optional{\var{count}}]\label{command:next}
 
 Continue execution until the next line in the current function
@@ -864,11 +867,15 @@ is reached or the function returns.  The difference between \samp{next} and
 \samp{next} executes called functions at (nearly) full speed, 
 stopping only at the next line in the current function.
 
+Note that if thread debugging is enabled, the next statement may be in
+a different thread. There currently is a bug only in thread debugging
+where \code{next} can act like \code{step}.
+
 \item[finish]\label{command:finish}
 
 Continue execution until the current function returns.
 that point the \samp{retval} command can be used to show the
-return value. The short command name is rv.
+return value. The short command name is \code{rv}.
 
 See also \ref{command:retval} and \ref{command:return}.
 
@@ -1440,9 +1447,7 @@ program. Supply either the signal name, e.g. \code{SIGINT}, or
     qt}, {\tt frame}, {\tt break})\label{subsection-thread}}
 
 Thread debugging is a bit experimental. By default it is not turned
-on, since it adds a bit of additional complexity. For example, you may
-need to issue an additional \code{step} command to get into your
-program initially.
+on, since it adds a bit of additional complexity. 
 
 To turn thread debugging on, pass the \code{--threading} option on the
 \code{pydb} invocation.
@@ -1487,44 +1492,45 @@ terse listing, for each thread we give:
     \code{set debug-pydb} is set to \code{True}.
 \end{itemize}
 
-Here is an example:
+The specific output you get depends on whether you are using Python
+2.5 or later or (when not) have the \ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html} module installed. 
+
+Here is an example assuming Python 2.5 is installed:
 
 \begin{verbatim}
 (Pydb) info thread 
-Current thread is Thread-3
-------------------------------
-<Consumer(Thread-3, started)>
-    run(self=<Consumer(Thread-3, star...) called from file 'q.py' at line 38
-------------------------------
-<Consumer(Thread-2, started)>
-    get(self=<Queue.Queue instance at...) called from file 'Queue.py' at line 165
-------------------------------
-<Producer(Thread-1, started)>
-    run(self=<Producer(Thread-1, star...) called from file 'q.py' at line 21
-<_MainThread(MainThread, started)>
-   MainThread: -1209960784
--> Thread-1: -1212503136
-   Thread-2: -1220895840
-   Thread-3: -1229288544
+----------------------------------------
+   <_MainThread(MainThread, started)>
+    <module>() called from file '/src/external-cvs/pydb/test/thread/q.py' at line 52
+----------------------------------------
+   <Producer(Thread-1, started)>
+    run(self=<Producer(Thread-1, started)>) called from file '/src/external-cvs/pydb/test/thread/q.py' at line 19
+----------------------------------------
+-> <Consumer(Thread-2, started)>
+    run(self=<Consumer(Thread-2, started)>) called from file '/src/external-cvs/pydb/test/thread/q.py' at line 39
+----------------------------------------
+   <Consumer(Thread-3, started)>
+    run(self=<Consumer(Thread-3, started)>) called from file '/src/external-cvs/pydb/test/thread/q.py' at line 38
 \end{verbatim}
 
-If \code{terse} is appended, we just list the bottom portion: the thread
-name and thread id. Here's an example:
+The arrow \code{->} indicates which thread is current.  Here it is
+Thread-2.  If \code{terse} is appended, we just list the thread name
+and thread id. Here's an example:
 
 \begin{verbatim}
 (Pydb) info thread terse
    MainThread: -1210480976
--> Thread-3: -1231336544
-   Thread-2: -1222943840
+   Thread-3: -1231336544
+-> Thread-2: -1222943840
    Thread-1: -1214551136
 \end{verbatim}
 
-The arrow indicates the current thread; here it is Thread-3. This
+The arrow indicates the current thread; again it is Thread-2. This
 listing is available on all Python versions and without threadframe
 installed.
 
 To get the full stack trace for a specific thread pass in the thread
-name. Here's an example:
+name (assuming Python 2.5 or threadframe). Here's an example:
 
 \begin{verbatim}
 (Pydb) info thread Thread-3
@@ -1534,7 +1540,7 @@ name. Here's an example:
 \end{verbatim}
 
 If \code{verbose} appended without a thread name, then the entire
-stack trace is given for each frame.
+stack trace is given for each frame and the thread ID is shown as well.
 
 \end{description}
 
@@ -1564,14 +1570,22 @@ threads be waiting on events that this thread can only give.
 
 When thread debugging is turned on, a couple of normal \code{pydb}
 commands allow for a thread name to be indicated. In particular, you
-can whether or not a breakpoint should occur at a point across all
-threads or only on a specific thread. 
+can specify whether or not a breakpoint should occur at a point across
+all threads or only on a specific thread.
 
-And iff Python version 2.5 or greater is installed or
+And if Python version 2.5 or greater is installed or
 \ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
 with a older vrsion of Python is installed, you can inspect and change
 local variables from other thread frames via an expanded \code{frame}
 command.
+
+Note that the \code{next} and \code{step} commands do not guarentee
+you will remain in the same thread. In particular \code{step} stops at
+the next Python statement to be executed whichever thread that might
+be.
+
+There is currently a bug in \code{next} in that it is possible it may
+act like \code{step} if occasionally.
 
 \begin{description}
 \item[frame \optional{\var{Thread-Name}} \var{frame-number}]
