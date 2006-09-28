@@ -1,8 +1,10 @@
 Remote debugging
 add for threading:
-   continue [Thread-name] 
    step [count] Thread-name
    next [count] Thread-name
+continue location
+
+Allow "self" as a synonym for current thread.
 
 reinstate "thread" command? 
 
@@ -43,4 +45,4 @@ a class form ipython or a class that's out there, that should be done.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.13 2006/09/27 12:01:57 rockyb Exp $
+$Id: TODO,v 1.14 2006/09/28 13:31:07 rockyb Exp $
