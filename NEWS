@@ -2,8 +2,8 @@
 
 * fix bug: --threading stopped one statement too soon
 
-* info threads: sort by thread name and merge in terse display
-  (at least for Python 2.5)
+* info threads: merge in terse display (Python 2.5, threadframe)
+  and sort by thread name (Python 2.5)
 
 * Add optional position argument on "continue" command.
 
@@ -13,6 +13,7 @@
     info thread [thread-name] [terse|verbose]    - show thread info
     qt                                     - quit current thread
     can set a breakpoint on a specific thread name.
+  expand definitions of "frame" and "break" for threading
 
 * GDB-like signal handling. Some code based on Matt Fleming's 2006
   Summer-of-Code project. Gdb's "handle" and "signal" commands.
