@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.23 2006/09/26 05:43:51 rockyb Exp $
+# $Id: threaddbg.py,v 1.24 2006/09/29 04:39:56 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -370,6 +370,7 @@ and 'T' are short command names for this."""
             self.msg(t)
         self.info_thread_terse()
 
+    ## FIXME remove common code with info_thread_new
     # For Python with threadframe
     def info_threadframe(self, args, short_display=False):
         """info thread [thread-name] [terse|verbose]
@@ -405,21 +406,31 @@ stack trace is given for each frame.
             stack_trace(self, frame)
             return
 
-        self.msg("Current thread is %s" % self.thread_name)
-
         thread_id2name = {}
         for thread_name in self.traced.keys():
             if self.get_threadframe_frame(thread_name) is not None:
                 thread_id2name[self.traced[thread_name]] = thread_name
-            
+
+        # FIXME: sort by thread name
         for thread_id in frames.keys():
+            s = ''
+            # Print location where thread was created and line number
             if thread_id in thread_id2name.keys():
                 thread_name = thread_id2name[thread_id]
-                self.msg("Stack trace for thread %s:" % thread_name)
-            frame = self.find_nondebug_frame(frames[thread_id])
-            stack_trace(self, frame)
-        self.info_thread_terse()
+                if thread_name == self.thread_name:
+                    prefix='-> '
+                else:
+                    prefix='   '
+                s += "%s%s\n" % (prefix, thread_name)
+                frame = self.find_nondebug_frame(frames[thread_id])
+                s += self.format_stack_entry((frame, frame.f_lineno))
+                self.msg('-' * 40)
+                self.msg(s)
+                frame = frame.f_back
+                if all_verbose and frame:
+                    stack_trace(self, frame)
 
+    ## FIXME remove common code with info_thread_new
     # For Python on or after 2.5b1
     def info_thread_new(self, args, short_display=False):
         """info thread [thread-name] [terse|verbose]
@@ -459,16 +470,16 @@ To get the full stack trace for a specific thread pass in the thread name.
             thread_name = args[1]
             for t in threads.keys():
                 if t==self.traced[thread_name]:
-                    f = threads[t]
-                    f = self.find_nondebug_frame(f)
-                    stack_trace(self, f)
+                    frame = threads[t]
+                    frame = self.find_nondebug_frame(frame)
+                    stack_trace(self, frame)
                     return
 
         thread_key_list = threads.keys()
         thread_key_list.sort(key=id2threadName)
         for t in thread_key_list:
-            f = threads[t]
-            f = self.find_nondebug_frame(f)
+            frame = threads[t]
+            frame = self.find_nondebug_frame(frame)
 
             s = ''
             # Print location where thread was created and line number
@@ -482,12 +493,12 @@ To get the full stack trace for a specific thread pass in the thread name.
                 if all_verbose:
                     s += ": %d" % t
                 s += "\n    "
-            s += self.format_stack_entry((f, f.f_lineno))
+            s += self.format_stack_entry((frame, frame.f_lineno))
             self.msg('-' * 40)
             self.msg(s)
-            f = f.f_back
-            if all_verbose and f:
-                stack_trace(self, f)
+            frame = frame.f_back
+            if all_verbose and frame:
+                stack_trace(self, frame)
 
     def info_thread_line(self, thread_name):
         if thread_name == self.thread_name:
