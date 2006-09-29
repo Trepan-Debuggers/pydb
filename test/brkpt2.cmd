@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt2.cmd,v 1.3 2006/09/19 08:22:00 rockyb Exp $
+# $Id: brkpt2.cmd,v 1.4 2006/09/29 04:05:26 rockyb Exp $
 #
 set basename on
 set cmdtrace on
@@ -32,4 +32,10 @@ delete 4
 tbreak 31
 continue
 info break
+###############################################################
+### Test Continue with a line number
+###############################################################
+c 35
+info break
+where 2
 quit

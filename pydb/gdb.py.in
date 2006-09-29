@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.84 2006/09/26 02:01:10 rockyb Exp $
+"""$Id: gdb.py.in,v 1.85 2006/09/29 04:05:26 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -539,7 +539,7 @@ alias ps pi self
             self.aliases[args[0]] = ' '.join(args[1:])
 
     def do_break(self, arg, temporary = 0, thread_name=None):
-        """b(reak) {[file:]lineno | function} [, condition]
+        """b(reak) [[file:]lineno | function] [, condition]
 With a line number argument, set a break there in the current
 file.  With a function name, set a break at first executable line
 of that function.  Without argument, list all breaks.  If a second
@@ -741,9 +741,12 @@ the .py suffix may be omitted."""
     # That is the part that starts Continue execution...
     # So make sure this is a complete sentence.
     def do_continue(self, arg):
-        """c(ontinue)
+        """c(ontinue) [[file:]lineno | function]
 
-        Continue execution; only stop when a breakpoint is encountered."""
+Continue execution; only stop when a breakpoint is encountered. If a
+line position is given, continue until that line is reached. This is
+exactly the same thing as setting a temporary breakpoint at that
+position before running an (unconditional) continue."""
         if not self.is_running(): return
         if self.linetrace:
             # linetracing is like stepping, but we just don't stop. If
@@ -755,6 +758,11 @@ the .py suffix may be omitted."""
         else:
             self.stepping = False
             self.set_continue()
+
+        if arg:
+            (funcname, filename, lineno) = parse_filepos(self, arg)
+            if lineno:
+                self.do_tbreak(arg)
 
         # Tell cmdloop to break out of its loop.
         return True

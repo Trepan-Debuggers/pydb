@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.86 2006/09/27 11:52:07 rockyb Exp $
+% $Id: libpydb.tex,v 1.87 2006/09/29 04:05:26 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -888,9 +888,12 @@ only able to perform this if we are in a subroutine that has a
 \code{return} statement in it.  See also \ref{command:retval} and
 \ref{command:finish}
 
-\item[c(ontinue)]
+\item[c(ontinue) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}]
 
-Continue execution, stop only when a breakpoint is encountered.
+Continue execution; only stop when a breakpoint is encountered. If a
+line position is given, continue until that line is reached. This is
+exactly the same thing as setting a temporary breakpoint at that
+position before running an (unconditional) \code{continue}.
 
 \item[jump \var{lineno}]
 

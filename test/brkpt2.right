@@ -44,4 +44,15 @@ Breakpoint 5 set in file gcd.py, line 31.
 Deleted breakpoint 5
 + info break
 No breakpoints.
++ ###############################################################
++ ### Test Continue with a line number
++ ###############################################################
++ c 35
+Breakpoint 6 set in file gcd.py, line 35.
+Deleted breakpoint 6
++ info break
+No breakpoints.
++ where 2
+-> 0 gcd(a=3, b=5) called from file 'gcd.py' at line 35
+## 1 <module>() called from file 'gcd.py' at line 41
 + quit

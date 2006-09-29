@@ -1,3 +1,12 @@
+1.19cvs
+
+* fix bug: --threading stopped one statement too soon
+
+* info threads: sort by thread name and merge in terse display
+  (at least for Python 2.5)
+
+* Add optional position argument on "continue" command.
+
 1.18 2006-09-25
 
 * Start thread debugging: 
