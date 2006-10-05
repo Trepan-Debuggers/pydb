@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.87 2006/09/29 04:05:26 rockyb Exp $
+% $Id: libpydb.tex,v 1.88 2006/10/05 06:19:08 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -13,7 +13,12 @@ debugger for interactive interpreters.}
 
 The extended Python debugger builds on work done in the standard
 \ulink{\module{Python
-Debugger}}{http://docs.python.org/lib/module-pdb.html} ({\tt pdb.py}).
+Debugger}}{http://docs.python.org/lib/module-pdb.html} ({\tt
+pdb.py}). However unless there is reason not to, we follow the
+\ulink{the GNU debugger}{http://www.gnu.org/software/gdb} ({\tt gdb})
+command set and semantics rather than {\tt pdb}'s. In some cases where
+semantics differ, e.g for {\tt clear} and noted in below in context,
+the {\tt gdb} semantics is used.
 
 {\bf On \emph{not} inventing yet another interface}:\\
 In extending the command set and functionality, we've used
@@ -367,9 +372,13 @@ commands.
 
 Show function/method parameters. See \ref{command:info-args}.
 
-\item[info break]
+\item[info breakpoints]
 
-Show the list of breakpoints. 
+Show the status of user-settable breakpoints.  Without argument, list
+info about all breakpoints.  With an integer argument, list info on
+that breakpoint.
+
+The short command for this is \code{L}.
 
 \item[info globals]
 
@@ -756,8 +765,9 @@ If a second argument is present, it is an expression which must
 evaluate to true before the breakpoint is honored.
 
 Without an argument, list all breaks, including for each breakpoint:
-the number of times that breakpoint has been hit, the current
-ignore count, and the associated condition if any.
+the number of times that breakpoint has been hit, the current ignore
+count, and the associated condition if any. Note that this is a
+different behavior from \code{pdb}.
 
 If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
 
@@ -780,7 +790,9 @@ With no argument, clears all breakpoints in the line where the selected
 frame is executing.
 
 See also the \code{delete} command below which clears breakpoints by
-number.
+number. Note that \code{delete} handles some cases that were
+previously handled by \code{pdb}'s \code{clear} command.
+
 \item[commands \optional{\optional{\var{bpnumber}}}]
 
 Set commands to be executed when a breakpoint is hit.
@@ -888,7 +900,7 @@ only able to perform this if we are in a subroutine that has a
 \code{return} statement in it.  See also \ref{command:retval} and
 \ref{command:finish}
 
-\item[c(ontinue) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}]
+\item[c(ontinue) \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}}]
 
 Continue execution; only stop when a breakpoint is encountered. If a
 line position is given, continue until that line is reached. This is
@@ -1031,8 +1043,10 @@ See also \ref{command:finish}.
 \item[down \optional{\var{count}}]
 
 Move the current frame one level down in the stack trace
-(to a newer frame). With a count, which can be  positive
-or  negative, move that many positions.
+(to a newer frame). With a count, which can be positive
+or negative, move that many positions.
+
+Note this is the opposite of how \code{pdb}'s \code{down} command works.
 
 \item[up \optional{\var{count}}]
 
@@ -1040,12 +1054,15 @@ Move the current frame one level up in the stack trace (to an older
 frame). With a count, which can be positive or negative,
 move that many positions.
 
+Note this is the opposite of how \code{pdb}'s \code{up} command works.
+
 \item[frame \optional{\var{position}}]
 Move the current frame to the specified frame number. A negative
 number indicates position from the end, so \code{frame -1} moves to 
 the newest frame, and \code{frame 0} moves to the oldest frame.
 
-If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
+If threading is enabled, you can also specify a thread name. See
+\ref{command:thread-extensions}.
 
 \end{description}
 
