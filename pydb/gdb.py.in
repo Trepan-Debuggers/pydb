@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.85 2006/09/29 04:05:26 rockyb Exp $
+"""$Id: gdb.py.in,v 1.86 2006/10/05 07:20:18 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1059,6 +1059,9 @@ is no Python file."""
         So 'frame -1' moves when gdb dialect is in effect moves
         to the oldest frame, and 'frame 0' moves to the newest frame."""
 
+        if not self.stack:
+            self.msg("Program has no stack frame set.")
+            return
         try:
             arg = int(arg)
         except ValueError:
