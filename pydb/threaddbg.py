@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.24 2006/09/29 04:39:56 rockyb Exp $
+# $Id: threaddbg.py,v 1.25 2006/10/06 17:55:28 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -630,12 +630,16 @@ To get the full stack trace for a specific thread pass in the thread name.
         if basename.startswith('threading.py'):
             return self.trace_dispatch
 
+        # Note: until locking is done below we should not update and
+        # save self.thread_name and self.thread_id but use
+        # threading.currentThread().getname and thread.get_ident() instead.
+
         last_thread_id   = self.thread_id
-        self.thread_id   = thread.get_ident()
 
         # Record in my own table a list of thread names
-        if not self.thread_name in self.traced.keys():
-            self.traced[self.thread_name] = self.thread_id
+        if not threading.currentThread().getName() in self.traced.keys():
+            self.traced[thread.get_ident()] = \
+                                            threading.currentThread().getName()
 
         have_single_entry_lock = False
 
@@ -651,7 +655,7 @@ To get the full stack trace for a specific thread pass in the thread name.
             self.threading_lock.acquire()
             have_single_entry_lock = True
             if self.desired_thread is None \
-                  or self.thread_name in self.desired_thread:
+              or threading.currentThread().getName() in self.desired_thread:
                 break
 
             if self._user_requested_quit: break
@@ -669,14 +673,18 @@ To get the full stack trace for a specific thread pass in the thread name.
 
         if self._user_requested_quit:
             self.msg("%s (id %lu) is quitting." %
-                     (self.thread_name, thread.get_ident()))
+                     (threading.currentThread().getName(), thread.get_ident()))
             if have_single_entry_lock:
                 self.threading_lock.release()
             thread.exit()
             return
 
+        # Because of locks above there should not be any chance
+        # that the following assignments will change during the course
+        # of debugger command loop.
         self.curframe_thread_name = self.thread_name = \
                                     threading.currentThread().getName()
+        self.thread_id   = thread.get_ident()
 
         if self.linetrace:
             # self.msg("thread %s event %s" % (thread_name, event))
@@ -685,7 +693,7 @@ To get the full stack trace for a specific thread pass in the thread name.
         else:
             while True:
                 try:
-                    if self.stepping and last_thread_id != self.thread_id:
+                    if self.stepping and last_thread_id != thread.get_ident():
                         botframe = self.botframe
                         self.botframe = frame
                         #print "Thread switch %s %d %d" % (self.thread_name,

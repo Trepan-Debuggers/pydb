@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.86 2006/10/05 07:20:18 rockyb Exp $
+"""$Id: gdb.py.in,v 1.87 2006/10/06 17:55:28 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -381,6 +381,59 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if not do_loop:
             # Tell cmdloop to break out of its loop.
             return True
+
+    def parse_list_cmd(self, arg):
+        """Parses arguments for the "list" command and returns the tuple
+        filename, start, last
+        or sets these to None if there was some problem."""
+
+        if not self.curframe:
+            self.msg("No Python program loaded.")
+            return (None, None, None)
+
+        self.lastcmd = 'list'
+        last = None
+        filename = self.curframe.f_code.co_filename
+        if arg:
+            if arg == '-':
+                first = max(1, self.lineno - 2*self.listsize - 1)
+            else:
+                args = arg.split()
+                (funcname, filename, first) = parse_filepos(self, args[0])
+                if first == None and funcname == None:
+                    # error should have been shown previously
+                    return (None, None, None)
+                if len(args) == 1:
+                    first = max(1, first - (self.listsize/2))
+                elif len(args) == 2:
+                    (funcname, last_filename, last) = \
+                               parse_filepos(self, args[1])
+                    if filename != last_filename \
+                       and filename is not None and last_filename is not None:
+                        self.errmsg('filename in the range must be the same')
+                        return (None, None, None)
+                    if last < first:
+                        try:
+                            int(args[1])
+                            # Assume it's a count
+                            last = first + last
+                        except ValueError:
+                            self.errmsg('2nd number (%s) is less than the '
+                                        + '1st number %d is not a pure integer'
+                                        % args[1], first)
+                            return (None, None, None)
+                elif len(args) > 2:
+                    self.errmsg('At most 2 arguments allowed. Saw: %d' %
+                                len(args))
+                    return (None, None, None)
+        elif self.lineno is None or not self.running:
+            first = max(1, inspect.getlineno(self.curframe) - self.listsize/2)
+        else:
+            first = self.lineno + 1
+        if last is None:
+            last = first + self.listsize - 1
+
+        return (filename, first, last)
 
     def set_continue_gdb(self):
         """Like bdb's set_continue but we don't have the run fast
@@ -1192,55 +1245,11 @@ we are in interactive mode, we'll prompt to make sure.
         first, it is a count.  First and last can be either a function
         name, a line number or file:line"""
 
-        if not self.curframe:
-            self.msg("No Python program loaded.")
-            return
-
-        self.lastcmd = 'list'
-        last = None
-        filename = self.curframe.f_code.co_filename
-        if arg:
-            if arg == '-':
-                first = max(1, self.lineno - 2*self.listsize - 1)
-            else:
-                args = arg.split()
-                (funcname, filename, first) = parse_filepos(self, args[0])
-                if first == None and funcname == None:
-                    # error should have been shown previously
-                    return
-                if len(args) == 1:
-                    first = max(1, first - (self.listsize/2))
-                elif len(args) == 2:
-                    (funcname, last_filename, last) = \
-                               parse_filepos(self, args[1])
-                    if filename != last_filename \
-                       and filename is not None and last_filename is not None:
-                        self.errmsg('filename in the range must be the same')
-                        return
-                    if last < first:
-                        try:
-                            int(args[1])
-                            # Assume it's a count
-                            last = first + last
-                        except ValueError:
-                            self.errmsg('2nd number (%s) is less than the '
-                                        + '1st number %d is not a pure integer'
-                                        % args[1], first)
-                            return
-                elif len(args) > 2:
-                    self.errmsg('At most 2 arguments allowed. Saw: %d' %
-                                len(args))
-                    return
-        elif self.lineno is None or not self.running:
-            first = max(1, inspect.getlineno(self.curframe) - self.listsize/2)
-        else:
-            first = self.lineno + 1
-        if last is None:
-            last = first + self.listsize - 1
+        filename, first, last = self.parse_list_cmd(arg)
+        if filename is None: return
         breaklist = self.get_file_breaks(filename)
 
-        # Okay we now have range information. Finally do the listing.
-        # (Just when you though we'd never get around to it).
+        # We now have range information. Do the listing.
         try:
             for lineno in range(first, last+1):
                 line = linecache.getline(filename, lineno)
@@ -1643,7 +1652,7 @@ Handles the receipt of EOF as a command."""
     # Help methods (derived from @PACKAGE@.doc or vice versa)
     #########################################################
 
-    for fn in ('EOF',     'L',         'alias',       'break',
+    for fn in ('EOF',     'alias',     'break',
                'cd',      'clear',     'condition',   'continue',
                'debug',   'disable',   'delete'   ,   'disassemble',
                'display', 'down',      'enable',      'examine',
@@ -1658,9 +1667,10 @@ Handles the receipt of EOF as a command."""
              % (fn, fn)
 
     # Is this the right way to do this?
-    help_h = help_help
-    help_R = help_run
-    help_bt = help_T = help_where
+    ## Remove duplicate short names
+    ## help_h = help_help
+    ## help_R = help_run
+    ## help_bt = help_T = help_where
 
     def help_commands(self, *arg):
         print """commands [bpnumber]

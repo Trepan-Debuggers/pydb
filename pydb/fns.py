@@ -1,11 +1,21 @@
-"""$Id: fns.py,v 1.25 2006/09/21 10:16:24 rockyb Exp $
+"""$Id: fns.py,v 1.26 2006/10/06 17:55:28 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
 _re_def = re.compile(_re_def_str)
-    
+
+def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
+    """Make new_fn have old_fn's doc string. This is particularly useful
+    for the do_... commands that hook into the help system.
+    Adapted from from a comp.lang.python posting
+    by Duncan Booth."""
+    def wrapper(*args, **kw):
+        return new_fn(*args, **kw)
+    wrapper.__doc__ = old_fn.__doc__ + additional_text
+    return wrapper
+
 def checkline(obj, filename, lineno):
     """Check whether specified line seems to be executable.
 
