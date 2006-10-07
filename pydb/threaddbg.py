@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.25 2006/10/06 17:55:28 rockyb Exp $
+# $Id: threaddbg.py,v 1.26 2006/10/07 11:56:44 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -703,7 +703,7 @@ To get the full stack trace for a specific thread pass in the thread name.
                     break
                 except Restart:
                     sys.argv = list(self._program_sys_argv)
-                    self.msg("'run' command not implimented for thread " +
+                    self.msg("'run' command not implemented for thread " +
                              "debugging. Try 'restart'.")
                     # self.msg("Should Restart %s with arguments:\n\t%s"
                     #         % (self.filename(sys.argv[0]),

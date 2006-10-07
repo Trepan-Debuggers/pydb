@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.115 2006/09/26 05:43:51 rockyb Exp $
+"""$Id: pydb.py.in,v 1.116 2006/10/07 11:56:44 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -22,9 +22,9 @@ from gdb import Gdb
 from gdb import Restart
 
 __all__ = ["Pdb",     "exception_hook", "help",
-           "pm",      "post_mortem", "run",
-           "runcall", "runeval",
-           "set_trace"]
+           "pm",      "post_mortem",    "run",
+           "runcall", "runeval",        "runl",
+           "runv",    "set_trace"]
 
 old_handler = None
 ## _pydb_trace = None  # needs NOT to be set.
@@ -83,16 +83,16 @@ def process_options(p, debugger_name, prog, pkg_version,
                          action="store_true", default=False, 
                          help="Don't execute commands found in any " +
                          "initialization files")
-    optparser.add_option("--pdbserver", dest="pdbserver",
-                         help="Start the debugger and execute the pdbserver " \
-                         + "command. The arguments should be of the form," \
-                         + " 'protocol address scriptname'."),
+##    optparser.add_option("--pdbserver", dest="pdbserver",
+##                         help="Start the debugger and execute the pdbserver " \
+##                         + "command. The arguments should be of the form," \
+##                         + " 'protocol address scriptname'."),
     optparser.add_option("-o", "--output", dest="output", metavar='FILE',
                          action="store", type='string',
                          help="Write debugger's output (stdout) "
                          + "to FILE")
-    optparser.add_option("--pid", dest="pid",
-                         help="Attach to running process PID.")
+##    optparser.add_option("--pid", dest="pid",
+##                         help="Attach to running process PID.")
     optparser.add_option("-t", "--target", dest="target",
                          help="Specify a target to connect to. Arguments" \
                          + " should be of form, 'protocol address'."),
@@ -381,7 +381,7 @@ def runeval(expression, globals=None, locals=None):
 
 def runcall(*args, **kwds):
 
-    """ Call the function (a function or method object, not a string)
+    """Call the function (a function or method object, not a string)
     with the given arguments starting with the statement subsequent to
     the place that this appears in your program.
 
@@ -392,6 +392,42 @@ def runcall(*args, **kwds):
     p = Pdb()
     p.running=True
     return p.runcall(*args, **kwds)
+
+def runl(*args):
+
+    """The same as runv((args)).
+    For example, in:
+
+        runl("--threading", "--nx",
+              "myscript", "--my-first-option" "myfirstarg")
+
+    --threading and --nx go to the debugger and "myscript" is the name
+    of the program to run and gets the remaining parameters.
+    """
+    sys.argv[0] = '@PACKAGE_NAME@'
+    sys.argv[1:] = list(args)
+    main()
+
+def runv(argv):
+
+    """Run debugger as though you typed something like
+          os.system("@PACKAGE_NAME@ " + " ".join(argv))
+
+    More precisely the debugger setting sys.argv from argv, which
+    is in fact what's done. (sys.argv[0] is @PACKAGE_NAME@).
+
+    Note that options to @PACKAGE_NAME@ can come before the Python script to be
+    debugged. For example:
+
+        runv(("--threading", "--nx",
+              "myscript", "--my-first-option" "myfirstarg"))
+
+    --threading and --nx go to the debugger and "myscript" is the name
+    of the program to run and gets the remaining parameters.
+    """
+    sys.argv[0] = '@PACKAGE_NAME@'
+    sys.argv[1:] = list(args)
+    main()
 
 def set_trace(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
     """Enter the debugger at the calling stack frame.  This is useful to
