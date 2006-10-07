@@ -1,11 +1,17 @@
 1.19cvs
 
-* fix bug: --threading stopped one statement too soon
-
 * info threads: merge in terse display (Python 2.5, threadframe)
   and sort by thread name (Python 2.5)
 
 * Add optional position argument on "continue" command.
+
+* Add pydb.runl() and pydb.runv() forms to facilitate debugging a
+  program from inside a Python shell.
+
+* fix thread bugs: on startup with threading we stopped one statement
+  too soon. more careful about storing into variables used in
+  threading which are not locked (and so could be changed during a
+  thread switch)
 
 1.18 2006-09-25
 

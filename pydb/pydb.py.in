@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.116 2006/10/07 11:56:44 rockyb Exp $
+"""$Id: pydb.py.in,v 1.117 2006/10/07 15:20:42 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -404,9 +404,14 @@ def runl(*args):
     --threading and --nx go to the debugger and "myscript" is the name
     of the program to run and gets the remaining parameters.
     """
-    sys.argv[0] = '@PACKAGE_NAME@'
+    ## FIXME: redo so we don't call main and don't have to save/restore
+    ### sys.argv              
+    sys_argv     = list(sys.argv)
+    sys.argv[0]  = '@PACKAGE_NAME@'
     sys.argv[1:] = list(args)
     main()
+    sys.argv     = sys_argv
+    print "another sys.argv", sys.argv
 
 def runv(argv):
 
@@ -425,9 +430,13 @@ def runv(argv):
     --threading and --nx go to the debugger and "myscript" is the name
     of the program to run and gets the remaining parameters.
     """
+    ## FIXME: redo so we don't call main and don't have to save/restore
+    ### sys.argv              
+    sys_argv     = list(sys.argv)
     sys.argv[0] = '@PACKAGE_NAME@'
     sys.argv[1:] = list(args)
     main()
+    sys.argv     = sys_argv
 
 def set_trace(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
     """Enter the debugger at the calling stack frame.  This is useful to
@@ -621,6 +630,9 @@ def main():
                 p.msg("Post mortem debugger finished.")
                 p.msg(mainpyfile + " will be restarted")
         p.step_ignore = 0
+
+    # Restore old sys.argv
+    sys.argv = p._program_sys_argv 
 
 init()
 
