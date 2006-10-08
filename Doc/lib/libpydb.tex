@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.89 2006/10/08 01:26:11 rockyb Exp $
+% $Id: libpydb.tex,v 1.90 2006/10/08 11:57:07 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -20,40 +20,46 @@ command set and semantics rather than {\tt pdb}'s. In some cases where
 semantics differ, e.g for {\tt clear} and noted in below in context,
 the {\tt gdb} semantics is used.
 
-{\bf On \emph{not} inventing yet another interface}:\\
-In extending the command set and functionality, we've used
-\ulink{the GNU debugger}{http://www.gnu.org/software/gdb} ({\tt gdb})
-as a guide for many reasons.
+{\bf On \emph{not} inventing yet another interface}:\\ In extending
+the command set and functionality, we've used \ulink{the GNU
+debugger}{http://www.gnu.org/software/gdb} ({\tt gdb}) as a guide for
+many reasons. Because of gdb's longevity and pervasiveness, the
+command set is likely to be complete and it is likely to be familiar.
+(I also base my \ulink{GNU Bash
+debugger}{http://bashdb.sourceforge.net} {\tt bashdb} on this command
+set and to some extent my \ulink{GNU Make
+debugger}{http://bashdb.sourceforge.net/remake}). Thus the learning
+curve is reduced for people familiar with one of these, and they are
+less likely to get confused when switching between debuggers.
 
-First the command set is likely to be complete, given its
-longevity. Also, because of its longevity and pervasiveness, it is
-likely to be more helpful to users---especially those that know {\tt
-gdb} or my \ulink{GNU Bash debugger}{http://bashdb.sourceforge.net}
-{\tt bashdb} or to some extent my \ulink{GNU Make
-debugger}{http://bashdb.sourceforge.net/remake}. All of these follow
-the same command interface and the learning curve is reduced for
-people familiar with one of these; they are less likely to get
-confused when switching between debuggers.
-
-But it also has been helpful for other programs. I digress for a
+But it may make it easier to teach \emph{programs} as well. I digress for a
 little history.
 
 When I first thought about adding the bash debugger into the GUI
-interface \ulink{\code{ddd}}{http://www.ddd.org}, basically all I had
-to do was tell \code{ddd} that handling this construct (e.g.,
-stepping) is like \code{gdb}. There were a few places where I told \code{ddd}
-not to follow \code{gdb} but Perl instead because the paradigm was
-more like a scripting language than a compiled language. But in the
-end, adding support for the bash debugger inside \code{ddd} was much more
-straightforward and required much less thought than if I had invented
-my own debugger command set.
+interface, I looked around and saw the GNU/GPL program
+\ulink{\code{ddd}}{http://www.ddd.org} which already supported a
+number of debuggers already, such as \code{gdb}, and the debugger for
+Perl, and even one for Python! (In fact this debugger's name comes
+from that debugger). To instruct \code{ddd} for a new debugger, there
+are a myriad of little details \code{ddd} needs to know
+about. Basically you need tell \code{ddd} how to issue a ``step''
+command, or how to set a breakpoint and how find out if the command it
+issued worked. Since I copied \code{gdb}, I basically told \code{ddd}
+to handle a number of these constructs (e.g., stepping) like
+\code{gdb}, which it already knew about. There were a few places where
+I told \code{ddd} not to follow \code{gdb} but Perl instead because
+the paradigm was more like a scripting language than a compiled
+language. But in the end, adding support for the bash debugger inside
+\code{ddd} was much more straightforward and required much less
+thought than if I had invented my own debugger command set.
 
 After this was done and I fired up \code{ddd}, I noticed that, when my
 cursor was hovering over some of the buttons, short descriptions for
-the command were given. Furthermore there was a button called
-``customize bash'' added setting variables inside. But I hadn't added
-a box widget for customization or modified any code for using tool
-tips. How did \code{ddd} do this?
+the command were given. Furthermore it created a button called
+``customize bash'' which when clicked would pop up a window to set
+various debugger parameters! But I hadn't added a box widget for
+customization or modified any code for using tool tips. How did
+\code{ddd} do this?
 
 Because I had copied the output format of \code{gdb}'s \code{info},
 \code{set} and \code{show} commands, \code{ddd} ran these commands on
@@ -1863,7 +1869,7 @@ program), \code{pydb} will restart the program.  Automatic restarting
 preserves \code{pydb}'s state (such as breakpoints) and in most cases
 is more useful than quitting the debugger upon the program's exit.
 
-\subsection{Entering the Debugger from a Python or a Python
+\subsection{Entering the Debugger from Python or a Python
   Shell}\label{subsection-entering-pydb-from-python}
 
 If you want to debug a Python script from inside another Python
