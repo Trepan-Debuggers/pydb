@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.23 2006/10/08 19:20:42 rockyb Exp $
+"""$Id: sighandler.py,v 1.24 2006/10/08 19:56:24 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -243,11 +243,16 @@ class SignalManager:
         def handle(self, signum, frame):
             """This method is called when a signal is received."""
             if self.print_method:
-                self.print_method('Program received signal %s' % self.signame)
+                self.print_method('\nProgram received signal %s'
+                                  % self.signame)
             if self.stop_method:
                 self.stop_method(frame)
             if self.print_stack:
-                self.pydb.do_where(self.pydb.curframe)
+                import traceback
+                strings = traceback.format_stack(frame)
+                for s in strings:
+                    if s[-1] == '\n': s = s[0:-1]
+                    self.print_method(s)
             elif self.pass_along:
                 # pass the signal to the program 
                 if self.old_handler:
@@ -278,6 +283,6 @@ if __name__=='__main__':
     h.info_signal(['SIGUSR1'])
     h.action('SIGUSR1 noprint')
     h.info_signal(['SIGUSR1'])
-    h.action('SIGUSR1 nopass')
+    h.action('SIGUSR1 nopass stack')
     h.info_signal(['SIGUSR1'])
     
