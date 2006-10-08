@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.88 2006/10/05 06:19:08 rockyb Exp $
+% $Id: libpydb.tex,v 1.89 2006/10/08 01:26:11 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -94,18 +94,13 @@ debugged program.
 
 Consequently, a general principle as a debugger writer (and a
 principle used in this debugger) is: \emph{bring in services only when
-needed or requested.}  For example, it is possible that we will add
-debugging threads and out-of-process debugging, including debugging
-from outside of the running computer. For thread debugging, most
-certainly the debugged program will, by necessity, add a thread to
-manage the others. For out of process debugging, most certainly some
-sort of communication mechanism will need to get added, e.g. a
-socket. However there are many programs that one might want to debug
-that might not use either threads or sockets and might not need
-debugging outside of the debugged program. So when debugging those, a
-debugger should not add either a thread or a socket, unless the
-features that require them are requested. And even then, not
-\emph{until} they are requested.
+needed or requested.}  For example, in out-of-process debugging some
+sort of communication mechanism is needed, e.g. a socket. However
+there are many programs that one might want to debug which might not
+use sockets and might not need out-of-process debugging. For those, a
+debugger should therefore not add a requirement on sockets.  And even
+then, perhaps not \emph{until} the service which uses it (remote
+debugging) is requested.
 
 \section{Invoking the Debugger \label{pydb-invocation}}
 
@@ -1868,6 +1863,19 @@ program), \code{pydb} will restart the program.  Automatic restarting
 preserves \code{pydb}'s state (such as breakpoints) and in most cases
 is more useful than quitting the debugger upon the program's exit.
 
+\subsection{Entering the Debugger from a Python or a Python
+  Shell}\label{subsection-entering-pydb-from-python}
+
+If you want to debug a Python script from inside another Python
+program (often a Python shell program such as
+\ulink{IPython}{http://ipython.scipy.org/moin/ipython}), the 
+\code{runl()}, and \code{runv()} function calls can be of help. See
+\ref{entry-fns} for information about these calls. 
+
+The 'l', and 'v' suffixes have meanings analogous that used in
+\code{os.spawnv()}, \code{os.execv()}, \code{os.spawnl()}, or
+\code{os.execl()} (and other Python library functions).
+
 \subsection{Yet Another Method of Invocation}
 
 With the caveat mentioned in
@@ -1932,7 +1940,7 @@ addition, the debugger \code{complete} command is defined (see
 \ref{command:complete}). The \code{complete} command for example is
 used internally by GNU Emacs debugger \code{gud}.
 
-\subsection{Debugger Entry Functions}
+\subsection{Debugger Entry Functions}\label{entry-fns}
 
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
@@ -2012,6 +2020,60 @@ this appears in your program.
 When \function{runeval()} returns, it returns the value of the
 expression.  Otherwise this function is similar to
 \function{run()}.
+\end{funcdesc}
+
+\begin{funcdesc}{runl}{\var{arg1} \optional{, \var{arg2}\ldots}}
+This is a way to call the debugger on a Python script (usually not the
+same one as is currently running) from inside Python. In particular
+this is useful inside Python shells.  The parameters form the options
+to the debugger as well as the Python script to debug and options to
+pass to that.
+
+For example:
+\begin{verbatim}
+        import pydb
+        pydb.runl("--threading", "--nx",
+                  "myscript", "--my-first-option" "myfirstarg")
+\end{verbatim}
+
+Here \code{--threading} and \code{--nx} go to the debugger and
+\code{myscript} is the name of the Python program to run which gets the
+remaining parameters, \code{--my-first-option} and \code{myfirstarg}.
+
+The 'l', suffix to indicate a list parameter is analogous to the use
+in \code{os.spawnl()}, or \code{os.execl()}.
+
+If you want to debug the current Python script, use \code{set_trace()}
+described below.
+
+\end{funcdesc}
+
+\begin{funcdesc}{runv}{\var{args}}
+This is a way to call the debugger on a Python script (usually not the
+same one as is currently running) from inside Python. In particular
+this is useful inside Python shells.  The single parameter is a list
+of the options to the debugger as well as the Python script to debug
+and options to pass to that.
+
+\code{runl(*args)} is also the same as \code{runv((args))}.
+
+For example:
+\begin{verbatim}
+        import pydb
+        args=("--threading", "--nx",
+              "myscript", "--my-first-option" "myfirstarg")
+        pydb.runv(args)
+\end{verbatim}
+
+Here \code{--threading} and \code{--nx} go to the debugger and
+\code{myscript} is the name of the Python program to run which gets the
+remaining parameters, \code{--my-first-option} and \code{myfirstarg}.
+
+The 'v', suffix to indicate a variable number of parameters is analogous to
+the use in \code{os.spawnv()}, or \code{os.execv()}.
+
+If you want to debug the current Python script, use \code{set_trace()}
+described below.
 \end{funcdesc}
 
 \begin{funcdesc}{set_trace}{\optional{dbg_cmds=None,
