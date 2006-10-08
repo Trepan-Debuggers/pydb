@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sighandle.py.in,v 1.3 2006/09/08 10:04:41 rockyb Exp $
+# $Id: sighandle.py.in,v 1.4 2006/10/08 19:20:43 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -78,22 +78,22 @@ class SigTests(unittest.TestCase):
         # Set to known value
         h.action('SIGUSR1 print pass')
         h.info_signal(['USR1'])
-        correct = ["Signal        Stop	Print	Pass to program",
-                   "SIGUSR1       False	True	True"]
+        correct = ["Signal        Stop	Print	Print Stack	Pass to program",
+                   "SIGUSR1       False	True	False      	True"]
         self.assertEqual(p.msgLines, correct)
         p.resetmsg()
         # noprint implies no stop
-        h.action('SIGUSR1 noprint pass')
+        h.action('SIGUSR1 noprint stack pass')
         h.info_signal(['USR1'])
-        correct = ["Signal        Stop	Print	Pass to program",
-                   "SIGUSR1       False	False	True"]
+        correct = ["Signal        Stop	Print	Print Stack	Pass to program",
+                   "SIGUSR1       False	False	True       	True"]
         self.assertEqual(p.msgLines, correct)
         # stop keyword implies print and nopass
         p.resetmsg()
         h.action('SIGUSR1 stop')
         h.info_signal(['USR1'])
-        correct = ["Signal        Stop	Print	Pass to program",
-                   "SIGUSR1       True	True	False"]
+        correct = ["Signal        Stop	Print	Print Stack	Pass to program",
+                   "SIGUSR1       True	True	True       	False"]
         self.assertEqual(p.msgLines, correct)
          
 if __name__ == '__main__':

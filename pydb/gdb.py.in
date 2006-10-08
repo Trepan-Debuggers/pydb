@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.87 2006/10/06 17:55:28 rockyb Exp $
+"""$Id: gdb.py.in,v 1.88 2006/10/08 19:20:42 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -216,10 +216,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                         matches.append("%s %s" % (subcmd[0], word))
         return matches
 
-    def __do_complete(self, arg):
-        """Print a list of command names that can start with the
-        supplied command prefix. If there is no completion nothing
-        is printed."""
+    def all_completions(self, arg):
+        """Return a list of command names that can start with the
+        supplied command prefix."""
         if not arg:
             cmd_prefix=''
             args=[]
@@ -229,20 +228,29 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if len(args) > 1:
             complete_cmds = pydbcmd.Cmd.complete(self, cmd_prefix, 0)
             if complete_cmds is not None and args[0] in complete_cmds:
-                text = self.__complete_subcommand(args, args[1])
-                for complete in text:  self.msg(complete)
+                return self.__complete_subcommand(args, args[1])
             return
 
         seen = {};
         i=0
+        completions = []
         text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
         while True:
             if text is None: break
             if text not in seen.keys():
-                self.msg(text)
+                completions.append(text)
                 seen[text]=True
             i += 1
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
+        return completions
+
+    def __do_complete(self, arg):
+        """Print a list of command names that can start with the
+        supplied command prefix. If there is no completion nothing
+        is printed."""
+        completions = self.all_completions(arg)
+        if completions is None: return
+        for complete in completions:  self.msg(complete)
 
     def __init_info(self):
         """Initialize info subcommands. Note: instance variable name

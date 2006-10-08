@@ -1,18 +1,18 @@
-Signal        Stop	Print	Pass to program
-SIGHUP        True	True	False
-Signal        Stop	Print	Pass to program
-SIGHUP        True	True	False
-Signal        Stop	Print	Pass to program
-SIGINT        True	True	False
-Signal        Stop	Print	Pass to program
-SIGINT        False	False	True
-Signal        Stop	Print	Pass to program
-SIGINT        False	True	True
-Signal        Stop	Print	Pass to program
-SIGINT        False	False	False
-Signal        Stop	Print	Pass to program
-SIGKILL       False	False	True
-Signal        Stop	Print	Pass to program
-SIGSTOP       False	False	True
-Signal        Stop	Print	Pass to program
-SIGINT        False	False	False
+Signal        Stop	Print	Print Stack	Pass to program
+SIGHUP        True	True	False      	False
+Signal        Stop	Print	Print Stack	Pass to program
+SIGHUP        True	True	False      	False
+Signal        Stop	Print	Print Stack	Pass to program
+SIGINT        True	True	False      	False
+Signal        Stop	Print	Print Stack	Pass to program
+SIGINT        False	False	False      	True
+Signal        Stop	Print	Print Stack	Pass to program
+SIGINT        False	True	False      	True
+Signal        Stop	Print	Print Stack	Pass to program
+SIGINT        False	False	False      	False
+Signal        Stop	Print	Print Stack	Pass to program
+SIGKILL       False	False	False      	True
+Signal        Stop	Print	Print Stack	Pass to program
+SIGSTOP       False	False	False      	True
+Signal        Stop	Print	Print Stack	Pass to program
+SIGINT        False	False	False      	False

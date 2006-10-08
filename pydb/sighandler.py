@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.22 2006/09/23 06:15:05 rockyb Exp $
+"""$Id: sighandler.py,v 1.23 2006/10/08 19:20:42 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -53,9 +53,9 @@ class SignalManager:
                  'SIGPROF', 'SIGWINCH', 'SIGPOLL', 'SIGWAITING', 'SIGLWP',
                  'SIGCANCEL', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL']
 
-        self.info_fmt='%-14s%-4s\t%-4s\t%s'
+        self.info_fmt='%-14s%-4s\t%-4s\t%-11s\t%s'
         self.header  = self.info_fmt % ('Signal', 'Stop', 'Print',
-                                        'Pass to program')
+                                        'Print Stack', 'Pass to program')
 
         for signame in signal.__dict__.keys():
             # Look for a signal name on this os.
@@ -64,8 +64,8 @@ class SignalManager:
                 if signame not in fatal_signals + ignore:
                     self.sigs[signame] = self.SigHandler(signame, pydb.msg,
                                                          pydb.set_next,
-                                                         False)
-        self.action('SIGINT stop print nopass')
+                                                         False, False)
+        self.action('SIGINT stop print nostack nopass')
 
     def check_and_adjust_sighandlers(self):
         """Check to see if the signal handler's we are interested have
@@ -89,13 +89,15 @@ class SignalManager:
         """Print status for a single signal name (signame)"""
         if signame not in self.sigs.keys():
             # Fake up an entry as though signame were in sigs.
-            self.pydb.msg(self.info_fmt % (signame, 'False', 'False', 'True'))
+            self.pydb.msg(self.info_fmt
+                          % (signame, 'False', 'False', 'False', 'True'))
             return
             
         sig_obj = self.sigs[signame]
         self.pydb.msg(self.info_fmt % (signame,
                                        str(sig_obj.stop_method  is not None),
                                        str(sig_obj.print_method is not None),
+                                       str(sig_obj.print_stack),
                                        str(sig_obj.pass_along)))
 
     def info_signal(self, args):
@@ -158,8 +160,17 @@ class SignalManager:
                 self.handle_print(signame, on)
             elif 'pass'.startswith(attr):
                 self.handle_pass(signame, on)
+            elif 'stack'.startswith(attr):
+                self.handle_print_stack(signame, on)
             else:
                 self.pydb.errmsg('Invalid arguments')
+
+    def handle_print_stack(self, signame, print_stack):
+        """Set whether we stop or not when this signal is caught.
+        If 'set_stop' is True your program will stop when this signal
+        happens."""
+        self.sigs[signame].print_stack = print_stack
+        return print_stack
 
     def handle_stop(self, signame, set_stop):
         """Set whether we stop or not when this signal is caught.
@@ -215,7 +226,8 @@ class SignalManager:
            stop routine to call to invoke debugger when stopping
            pass_along: True is signal is to be passed to user's handler
         """
-        def __init__(self, signame, print_method, stop, pass_along=True):
+        def __init__(self, signame, print_method, stop,
+                     print_stack=False, pass_along=True):
 
             self.signum = lookup_signum(signame)
             if not self.signum: return
@@ -224,6 +236,7 @@ class SignalManager:
             self.pass_along   = pass_along
             self.print_method = print_method
             self.signame      = signame
+            self.print_stack  = print_stack
             self.stop_method  = stop
             return
 
@@ -233,6 +246,8 @@ class SignalManager:
                 self.print_method('Program received signal %s' % self.signame)
             if self.stop_method:
                 self.stop_method(frame)
+            if self.print_stack:
+                self.pydb.do_where(self.pydb.curframe)
             elif self.pass_along:
                 # pass the signal to the program 
                 if self.old_handler:

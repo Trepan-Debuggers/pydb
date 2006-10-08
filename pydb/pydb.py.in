@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.117 2006/10/07 15:20:42 rockyb Exp $
+"""$Id: pydb.py.in,v 1.118 2006/10/08 19:20:42 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -395,7 +395,10 @@ def runcall(*args, **kwds):
 
 def runl(*args):
 
-    """The same as runv((args)).
+    """Run debugger as though you typed something like
+          os.system("@PACKAGE_NAME@ " + " ".join(args))
+
+    It is also the same as runv((args)).
     For example, in:
 
         runl("--threading", "--nx",
@@ -403,6 +406,8 @@ def runl(*args):
 
     --threading and --nx go to the debugger and "myscript" is the name
     of the program to run and gets the remaining parameters.
+
+    This function may be useful inside Python shells.
     """
     ## FIXME: redo so we don't call main and don't have to save/restore
     ### sys.argv              
@@ -424,11 +429,14 @@ def runv(argv):
     Note that options to @PACKAGE_NAME@ can come before the Python script to be
     debugged. For example:
 
-        runv(("--threading", "--nx",
-              "myscript", "--my-first-option" "myfirstarg"))
+        args = ("--threading", "--nx", "myscript", "--my-first-option"
+                "myfirstarg")
+        runv(args)
 
     --threading and --nx go to the debugger and "myscript" is the name
     of the program to run and gets the remaining parameters.
+
+    This function may be useful inside Python shells.
     """
     ## FIXME: redo so we don't call main and don't have to save/restore
     ### sys.argv              
