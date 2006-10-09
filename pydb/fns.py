@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.26 2006/10/06 17:55:28 rockyb Exp $
+"""$Id: fns.py,v 1.27 2006/10/09 00:12:55 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -44,8 +44,11 @@ def file2module(filename):
          return basename
 
 def find_function(funcname, filename):
-    cre = re.compile(r'def\s+%s\s*[(]' % funcname)
-    # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))
+    try:
+        cre = re.compile(r'def\s+%s\s*[(]' % funcname)
+        # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))
+    except:
+        return None
     try:
         fp = open(filename)
     except IOError:
@@ -53,14 +56,14 @@ def find_function(funcname, filename):
     # consumer of this info expects the first line to be 1
     lineno = 1
     answer = None
-    while 1:
+    while True:
         line = fp.readline()
         if line == '':
             break
         if cre.match(line):
             answer = funcname, filename, lineno
             break
-        lineno = lineno + 1
+        lineno += 1
     fp.close()
     return answer
 
