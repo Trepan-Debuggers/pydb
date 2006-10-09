@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.26 2006/10/07 11:56:44 rockyb Exp $
+# $Id: threaddbg.py,v 1.27 2006/10/09 03:25:46 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -173,13 +173,16 @@ to specify a breakpoint in another file (probably one that
 hasn't been loaded yet).  The file is searched for on sys.path;
 the .py suffix may be omitted.
 
-If a thread name is given we will stop only if the the thread has that name."""
+If a thread name is given we will stop only if the the thread has that name;
+dot (.) can be used to indicate the current thread."""
         
         # Decorate non-thread break to strip out 'thread Thread-name'
         args = arg.split()
         thread_name = None
         if len(args) > 2 and args[1] == 'thread':
             thread_name = args[2]
+            if thread_name == '.':
+                thread_name = threading.currentThread().getName()
             if thread_name not in self.traced.keys():
                 self.msg("Don't know about thread %s" % thread_name)
                 if not fns.get_confirmation(self,
@@ -193,7 +196,8 @@ If a thread name is given we will stop only if the the thread has that name."""
     def do_frame(self, arg):
         """frame [Thread-Name] frame-number
 Move the current frame to the specified frame number. If a
-Thread-Name is given, move the current frame to that.
+Thread-Name is given, move the current frame to that. Dot (.) can be used
+to indicate the name of the current frame.
 
 0 is the most recent frame. A negative number indicates position from
 the other end.  So 'frame -1' moves when gdb dialect is in
@@ -206,6 +210,8 @@ newest frame."""
                 # Must be frame command without a thread name
             except ValueError:
                 thread_name = args[0]
+                if thread_name == '.':
+                    thread_name = threading.currentThread().getName()
                 if thread_name not in self.traced.keys():
                     self.msg("Don't know about thread %s" % thread_name)
                     return
@@ -288,12 +294,13 @@ Like "break" except the breakoint is only temporary,
 so it will be deleted when hit.
 
 If a thread name is given we will stop only if the the thread has that name."""
-        
         # Decorate non-thread break to strip out 'thread Thread-name'
         args = arg.split()
         thread_name = None
         if len(args) > 2 and args[1] == 'thread':
             thread_name = args[2]
+            if thread_name == '.':
+                thread_name = threading.currentThread().getName()
             if thread_name not in self.traced.keys():
                 self.msg("Don't know about thread %s" % thread_name)
                 if not fns.get_confirmation(self,
@@ -395,8 +402,11 @@ stack trace is given for each frame.
                 return
 
         if len(args) > 1 and not all_verbose:
-            if args[1] not in self.traced.keys():
-                self.msg("Don't know about thread %s" % args[1])
+            thread_name = args[1]
+            if thread_name == '.':
+                thread_name = threading.currentThread().getName()
+            if thread_name not in self.traced.keys():
+                self.msg("Don't know about thread %s" % thread_name)
                 self.info_thread_terse()
                 return
 
@@ -462,12 +472,14 @@ To get the full stack trace for a specific thread pass in the thread name.
                 return
 
         if len(args) > 1 and not all_verbose:
-            if args[1] not in self.traced.keys():
-                self.msg("Don't know about thread %s" % args[1])
+            thread_name = args[1]
+            if thread_name == '.':
+                thread_name = threading.currentThread().getName()
+            if thread_name not in self.traced.keys():
+                self.msg("Don't know about thread %s" % thread_name)
                 self.info_thread_terse()
                 return
 
-            thread_name = args[1]
             for t in threads.keys():
                 if t==self.traced[thread_name]:
                     frame = threads[t]
@@ -511,6 +523,7 @@ To get the full stack trace for a specific thread pass in the thread name.
 
     def info_thread_terse(self, arg=None):
         if arg is not None:
+            thread_name = arg
             if thread_name in self.traced_keys():
                 self.info_thread_line(thread_name)
             else:
@@ -638,8 +651,8 @@ To get the full stack trace for a specific thread pass in the thread name.
 
         # Record in my own table a list of thread names
         if not threading.currentThread().getName() in self.traced.keys():
-            self.traced[thread.get_ident()] = \
-                                            threading.currentThread().getName()
+            self.traced[threading.currentThread().getName()] = \
+                                                             thread.get_ident()
 
         have_single_entry_lock = False
 
