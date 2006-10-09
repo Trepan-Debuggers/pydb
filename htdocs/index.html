@@ -26,25 +26,38 @@ href="http://www.gnu.org/software/ddd/">ddd</a>.
 Some (but by no means all) of the features and changes from pdb.py:
 <ul>
 
-<li>non-interactive POSIX-shell like line tracing.
-
 <li>thread debugging. (Experimental)
 
-<li>Many gdb commands.
+<li>signal handling (similar to gdb's). <!-- after the next release:
+You can even set up to send
+the debugger a signal and have it show where it's currently at or enter the
+debugger at that point. -->
 
-<li>gdb-style signal handling
+<li>non-interactive POSIX-shell like line tracing.
+
+<!--  after the next release:
+<li>ability to invoke full feature of the debugger from a Python shell such
+    as ipython (or the stock python shell)
+-->
+
+<li>ability to flexibly redirect debugger output to a file 
+   (useful for example in cgi's)
+
+<li>Many gdb commands such as the set/show/info commands
 
 <li>gdb-like help with subcommand-specific help available on
   <tt>info</tt>, <tt>set</tt>, or <tt>show</tt> subcommands;
   e.g. <tt>help info line</tt> works
 
 <li>Restart program saving settings (gdb's <tt>run</tt>) or a pure
-<tt>exec</tt> restart (reloads the entire debugger)
+<tt>exec</tt> restart. (The latter reloads the entire debugger and will cause 
+<tt>import</tt>s to get reloaded.)
 
 <li>debugger is installed in binary directory; i.e. one runs "pydb script..."
   rather than "python pdb.py script..."
 
-<li>debugger accepts debugger options; e.g. redirecting debugger output
+<li>Accepts debugger command options; e.g. redirecting debugger output,
+   initial debugger script, or batch mode.
 
 <li>Perl's "examine" command to show info about a symbol.  For functions,
   methods, classes and modules the documentation string if any is printed.
@@ -120,6 +133,6 @@ version</a> of ddd is required.)
 src="http://sourceforge.net/sflogo.php?group_id=61395&amp;type=1"
 alt="SourceForge Logo" border="0" height="31" width="88">></a>
 
-<i>$Id: index.html,v 1.15 2006/09/25 22:56:53 rockyb Exp $</i>
+<i>$Id: index.html,v 1.16 2006/10/09 19:59:44 rockyb Exp $</i>
 </body>
 </html>
