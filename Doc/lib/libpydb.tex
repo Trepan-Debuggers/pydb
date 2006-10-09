@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.90 2006/10/08 11:57:07 rockyb Exp $
+% $Id: libpydb.tex,v 1.91 2006/10/09 15:37:05 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1789,7 +1789,7 @@ pydb.set_trace(["set linetrace on", "continue"])
 pydb.set_trace(["set linetrace off", "continue"])
 \end{verbatim}
 
-\subsection{Entering the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
+\subsection{Calling the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
 
 It is also to possible enter the debugger after a crash or traceback
 even though the program was not started via \code{pydb}. This is
@@ -1868,6 +1868,11 @@ After post-mortem debugging (or after normal exit of the
 program), \code{pydb} will restart the program.  Automatic restarting
 preserves \code{pydb}'s state (such as breakpoints) and in most cases
 is more useful than quitting the debugger upon the program's exit.
+
+\subsection{Entering the Debugger from Outside the Program}
+It's possible to set things up so that when you send a signal to your
+program you enters the debugger. Ask me how.
+
 
 \subsection{Entering the Debugger from Python or a Python
   Shell}\label{subsection-entering-pydb-from-python}

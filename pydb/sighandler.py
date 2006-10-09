@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.24 2006/10/08 19:56:24 rockyb Exp $
+"""$Id: sighandler.py,v 1.25 2006/10/09 15:37:05 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -43,8 +43,12 @@ class SignalManager:
     True or False if we have set the action (pass/print/stop) for a signal
     handler.
     """
-    def __init__(self, pydb): 
-        self.pydb    = pydb
+    def __init__(self, pydb=None):
+        if pydb is None:
+            import pydb
+            self.pydb = pydb.Pdb()
+        else:
+            self.pydb = pydb
         self.sigs    = {}
         self.siglist = [] # List of signals. Dunno why signal doesn't provide.
     
@@ -62,28 +66,37 @@ class SignalManager:
             if signame.startswith('SIG') and '_' not in signame:
                 self.siglist.append(signame)
                 if signame not in fatal_signals + ignore:
-                    self.sigs[signame] = self.SigHandler(signame, pydb.msg,
-                                                         pydb.set_next,
+                    self.sigs[signame] = self.SigHandler(signame,
+                                                         self.pydb.msg,
+                                                         self.pydb.set_next,
                                                          False, False)
         self.action('SIGINT stop print nostack nopass')
 
-    def check_and_adjust_sighandlers(self):
-        """Check to see if the signal handler's we are interested have
-        changed. If so we'll intercept them. """
-        for signame in self.sigs.keys():
-            signum = lookup_signum(signame)
-            old_handler = signal.getsignal(signum)
-            if old_handler != self.sigs[signame].handle \
-                   and old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
+    def check_and_adjust_sighandler(self, signame):
+        """Check to see if a single signal handler that we are interested in
+        has changed or has not been set initially. On return signame
+        should have our signal handler."""
+        signum = lookup_signum(signame)
+        old_handler = signal.getsignal(signum)
+        if old_handler != self.sigs[signame].handle:
+            if old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
                 # save the program's signal handler
                 self.sigs[signame].old_handler = old_handler
-                    
-                # restore _our_ signal handler
-                try:
-                    signal.signal(signum, self.sigs[signame].handle)
-                except ValueError:
-                    # Probably not in main thread
-                    break
+
+            # set/restore _our_ signal handler
+            try:
+                signal.signal(signum, self.sigs[signame].handle)
+            except ValueError:
+                # Probably not in main thread
+                return False
+        return True
+
+    def check_and_adjust_sighandlers(self):
+        """Check to see if any of the signal handlers we are interested in have
+        changed or is not initially set. Change any that are not right. """
+        for signame in self.sigs.keys():
+            if not self.check_and_adjust_sighandler(signame):
+                break
 
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
@@ -164,6 +177,7 @@ class SignalManager:
                 self.handle_print_stack(signame, on)
             else:
                 self.pydb.errmsg('Invalid arguments')
+        self.check_and_adjust_sighandler(signame)
 
     def handle_print_stack(self, signame, print_stack):
         """Set whether we stop or not when this signal is caught.
@@ -245,18 +259,23 @@ class SignalManager:
             if self.print_method:
                 self.print_method('\nProgram received signal %s'
                                   % self.signame)
-            if self.stop_method:
-                self.stop_method(frame)
             if self.print_stack:
                 import traceback
                 strings = traceback.format_stack(frame)
                 for s in strings:
                     if s[-1] == '\n': s = s[0:-1]
                     self.print_method(s)
-            elif self.pass_along:
+            if self.pass_along:
                 # pass the signal to the program 
                 if self.old_handler:
                     self.old_handler(signum, frame)
+            if self.stop_method is not None:
+                ## FIXME not sure if this is really right
+                if frame.f_trace is None:
+                    import pydb
+                    pydb.set_trace()
+                else:
+                    self.stop_method(frame)
 
 # When invoked as main program, do some basic tests of a couple of functions
 if __name__=='__main__':
@@ -267,9 +286,7 @@ if __name__=='__main__':
             # Try without the SIG prefix
             assert(signum == lookup_signum(signame[3:]))
 
-    import pydb
-    p = pydb.Pdb()
-    h = SignalManager(p)
+    h = SignalManager()
     # Set to known value
     h.action('SIGUSR1')
     h.action('SIGUSR1 print pass stop')

@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.21 2006/09/21 21:21:16 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.22 2006/10/09 15:37:05 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -15,6 +15,8 @@ class Bdb(bdb.Bdb):
         # A 0 value means stop on this occurrence. A positive value means to
         # skip that many more step/next's.
         self.step_ignore = 0
+
+        self.bdb_set_trace = bdb.Bdb.set_trace
 
         # Create a custom safe Repr instance and increase its maxstring.
         # The default of 30 truncates error messages too easily.
@@ -251,6 +253,14 @@ class Bdb(bdb.Bdb):
     def reset(self):
         bdb.Bdb.reset(self)
         self.forget()
+
+    def set_trace(self, frame):
+        """Wrapper to accomodate different versions of Python"""
+        if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
+            self.bdb_set_trace(self, self.curframe)
+        else:
+            # older versions
+            self.bdb_set_trace(self)
 
     def user_call(self, frame, argument_list):
         """This method is called when there is the remote possibility
