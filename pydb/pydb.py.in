@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.119 2006/10/09 00:54:43 rockyb Exp $
+"""$Id: pydb.py.in,v 1.120 2006/10/09 01:19:52 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -430,7 +430,7 @@ def runv(argv):
 
         args = ("--threading", "--nx", "myscript", "--my-first-option"
                 "myfirstarg")
-        runv(args)
+        runv(argv)
 
     --threading and --nx go to the debugger and "myscript" is the name
     of the program to run and gets the remaining parameters.
@@ -441,7 +441,7 @@ def runv(argv):
     ### sys.argv              
     sys_argv     = list(sys.argv)
     sys.argv[0] = '@PACKAGE_NAME@'
-    sys.argv[1:] = list(args)
+    sys.argv[1:] = list(argv)
     main()
     sys.argv     = sys_argv
 
