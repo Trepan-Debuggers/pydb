@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.91 2006/10/09 15:37:05 rockyb Exp $
+% $Id: libpydb.tex,v 1.92 2006/10/09 20:11:56 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1395,7 +1395,7 @@ interfere with their role in the program's functioning) but to stop
 your program immediately whenever an error signal happens.  You can
 change these settings with the \code{handle} command.
 
-\subsubsection{Intercepting Signals ({\tt handle})}
+\subsubsection{Intercepting Signals ({\tt handle})}\label{subsubsection-handle}
 
 \begin{description}
 \item[handle \var{signal} \var{keywords}\ldots]
@@ -1431,6 +1431,16 @@ and not handled.  \code{pass} and \code{noignore} are synonyms.
 \item[nopass]
 The debugger should not allow your program to see this signal.
 \code{nopass} and \code{ignore} are synonyms.
+
+\item[stack]
+
+The debugger should print a stack trace when it receives the
+signal. When used with ``nostop'', this can be useful if you've got a
+program that seems ``hung'' and you want to find out where it is, but
+continue after showing this information.
+
+\item[nostack]
+The debugger should not print a stack trace when it receives the signal.
 \end{description}
 
 \subsubsection{Showing Signal-handling status ({\tt info handle}, {\tt
@@ -1442,8 +1452,8 @@ that signal is shown. Here's an example:
 
 \begin{verbatim}
   (Pydb) info handle INT
-  Signal        Stop	Print	Pass to program
-  SIGINT        True	True	False
+  Signal        Stop	Print	Print Stack	Pass to program
+  SIGINT        True	True	False      	False
 \end{verbatim}
 
 
@@ -1871,8 +1881,32 @@ is more useful than quitting the debugger upon the program's exit.
 
 \subsection{Entering the Debugger from Outside the Program}
 It's possible to set things up so that when you send a signal to your
-program you enters the debugger. Ask me how.
+program you enter the debugger. Up until that point though there will
+be no overhead associated with the debugger.
 
+To do this, you need to create an instance of the
+\class{SignalManager} object and call that object's \code{action}
+method passing a string exactly like you would for the 
+debugger's \code{handle} command. Here's an example:
+
+\begin{verbatim}
+  ...
+  from pydb.sighandler import SignalManager
+  ...
+  h = SignalManager()
+  h.action('SIGUSR1 stack print stop')
+  ...
+
+\end{verbatim}
+
+In the above example, a signal handler is set upt so that when the
+\code{SIGUSR1} signal is sent, we will print a message, show the stack
+trace and then stop inside the debugger. If you don't want to stop
+inside the debuber bug just see where you are omit the ``stop''
+keyword or change it it ``nostop''.
+
+See \ref{subsubsection-handle} for information parameters names used
+in the string and their meanings.
 
 \subsection{Entering the Debugger from Python or a Python
   Shell}\label{subsection-entering-pydb-from-python}

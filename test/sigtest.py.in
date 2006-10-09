@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.16 2006/10/08 19:56:27 rockyb Exp $
+# $Id: sigtest.py.in,v 1.17 2006/10/09 20:11:56 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, sys, unittest, signal
 
@@ -132,9 +132,6 @@ class SigTests(unittest.TestCase):
         """Check to see the debugger intercepts a USR1 signal and stops."""
 
         self.tearDown()
-        ## FIXME next 5 and 'continue' are used because the dispatcher
-        ## is faulty in detecting the signal change when just continue
-        ## is used.
         cmds = 'set basename on;;handle SIGUSR1 print stop;;continue;;where;;quit'
         pid = self.create_pydb_proc(cmds, 'signal')
         f = open(outfile, 'r')
