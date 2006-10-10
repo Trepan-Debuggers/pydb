@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.92 2006/10/09 20:11:56 rockyb Exp $
+% $Id: libpydb.tex,v 1.93 2006/10/10 23:59:12 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1602,7 +1602,10 @@ threads be waiting on events that this thread can only give.
 When thread debugging is turned on, a couple of normal \code{pydb}
 commands allow for a thread name to be indicated. In particular, you
 can specify whether or not a breakpoint should occur at a point across
-all threads or only on a specific thread.
+all threads or only on a specific thread. 
+
+For commands that take a thread name, you can use a dot (.) to
+indicate the current frame.
 
 And if Python version 2.5 or greater is installed or
 \ulink{\module{threadframe}}{http://www.majid.info/mylos/stories/2004/06/10/threadframe.html}
@@ -1621,18 +1624,22 @@ act like \code{step} if occasionally.
 \begin{description}
 \item[frame \optional{\var{Thread-Name}} \var{frame-number}]
 Move the current frame to the specified frame number. If a
-\var{Thread-Name} is given, move the current frame to that.
+\var{Thread-Name} is given, move the current frame to that. A dot (.) can be
+  used to indicate the name of the current frame.
+
 \item[b(reak)
   \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}
   \optional{thread \var{thread-name}} \optional{, \var{condition}}}]
 See \ref{command:break}. If a specific thread name is given then a
-  breakpoint will occur only when in that thread.
+  breakpoint will occur only when in that thread. A dot (.) can be
+  used to indicate the name of the current frame.
 
 \item[tbreak
   \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function} \optional{thread \var{thread-name}}\optional{, \var{condition}}}]
 \end{description}
 See \ref{command:tbreak}. If a specific thread name is given then a
-  breakpoint will occur only when in that thread.
+  breakpoint will occur only when in that thread. A dot (.) can be
+  used to indicate the name of the current frame.
 
 \section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 

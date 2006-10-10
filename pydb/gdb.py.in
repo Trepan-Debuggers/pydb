@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.88 2006/10/08 19:20:42 rockyb Exp $
+"""$Id: gdb.py.in,v 1.89 2006/10/10 23:59:16 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1610,17 +1610,21 @@ Prints the type of the argument which can be a Python expression."""
             else:
                 self.errmsg("%s: %s" % (exc_type_name, self._saferepr(v)))
             return
-        if inspect.isfunction(value):
+        if inspect.ismethod(value):
+            self.msg('method %s%s' %
+                     (value.func_code.co_name,
+                       inspect.formatargspec(inspect.getargspec(value))))
+            if inspect.getdoc(value):
+                self.msg('%s:\n%s' %
+                         (value, inspect.getdoc(value)))
+            return
+        elif inspect.isfunction(value):
             self.msg('function %s%s' %
                      (value.func_code.co_name,
                        inspect.formatargspec(inspect.getargspec(value))))
             if inspect.getdoc(value):
                 self.msg('%s:\n%s' %
                          (value, inspect.getdoc(value)))
-                return
-        elif inspect.getdoc(value):
-            self.msg('%s:\n%s' %
-                     (value, inspect.getdoc(value)))
             return
         # None of the above...
         self.msg(type(value))

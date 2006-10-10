@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.22 2006/10/09 15:37:05 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.23 2006/10/10 23:59:16 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -28,6 +28,7 @@ class Bdb(bdb.Bdb):
         if self.linetrace:
             self.setup(frame)
             self.print_location(print_line=True)
+            self.display.displayAny(self.curframe)
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
 

@@ -31,7 +31,7 @@ def gcd(a,b):
     if a <= 0:
         return None
     if a == 1 or b-a == 0:
-        return b
+        return a
     return gcd(b-a, a)
 
 if __name__=='__main__':
