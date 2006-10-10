@@ -7,9 +7,11 @@ Makefile.in
 connect.py
 except.py
 fifo_connect.py
+file.py
 fns.py
 history.hst
 pm.py
+runtest.py
 settrace.py
 sighandle.py
 sigtest.py
