@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: runtest.py.in,v 1.1 2006/10/09 01:19:52 rockyb Exp $
+# $Id: runtest.py.in,v 1.2 2006/10/10 08:42:58 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -53,7 +53,10 @@ class RunTests(unittest.TestCase):
         """Test pydb.runl()"""
         python_script = '%sgcd.py' % srcdir
         cmdfile       = '%sbrkpt2.cmd' % srcdir
-        rightfile     = '%sbrkpt2.right' % srcdir
+        if sys.version_info[0:2] == (2, 3):
+            rightfile = "%sbrkpt2-2.3.right" % srcdir
+        else:
+            rightfile = "%sbrkpt2.right" % srcdir
         outfile       = 'runtest.out'
         if os.path.exists(outfile): os.unlink(outfile)
         pydb.runl('--basename', '--batch', '--nx', '--output', outfile,

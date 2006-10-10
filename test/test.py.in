@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.32 2006/09/18 01:29:50 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.33 2006/10/10 08:42:58 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
 import difflib, os, time, sys, unittest
 
@@ -54,15 +54,17 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
-def run_debugger(testname, pythonfile, args='', outfile=None):
+def run_debugger(testname, pythonfile, args='', outfile=None,
+                 rightfile=None):
     global srcdir, builddir, pydir
     cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
-    rightfile   = os.path.join(srcdir, "%s.right" % testname)
-
     outfile_opt = ''
     if outfile is None:
         outfile     = "%s.out" % testname
         outfile_opt = '--output=%s ' % outfile
+
+    if rightfile is None:
+        rightfile = os.path.join(srcdir, "%s.right" % testname)
 
     # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
     # (builddir, cmdfile, outfile, rightfile)
@@ -98,9 +100,14 @@ class PdbTests(unittest.TestCase):
 
     def test_brkpt2(self):
         """Unit test breakpoint setting and display - part 2."""
+        if sys.version_info[0:2] == (2, 3):
+            rightfile = os.path.join(srcdir, "brkpt2-2.3.right")
+        else:
+            rightfile = os.path.join(srcdir, "brkpt2.right")
         result=run_debugger(testname='brkpt2',
                             pythonfile='%sgcd.py' % srcdir,
-                            args='3 5')
+                            args='3 5',
+                            rightfile=rightfile)
         self.assertEqual(True, result, "brkpt2")
 
     def test_brkpt3(self):
