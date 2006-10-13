@@ -169,6 +169,9 @@ and source-file directory for your debugger."
   (setq comint-prompt-regexp "^(+Pydb)+ *")
   (setq paragraph-start comint-prompt-regexp)
 
+  ; remove other py-pdbtrack if which gets in the way
+  (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
+
   (run-hooks 'pydb-mode-hook))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

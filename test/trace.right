@@ -119,5 +119,4 @@
 +     hanoi(n, "a", "b", "c")
 --Return--
 (<string>:1): 
-+  (bdb.py:366):  run
-+                 exec cmd in globals, locals
++

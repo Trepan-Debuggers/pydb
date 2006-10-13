@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.89 2006/10/10 23:59:16 rockyb Exp $
+"""$Id: gdb.py.in,v 1.90 2006/10/13 22:45:10 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -52,6 +52,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.basename        = False
         self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
+        self.cur_frame       = None   # current stack frame
         self.dbg_pydb        = False  # Debug the debugger?
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()

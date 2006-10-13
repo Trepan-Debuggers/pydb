@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.23 2006/10/10 23:59:16 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.24 2006/10/13 22:45:10 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -250,6 +250,35 @@ class Bdb(bdb.Bdb):
         if add_quotes_around_file: filename = "'%s'" % filename
         s += " %s at line %r" % (filename, lineno)
         return s
+
+    # The following two methods can be called by clients to use
+    # a debugger to debug a statement, given as a string.
+
+    def run(self, cmd, globals=None, locals=None):
+        """A copy of bdb's run but with a local variable added so we
+        can find it it a call stack and hide it when desired (which is
+        probably most of the time).
+        """
+        breadcrumb = self.run
+        if globals is None:
+            import __main__
+            globals = __main__.__dict__
+        if locals is None:
+            locals = globals
+        self.reset()
+        sys.settrace(self.trace_dispatch)
+        if not isinstance(cmd, types.CodeType):
+            cmd = cmd+'\n'
+        try:
+            self.running = True
+            try:
+                exec cmd in globals, locals
+            except bdb.BdbQuit:
+                pass
+        finally:
+            self.quitting = 1
+            self.running = False
+            sys.settrace(None)
 
     def reset(self):
         bdb.Bdb.reset(self)

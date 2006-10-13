@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.31 2006/09/16 08:24:12 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.32 2006/10/13 22:45:10 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -327,6 +327,14 @@ class Cmd(cmd.Cmd):
             frame_lineno = self.stack[i_stack]
             i_stack -= 1
             frame, lineno = frame_lineno
+
+            # Next check to see that local variable breadcrumb exists and
+            # has the magic dynamic value. 
+            # If so, it's us and we don't normally show this.a
+            if 'breadcrumb' in frame.f_locals:
+                if self.run == frame.f_locals['breadcrumb']:
+                    break
+            
             filename = self.filename(self.canonic_filename(frame))
             self.msg_nocr('(%s:%s):' % (filename, lineno))
             fn_name = frame.f_code.co_name
