@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.93 2006/10/10 23:59:12 rockyb Exp $
+% $Id: libpydb.tex,v 1.94 2006/10/14 03:11:52 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -123,7 +123,11 @@ be mentioned here.
 
 First, this debugger should install itself somewhere in your command
 path, usually as \code{pydb} so you don't have to invoke it as an
-argument to the \code{python} command.
+argument to the \code{python} command.\footnote{However there
+\emph{is} one special case where you may want to invoke via Python. If
+you want warnings to appear as errors, one way to do this is
+to run the \code{pydb.py} program passing the \code{-Werror} option to
+Python.}
 
 Second the extended debugger supports command switches courtesy of
 \ulink{\module{optparse}}{http://docs.python.org/lib/module-optparse.html}.
