@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.27 2006/10/09 03:25:46 rockyb Exp $
+# $Id: threaddbg.py,v 1.28 2006/10/24 17:58:27 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -160,7 +160,7 @@ class threadDbg(pydb.Pdb):
         self.running=True
         threading.settrace(self.trace_dispatch)
 
-    def do_break(self, arg, temporary=0):
+    def do_break(self, arg, temporary=0, thread_name=None):
         """b(reak) {[file:]lineno | function} [thread Thread-name] [, condition]
 With a line number argument, set a break there in the current
 file.  With a function name, set a break at first executable line
@@ -178,18 +178,17 @@ dot (.) can be used to indicate the current thread."""
         
         # Decorate non-thread break to strip out 'thread Thread-name'
         args = arg.split()
-        thread_name = None
         if len(args) > 2 and args[1] == 'thread':
             thread_name = args[2]
             if thread_name == '.':
                 thread_name = threading.currentThread().getName()
-            if thread_name not in self.traced.keys():
-                self.msg("Don't know about thread %s" % thread_name)
-                if not fns.get_confirmation(self,
-                                            'Really set anyway (y or n)? '):
-                    return
             del args[1:3]
             arg = ' '.join(args)
+        if thread_name and thread_name not in self.traced.keys():
+            self.msg("Don't know about thread %s" % thread_name)
+            if not fns.get_confirmation(self,
+                                        'Really set anyway (y or n)? '):
+                return
         self.nothread_do_break(self, arg, temporary=temporary,
                                thread_name=thread_name)
 
