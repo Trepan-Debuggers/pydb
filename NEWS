@@ -1,4 +1,4 @@
-1.19cvs
+1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)
   and sort by thread name (Python 2.5)
@@ -15,8 +15,12 @@
 
 * fix bugs in signal handling. 
 
-* Add "stac" and "nostack" to list of things that can be done when
+* Add "stack" and "nostack" to list of things that can be done when
   a signal is received.
+
+* things to make more ipython friendly.
+
+* Improve pydb manual
 
 1.18 2006-09-25
 

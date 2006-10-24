@@ -72,14 +72,29 @@ if False:
 
     setup(
         name = "pydb",
-        version = "1.13",
+        version = "@PACKAGE_VERSION@",
         description = "Improved Python Debugger",
         long_description = \
-        """pydb is a slightly improved debugger Python. The command set
-        more closely follows gdb's command set.
-        
-        The small additions include a 'restart', a 'frame' command and
-        stepping skips over def statements.
+        """pydb is an expanded version of the Python debugger loosely
+        based on the gdb comand set. It also has all of the features
+        found in an earlier version of pydb.py that was distributed
+        with the debugger GUI ddd.
+
+        Some (but by no means all) of the features and changes from pdb.py:
+
+        * thread debugging. (Experimental)
+        * signal handling (similar to gdb's).
+        * non-interactive POSIX-shell like line tracing.
+        * ability to flexibly redirect debugger output to a file (useful for example in cgi's)
+        * Many gdb commands such as the set/show/info commands
+        * gdb-like help with subcommand-specific help available on info, set, or show subcommands; e.g. help info line works
+        * Restart program saving settings (gdb's run) or a pure exec restart. (The latter reloads the entire debugger and will cause imports to get reloaded.)
+        * debugger is installed in binary directory; i.e. one runs "pydb script..." rather than "python pdb.py script..."
+        * Accepts debugger command options; e.g. redirecting debugger output, initial debugger script, or batch mode.
+        * Perl's "examine" command to show info about a symbol. For functions, methods, classes and modules the documentation string if any is printed. For functions, we also show the argument list. For objects, instance variables of the class and object are shown.
+        * More extensive and complete documentation.
+        * Comes with regression tests. Can also be subclassed to capture debugger output.
+         * Works with GUI frontend ddd. (For now a testing version of ddd is required.) 
         """,
         
         author = "Rocky Bernstein",

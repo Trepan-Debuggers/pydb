@@ -2,7 +2,6 @@ Remote debugging
 add for threading:
    step [count] Thread-name
    next [count] Thread-name
-continue location
 
 Allow "self" as a synonym for current thread.
 
@@ -36,8 +35,9 @@ the code.
 
 Add online debugger concept help and in LaTeX? 
 
-There seem to be weirdnesses in the debugger that I don't fully
-comprehend and I think they exist in pdb.py as well.
+Write Bdb documentation. 
+
+Add in patches of various Bdb's such as the one in Eric.
 
 Should check into getting this integrated with ipython's "run -d".  It
 has a history mechanism and pydb should too. If it is possible to use
@@ -45,4 +45,4 @@ a class form ipython or a class that's out there, that should be done.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.14 2006/09/28 13:31:07 rockyb Exp $
+$Id: TODO,v 1.15 2006/10/24 02:49:02 rockyb Exp $

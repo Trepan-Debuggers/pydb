@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.43 2006/09/16 01:04:23 rockyb Exp $
+#$Id: Makefile.am,v 1.44 2006/10/24 02:49:02 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ EXTRA_DIST = ChangeLog TODO THANKS        \
 	     Doc/Makefile.deps            \
 	     Doc/info/Makefile            \
 	     pydb/pydb.doc pydb/Makefile  \
-	     setup.py site-packages-path.py
+	     setup.py setup.py.in site-packages-path.py
 
 MOSTLYCLEANFILES = $(man1_MANS) 
 
