@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.29 2006/10/10 08:42:58 rockyb Exp $
+#$Id: Makefile.am,v 1.30 2006/10/25 10:50:12 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,13 @@
 check_DATA = \
 	brkpt1.cmd        \
 	brkpt1.right      \
+	brkpt1t.right     \
 	brkpt2.cmd        \
 	brkpt2.right      \
 	brkpt2-2.3.right  \
 	brkpt3.cmd        \
 	brkpt3.right      \
+	brkpt3t.right     \
 	cmdparse.cmd      \
 	cmdparse.right    \
 	comm1.cmd         \

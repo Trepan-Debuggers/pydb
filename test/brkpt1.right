@@ -94,4 +94,4 @@ Num Type          Disp Enb    Where
 Breakpoint 4 set in file hanoi.py, line 5.
 + clear hanoi
 Deleted breakpoint 4
-+ quit
++ q

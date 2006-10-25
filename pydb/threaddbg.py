@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.28 2006/10/24 17:58:27 rockyb Exp $
+# $Id: threaddbg.py,v 1.29 2006/10/25 10:50:12 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -248,7 +248,13 @@ newest frame."""
         """If all threads are blocked in the debugger, tacitly quit. If some are not, then issue a warning and prompt for quit."""
         really_quit = True
         threads = sys._current_frames()
-        for thread_obj in threading.enumerate():
+        threading_list = threading.enumerate()
+        if (len(threading_list) == 1 and
+            threading_list[0].getName() == 'MainThread'):
+            # We just have a main thread so that's safe to quit
+            return self.nothread_quit(self, arg)
+            
+        for thread_obj in threading_list:
             thread_name = thread_obj.getName() 
             if not thread_name in self.traced.keys():
                 self.msg("I don't know about state of %s"
@@ -272,7 +278,7 @@ newest frame."""
             really_quit = fns.get_confirmation(self,
                                                'Really quit anyway (y or n)? ',
                                                True)
-        self.msg("Quit for threading not done yet. Try kill.")
+        self.msg("Quit for threading not fully done yet. Try kill.")
         return
         if really_quit:
             self.nothread_quit(self, arg)

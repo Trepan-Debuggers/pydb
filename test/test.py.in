@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.33 2006/10/10 08:42:58 rockyb Exp $ -*- Python -*-
+# $Id: test.py.in,v 1.34 2006/10/25 10:50:12 rockyb Exp $ -*- Python -*-
 "Unit test for the Extended Python debugger."
 import difflib, os, time, sys, unittest
 
@@ -55,7 +55,7 @@ pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
 def run_debugger(testname, pythonfile, args='', outfile=None,
-                 rightfile=None):
+                 rightfile=None, pydb_opts='', truncate=None):
     global srcdir, builddir, pydir
     cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
     outfile_opt = ''
@@ -71,8 +71,8 @@ def run_debugger(testname, pythonfile, args='', outfile=None,
 
     if os.path.exists(outfile): os.unlink(outfile)
 
-    cmd = "%s --command %s %s %s %s" % \
-          (pydb_path, cmdfile, outfile_opt, pythonfile, args)
+    cmd = "%s %s --command %s %s %s %s" % \
+          (pydb_path, pydb_opts, cmdfile, outfile_opt, pythonfile, args)
     
     os.system(cmd)
     fromfile  = rightfile
@@ -81,9 +81,14 @@ def run_debugger(testname, pythonfile, args='', outfile=None,
     tofile    = outfile
     todate    = time.ctime(os.stat(tofile).st_mtime)
     tolines   = open(tofile, 'U').readlines()
-    
-    diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
-                                     tofile, fromdate, todate))
+
+    if truncate:
+        diff = list(difflib.unified_diff(fromlines[0:truncate],
+                                         tolines[0:truncate],
+                                         fromfile, tofile, fromdate, todate))
+    else:
+        diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
+                                         tofile, fromdate, todate))
     if len(diff) == 0:
         os.unlink(outfile)
     for line in diff:
@@ -97,6 +102,12 @@ class PdbTests(unittest.TestCase):
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "brkpt1")
+        result=run_debugger(testname='brkpt1',
+                            pythonfile='%shanoi.py' % srcdir,
+                            pydb_opts='--threading',
+                            rightfile=os.path.join(srcdir, "brkpt1t.right"),
+                            truncate=-2)
+        self.assertEqual(True, result, "brkpt1 --threading")
 
     def test_brkpt2(self):
         """Unit test breakpoint setting and display - part 2."""
@@ -114,8 +125,16 @@ class PdbTests(unittest.TestCase):
         """Unit test breakpoint setting and display - part 3."""
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
-                            args='3 5')
+                            args='3 5',
+                            truncate=-2)
         self.assertEqual(True, result, "brkpt3")
+        result=run_debugger(testname='brkpt3',
+                            pythonfile='%sgcd.py' % srcdir,
+                            args='3 5',
+                            pydb_opts='--threading',
+                            rightfile=os.path.join(srcdir, "brkpt3t.right"),
+                            truncate=-2)
+        self.assertEqual(True, result, "brkpt3 --threading")
 
     def test_cmdparse(self):
         """Unit test command parsing."""

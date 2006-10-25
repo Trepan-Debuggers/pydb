@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt1.cmd,v 1.4 2006/06/24 08:47:02 rockyb Exp $
+# $Id: brkpt1.cmd,v 1.5 2006/10/25 10:50:12 rockyb Exp $
 #
 set base on
 set cmd on
@@ -63,4 +63,4 @@ condition 30 y==1
 ###############################################################
 break hanoi
 clear hanoi
-quit
+q

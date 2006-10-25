@@ -13,6 +13,9 @@
   threading which are not locked (and so could be changed during a
   thread switch)
 
+* Allow quit in thread debugging when MainThread is the only thread
+  that we are in
+
 * fix bugs in signal handling. 
 
 * Add "stack" and "nostack" to list of things that can be done when

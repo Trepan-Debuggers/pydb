@@ -23,4 +23,4 @@ Breakpoint 1 set in file gcd.py, line 28.
 Breakpoint 2 set in file gcd.py, line 31.
 + source comm2.cmd
 + continue
-+ quit
++ q
