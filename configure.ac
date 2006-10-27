@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.47 2006/10/24 02:49:02 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.48 2006/10/27 01:02:57 rockyb Exp $])dnl
 AC_INIT([pydb],[1.19],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
@@ -79,7 +79,7 @@ AM_PATH_PYTHON(2.3.4,,
 ## This must come after looking for Python since we use that below.
 if test "$find_pythondir" = yes; then
    AC_MSG_NOTICE([Trying to reset site-packages a the default often gets this wrong])
-   pythondir=$($PYTHON ${srcdir}/site-packages-path.py)
+   pythondir=`$PYTHON ${srcdir}/site-packages-path.py`
    if test $? != 0 ; then
       AC_MSG_ERROR([Didn't get Python site packages install path.
       Set it with --with-site-packages])
