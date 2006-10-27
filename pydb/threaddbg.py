@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.29 2006/10/25 10:50:12 rockyb Exp $
+# $Id: threaddbg.py,v 1.30 2006/10/27 01:18:00 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -247,13 +247,17 @@ newest frame."""
     def do_quit(self, arg):
         """If all threads are blocked in the debugger, tacitly quit. If some are not, then issue a warning and prompt for quit."""
         really_quit = True
-        threads = sys._current_frames()
         threading_list = threading.enumerate()
         if (len(threading_list) == 1 and
             threading_list[0].getName() == 'MainThread'):
             # We just have a main thread so that's safe to quit
             return self.nothread_quit(self, arg)
             
+        if hasattr(sys, "_current_frames"):
+            threads = sys._current_frames()
+        else:
+            threads = None
+
         for thread_obj in threading_list:
             thread_name = thread_obj.getName() 
             if not thread_name in self.traced.keys():
@@ -262,18 +266,19 @@ newest frame."""
                 really_quit = False
                 break
             t = self.traced[thread_name]
-            if t in threads.keys():
-                frame = threads[t]
-                if not is_in_threaddbg(frame):
-                    self.msg("Thread %s is not blocked by the debugger."
+            if threads:
+                if t in threads.keys():
+                    frame = threads[t]
+                    if not is_in_threaddbg(frame):
+                        self.msg("Thread %s is not blocked by the debugger."
+                                 % thread_name)
+                        really_quit = False
+                        break
+                else:
+                    self.msg("Thread ID for thread %s not found. Weird."
                              % thread_name)
                     really_quit = False
                     break
-            else:
-                self.msg("Thread ID for thread %s not found. Weird."
-                         % thread_name)
-                really_quit = False
-                break
         if not really_quit:
             really_quit = fns.get_confirmation(self,
                                                'Really quit anyway (y or n)? ',
