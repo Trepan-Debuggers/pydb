@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.95 2006/10/24 02:49:03 rockyb Exp $
+% $Id: libpydb.tex,v 1.96 2006/10/27 01:20:52 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1142,7 +1142,8 @@ would print it, just give the expression or possibly use python's
 \item[pp \var{expression}]
 
 Like the \samp{p} command, except the value of the expression is
-pretty-printed using the \module{pprint} module.
+pretty-printed using the 
+\ulink{\module{pprint}}{http://docs.python.org/lib/module-pprint.html} module.
 
 \item[examine \var{expression}]
 
@@ -1151,9 +1152,8 @@ functions, methods, classes, and modules print out the documentation
 string if any.  For functions also show the argument list.
 
 The examine debugger command in Perl is the model here, however much
-more work is needed. Note that \samp{x} is not a short name for
-``expression'' (as it is in Perl's debugger), although you could
-easily make it be via an alias.
+more work is needed. Note that \samp{x} is a short name for
+``expression'' as it is in Perl's debugger.
 
 \item[info globals]\label{command:info-globals}
 
