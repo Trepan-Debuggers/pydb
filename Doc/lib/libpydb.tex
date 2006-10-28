@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.97 2006/10/27 02:05:06 rockyb Exp $
+% $Id: libpydb.tex,v 1.98 2006/10/28 23:43:20 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -2039,7 +2039,7 @@ An exception hook to call \code{pydb}'s post-mortem debugger.
 To use add this to your Python program:
 \begin{verbatim}
        import sys
-       sys.excepthook = @PACKAGE_NAME@.exception_hook
+       sys.excepthook = pydb.exception_hook
 \end{verbatim}
 \end{funcdesc}
 
