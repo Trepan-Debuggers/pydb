@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.90 2006/10/13 22:45:10 rockyb Exp $
+"""$Id: gdb.py.in,v 1.91 2006/10/30 15:28:16 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -290,6 +290,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('prompt',          self.set_prompt)
         self.setcmds.add('sigcheck',        self.set_sigcheck)
         ## self.setcmds.add('target-address',  self.set_target_address)
+        self.setcmds.add('warnoptions',     self.set_warnoptions)
 
     def __init_show(self):
         """Initialize show subcommands. Note: instance variable name
@@ -313,6 +314,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('sigcheck',       self.show_sigcheck)
         ## self.showcmds.add('target-address', self.show_target_address)
         self.showcmds.add('version',        self.show_version)
+        self.showcmds.add('warnoptions',    self.show_warnoptions)
 
     # To be overridden in derived debuggers
     def defaultFile(self):
@@ -1445,8 +1447,11 @@ assignment to the variable __return__."""
     def do_set(self, arg):
         """See help_set"""
         args = arg.split()
+        if len(args) == 1 and 'warnoptions'.startswith(args[0]):
+            self.setcmds.do(self, args[0], args)
+            return
         if len(args) < 2:
-            self.errmsg("Expecting at least 2 arguments. Got %d" % len(args))
+            self.errmsg("Expecting at least 2 arguments, got %d." % len(args))
             return
         self.setcmds.do(self, args[0], args)
 

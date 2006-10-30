@@ -289,6 +289,7 @@ set logging -- Set logging options
 set maxargsize -- Set maximum size to use in showing argument parameters
 set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
+set warnoptions -- Set the Python warning options that are in effect when a
 + help set linesize
 *** Unknown 'help set' subcommand linesize
 + help set listsize
@@ -313,6 +314,7 @@ show maxargsize -- Show number maximum number of characters in argument list
 show prompt -- Show debugger's prompt
 show sigcheck -- Show status of signal checking/adjusting
 show version -- Show what version of the debugger this is
+show warnoptions -- Show Python warning options to be used in running programs
 + help show listsize
 Show number of source lines the debugger will list by default
 + help info

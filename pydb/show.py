@@ -1,8 +1,8 @@
-"""$Id: show.py,v 1.10 2006/09/26 02:01:10 rockyb Exp $
+"""$Id: show.py,v 1.11 2006/10/30 15:28:16 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-import fns
+import fns, sys
 
 class SubcmdShow:
 
@@ -110,3 +110,10 @@ program. See also 'set target-address' and 'attach'."""
         else:
             self.msg('target-address is %s.' % self.target_addr.__repr__())
 
+    def show_warnoptions(self, args):
+        """Show Python warning options to be used in running programs."""
+        if len(sys.warnoptions):
+            self.msg('Warning options used in running a Python program:')
+            self.msg("\t -W%s" % ', -W'.join(sys.warnoptions))
+        else:
+            self.msg('No warning options have been set.')

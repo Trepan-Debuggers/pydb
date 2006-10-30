@@ -1,9 +1,9 @@
-"""$Id: set.py,v 1.11 2006/09/26 02:01:10 rockyb Exp $
+"""$Id: set.py,v 1.12 2006/10/30 15:28:16 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
 
-import inspect, re, sighandler
+import inspect, re, sighandler, sys
 
 class SubcmdSet:
 
@@ -226,3 +226,18 @@ signal is encountered you should set this on."""
         self.target_addr = self.target_addr.strip()
         self.msg('target address set to %s' % self.target_addr)
 
+    def set_warnoptions(self, args):
+
+        """Set the Python warning options that are in effect when a
+program is started or restarted. On the command line, these are the -W
+options, e.g. -Werror, or -We::Deprecation. However options should not
+contain leading -W's and should be separated with white space only,
+e.g. don't use commas.
+
+Examples:
+  set warn error e::Deprecation
+  set warnoptions
+"""
+
+        sys.warnoptions = args[1:]
+        self.show_warnoptions(args)
