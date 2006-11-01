@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.27 2006/10/09 00:12:55 rockyb Exp $
+"""$Id: fns.py,v 1.28 2006/11/01 02:39:11 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, sys, re, traceback, types
 
@@ -206,13 +206,14 @@ def printf(val, fmt):
             return str(val)
     return str(val)
 
-
 from opcode import opname
 def op_at_frame(frame, pos=None):
     code = frame.f_code.co_code
     if pos is None: pos = frame.f_lasti
-    op = ord(code[pos])
-    # print "+++ %s" % opname[op]
+    try:
+        op = ord(code[pos])
+    except IndexError:
+        return 'got IndexError'
     return opname[op]
 
 def print_stack_entry(obj, i_stack):
