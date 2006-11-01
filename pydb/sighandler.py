@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.25 2006/10/09 15:37:05 rockyb Exp $
+"""$Id: sighandler.py,v 1.26 2006/11/01 12:31:22 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -77,7 +77,14 @@ class SignalManager:
         has changed or has not been set initially. On return signame
         should have our signal handler."""
         signum = lookup_signum(signame)
-        old_handler = signal.getsignal(signum)
+        try:
+            old_handler = signal.getsignal(signum)
+        except ValueError:
+            # On some OS's (Redhat 8), SIGNUM's are listed (like
+            # SIGRTMAX) that getsignal can't handle.
+            if signame in self.sigs:
+                self.sigs.pop(signame)
+            return True
         if old_handler != self.sigs[signame].handle:
             if old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
                 # save the program's signal handler
@@ -246,7 +253,13 @@ class SignalManager:
             self.signum = lookup_signum(signame)
             if not self.signum: return
 
-            self.old_handler  = signal.getsignal(self.signum)
+            try:
+                self.old_handler  = signal.getsignal(self.signum)
+            except ValueError:
+                # On some OS's (Redhat 8), SIGNUM's are listed (like
+                # SIGRTMAX) that getsignal can't handle.
+                if signame in self.sigs:
+                    self.sigs.pop(signame)
             self.pass_along   = pass_along
             self.print_method = print_method
             self.signame      = signame
