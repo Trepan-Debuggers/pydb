@@ -1,3 +1,5 @@
+* Fix bug in "set sigcheck" 
+
 1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)

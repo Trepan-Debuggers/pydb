@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.12 2006/10/30 15:28:16 rockyb Exp $
+"""$Id: set.py,v 1.13 2006/11/05 12:52:24 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -213,9 +213,9 @@ signal is encountered you should set this on."""
                     self.trace_dispatch = self.trace_dispatch_gdb
                 else:
                     # Turn off signal checking/adjusting
-                    self.break_anywhere = self.break_anywhere_bdb
-                    self.set_continue   = self.set_continue_bdb
-                    self.trace_dispatch = self.trace_dispatch_bdb
+                    self.break_anywhere = self.break_anywhere_old
+                    self.set_continue   = self.set_continue_old
+                    self.trace_dispatch = self.trace_dispatch_old
             self.sigcheck = sigcheck
         except ValueError:
             pass

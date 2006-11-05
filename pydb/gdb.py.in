@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.91 2006/10/30 15:28:16 rockyb Exp $
+"""$Id: gdb.py.in,v 1.92 2006/11/05 12:52:24 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -154,7 +154,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         return self.break_anywhere(frame)
 
     ### FIXME: trace_dispatch could be a performance bottleneck. If
-    ### so, consider reassigning the reoutine when don't have any
+    ### so, consider reassigning the routine when don't have any
     ### signals registered.
             
     def trace_dispatch_gdb(self, frame, event, arg):
