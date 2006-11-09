@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.99 2006/10/30 15:28:15 rockyb Exp $
+% $Id: libpydb.tex,v 1.100 2006/11/09 12:00:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1922,10 +1922,9 @@ occurs. Here you need to arrange for this possibility adding to the
 script these lines:
 
 \begin{verbatim}
-  import sys
+  import pydb, sys
   sys.excepthook = pydb.exception_hook
 \end{verbatim}
-
 
 \subsubsection{Post-Mortem Debugging within {\tt pydb}}
 When invoked as a script, \code{pydb} will automatically enter
