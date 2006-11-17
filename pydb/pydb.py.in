@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.123 2006/10/28 19:38:40 rockyb Exp $
+"""$Id: pydb.py.in,v 1.124 2006/11/17 17:16:20 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -28,29 +28,17 @@ __all__ = ["Pdb",     "exception_hook", "help",
            "runv",    "set_trace"]
 
 old_handler = None
-## _pydb_trace = None  # needs NOT to be set.
-program     = '*Unknown*'
 
-def init():
-    global program
-    global _re_linetrace_delay
-
-    if len(sys.argv) > 0:
-        program = os.path.basename(sys.argv[0])
-    else:
-        program = "*Unknown*"
-
-def process_options(p, debugger_name, prog, pkg_version,
-                    option_list=None):
+def process_options(p, debugger_name, pkg_version, option_list=None):
     """Handle debugger options. Use option_list if you want are writing
     another main program and want to extend the existing set of debugger
     options.
 
     The options dicionary from opt_parser is return. Global sys.argv is
     also updated."""
-    usage_str="""%s [debugger-options] [python-script [script-options...]]
+    usage_str="""%prog [debugger-options] [python-script [script-options...]]
 
-       Runs the extended python debugger""" % (prog)
+       Runs the extended python debugger"""
 
     optparser = OptionParser(usage=usage_str, option_list=option_list,
                              version="%%prog version %s" % pkg_version)
@@ -94,6 +82,9 @@ def process_options(p, debugger_name, prog, pkg_version,
                          + "to FILE")
 ##    optparser.add_option("--pid", dest="pid",
 ##                         help="Attach to running process PID.")
+    optparser.add_option("--sigcheck", dest="sigcheck",
+                         action="store_true", default=False, 
+                         help="Set to watch for signal handler changes")
     optparser.add_option("-t", "--target", dest="target",
                          help="Specify a target to connect to. Arguments" \
                          + " should be of form, 'protocol address'."),
@@ -161,6 +152,11 @@ def process_options(p, debugger_name, prog, pkg_version,
 
     if opts.execute:
         p.cmdqueue = list(opts.execute.split(';;'))
+
+    if opts.sigcheck:
+        p.cmdqueue.insert(0, "set sigcheck on")
+    else:
+        p.cmdqueue.insert(0, "set sigcheck off")
 
     if opts.output:
         try: 
@@ -546,8 +542,7 @@ def main():
     """Routine which gets run if we were invoked directly"""
 
     p = Pdb()
-    (opts, p) = process_options(p, _debugger_name, program,
-                                '@PACKAGE_VERSION@')
+    (opts, p) = process_options(p, _debugger_name, '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
@@ -636,8 +631,6 @@ def main():
         p.stdout.close()  # In case someone is waiting on this.
     # Restore old sys.argv
     sys.argv = p._program_sys_argv 
-
-init()
 
 # When invoked as main program, invoke the debugger on a script
 if __name__=='__main__':

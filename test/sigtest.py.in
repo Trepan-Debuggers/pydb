@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.17 2006/10/09 20:11:56 rockyb Exp $
+# $Id: sigtest.py.in,v 1.18 2006/11/17 17:16:20 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, sys, unittest, signal
 
@@ -50,11 +50,13 @@ class SigTests(unittest.TestCase):
         there is also output produced by the debugged program.
         """
         if arg:
-            pid = os.spawnlp(os.P_WAIT, pydb_path, pydb_path, '-o',
-                             outfile, '-e', '%s' % cmds, program, arg)
+            pid = os.spawnlp(os.P_WAIT, pydb_path, pydb_path, '--sigcheck',
+                             '-o', outfile,
+                             '-e', '%s' % cmds, program, arg)
         else:
-            pid = os.spawnlp(os.P_NOWAIT, pydb_path, pydb_path, '-o',
-                             outfile, '-e', '%s' % cmds, program)
+            pid = os.spawnlp(os.P_NOWAIT, pydb_path, pydb_path, '--sigcheck',
+                             '-o', outfile,
+                             '-e', '%s' % cmds, program)
         return pid
 
     def test_signum_name(self):

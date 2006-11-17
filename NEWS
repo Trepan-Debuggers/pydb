@@ -1,4 +1,5 @@
-* Fix bug in "set sigcheck" 
+* Turning on signal checking may slow things down too much. So off
+  by default. Fix bug in "set sigcheck". Add --sigcheck option.
 
 1.19 2006-10-27
 
