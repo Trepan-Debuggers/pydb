@@ -1,6 +1,9 @@
 * Turning on signal checking may slow things down too much. So off
   by default. Fix bug in "set sigcheck". Add --sigcheck option.
 
+* Allow a thread number in "info thread" and "frame" command if 
+  Python 2.5 or greater.
+
 1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)
