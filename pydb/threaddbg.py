@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.32 2006/11/18 12:31:26 rockyb Exp $
+# $Id: threaddbg.py,v 1.33 2006/11/18 12:40:15 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -524,7 +524,7 @@ To get the full stack trace for a specific thread pass in the thread name.
 
             s = ''
             # Print location where thread was created and line number
-            if t in threading._active:
+            if thread_id in threading._active:
                 thread_name = id2threadName(thread_id)
                 if thread_name == self.thread_name:
                     prefix='-> '
@@ -533,14 +533,16 @@ To get the full stack trace for a specific thread pass in the thread name.
                 s += "%s%s" % (prefix, str(threading._active[thread_id]))
                 if all_verbose:
                     s += ": %d" % thread_id
-                s += "\n    "
+            else:
+                s += "    thread id: %d" % thread_id
+            s += "\n    "
             s += self.format_stack_entry((frame, frame.f_lineno))
             self.msg('-' * 40)
             self.msg(s)
             frame = frame.f_back
             if all_verbose and frame:
                 stack_trace(self, frame)
-        self.info_thread_missing()
+        return
 
     def info_thread_line(self, thread_name):
         if thread_name == self.thread_name:
