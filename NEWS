@@ -8,6 +8,15 @@
 
 * Show all threads even if we don't know their names.
 
+* Allow Pdb object to get passed in runv(). Allows for better ipython
+  invocation (%pydb) and may be useful in other shells as well
+
+* Provide a clue when debugger "run" command given but no "file" has
+  been set.
+
+* Better shell-like argument parsing in the "run" command via
+  shlex. 
+
 1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)

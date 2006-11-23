@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.92 2006/11/05 12:52:24 rockyb Exp $
+"""$Id: gdb.py.in,v 1.93 2006/11/23 10:02:48 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1433,11 +1433,11 @@ assignment to the variable __return__."""
         breakpoints, actions and debugger options are preserved."""
         if not self._program_sys_argv:
             self.msg("No Python program registered.")
-            # FIXME add FILE command and mention that.
+            self.msg("Perhaps you want to use the 'file' command?")
             return
         if arg:
             argv_start = self._program_sys_argv[0:1]
-            self._program_sys_argv = arg.split(" ")
+            self._program_sys_argv = arg_split(args)
             self._program_sys_argv[:0] = argv_start
 
         raise Restart

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.125 2006/11/23 03:45:46 rockyb Exp $
+"""$Id: pydb.py.in,v 1.126 2006/11/23 10:02:48 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -409,13 +409,7 @@ def runl(*args):
 
     This function may be useful inside Python shells.
     """
-    ## FIXME: redo so we don't call main and don't have to save/restore
-    ### sys.argv              
-    sys_argv     = list(sys.argv)
-    sys.argv[0]  = '@PACKAGE_NAME@'
-    sys.argv[1:] = list(args)
-    main()
-    sys.argv     = sys_argv
+    runv(args)
 
 def runv(argv, p=None):
 

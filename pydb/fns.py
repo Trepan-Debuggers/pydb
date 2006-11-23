@@ -1,10 +1,22 @@
-"""$Id: fns.py,v 1.28 2006/11/01 02:39:11 rockyb Exp $
+"""$Id: fns.py,v 1.29 2006/11/23 10:02:48 rockyb Exp $
 Functions to support the Extended Python Debugger."""
-import inspect, linecache, os, sys, re, traceback, types
+import inspect, linecache, os, shlex, sys, re, traceback, types
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
 _re_def = re.compile(_re_def_str)
+
+# arg_split culled from ipython's routine
+def arg_split(s,posix=False):
+    """Split a command line's arguments in a shell-like manner.
+
+    This is a modified version of the standard library's shlex.split()
+    function, but with a default of posix=False for splitting, so that quotes
+    in inputs are respected."""
+    
+    lex = shlex.shlex(s, posix=posix)
+    lex.whitespace_split = True
+    return list(lex)
 
 def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
     """Make new_fn have old_fn's doc string. This is particularly useful

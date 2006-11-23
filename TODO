@@ -7,17 +7,6 @@ Allow "self" as a synonym for current thread.
 
 reinstate "thread" command? 
 
-The list of allowed signals might be in a separate list from the signals
-that we have actions on. (See next paragraph below.)
-
-If a signal is set to "pass noprint" or "ignore", we shouldn't check
-this in the the dispatcher as this takes time. If we aren't using
-signal handling at all, we shouldn't have that dispatcher slowing
-things down. Should however quantify how much of a hit this is.  If it
-is a hit a "set" command could be added to turn off debugger signal
-handling. Also signal handling can interfere with other features like
-remote debugging - check on this.
-
 Add watchpoints. (Mentioned in pdbimprovements)
 
 The main pydb.py file size has been reduced but it is still bit
@@ -45,4 +34,4 @@ a class form ipython or a class that's out there, that should be done.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.15 2006/10/24 02:49:02 rockyb Exp $
+$Id: TODO,v 1.16 2006/11/23 10:02:42 rockyb Exp $
