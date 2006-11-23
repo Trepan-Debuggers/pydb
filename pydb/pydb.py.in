@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.124 2006/11/17 17:16:20 rockyb Exp $
+"""$Id: pydb.py.in,v 1.125 2006/11/23 03:45:46 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 run, set_trace, runevel.
 
@@ -417,7 +417,7 @@ def runl(*args):
     main()
     sys.argv     = sys_argv
 
-def runv(argv):
+def runv(argv, p=None):
 
     """Run debugger as though you typed something like
           os.system("@PACKAGE_NAME@ " + " ".join(argv))
@@ -436,8 +436,16 @@ def runv(argv):
     of the program to run and gets the remaining parameters.
 
     This function may be useful inside Python shells.
+
+    Parapmeter p allows you to pass in your own Pdb object.
     """
-    runl(*argv)
+    ## FIXME: redo so we don't call main and don't have to save/restore
+    ### sys.argv              
+    sys_argv     = list(sys.argv)
+    sys.argv[0] = '@PACKAGE_NAME@'
+    sys.argv[1:] = list(argv)
+    main(p)
+    sys.argv     = sys_argv
 
 def set_trace(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
     """Enter the debugger at the calling stack frame.  This is useful to
@@ -538,10 +546,11 @@ def set_trace(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
 # Main program
 #########################################################
 
-def main():
+def main(p=None):
     """Routine which gets run if we were invoked directly"""
 
-    p = Pdb()
+    if p is None:
+        p = Pdb()
     (opts, p) = process_options(p, _debugger_name, '@PACKAGE_VERSION@')
 
     # process_options has munged sys.argv to remove any options that
