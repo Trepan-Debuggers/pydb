@@ -19,6 +19,7 @@
 ;; pydb (Python extended debugger) functions
 
 (require 'gud)
+(provide 'pydb)
 
 (defvar gud-pydb-history nil
   "History of argument lists passed to pydb.")
