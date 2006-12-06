@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: pm.py.in,v 1.4 2006/07/29 01:52:57 rockyb Exp $ -*- Python -*-
+# $Id: pm.py.in,v 1.5 2006/12/06 02:28:24 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's Post-Mortem (pm) commands "
 import difflib, os, time, sys, unittest
 
@@ -38,6 +38,11 @@ class PdbTests(unittest.TestCase):
     ## Don't use assertTrue to be compatible with older version of
     ## unittest
     
+    def test_postmortem2(self):
+        """Test post-mortem processing without a traceback"""
+        pydb.post_mortem()
+        self.assertEqual(True, True, "post-mortem test with no traceback")
+
     def test_postmortem(self):
         """Test post-mortem processing"""
         try:
