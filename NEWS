@@ -19,6 +19,9 @@
 
 * Recover more gracefully if a post-mortem is called and there is none.
 
+* set_trace is now an alias for debugger which is probably a more natural
+  name.
+
 1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)
