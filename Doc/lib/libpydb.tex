@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.100 2006/11/09 12:00:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.101 2006/12/07 09:29:24 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -93,7 +93,7 @@ so that the bug doesn't manifest itself anymore.
 Of course a debugger, and this one in particular, tries hard to make
 itself transparent when not asked to do its thing. But there can be
 unavoidable differences. One such noticeable difference, mentioned in
-conjunction with \code{set_trace()} (see \ref{set-trace}), is the
+conjunction with \code{debugger()} (see \ref{debugger}), is the
 speed at which the debugger runs. Another difference involves
 name-space issues since some of the debugger may live inside the
 debugged program.
@@ -1559,13 +1559,13 @@ routines, some debugging can be done but it will be much more limited.
 \subsubsection{Showing thread information ({\tt info thread})\label{command:info-thread}}
 
 \begin{description}
-\item[info thread \optional{\var{thread-name}}
+\item[info thread \optional{\var{thread-name}\Large{|}\var{thread-number}}
   \optional{verbose\code{\Large{|}}terse}]
 
 List all currently-known thread name(s).
 
-If no thread name is given, we list info for all threads. Unless a
-terse listing, for each thread we give:
+If no thread name or thread number is given, we list info for all
+threads. Unless a terse listing, for each thread we give:
 
 \begin{itemize}
 \item the class, thread name, and status as \code{<Class(Thread-n, status)>}
@@ -1673,10 +1673,12 @@ There is currently a bug in \code{next} in that it is possible it may
 act like \code{step} if occasionally.
 
 \begin{description}
-\item[frame \optional{\var{Thread-Name}} \var{frame-number}]
+\item[frame \optional{\var{thread-Name}\Large{|}\var{thread-number}} \var{frame-number}]
+
 Move the current frame to the specified frame number. If a
-\var{Thread-Name} is given, move the current frame to that. A dot (.) can be
-  used to indicate the name of the current frame.
+\var{thread-Name} or \var{thread-number}is given, move the current
+frame to that. A dot (.) can be used to indicate the name of the
+current frame.
 
 \item[b(reak)
   \optional{\optional{\var{filename}:}\var{lineno}\code{\Large{|}}\var{function}
@@ -1746,7 +1748,7 @@ output methods \method{errmsg}, \method{msg}, and
 so that I could capture debugger output. It turned out, however, that
 I needed far too many tests and working this way would not scale.
 
-\subsection{Calling the Debugger from Inside your Program}\label{subsection-calling-pydb-inside-program}
+\subsection{Calling the Debugger from Inside your Program ({\tt pydb.debugger})}\label{subsection-calling-pydb-inside-program}
 
 When you issue \code{pydb myscript.py} you are running \code{pydb}
 first which then invokes your script \code{myscript.py} via Python's
@@ -1770,13 +1772,13 @@ But there are times when even this won't work right.
 There is another approach which obviates this complexity and the
 attendant drawbacks. However in this approach though you need to
 modify your program to add calls to the debugger at special
-places. For this, the \code{pydb} function \code{set_trace()} (see
-\ref{set-trace}) can be used. I've even this method to debug the
-debugger itself and to debug regression tests.
+places. For this, the \code{pydb} function \code{debugger()} can be
+used. See \ref{debugger}. I've even this method to debug the debugger
+itself and to debug regression tests.
 
-When the \code{pydb.set_trace()} function is called, the program stops
-before the next statement. To continue running the program, issue a
-debugger \code{next}, \code{step} or a \code{continue} command.
+When \code{pydb.debugger()} is called, the program stops before the
+next statement. To continue running the program, issue a debugger
+\code{next}, \code{step} or a \code{continue} command.
 
 The exit the program use the \code{quit} or a termanal EOF.
 
@@ -1788,7 +1790,7 @@ import pydb
 # some code here
 def test():
     # Force a call to the debugger in running code here
-    pydb.set_trace()
+    pydb.debugger()
     # ...
 # ...
 test()
@@ -1804,7 +1806,7 @@ python hardtodebug.py a b c
 (/tmp/hardtodebug.py:9):
 (Pydb) list
   4         # Force a call to the debugger in running code here
-  5         pydb.set_trace()
+  5         pydb.debugger()
   6         # ...
   7     # ...
   8     test()
@@ -1818,46 +1820,47 @@ Re exec'ing
 \end{verbatim}
 
 The first \code{--Return--} line printed is a result of the
-\code{set_trace()} exiting. But note that we stopped \emph{after\/} the
+\code{debugger()} exiting. But note that we stopped \emph{after\/} the
 return from \code{test()}, which explains the \emph{second\/}
 \code{--Return--} line. Because the next executable statement is after
 the implicit return. If you want to stop inside \code{test()} put a
-statement after the \code{set_trace()}, such as a \code{return}
+statement after the \code{debugger()}, such as a \code{return}
 statement. Furthermore, if the program had ended at line 8, then
 \emph{no\/} stopping would have occured becuase the end of the program
 is reached first.\footnote{Perhaps this is a deficiency of the
 debugger. I'm not sure what the right way to address though. One could
 have another routine to stop at a return which would then skip
 intervening statements. Another possibility is to add a routine to
-have debugger stop inside the call, e.g. \code{set_trace} above. This
+have debugger stop inside the call, e.g. \code{debugger} above. This
 is not hard to code and I've done so, but I'm not sure that doesn't
 just confuse things more.}
 
 Also note that we can issue a \code{restart} which involves some
 hackery. But at least in this case it gets things right.
 
-There is one final advantage of using \code{set_trace()}.  When one is
+There is one final advantage of using \code{debugger()}.  When one is
 stepping code or has put a breakpoint in code, the interpreter has to
 be involved and calls debugger-checking code written in Python for
 every statement that he debugged program runs. And this has a
-noticeable effect. With \code{set_trace()} there is absolutely no
+noticeable effect. With \code{debugger()} there is absolutely no
 overhead (provided there are no other breakpoints set in the program).
 
 \subsubsection{Line tracing}\label{subsubsection-linetracing}
 Rather than trace the entire program, if there is a specific portion
 that you want traced that can be done too, passing a list of debugger
-commands to \code{set_trace}.
+commands to \code{debugger}.
 
 \begin{verbatim}
 import pydb 
 # some code here ...
-pydb.set_trace(["set linetrace on", "continue"])
+pydb.debugger(["set linetrace on", "continue"])
 # This and subsequent lines will be traced
 # more code ...
-pydb.set_trace(["set linetrace off", "continue"])
+pydb.debugger(["set linetrace off", "continue"])
 \end{verbatim}
 
-\subsection{Calling the Debugger after a Crash (Post-Mortem Debugging)}\label{subsection-post-mortem}
+\subsection{Calling the Debugger after a Crash: Post-Mortem
+  Debugging ({\tt pydb.post_mortem}, {\tt pydb.pm}, {\tt pydb.exception_hook})}\label{subsection-post-mortem}
 
 It is also to possible enter the debugger after a crash or traceback
 even though the program was not started via \code{pydb}. This is
@@ -1871,9 +1874,11 @@ modification to your program. The third possibility is if you had
 started using \code{pydb}.
 
 \subsubsection{Post-Mortem Debugging within a Python Interpreter Shell
-({\tt pydb.pm()})}
-Here, all you do is \code{import pydb} (if that hasn't
-been done already), and call \code{pydb.pm()}.
+({\tt pydb.post_mortem}, {\tt pydb.pm()})}
+
+Here, all you do is \code{import pydb} (if that hasn't been done
+already), and call \code{pydb.pm()} or \code{pydb.post_mortem} if you
+have a specific traceback object you want to use.
 
 To make this more concrete we will give an example. We have the
 following text \code{mymodule.py}
@@ -2047,6 +2052,35 @@ used internally by GNU Emacs debugger \code{gud}.
 The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
 
+\begin{funcdesc}{debugger}{\optional{dbg_cmds=None,
+      add_exception_hook=True, add_threaddbg=False}}\label{debugger}
+Enter the debugger at the statement which follows (in execution) the
+\code{debugger()} statement. This hard-codes a call to the debugger
+at a given point in a program, even if the code is not otherwise being
+debugged. For example you might want to do this when an assertion
+fails.
+
+It is useful in a couple of other situations. First, there may be some
+problem in getting the debugger to stop at this particular place for
+whatever reason (like flakiness in the debugger). Alternatively, using
+the debugger and setting a breakpoint can slow down a program a
+bit. But if you use this instead, the code will run as though the
+debugger is not present.
+
+When the debugger is quitting, this causes the program to be
+terminated. If you want the program to continue instead, use the
+\code{debugger} function.
+
+You can run debugger commands by passing this as a list in parameter
+\code{dbg_cmds}.  Unless \code{add_exception_hook} is set to
+\code{False}, we install an exception hook to enter the debugger on
+any otherwise unhandled exception. 
+
+If you want experimental thread debugging support, set
+\code{add_threaddbg} to \code{True}.
+
+\end{funcdesc}
+
 \begin{funcdesc}{exception_hook}{type, value, tb, dbg_cmds=None,
     cmdfile=None}
 
@@ -2075,7 +2109,7 @@ You can run debugger commands by passing this as a list as parameter
 by default on entry pass \code{["set listsize 20",]}.
 \end{funcdesc}
 
-\begin{funcdesc}{post_mortem}{traceback\optional{dbg_cmds=None,
+\begin{funcdesc}{post_mortem}{traceback \optional{, dbg_cmds=None,
   cmdfile=None}}\label{post-mortem}
 Enter post-mortem debugging of the given \var{traceback} object.
 
@@ -2145,7 +2179,7 @@ remaining parameters, \code{--my-first-option} and \code{myfirstarg}.
 The 'l', suffix to indicate a list parameter is analogous to the use
 in \code{os.spawnl()}, or \code{os.execl()}.
 
-If you want to debug the current Python script, use \code{set_trace()}
+If you want to debug the current Python script, use \code{debugger()}
 described below.
 
 \end{funcdesc}
@@ -2174,37 +2208,15 @@ remaining parameters, \code{--my-first-option} and \code{myfirstarg}.
 The 'v', suffix to indicate a variable number of parameters is analogous to
 the use in \code{os.spawnv()}, or \code{os.execv()}.
 
-If you want to debug the current Python script, use \code{set_trace()}
+If you want to debug the current Python script, use \code{debugger()}
 described below.
 \end{funcdesc}
 
 \begin{funcdesc}{set_trace}{\optional{dbg_cmds=None,
-      add_exception_hook=True, add_threaddbg=False}}\label{set-trace}
-Enter the debugger at the statement which follows (in execution) the
-\code{set_trace()} statement. This hard-codes a call to the debugger
-at a given point in a program, even if the code is not otherwise being
-debugged. For example you might want to do this when an assertion
-fails.
-
-It is useful in a couple of other situations. First, there may be some
-problem in getting the debugger to stop at this particular place for
-whatever reason (like flakiness in the debugger). Alternatively, using
-the debugger and setting a breakpoint can slow down a program a
-bit. But if you use this instead, the code will run as though the
-debugger is not present.
-
-When the debugger is quitting, this causes the program to be
-terminated. If you want the program to continue instead, use the
-\code{debugger} function.
-
-You can run debugger commands by passing this as a list in parameter
-\code{dbg_cmds}.  Unless \code{add_exception_hook} is set to
-\code{False}, we install an exception hook to enter the debugger on
-any otherwise unhandled exception. 
-
-If you want experimental thread debugging support, set
-\code{add_threaddbg} to \code{True}.
-
+      add_exception_hook=True, add_threaddbg=False}}\label{debugger}
+Another name for debugger. This is the older name and is kept for
+backward compatibility with pdb. Also it is analogous to the
+underlying command used in the \ulink{\module{sys}}{http://docs.python.org/lib/module-sys.html} of the same name
 \end{funcdesc}
 
 \section{How the Debugger Works \label{debugger-hooks}}
@@ -2292,7 +2304,7 @@ package name (pydb) is substituted inside it.
   
 \item[pydb.py.in]
 Python debugger. Contains user-callable routines, e.g. 
-\code{run}, \code{set_trace}, \code{runeval}.
+\code{run}, \code{debugger}, \code{runeval}.
 
 \item[display.py]
 

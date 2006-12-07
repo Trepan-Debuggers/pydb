@@ -45,6 +45,6 @@ dbg_cmds=['where',
           'continue']
 
 import pydb
-pydb.set_trace(dbg_cmds)
+pydb.debugger(dbg_cmds)
 
 hanoi(n, "a", "b", "c")
