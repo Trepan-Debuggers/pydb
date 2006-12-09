@@ -266,9 +266,9 @@ Undefined command: "nogood". Try "help".
 restart - Restart debugger and program via an exec
         call. All state is lost, and new copy of the debugger is used.
 + help run
-run [args...]
+run [arg_str]
 
-        Run/Restart the debugged Python program. If a string is
+        Run/Restart the debugged Python program. If a string (arg_str) is
         supplied that becomes the new command arguments.  History,
         breakpoints, actions and debugger options are preserved.
 + help set

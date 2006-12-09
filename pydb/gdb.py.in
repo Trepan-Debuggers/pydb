@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.93 2006/11/23 10:02:48 rockyb Exp $
+"""$Id: gdb.py.in,v 1.94 2006/12/09 23:43:49 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1425,19 +1425,19 @@ assignment to the variable __return__."""
             self.errmsg('Not yet returned!')
     do_rv = do_retval
 
-    def do_run(self, arg):
-        """run [args...]
+    def do_run(self, arg_str):
+        """run [arg_str]
 
-        Run/Restart the debugged Python program. If a string is
+        Run/Restart the debugged Python program. If a string (arg_str) is
         supplied that becomes the new command arguments.  History,
         breakpoints, actions and debugger options are preserved."""
         if not self._program_sys_argv:
             self.msg("No Python program registered.")
             self.msg("Perhaps you want to use the 'file' command?")
             return
-        if arg:
+        if arg_str:
             argv_start = self._program_sys_argv[0:1]
-            self._program_sys_argv = arg_split(args)
+            self._program_sys_argv = arg_split(arg_str)
             self._program_sys_argv[:0] = argv_start
 
         raise Restart
