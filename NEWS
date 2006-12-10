@@ -22,6 +22,8 @@
 * set_trace is now an alias for debugger which is probably a more natural
   name.
 
+* A number of small bugs fixed and document updates.
+
 1.19 2006-10-27
 
 * info threads: merge in terse display (Python 2.5, threadframe)

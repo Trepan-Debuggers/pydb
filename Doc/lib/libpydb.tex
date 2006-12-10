@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.102 2006/12/10 13:26:23 rockyb Exp $
+% $Id: libpydb.tex,v 1.103 2006/12/10 13:32:20 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1756,7 +1756,6 @@ versues an embedded debugger which is what Gdb would be used for.
 
 See the Gdb class documentation for more information and information on
 the meanings of the parameters.
-\code{None} means the default set. If you want \em{no} signals, use [].
 \end{classdesc}
 
 \begin{classdesc}{Gdb}{completekey='tab', stdin=None, stdout=None,
@@ -1772,7 +1771,9 @@ pass \code{None} if no command completion is desired.
 Parameters \code{stdin} and \code{stdout} specify where debugger input
 and output are to come from.
     
-parameter \code{siglist} gives a list of signals to intercept and ignore.
+Parameter \code{siglist} gives a list of signals to intercept and
+ignore. \code{None} means the default set. If you want \emph{no}
+signals, use [].
 \end{classdesc}
 
 \subsection{Calling the Debugger from Inside your Program ({\tt pydb.debugger})}\label{subsection-calling-pydb-inside-program}
