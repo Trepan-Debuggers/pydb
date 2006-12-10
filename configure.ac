@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.51 2006/12/10 04:13:11 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.52 2006/12/10 04:52:28 rockyb Exp $])dnl
 AC_INIT([pydb],[1.20],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 
@@ -131,12 +131,13 @@ AC_CONFIG_FILES([test/file.py],[chmod +x test/file.py])
 AC_CONFIG_FILES([test/fns.py],[chmod +x test/fns.py])
 AC_CONFIG_FILES([test/import.py],[chmod +x test/import.py])
 AC_CONFIG_FILES([test/pm.py],[chmod +x test/pm.py])
-AC_CONFIG_FILES([test/settrace.py],[chmod +x test/settrace.py])
 AC_CONFIG_FILES([test/runtest.py],[chmod +x test/runtest.py])
+AC_CONFIG_FILES([test/settrace.py],[chmod +x test/settrace.py])
 AC_CONFIG_FILES([test/sighandle.py], [chmod +x test/sighandle.py])
 AC_CONFIG_FILES([test/sigtest.py], [chmod +x test/sigtest.py])
 AC_CONFIG_FILES([test/tcp_connect.py],[chmod +x test/tcp_connect.py])
 AC_CONFIG_FILES([test/test.py],[chmod +x test/test.py])
 AC_CONFIG_FILES([test/trace.py],[chmod +x test/trace.py])
+AC_CONFIG_FILES([test/tracetest.py],[chmod +x test/tracetest.py])
 
 AC_OUTPUT

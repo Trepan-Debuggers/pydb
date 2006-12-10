@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.31 2006/12/10 04:13:12 rockyb Exp $
+#$Id: Makefile.am,v 1.32 2006/12/10 04:52:28 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -56,6 +56,7 @@ check_DATA = \
 	run.right         \
 	run2.cmd          \
 	run2.right        \
+	settrace.py       \
 	sighandle.py      \
 	sighandler.cmd    \
 	sighandler.right  \
@@ -63,11 +64,14 @@ check_DATA = \
         sigtestexample.py \
 	test.py           \
 	trace-2.5.right   \
+	tracetest.py      \
+	tracetest.right   \
 	trace.py          \
 	trace.right
 
-TESTS = fns.py test.py file.py pm.py trace.py sighandle.py sigtest.py \
-	runtest.py connect.py tcp_connect.py fifo_connect.py 
+TESTS = fns.py test.py file.py import.py pm.py \
+	runtest.py sighandle.py sigtest.py trace.py tracetest.py \
+	connect.py tcp_connect.py fifo_connect.py 
 
 
 EXTRA_DIST = $(check_DATA) except.py.in file.py.in fns.py.in import.py \
