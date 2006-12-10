@@ -3,7 +3,7 @@ add for threading:
    step [count] Thread-name
    next [count] Thread-name
 
-Allow "self" as a synonym for current thread.
+Mock objects for thread id's/names. Then more tests on thread code.
 
 reinstate "thread" command? 
 
@@ -17,9 +17,9 @@ invaluable so far and maintain quality. Especially for the large
 changes.
 
 Redo post_mortem, pm, set_step to funnel through parse_options rather
-than taking the optional cmdfile and opts paramaters.
+than taking the optional cmdfile and opts parameters.
 
-gdb return command relies on the existance of a return statement in
+gdb return command relies on the existence of a return statement in
 the code.
 
 Add online debugger concept help and in LaTeX? 
@@ -28,10 +28,11 @@ Write Bdb documentation.
 
 Add in patches of various Bdb's such as the one in Eric.
 
-Should check into getting this integrated with ipython's "run -d".  It
-has a history mechanism and pydb should too. If it is possible to use
-a class form ipython or a class that's out there, that should be done.
+Better history completion. Better history completion interaction inside
+ipython and with or without Emacs.
+
+Eric or Idle integration.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.16 2006/11/23 10:02:42 rockyb Exp $
+$Id: TODO,v 1.17 2006/12/10 04:13:11 rockyb Exp $

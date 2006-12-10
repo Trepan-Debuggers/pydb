@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.30 2006/10/25 10:50:12 rockyb Exp $
+#$Id: Makefile.am,v 1.31 2006/12/10 04:13:12 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,7 @@ check_DATA = \
 	hanoi.py          \
 	history.cmd       \
 	history.right     \
+	import.py         \
 	logging.cmd       \
 	logging.right     \
 	noscript.cmd      \
@@ -69,8 +70,8 @@ TESTS = fns.py test.py file.py pm.py trace.py sighandle.py sigtest.py \
 	runtest.py connect.py tcp_connect.py fifo_connect.py 
 
 
-EXTRA_DIST = $(check_DATA) except.py.in file.py.in fns.py.in pm.py.in \
-	runtest.py.in settrace.py.in test.py.in sighandle.py.in sigtest.py.in \
-	trace.py.in 
+EXTRA_DIST = $(check_DATA) except.py.in file.py.in fns.py.in import.py \
+	pm.py.in runtest.py.in settrace.py.in test.py.in sighandle.py.in \
+	sigtest.py.in trace.py.in 
 
 test: check
