@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.97 2006/12/10 11:44:58 rockyb Exp $
+"""$Id: gdb.py.in,v 1.98 2006/12/10 13:26:24 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -36,10 +36,10 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     Parameter completekey specifies the what to use for command completion.
     pass None if no command completion is desired.
 
-    Parameter stdin and stdout specify where debugger input and output
+    Parameters stdin and stdout specify where debugger input and output
     are to come from.
     
-    parameter siglist gives a list of signals to intercept and ignore.
+    Parameter siglist gives a list of signals to intercept and ignore.
     None means the default set. If you want *no* signals, use [].
     """
 

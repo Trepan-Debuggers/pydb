@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.131 2006/12/10 11:12:23 rockyb Exp $
+"""$Id: pydb.py.in,v 1.132 2006/12/10 13:26:24 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 exception_hook, run, runl, runv, debugger (AKA set_trace), post_mortem,
 or runevel.
@@ -191,24 +191,18 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
 
 class Pdb(Gdb):
 
-    """A debugger class for Python that resembles the gdb (GNU
-    debugger) command set. Really we just inherit everything from the
-    Gdb class, but we keep the name Pdb to be compatible with the stock
-    Python debugger's (pdb's) Pdb class.
+    """Right now this is basically the same thing as the Gdb class. In the
+    future though we may break out more stand-alone aspects and put them here
+    versues an embedded debugger which is what Gdb would be used for.
 
-    Parameter completekey specifies the what to use for command completion.
-    pass None if no command completion is desired.
-
-    Parameter stdin and stdout specify where debugger input and output
-    are to come from.
-    
-    parameter siglist gives a list of signals to intercept and ignore.
-    None means the default set. If you want *no* signals, use [].
+    See the Gdb class documentation for more information and information on
+    the meanings of the parameters.
     """
 
     def __init__(self, completekey='tab', stdin=None, stdout=None,
                  siglist=None):
         Gdb.__init__(self, completekey, stdin, stdout, siglist)
+        return
 
 # -- end class Pdb
 
@@ -216,7 +210,8 @@ class Pdb(Gdb):
 # Other top-level routines
 #########################################################
 
-def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
+def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
+             new_instance=False):
     """Enter the debugger at the calling stack frame.  This is useful to
     hard-code a breakpoint at a given point in a program, even if the code
     is not otherwise being debugged (e.g., when an assertion fails).
@@ -226,6 +221,11 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception.
+
+    If the debugger was called previously, normally we use that. This
+    way any previous debugger state that was set gets used. If you
+    don't the debugger state to be used, set parameter new_instance
+    True.
     """
     global _pydb_trace
     try:
@@ -233,6 +233,12 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
             print "Your program should not use _pydb_trace"
             return
     except NameError:
+        new_instance = True
+    except:
+        print "Unknown error"
+        return
+
+    if new_instance:
         if add_threaddbg:
             import threaddbg
             _pydb_trace = threaddbg.threadDbg()
@@ -243,12 +249,14 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
         _pydb_trace._sys_argv[:0] = [_debugger_name]
         _pydb_trace.main_dirname = os.path.dirname(sys.argv[0])
-    except:
-        print "Unknown error"
-        return
+
     # We don't support "run" so we'll make "run" and "R" be "restart"
     _pydb_trace.do_R = _pydb_trace.do_run = _pydb_trace.do_restart
     _pydb_trace.curframe=inspect.currentframe()
+
+    if _pydb_trace.running:
+        _pydb_trace.do_next(2)
+        return
     _pydb_trace.running = True
 
     if dbg_cmds != None:
@@ -258,9 +266,12 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False):
         sys.excepthook = exception_hook
 
     # Set to skip over return statement
-    _pydb_trace.step_ignore = 2
+    _pydb_trace.step_ignore = 1
     # There can be no other commands after the following one
-    # unless we adjust _pydb_trace.step_ignore accordingly
+    # unless we adjust _pydb_trace.step_ignore accordingly.
+    # Note in some cases we stop in the "return" below and in some
+    # cases we step one more so we need to be conservitive in the
+    # step count. I don't know why weird behavior.
     _pydb_trace.set_trace(_pydb_trace.curframe)
     return
 

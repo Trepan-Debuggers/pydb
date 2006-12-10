@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.33 2006/12/10 11:07:51 rockyb Exp $
+#$Id: Makefile.am,v 1.34 2006/12/10 13:26:24 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ check_DATA = \
 	trace.right
 
 TESTS = fns.py test.py file.py import.py pm.py \
-	runtest.py sighandle.py sigtest.py trace.py tracetest.py \
+	runtest.py sighandle.py sigtest.py trace.py \
 	connect.py tcp_connect.py fifo_connect.py 
 
 
