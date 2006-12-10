@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.96 2006/12/10 11:12:23 rockyb Exp $
+"""$Id: gdb.py.in,v 1.97 2006/12/10 11:44:58 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -53,7 +53,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self._wait_for_mainpyfile = False
 
         # set up signal handling
-        self.sigmgr          = sighandler.SignalManager(self)
+        self.sigmgr          = sighandler.SignalManager(self,
+                                                        ignore_list=siglist)
         self._reset_handler  = None
 
         self.__init_info()   # Initialize 'info' subcommands

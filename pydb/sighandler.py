@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.27 2006/12/10 11:07:51 rockyb Exp $
+"""$Id: sighandler.py,v 1.28 2006/12/10 11:44:58 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -40,11 +40,16 @@ class SignalManager:
     - Do we pass/not pass the signal to the program
     - Do we stop/not stop when signal is caught
 
+    Parameter pydb is an optional Pdb class. ignore is a list of
+    signals to ignore. If you want no signals, use [] as None uses the
+    default set. Parameter default_print specifies whether or not we
+    print receiving a signals that is not ignored.
+
     All the methods to change these attributes return None on error, or
     True or False if we have set the action (pass/print/stop) for a signal
     handler.
     """
-    def __init__(self, pydb=None, ignore=None):
+    def __init__(self, pydb=None, ignore_list=None, default_print=True):
         if pydb is None:
             import pydb
             self.pydb = pydb.Pdb()
@@ -54,25 +59,29 @@ class SignalManager:
         self.siglist = [] # List of signals. Dunno why signal doesn't provide.
     
         # set up signal handling for these known signals
-        if ignore is None:
-            ignore= ['SIGALRM',    'SIGCHLD',  'SIGURG',    'SIGIO',
-                     'SIGVTALRM'   'SIGPROF',  'SIGWINCH',  'SIGPOLL',
-                     'SIGWAITING', 'SIGLWP',   'SIGCANCEL', 'SIGTRAP',
-                     'SIGTERM',    'SIGQUIT', 'SIGILL']
+        if ignore_list is None:
+            ignore_list = ['SIGALRM',    'SIGCHLD',  'SIGURG',
+                           'SIGIO',      'SIGCLD',
+                           'SIGVTALRM'   'SIGPROF',  'SIGWINCH',  'SIGPOLL',
+                           'SIGWAITING', 'SIGLWP',   'SIGCANCEL', 'SIGTRAP',
+                           'SIGTERM',    'SIGQUIT',  'SIGILL']
 
         self.info_fmt='%-14s%-4s\t%-4s\t%-11s\t%s'
         self.header  = self.info_fmt % ('Signal', 'Stop', 'Print',
                                         'Print Stack', 'Pass to program')
+        if default_print:
+            default_print = self.pydb.msg
 
         for signame in signal.__dict__.keys():
             # Look for a signal name on this os.
             if signame.startswith('SIG') and '_' not in signame:
                 self.siglist.append(signame)
-                if signame not in fatal_signals + ignore:
+                if signame not in fatal_signals + ignore_list:
                     self.sigs[signame] = self.SigHandler(signame,
-                                                         self.pydb.msg,
+                                                         default_print,
                                                          self.pydb.set_next,
-                                                         False, False)
+                                                         print_stack=False,
+                                                         pass_along=False)
         self.action('SIGINT stop print nostack nopass')
         return
 
