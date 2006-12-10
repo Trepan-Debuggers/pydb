@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.94 2006/12/09 23:43:49 rockyb Exp $
+"""$Id: gdb.py.in,v 1.95 2006/12/10 11:07:50 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -31,7 +31,17 @@ class Restart(Exception):
 
 class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     """A debugger class for Python that resembles the gdb (GNU debugger)
-    command set."""
+    command set.
+
+    Parameter completekey specifies the what to use for command completion.
+    pass None if no command completion is desired.
+
+    Parameter stdin and stdout specify where debugger input and output
+    are to come from.
+    
+    parameter siglist gives a list of signals to intercept and ignore.
+    None means the default set. If you want *no* signals, use [].
+    """
 
     def __init__(self, completekey='tab', stdin=None, stdout=None):
         pydbbdb.Bdb.__init__(self)
@@ -132,6 +142,14 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             self.hist_save = False
             self.set_history_length = readline.set_history_length
             self.set_history_length(256)
+
+            # An application like ipython may have its own
+            # history set up beforehand, clear that so we don't back up
+            # into that. Note that ipython saves and restores its own
+            # history.
+            if hasattr(readline, "clear_history"):
+                readline.clear_history()
+
             # Read history file and set up to write history file when we
             # exit.
             global _debugger_name
@@ -146,6 +164,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         except ImportError:
             self.histfile = None
+            return
+        return
 
     def break_anywhere_gdb(self, frame):
         """Decorate bdb break_anyhwere to consider the sigcheck and
@@ -252,6 +272,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         completions = self.all_completions(arg)
         if completions is None: return
         for complete in completions:  self.msg(complete)
+        return
 
     def __init_info(self):
         """Initialize info subcommands. Note: instance variable name
@@ -291,6 +312,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('sigcheck',        self.set_sigcheck)
         ## self.setcmds.add('target-address',  self.set_target_address)
         self.setcmds.add('warnoptions',     self.set_warnoptions)
+        return
 
     def __init_show(self):
         """Initialize show subcommands. Note: instance variable name
@@ -335,6 +357,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             except ValueError:
                 self.msg('index %r is not a number' % i)
                 continue
+        return
 
     def lineinfo(self, identifier):
         failed = (None, None, None)
@@ -374,6 +397,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.stack = []
         self.curindex = 0
         self.curframe = None
+        return
 
     def interaction(self, frame, traceback):
         """Possibly goes into loop to read debugger commands."""
@@ -392,6 +416,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if not do_loop:
             # Tell cmdloop to break out of its loop.
             return True
+        return False
 
     def parse_list_cmd(self, arg):
         """Parses arguments for the "list" command and returns the tuple
@@ -452,6 +477,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.stopframe = self.botframe
         self.returnframe = None
         self.quitting = 0
+        return
 
     def setup(self, frame, traceback=None):
         """Initialization done before entering the debugger-command
@@ -468,7 +494,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             self.curframe = self.stack[self.curindex][0]
         else:
             self.stack = self.curframe = self.botframe = None
-        if self.execRcLines()==1: return 1
+        if self.execRcLines()==1: return True
+        return False
 
     def setup_source(self, arg, showError=False):
         """Set up to read commands from a source file"""
@@ -483,6 +510,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             for line in rcFile.readlines():
                 self.rcLines.append(line)
             rcFile.close()
+        return
 
     def show_commands(self, arg):
         """Show the history of commands you typed.
@@ -542,12 +570,14 @@ the previous command number shown. A negative number starts from the end."""
         "Show debugger's prompt"
         self.msg("""%s's prompt is "%s".""" %
                  (_debugger_name, self.prompt))
+        return
 
     def show_version(self, args):
         """Show what version of the debugger this is"""
         global _version
         self.msg("""%s version %s.""" %
                  (_debugger_name, _version))
+        return
 
     def write_history_file(self):
         """Write the command history file -- possibly."""
@@ -675,7 +705,9 @@ the .py suffix may be omitted."""
         if not arg:
             self.errmsg("Argument required (new working directory).")
         else:
-           os.chdir(arg)
+            os.chdir(arg)
+            return
+        return
 
     def do_clear(self, arg):
         """cl(ear) {[file:]linenumber | function}
@@ -695,7 +727,7 @@ the .py suffix may be omitted."""
 
         if not self.curframe:
             self.msg("No frame selected.")
-            return
+            return False
         if not arg:
             frame, lineno = self.stack[self.curindex]
             filename = self.canonic_filename(self.curframe)
@@ -710,11 +742,11 @@ the .py suffix may be omitted."""
                     lineno = int(arg)
                 except:
                     self.errmsg("Invalid line number (%s)" % arg)
-                    return
+                    return False
             else:
                 (funcname, filename, lineno) = get_brkpt_lineno(self, arg)
 
-            if lineno is None: return
+            if lineno is None: return False
 
             # FIXME This default setting doesn't match that used in
             # do_break. Perhaps one is non-optimial.
@@ -729,7 +761,9 @@ the .py suffix may be omitted."""
             else:
                 self.msg("Deleted breakpoints " +
                          ' '.join(map(lambda b: str(b), brkpts)))
-        return
+                return False
+            return False
+        return False
 
     do_cl = do_clear
 
@@ -746,10 +780,10 @@ the .py suffix may be omitted."""
                 bnum = self.get_pos_int(arg, min=0, default=None,
                                         cmdname="'commands'")
             except ValueError:
-                return
+                return False
         if not (bnum < len(bdb.Breakpoint.bpbynumber)):
             self.errmsg('No breakpoint numbered %d.' % bnum)
-            return
+            return False
 
         self.commands_bnum = bnum
         self.commands[bnum] = []
@@ -759,7 +793,7 @@ the .py suffix may be omitted."""
         self.commands_defining = True
         if self.setup(self.curframe) == 1:
             self.commands_defining = False
-            return
+            return False
 
         prompt_back = self.prompt
         self.prompt = '>'
@@ -770,6 +804,7 @@ the .py suffix may be omitted."""
         self.cmdloop()
         self.commands_defining = False
         self.prompt = prompt_back
+        return False
 
     def do_condition(self, arg):
         """condition bpnumber str_condition
@@ -795,7 +830,7 @@ the .py suffix may be omitted."""
             bp = bdb.Breakpoint.bpbynumber[bpnum]
         except IndexError:
             self.errmsg("No breakpoint number %d." % bpnum)
-            return
+            return False
         if bp:
             bp.cond = cond
             if not cond:
@@ -876,6 +911,7 @@ position before running an (unconditional) continue."""
         self.print_location()
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
+        return False
 
     def do_delete(self, arg):
         """delete [bpnumber [bpnumber...]]  - Delete some breakpoints.
@@ -987,6 +1023,7 @@ the default."""
             sys.stdout = orig_stdout
             raise # reraise exception
         sys.stdout = orig_stdout
+        return False
 
     def do_display(self, arg):
         """display [format] EXP
@@ -1013,7 +1050,7 @@ the default."""
             dp = DisplayNode(self.curframe, variable, format)
             res = dp.checkValid(self.curframe)
             self.msg(res)
-        return
+        return False
 
     def do_down(self, arg):
         """d(own) [count]
@@ -1032,6 +1069,7 @@ the default."""
         if self.gdb_dialect:
             count = -count
         self.__adjust_frame(pos=-count, absolute_pos=False)
+        return False
 
     def do_enable(self, arg):
         """enable [display] bpnumber [bpnumber ...]]
@@ -1615,7 +1653,7 @@ Prints the type of the argument which can be a Python expression."""
                 self.errmsg("Name Error: %s" % arg)
             else:
                 self.errmsg("%s: %s" % (exc_type_name, self._saferepr(v)))
-            return
+            return False
         if inspect.ismethod(value):
             self.msg('method %s%s' %
                      (value.func_code.co_name,
@@ -1623,7 +1661,7 @@ Prints the type of the argument which can be a Python expression."""
             if inspect.getdoc(value):
                 self.msg('%s:\n%s' %
                          (value, inspect.getdoc(value)))
-            return
+            return False
         elif inspect.isfunction(value):
             self.msg('function %s%s' %
                      (value.func_code.co_name,
@@ -1631,9 +1669,10 @@ Prints the type of the argument which can be a Python expression."""
             if inspect.getdoc(value):
                 self.msg('%s:\n%s' %
                          (value, inspect.getdoc(value)))
-            return
+            return False
         # None of the above...
         self.msg(type(value))
+        return False
 
     def do_where(self, arg):
         """where [count]
@@ -1647,12 +1686,13 @@ Prints the type of the argument which can be a Python expression."""
         try:
             count = self.get_pos_int(arg, default=None, cmdname="where")
         except ValueError:
-            return
+            return False
 
         if not self.curframe:
             self.msg("No stack.")
-            return
+            return False
         print_stack_trace(self, count)
+        return False
 
     do_T = do_bt = do_where
 
@@ -1734,6 +1774,7 @@ was reached.
         command with a 'global' command, e.g.:
         %sglobal list_options; list_options = ['-l']
         %s""" % (self.prompt, self.prompt))
+        return
 
     # Note: format of help is compatible with ddd.
     def help_info(self, args):
@@ -1742,6 +1783,8 @@ was reached.
             self.infocmds.help(self, '')
         else:
             self.infocmds.help(self, args[0])
+            return
+        return
 
     def help_pydb(self, *arg):
         help()
@@ -1754,6 +1797,8 @@ You can see these environment settings with the 'show' command."""
             self.setcmds.help(self, '')
         else:
             self.setcmds.help(self, args[0])
+            return
+        return
 
     # Note: format of help is compatible with ddd.
     def help_show(self, args):
@@ -1762,10 +1807,13 @@ You can see these environment settings with the 'show' command."""
             self.showcmds.help(self, '')
         else:
             self.showcmds.help(self, args[0])
+            return
+        return
 
     def help_unalias(self):
         print """unalias name
 Deletes the specified alias."""
+        return
 
     ####### End of help section ########
 #

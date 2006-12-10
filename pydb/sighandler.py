@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.26 2006/11/01 12:31:22 rockyb Exp $
+"""$Id: sighandler.py,v 1.27 2006/12/10 11:07:51 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -17,6 +17,7 @@ def lookup_signame(num):
     for signame in signames.keys():
         if signames[signame] == num: return signame
     # Something went wrong. Should have returned above
+    return
 
 def lookup_signum(name):
     """Find the corresponding signal number for 'name'. Return None
@@ -43,7 +44,7 @@ class SignalManager:
     True or False if we have set the action (pass/print/stop) for a signal
     handler.
     """
-    def __init__(self, pydb=None):
+    def __init__(self, pydb=None, ignore=None):
         if pydb is None:
             import pydb
             self.pydb = pydb.Pdb()
@@ -53,9 +54,11 @@ class SignalManager:
         self.siglist = [] # List of signals. Dunno why signal doesn't provide.
     
         # set up signal handling for these known signals
-        ignore= ['SIGALRM', 'SIGCHLD',  'SIGURG',  'SIGIO',      'SIGVTALRM'
-                 'SIGPROF', 'SIGWINCH', 'SIGPOLL', 'SIGWAITING', 'SIGLWP',
-                 'SIGCANCEL', 'SIGTRAP', 'SIGTERM', 'SIGQUIT', 'SIGILL']
+        if ignore is None:
+            ignore= ['SIGALRM',    'SIGCHLD',  'SIGURG',    'SIGIO',
+                     'SIGVTALRM'   'SIGPROF',  'SIGWINCH',  'SIGPOLL',
+                     'SIGWAITING', 'SIGLWP',   'SIGCANCEL', 'SIGTRAP',
+                     'SIGTERM',    'SIGQUIT', 'SIGILL']
 
         self.info_fmt='%-14s%-4s\t%-4s\t%-11s\t%s'
         self.header  = self.info_fmt % ('Signal', 'Stop', 'Print',
@@ -71,6 +74,7 @@ class SignalManager:
                                                          self.pydb.set_next,
                                                          False, False)
         self.action('SIGINT stop print nostack nopass')
+        return
 
     def check_and_adjust_sighandler(self, signame):
         """Check to see if a single signal handler that we are interested in
@@ -119,6 +123,7 @@ class SignalManager:
                                        str(sig_obj.print_method is not None),
                                        str(sig_obj.print_stack),
                                        str(sig_obj.pass_along)))
+        return
 
     def info_signal(self, args):
         """Print information about a signal"""
@@ -145,6 +150,7 @@ class SignalManager:
             signame = try_signame
         self.pydb.msg(self.header)
         self.print_info_signal_entry(signame)
+        return
 
     def action(self, arg):
         """Delegate the actions specified in 'arg' to another
@@ -185,6 +191,7 @@ class SignalManager:
             else:
                 self.pydb.errmsg('Invalid arguments')
         self.check_and_adjust_sighandler(signame)
+        return
 
     def handle_print_stack(self, signame, print_stack):
         """Set whether we stop or not when this signal is caught.
@@ -289,6 +296,9 @@ class SignalManager:
                     pydb.set_trace()
                 else:
                     self.stop_method(frame)
+                    return
+                return
+            return
 
 # When invoked as main program, do some basic tests of a couple of functions
 if __name__=='__main__':

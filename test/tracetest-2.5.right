@@ -1,8 +1,8 @@
 --Return--
 --Call--
-(/export/home/src/build/pydb-1.20/test/settrace.py:14):  hanoi
+(/src/external-cvs/pydb/test/settrace.py:14):  hanoi
 -> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'settrace.py' at line 14
-## 1 in file 'settrace.py' at line 51
+## 1 <module>() called from file 'settrace.py' at line 51
   9  	top_srcdir = ".."
  10  	if top_srcdir[-1] != os.path.sep:
  11  	    top_srcdir += os.path.sep
@@ -16,7 +16,7 @@
 (settrace.py:15):  hanoi
 (settrace.py:16):  hanoi
 -> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'settrace.py' at line 16
-## 1 in file 'settrace.py' at line 51
+## 1 <module>() called from file 'settrace.py' at line 51
 a = 'a'
 c = 'c'
 b = 'b'
@@ -118,5 +118,5 @@ Move disk a to b
 (settrace.py:19):  hanoi
 +        hanoi(n-1, c, b, a)
 --Return--
-(settrace.py:51): 
+(settrace.py:51):  <module>
 + hanoi(n, "a", "b", "c")
