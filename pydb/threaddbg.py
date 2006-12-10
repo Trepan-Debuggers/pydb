@@ -1,4 +1,4 @@
-# $Id: threaddbg.py,v 1.33 2006/11/18 12:40:15 rockyb Exp $
+# $Id: threaddbg.py,v 1.34 2006/12/10 00:06:35 rockyb Exp $
 
 ### TODO
 ### - Go over for robustness, 
@@ -509,6 +509,7 @@ To get the full stack trace for a specific thread pass in the thread name.
                     self.msg("Don't know about thread %s" % thread_name)
                     self.info_thread_terse()
                     return
+                thread_id = self.traced[thread_name]
 
             frame = threads[thread_id]
             frame = self.find_nondebug_frame(frame)
@@ -732,7 +733,7 @@ To get the full stack trace for a specific thread pass in the thread name.
             self.desired_thread = None
 
         if self._user_requested_quit:
-            self.msg("%s (id %lu) is quitting." %
+            self.msg("%s (id %ld) is quitting." %
                      (threading.currentThread().getName(), thread.get_ident()))
             if have_single_entry_lock:
                 self.threading_lock.release()
@@ -769,7 +770,7 @@ To get the full stack trace for a specific thread pass in the thread name.
                     #         % (self.filename(sys.argv[0]),
                     #            " ".join(self._program_sys_argv[1:])))
                 except bdb.BdbQuit:
-                    self.msg("Requesting exit from %s (id %lu)" %
+                    self.msg("Requesting exit from %s (id %ld)" %
                              (threading.currentThread().getName(),
                               thread.get_ident()))
                     self._user_requested_quit = True
