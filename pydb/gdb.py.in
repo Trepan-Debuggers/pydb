@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.98 2006/12/10 13:26:24 rockyb Exp $
+"""$Id: gdb.py.in,v 1.99 2006/12/13 13:41:54 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -213,10 +213,10 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             pos += self.curindex
 
         if pos < 0:
-            self.errmsg("Adjusting would be put us beyond the oldest frame")
+            self.errmsg("Adjusting would put us beyond the oldest frame")
             return
         elif pos >= len(self.stack):
-            self.errmsg("Adjusting would be put us beyond the newest frame")
+            self.errmsg("Adjusting would put us beyond the newest frame")
             return
 
         self.curindex = pos
@@ -1155,13 +1155,9 @@ is no Python file."""
         """frame frame-number
         Move the current frame to the specified frame number.
 
-        If using gdb dialect up matches the gdb: 0 is the most recent
-        frame.  Otherwise we match Python's stack: 0 is the oldest
-        frame.
-
-        A negative number indicates position from the other end.
-        So 'frame -1' moves when gdb dialect is in effect moves
-        to the oldest frame, and 'frame 0' moves to the newest frame."""
+        A negative number indicates position from the other end.  So
+        'frame -1' moves to the oldest frame, and 'frame 0' moves to
+        the newest frame."""
 
         if not self.stack:
             self.msg("Program has no stack frame set.")
@@ -1394,7 +1390,7 @@ With an integer argument, perform that many times."""
             self.do_rquit(None)
         else:
             if self._sys_argv[0]:
-                self.msg("Re exec'ing\n\t%s" % self._sys_argv)
+                self.msg("Re exec'ing:\n\t%s" % self._sys_argv)
                 os.execvp(self._sys_argv[0], self._sys_argv)
             else:
                 self.msg("No exectuable file specified.")
