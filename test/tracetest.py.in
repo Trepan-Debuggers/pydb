@@ -1,0 +1,62 @@
+#!@PYTHON@ -t
+# -*- Python -*-
+# $Id: tracetest.py.in,v 1.1 2006/12/28 16:58:13 rockyb Exp $
+"Unit test for Extended Python debugger's runl and runv commands "
+import difflib, os, sys, time, unittest
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+def run_python(testname, pythonfile, args='', outfile=None):
+    srcdir = os.path.join(top_srcdir, 'test')
+    pythonfile = os.path.join(".", pythonfile)
+    outfile_opt = ''
+    if outfile is None:
+        outfile     = "%s.out" % testname
+
+    if sys.version_info[0:2] == (2, 5):
+        rightfile   = os.path.join(srcdir, "%s-2.5.right" % testname)
+    else:
+        rightfile   = os.path.join(srcdir, "%s.right" % testname)
+
+    if os.path.exists(outfile): os.unlink(outfile)
+
+    cmd = "(@PYTHON@ %s %s) >%s 2>&1" % (pythonfile, args, outfile)
+    os.system(cmd)
+
+    # Do diff on output
+    fromfile  = rightfile
+    fromdate  = time.ctime(os.stat(fromfile).st_mtime)
+    fromlines = open(fromfile, 'U').readlines()
+    tofile    = outfile
+    todate    = time.ctime(os.stat(tofile).st_mtime)
+    tolines   = open(tofile, 'U').readlines()
+
+    # 3rd line has a path in it. Pick out just the non-path tail of that
+    fromlines[2] = fromlines[2][-24:]
+    tolines[2] = tolines[2][-24:]
+    diff = list(difflib.unified_diff(fromlines, tolines,
+                                     fromfile, tofile, fromdate, todate))
+    if len(diff) == 0:
+        os.unlink(outfile)
+    for line in diff:
+        print line,
+    return len(diff) == 0
+    
+class PdbTests(unittest.TestCase):
+
+    def test_settrace(self):
+        """Test that 'tracing and set_trace (debugger) work"""
+        global builddir
+        result = run_python("tracetest", "settrace.py")
+        self.assertEqual(True, result, "hanoi trace output comparision")
+        return
+
+if __name__ == "__main__":
+    unittest.main()
