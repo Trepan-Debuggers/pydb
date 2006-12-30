@@ -18,9 +18,12 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.52 2006/12/10 04:52:28 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.53 2006/12/30 12:55:03 rockyb Exp $])dnl
 AC_INIT([pydb],[1.20],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
+MIN_VERSION='2.3.3'
+AC_SUBST(MIN_VERSION)
+
 
 ##
 ## Find out where to install the debugger emacs lisp files
@@ -71,8 +74,8 @@ AC_ARG_WITH(python,
 ##
 ## Check for Python interpreter and make we have a recent version.
 ##
-AM_PATH_PYTHON(2.3.4,, 
-   [AC_MSG_ERROR(Debugger known only to work with Python 2.3.4 or greater)])
+AM_PATH_PYTHON($MIN_VERSION,, 
+   [AC_MSG_ERROR(Debugger known only to work with Python $MIN_VERSION or greater)])
 
 ## Automake doesn't get Python's install path correct. So we 
 ## figure it out and set it ourself.

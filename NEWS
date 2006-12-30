@@ -22,6 +22,8 @@
 * set_trace is now an alias for debugger which is probably a more natural
   name.
 
+* We tolerate now back to Python 2.3.3
+
 * A number of small bugs fixed and document updates.
 
 1.19 2006-10-27

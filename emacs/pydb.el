@@ -19,7 +19,7 @@
 ;; pydb (Python extended debugger) functions
 
 (require 'gud)
-(provide 'pydb)
+(require 'comint)
 
 (defvar gud-pydb-history nil
   "History of argument lists passed to pydb.")
@@ -425,4 +425,5 @@ problem as best as we can determine."
 	  minor-mode-alist)) 
 ;; pydbtrack
 
+(provide 'pydb)
 
