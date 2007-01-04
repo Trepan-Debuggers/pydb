@@ -1,4 +1,4 @@
-"""$Id: pydbcmd.py,v 1.32 2006/10/13 22:45:10 rockyb Exp $
+"""$Id: pydbcmd.py,v 1.33 2007/01/04 03:51:50 rockyb Exp $
 A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
@@ -441,6 +441,7 @@ class Cmd(cmd.Cmd):
             # We've acknowledged a restart, which means that a new pdbserver
             # process is started, so we have to connect all over again.
             self._disconnect()
+            import time
             time.sleep(3.0)
             if not self.do_target(self.target_addr):
                 # We cannot trust these variables below to be in a

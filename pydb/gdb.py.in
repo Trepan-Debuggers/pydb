@@ -1,4 +1,4 @@
-"""$Id: gdb.py.in,v 1.100 2006/12/13 13:58:38 rockyb Exp $
+"""$Id: gdb.py.in,v 1.101 2007/01/04 03:51:50 rockyb Exp $
 Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)"""
 
@@ -1127,7 +1127,7 @@ is no Python file."""
                                    % self.mainpyfile):
                    # XXX how to clean up name space ??
                    self._program_sys_argv = None
-                   self.mainpyfile == ""
+                   self.mainpyfile = ""
         else:
             # XXX how to clean up name space ??
             self.mainpyfile=fname

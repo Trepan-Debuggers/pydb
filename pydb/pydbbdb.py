@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.25 2006/10/30 15:28:16 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.26 2007/01/04 03:51:50 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -211,7 +211,7 @@ class Bdb(bdb.Bdb):
         """Format and return a stack entry gdb-style.
         Note: lprefix is not used. It is kept for compatibility.
         """
-        import repr
+        import repr as repr_mod
         frame, lineno = frame_lineno
         filename = self.filename(self.canonic_filename(frame))
 
@@ -234,7 +234,7 @@ class Bdb(bdb.Bdb):
         if '__return__' in frame.f_locals:
             rv = frame.f_locals['__return__']
             s += '->'
-            s += repr.repr(rv)
+            s += repr_mod.repr(rv)
 
         add_quotes_around_file = True
         if s == '?()':
@@ -286,17 +286,20 @@ class Bdb(bdb.Bdb):
         bdb.Bdb.reset(self)
         self.forget()
 
-    def set_trace(self, frame):
+    def set_trace(self, frame=None):
         """Wrapper to accomodate different versions of Python"""
         if sys.version_info[0] == 2 and sys.version_info[1] >= 4:
-            self.bdb_set_trace(self, self.curframe)
+            if frame is None:
+                frame = self.curframe
+            self.bdb_set_trace(self, frame)
         else:
             # older versions
             self.bdb_set_trace(self)
 
     def user_call(self, frame, argument_list):
         """This method is called when there is the remote possibility
-        that we ever need to stop in this function."""
+        that we ever need to stop in this function.
+        Note argument_list isn't used. It is kept for compatibility"""
         self.stop_reason = 'call'
         if self._wait_for_mainpyfile:
             return
