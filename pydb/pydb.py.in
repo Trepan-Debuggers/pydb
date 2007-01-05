@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.134 2007/01/05 11:46:54 rockyb Exp $
+"""$Id: pydb.py.in,v 1.135 2007/01/05 21:54:18 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 exception_hook, run, runl, runv, debugger (AKA set_trace), post_mortem,
 or runevel.
@@ -604,10 +604,12 @@ def main(p=None):
 
         mainpyfile = p._program_sys_argv[0] # Get script filename.
         if not os.path.exists(mainpyfile):
-            print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
-                  % mainpyfile
-            sys.exit(1)
-            return
+            mainpyfile=whence_file(mainpyfile)
+            if not os.path.exists(mainpyfile):
+                print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
+                      % mainpyfile
+                sys.exit(1)
+                return
 
         # If mainpyfile is an optimized Python script try to find and
         # use non-optimized alternative.

@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.30 2007/01/05 11:45:32 rockyb Exp $
+"""$Id: fns.py,v 1.31 2007/01/05 21:54:18 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, shlex, sys, re, traceback, types
 
@@ -353,6 +353,18 @@ def get_brkpt_lineno(obj, arg):
             lineno = int(ln)
     return (funcname, filename, lineno)
 
+def whence_file(py_script):
+    """Do a shell-like path lookup for py_script and return the results.
+    If we can't find anything return py_script"""
+    if py_script.find(os.sep) != -1:
+        # Don't search since this name has path separator components
+        return py_script
+    for dirname in os.environ['PATH'].split(os.pathsep):
+        py_script_try = os.path.join(dirname, py_script)
+        if os.path.exists(py_script_try):
+            return py_script_try
+    # Failure
+    return py_script
 
 if __name__ == '__main__':
     print "show_onoff(True is %s)" % str(show_onoff(True))
