@@ -1,4 +1,4 @@
-"""$Id: fns.py,v 1.29 2006/11/23 10:02:48 rockyb Exp $
+"""$Id: fns.py,v 1.30 2007/01/05 11:45:32 rockyb Exp $
 Functions to support the Extended Python Debugger."""
 import inspect, linecache, os, shlex, sys, re, traceback, types
 
@@ -46,8 +46,16 @@ def checkline(obj, filename, lineno):
         return 0
     return lineno
 
+def file_pyc2py(filename):
+    """Given a file name, if the suffix is pyo or pyc (an optimized bytecode
+    file), change that to the py equivalent"""
+    if (filename.endswith(".pyc") or
+        filename.endswith(".pyo")):
+        return filename[:-1]
+    return filename
+
 def file2module(filename):
-    """Given a file name extract the most likely module name. """
+    """Given a file name, extract the most likely module name. """
     basename = os.path.basename(filename)
     if '.' in basename:
          pos = basename.rfind('.')

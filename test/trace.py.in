@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: trace.py.in,v 1.7 2006/09/22 00:20:42 rockyb Exp $ -*- Python -*-
+# $Id: trace.py.in,v 1.8 2007/01/05 11:45:33 rockyb Exp $ -*- Python -*-
 "Unit test of program execution tracing using the Extended Python debugger "
 import difflib, os, time, sys, unittest
 
@@ -68,6 +68,21 @@ class PdbTests(unittest.TestCase):
                             pydb_opts='--trace --basename',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "hanoi trace output comparision")
+        
+
+    def test_trace_compiled(self):
+        """Test running program tracing: --trace option after compiling"""
+        opt_file = "%shanoi.pyc" % srcdir
+        if os.path.exists(opt_file): os.unlink(opt_file)
+        import py_compile
+        py_compile.compile("%shanoi.py" % srcdir)
+        if os.path.exists(opt_file):
+            result=run_debugger(testname='trace',
+                                pydb_opts='--trace --basename',
+                                pythonfile=opt_file)
+            self.assertEqual(True, result,
+                             "compiled hanoi trace output comparision")
+        
 
 if __name__ == "__main__":
     unittest.main()

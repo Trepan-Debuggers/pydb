@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: fns.py.in,v 1.1 2006/09/21 09:45:51 rockyb Exp $ -*- Python -*-
+# $Id: fns.py.in,v 1.2 2007/01/05 11:45:33 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
@@ -27,6 +27,9 @@ class TestFns(unittest.TestCase):
        self.assertEqual( fns.printf(31, "/t"), '00011111')
        self.assertEqual( fns.printf(33, "/c"), '!')
        self.assertEqual( fns.printf(33, "/x"), '0x21')
+       self.assertEqual( fns.file_pyc2py("gcd.pyo"), "gcd.py")
+       self.assertEqual( fns.file_pyc2py("/tmp/gcd.pyc"), "/tmp/gcd.py")
+       self.assertEqual( fns.file_pyc2py("../gcd.py"), "../gcd.py")
 
 if __name__ == '__main__':
     unittest.main()
