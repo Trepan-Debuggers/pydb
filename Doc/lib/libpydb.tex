@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.104 2006/12/10 22:54:54 rockyb Exp $
+% $Id: libpydb.tex,v 1.105 2007/01/05 03:09:18 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -118,8 +118,9 @@ debugger from inside your running Python program. Also, see section
 \ref{subsection-post-mortem} for how to invoke after an error is
 encontered and you have a traceback.
 
-Of the many additions to the standard Python debugger, pdb, three will
-be mentioned here. 
+Of the many additions to the standard Python debugger,
+\ulink{\module{pdb}}{http://docs.python.org/lib/module-pdb.html} three
+will be mentioned here.
 
 First, this debugger should install itself somewhere in your command
 path, usually as \code{pydb} so you don't have to invoke it as an
@@ -155,9 +156,9 @@ can read it as a file name.
 
 Similarly, the location of the Python interpreter used for the script
 will not necessarily be the one specified in the magic field (the
-first line of the file), but will be the Python interpreter that the
-debugger specifies. (In most cases they'll be the same and/or it won't
-matter.)
+first line of the Python script to be debugged), but will be the
+Python interpreter that the debugger, \code{pydb}, specifies. (In most
+cases they'll be the same and/or it won't matter.)
 
 If you are familiar with the stock debugger \code{pdb}, you may feel
 the urge to write a wrapper script. As indicated above, you shouldn't
@@ -168,7 +169,7 @@ That said, if installation didn't work or you want to create a shell
 wrapper script, sure, you can. Here's an example from a SUSE GNU/Linux
 box.
 
-Looking at the output from \code{make install} I see pydb was
+Looking at the output from \code{make install} I see \code{pydb} was
 installed in \code{/usr/lib/python2.4/site-packages}. Therefore save
 the following in a script and put it somewhere in your \code{PATH}
 (and make it executable):
