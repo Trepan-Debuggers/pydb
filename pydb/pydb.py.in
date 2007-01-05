@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.133 2007/01/05 11:45:32 rockyb Exp $
+"""$Id: pydb.py.in,v 1.134 2007/01/05 11:46:54 rockyb Exp $
 A Python debugger. Contains user-callable routines, e.g.
 exception_hook, run, runl, runv, debugger (AKA set_trace), post_mortem,
 or runevel.
@@ -615,7 +615,7 @@ def main(p=None):
         if mainpyfile != mainpyfile_noopt \
                and os.path.exists(mainpyfile_noopt):
             print "@PACKAGE_NAME@: Compiled Python script given and we can't use that."
-            print "@PACKAGE_NAME@: Substituting non-optimized name: %s" % mainpyfile_noopt
+            print "@PACKAGE_NAME@: Substituting non-compiled name: %s" % mainpyfile_noopt
             mainpyfile = mainpyfile_noopt
 
         # Replace @PACKAGE_NAME@'s dir with script's dir in front of
