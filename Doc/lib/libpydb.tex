@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.105 2007/01/05 03:09:18 rockyb Exp $
+% $Id: libpydb.tex,v 1.106 2007/01/05 22:10:32 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -148,13 +148,12 @@ Thus the general form of invoking the debugger is:
 \var{python-script} should be the Python source (usually has extension
 \code{.py} if any), and not a compiled or optimized Python program.
 
-In contrast to running a program from a shell (or using the \code{gdb}
-debugger), no path searching is performed on
-\var{python-script}. Therefore \var{python-script} should be explicit
-enough (include relative or absolute file paths) so that the debugger
-can read it as a file name. 
+If \var{python-script} doesn't contain path elements, then path
+searching is performed on \var{python-script} if the file isn't in the
+current working directory. (This is exactly the same behavior as {\tt
+gdb}.)
 
-Similarly, the location of the Python interpreter used for the script
+However the location of the Python interpreter used for the script
 will not necessarily be the one specified in the magic field (the
 first line of the Python script to be debugged), but will be the
 Python interpreter that the debugger, \code{pydb}, specifies. (In most
