@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.106 2007/01/05 22:10:32 rockyb Exp $
+% $Id: libpydb.tex,v 1.107 2007/01/06 12:50:55 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1167,15 +1167,20 @@ Like the \samp{p} command, except the value of the expression is
 pretty-printed using the 
 \ulink{\module{pprint}}{http://docs.python.org/lib/module-pprint.html} module.
 
-\item[examine \var{expression}]
+\item[examine \var{expression}]\label{command:examine}
 
-Print the type of the expression and pretty-print its value.  For
-functions, methods, classes, and modules print out the documentation
-string if any.  For functions also show the argument list.
+Print the type of the expression, pretty-print its value and print
+it's class members value.  For functions, methods, classes, and
+modules print out the documentation string if any.  For functions also
+show the argument list.
 
-The examine debugger command in Perl is the model here, however much
-more work is needed. Note that \samp{x} is a short name for
-``expression'' as it is in Perl's debugger.
+The examine debugger command in Perl is the model here. Note that
+\samp{x} is a short name for ``expression'' as it is in Perl's
+debugger.
+
+\item[whatis \var{expression}]\label{command:whatis}
+
+Print just the type name of the expression.
 
 \item[info globals]\label{command:info-globals}
 
@@ -1356,7 +1361,20 @@ In addition the command-completion key (usually the tab key) can be
 used to complete command names, or \code{info}, \code{set}, and
 \code{show} subcommands.
 
-\item[h(elp) \optional{\var{command} \optional{subcommand}}]
+\item[h(elp) \optional{\var{command} \optional{\var{subcommand}}\code{\Large{|}}\var{expression}}]
+
+Without argument, print the list of available debugger commands.
+
+When an argument is given, it is first checked to see if it is command
+name; \samp{help exec} gives help on the \samp{!} command.
+
+With the argument is an expression or object name, you get the same
+help that you would get inside a Python shell running the built-in
+help() command.
+
+If the environment variable \envvar{PAGER} is defined, the file is
+piped through that command.  You'll notice this only for long help
+output.
 
 Without argument, print the list of available commands.  With
 \var{command} as argument, print help about that command.  \samp{help
@@ -1369,6 +1387,8 @@ Some commands, \code{info}, \code{set}, and \code{show} can accept an
 additional subcommand to give help just about that particular
 subcommand. For example \code{help info line} give help about the
 \code{info line} command.
+
+See also \ref{command:examine} and \ref{command:whatis}.
 
 \item[q(uit)]\label{command:quit}
 

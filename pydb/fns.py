@@ -1,5 +1,7 @@
-"""$Id: fns.py,v 1.31 2007/01/05 21:54:18 rockyb Exp $
-Functions to support the Extended Python Debugger."""
+"""Functions to support the Extended Python Debugger.
+
+$Id: fns.py,v 1.32 2007/01/06 12:50:57 rockyb Exp $"""
+
 import inspect, linecache, os, shlex, sys, re, traceback, types
 
 # A pattern for a def header seems to be used a couple of times.
@@ -62,6 +64,7 @@ def file2module(filename):
          return basename[:pos]
     else:
          return basename
+    return None
 
 def find_function(funcname, filename):
     try:
@@ -257,6 +260,7 @@ def print_stack_trace(obj, count=None):
             print_stack_entry(obj, i)
     except KeyboardInterrupt:
         pass
+    return
 
 def search_file(filename, path, cdir):
     """Return a full pathname for filename if we can find one. path
@@ -281,8 +285,7 @@ def show_onoff(bool):
         return "??"
     if bool:
         return "on"
-    else:
-        return "off"
+    return "off"
 
 def parse_filepos(obj, arg):
     """parse_filepos(obj, arg)->(fn, filename, lineno)

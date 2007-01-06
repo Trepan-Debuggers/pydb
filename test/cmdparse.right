@@ -260,7 +260,8 @@ Current Python file is hanoi.py
 + ###   help/info stuff
 + ########################################
 + help nogood
-Undefined command: "nogood". Try "help".
+Undefined command or invalid expression "nogood".
+Type "help" for a list of debugger commands.
 
 + help restart
 restart - Restart debugger and program via an exec

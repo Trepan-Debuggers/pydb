@@ -1,10 +1,11 @@
 #!@PYTHON@ -t
-"""$Id: pydb.py.in,v 1.136 2007/01/05 22:10:35 rockyb Exp $
-A Python debugger. Contains user-callable routines, e.g.
+"""A Python debugger. Contains user-callable routines, e.g.
 exception_hook, run, runl, runv, debugger (AKA set_trace), post_mortem,
 or runevel.
 
-(See also @PACKAGE_NAME@.doc for documentation.)"""
+(See also @PACKAGE_NAME@.doc for documentation.)
+
+$Id: pydb.py.in,v 1.137 2007/01/06 12:50:57 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 

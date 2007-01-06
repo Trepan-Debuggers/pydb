@@ -1,11 +1,12 @@
-"""$Id: pydbcmd.py,v 1.33 2007/01/04 03:51:50 rockyb Exp $
-A Python debugger command class.
+"""A Python debugger command class.
 
 Routines here have to do with parsing or processing commands, but are
 not the commands themselves which are in gdb.py.in.  Generally (but
 not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
-changed from cmd are here.  """
+changed from cmd are here.
+
+$Id: pydbcmd.py,v 1.34 2007/01/06 12:50:57 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -29,7 +30,7 @@ class Cmd(cmd.Cmd):
         self.logging_fileobj      = None         # file object from open()
         self.logging_overwrite    = False
         self.logging_redirect     = False
-        self.nohelp               = 'Undefined command: \"%s\". Try \"help\".'
+        self.nohelp               = 'Undefined command or invalid expression \"%s\".\nType \"help\" for a list of debugger commands.'
         self.prompt               = '(Pydb) '
         self.rcLines              = []
 
@@ -82,12 +83,38 @@ class Cmd(cmd.Cmd):
             else: exc_type_name = t.__name__
             self.errmsg('%s: %s' % (str(exc_type_name), str(v)))
 
-    ### This comes from cmd.py with self.stdout.write replaced by self.msg
+    ### This comes from cmd.py with self.stdout.write replaced by self.msg.
+    ### Also we extend to given help on an object name. The 
+    ### Docstring has been updated to reflect all of this.
     def do_help(self, arg):
-        """Without argument, print the list of available commands.
-        With a command name as argument, print help about that command
-        'help *cmd*' pipes the full documentation file to the $PAGER
-        'help exec gives help on the ! command"""
+        """help [command [subcommand]|expression]
+
+Without argument, print the list of available debugger commands.
+
+When an argument is given, it is first checked to see if it is command
+name. 'help exec' gives help on the ! command.
+
+With the argument is an expression or object name, you get the same
+help that you would get inside a Python shell running the built-in
+help() command.
+
+If the environment variable $PAGER is defined, the file is
+piped through that command.  You'll notice this only for long help
+output.
+
+Some commands like 'info', 'set', and 'show' can accept an
+additional subcommand to give help just about that particular
+subcommand. For example 'help info line' give help about the
+\code{info line} command.
+
+See also 'examine' an 'whatis'.
+        """
+
+        # We don't want to repeat the last help command. That makes
+        # not much sense and if give help that uses PAGER we may
+        # turn a quit CR into rerunning the help command.
+        self.lastcmd='' 
+
         if arg:
             first_arg = arg.split()[0]
             try:
@@ -99,8 +126,21 @@ class Cmd(cmd.Cmd):
                     self.msg("%s\n" % str(doc))
                     return
                 except AttributeError:
-                    pass
-                self.msg("%s\n" % str(self.nohelp % (first_arg,)))
+                    # If we have an object run site helper on that
+                    try:
+                        if not self.curframe:
+                            # ?? Should we have set up a dummy globals
+                            # to have persistence?
+                            value = eval(arg, None, None)
+                        else:
+                            value = eval(arg, self.curframe.f_globals,
+                                         self.curframe.f_locals)
+                        from site import _Helper
+                        h=_Helper()
+                        h.__call__(value)
+                    except:
+                       self.msg("%s\n" % str(self.nohelp % (first_arg,)))
+                       return
                 return
         else:
             names = self.get_names()
@@ -142,7 +182,7 @@ class Cmd(cmd.Cmd):
         To be compatible with onecmd will return 1 if we are to
         continue execution and None if not -- continue debugger
         commmand loop reading.  The remaining lines will still be in
-        self.rcLines.  """
+        self.rcLines."""
 
         if self.rcLines:
             # Make local copy because of recursion
