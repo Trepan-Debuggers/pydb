@@ -1,4 +1,4 @@
-info signal HUP
+info signal hup
 info handle SIGHUP
 handle SIGINT
 handle SIGINT stop pass noprint
@@ -11,6 +11,6 @@ info signal SIGINT
 handle SIGKILL stop
 info handle KILL
 handle SIGSTOP print
-info signal SIGSTOP
+info signal sigstop
 info signal INT
 quit

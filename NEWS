@@ -10,6 +10,8 @@
 * Make prompt string detection in Emacs pydb-track more MS-friendly.
   Add a unit test for the Emacs interface.
 
+* Allow lowercase signal names, e.g. "int" or "sigint" for "SIGINT".
+
 
 1.20 2006-12-10
 

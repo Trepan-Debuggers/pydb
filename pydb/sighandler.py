@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.28 2006/12/10 11:44:58 rockyb Exp $
+"""$Id: sighandler.py,v 1.29 2007/01/08 07:29:42 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -22,12 +22,13 @@ def lookup_signame(num):
 def lookup_signum(name):
     """Find the corresponding signal number for 'name'. Return None
     if 'name' is invalid."""
-    if (name.startswith('SIG') and hasattr(signal, name)):
-        return getattr(signal, name)
+    uname = name.upper()
+    if (uname.startswith('SIG') and hasattr(signal, uname)):
+        return getattr(signal, uname)
     else:
-        name = "SIG"+name
-        if hasattr(signal, name):
-            return getattr(signal, name)
+        uname = "SIG"+uname
+        if hasattr(signal, uname):
+            return getattr(signal, uname)
         return None
 
 fatal_signals = ['SIGKILL', 'SIGSTOP']
@@ -150,6 +151,7 @@ class SignalManager:
             else:
                 signame = args[1]
 
+        signame=signame.upper()
         if signame not in self.siglist:
             try_signame = 'SIG'+signame
             if try_signame not in self.siglist:
@@ -302,12 +304,9 @@ class SignalManager:
                 ## FIXME not sure if this is really right
                 if frame.f_trace is None:
                     import pydb
-                    pydb.set_trace()
+                    pydb.debugger()
                 else:
                     self.stop_method(frame)
-                    return
-                return
-            return
 
 # When invoked as main program, do some basic tests of a couple of functions
 if __name__=='__main__':
@@ -321,7 +320,7 @@ if __name__=='__main__':
     h = SignalManager()
     # Set to known value
     h.action('SIGUSR1')
-    h.action('SIGUSR1 print pass stop')
+    h.action('usr1 print pass stop')
     h.info_signal(['USR1'])
     # noprint implies no stop
     h.action('SIGUSR1 noprint')
