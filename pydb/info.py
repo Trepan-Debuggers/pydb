@@ -1,7 +1,7 @@
-"""$Id: info.py,v 1.5 2006/09/03 11:41:48 rockyb Exp $
-show subcommands, except those that need some sort of text substitution.
+# -*- coding: utf-8 -*-
+"""'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-"""
+$Id: info.py,v 1.6 2007/01/08 12:09:19 rockyb Exp $"""
 import bdb, fns, inspect, os, pprint
 
 class SubcmdInfo:

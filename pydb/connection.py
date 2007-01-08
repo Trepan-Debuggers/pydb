@@ -1,12 +1,13 @@
-"""$Id: connection.py,v 1.7 2006/10/07 23:15:44 rockyb Exp $
-Lower-level classes to support communication between separate
+# -*- coding: utf-8 -*-
+"""Lower-level classes to support communication between separate
 processes which might reside be on separate computers.
 
 Can be used remote debugging via a socket or via a serial
 communication line, or via a FIFO.
 
 Modified from Matt Fleming's 2006 Google Summer of Code project.
-"""
+
+$Id: connection.py,v 1.8 2007/01/08 12:09:19 rockyb Exp $"""
 
 NotImplementedMessage = "This method must be overriden in a subclass"
 

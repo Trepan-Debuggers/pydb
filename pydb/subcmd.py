@@ -1,6 +1,7 @@
-"""$Id: subcmd.py,v 1.6 2006/09/04 07:30:18 rockyb Exp $
-Handles gdb-like subcommand processing.
-"""
+# -*- coding: utf-8 -*-
+"""Handles gdb-like subcommand processing.
+
+$Id: subcmd.py,v 1.7 2007/01/08 12:09:19 rockyb Exp $"""
 
 class Subcmd:
     """Gdb-like subcommand handling """

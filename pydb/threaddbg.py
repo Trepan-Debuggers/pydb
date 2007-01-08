@@ -1,4 +1,7 @@
-# $Id: threaddbg.py,v 1.34 2006/12/10 00:06:35 rockyb Exp $
+# -*- coding: utf-8 -*-
+"""Thread debugging support.
+
+$Id: threaddbg.py,v 1.35 2007/01/08 12:09:19 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 

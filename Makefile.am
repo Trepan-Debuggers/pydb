@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.44 2006/10/24 02:49:02 rockyb Exp $
+#$Id: Makefile.am,v 1.45 2007/01/08 12:09:13 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,7 @@ MOSTLYCLEANFILES = $(man1_MANS)
 clean-generic: 
 	-rm $(top_builddir)/pydb/*.pyc
 
-test: check-recusive
+test: check-recursive
 check-recursive: pydb/pydb.py pydb/gdb.py \
 	test/connect.py test/fifo_connect.py \
 	test/pm.py test/settrace.py test/sighandle.py test/sigtest.py \

@@ -1,13 +1,15 @@
-"""$Id: gdb.py.in,v 1.101 2007/01/04 03:51:50 rockyb Exp $
-Handles gdb-like command processing.
-(See also @PACKAGE_NAME@.doc for documentation.)"""
+# -*- coding: utf-8 -*-
+"""Handles gdb-like command processing.
+(See also @PACKAGE_NAME@.doc for documentation.)
+
+$Id: gdb.py.in,v 1.102 2007/01/08 12:09:19 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
 # The name of the debugger we are currently going by.
 _version = '@PACKAGE_VERSION@'
 
-import atexit, dis, inspect, linecache, os, pprint
+import atexit, dis, inspect, linecache, os, pprint, pydoc, shlex
 import bdb, re, subcmd, sys, types
 
 import pydbcmd, pydbbdb
@@ -993,38 +995,53 @@ the default."""
                 bp.disable()
 
     def do_disassemble(self, arg):
-        """disassemble [location]
-        With no argument disassemble at the current frame location.
-        With a numeric argument, disassemble at the frame location at that
-        line number. With a class, method, function, code or string argument
-        disassemble that."""
+        """disassemble [start line number [end line number] | obj-or-class]
+
+With no argument, disassemble the current frame.  With one integer
+argument, the disassembly is narrowed to not show lines before that
+line number. With a second integer argument, disassembly ends as soon
+a the the line number exceeds the ending line number.
+
+With a class, method, function, code or string argument disassemble
+that."""
         if not self.curframe:
             self.msg("No frame selected.")
-            return
+            return False
 
-        # Disassemble uses "print". We may have redirected where we want
-        # debugger output to go. So we'll save and restore sys.stdout.
-        # Observation and fix from Matt Flemming.
-        orig_stdout = sys.stdout
-        sys.stdout = self.stdout
+        if arg:
+            args = arg.split()
+        else:
+            args = []
+        start_line = end_line = None
         try:
-            if not arg:
-                dis.disassemble(self.curframe.f_code, self.curframe.f_lasti)
-            else:
-                try:
-                    i = int(arg)
-                    dis.disassemble(self.curframe.f_code, i)
-                except ValueError:
+            if len(args) > 0:
+                start_line = int(args[0])
+                if len(args) == 2:
                     try:
-                        obj=self.getval(arg)
-                        dis.dis(obj)
-                    except NameError:
-                        pass
-        except:
-            # Make sure we restore sys.stdout on an exception.
-            sys.stdout = orig_stdout
-            raise # reraise exception
-        sys.stdout = orig_stdout
+                        end_line = self.get_int(args[1], cmdname="disassemble")
+                    except ValueError:
+                        return False
+                else:
+                    self.errmsg("Expecting 0-2 parameters, got %d" %
+                                len(args))
+                    return False
+            fns.disassemble(self, self.curframe.f_code,
+                            start_line=start_line,
+                            end_line=end_line)
+        except ValueError:
+            try:
+                obj=self.getval(arg)
+                # Disassemble uses "print". We may have redirected
+                # where we want debugger output to go. So we'll save
+                # and restore sys.stdout.  Observation and fix from
+                # Matt Flemming.
+                orig_stdout = sys.stdout
+                sys.stdout = self.stdout
+                dis.dis(obj)
+            except NameError:
+                pass
+            finally:
+                sys.stdout = orig_stdout
         return False
 
     def do_display(self, arg):
@@ -1361,6 +1378,24 @@ With an integer argument, perform that many times."""
         "Print working directory."
         self.msg('Working directory ' + os.getcwd() + '.')
 
+    def do_pydoc(self, arg):
+        """pydoc <name> ...
+
+Show pydoc documentation on something. <name> may be the name of a
+Python keyword, topic, function, module, or package, or a dotted
+reference to a class or function within a module or module in a
+package.  If <name> contains a '/', it is used as the path to a Python
+source file to document. If name is 'keywords', 'topics', or
+'modules', a listing of these things is displayed.
+"""
+        sys_path_save = list(sys.path)
+        sys_argv_save = list(sys.argv)
+        sys.argv      = ['pydoc'] + shlex.split(arg)
+        pydoc.cli()
+        sys.argv      = sys_argv_save
+        sys.path      = sys_path_save
+        return False
+
     def do_quit(self, arg):
         """q(uit) or exit - Quit the debugger.  The program being
         executed is aborted."""
@@ -1398,6 +1433,8 @@ With an integer argument, perform that many times."""
                 os.execvp(self._sys_argv[0], self._sys_argv)
             else:
                 self.msg("No exectuable file specified.")
+        return False
+        
 
     def do_return(self, arg):
         """Make selected stack frame return to its caller. Control
@@ -1453,6 +1490,7 @@ With an integer argument, perform that many times."""
 
         # print "++i: %d, last_stmt %d, line: %d " % (i, last_stmt, last_line)
         self.do_jump(last_line, "Return")
+        return False
 
     def do_retval(self, arg):
         """retval - Show the value that is to be returned from a
@@ -1463,6 +1501,8 @@ assignment to the variable __return__."""
             self.msg(self.curframe.f_locals['__return__'])
         else:
             self.errmsg('Not yet returned!')
+        return False
+
     do_rv = do_retval
 
     def do_run(self, arg_str):
@@ -1494,10 +1534,12 @@ assignment to the variable __return__."""
             self.errmsg("Expecting at least 2 arguments, got %d." % len(args))
             return
         self.setcmds.do(self, args[0], args)
+        return False
 
     def do_shell(self, arg):
         """Execute the rest of the line as a shell command."""
         os.system(arg)
+        return False
 
     def do_show(self, arg):
 
@@ -1512,7 +1554,7 @@ assignment to the variable __return__."""
                 if self.showcmds.subcmds[subcommand]['in_list']:
                     self.msg_nocr("%s: " % subcommand)
                     self.do_show(subcommand)
-            return
+            return False
 
         if self._re_linetrace_delay.match(arg):
             self.msg("line trace delay is %s. (In seconds)"
@@ -1521,6 +1563,8 @@ assignment to the variable __return__."""
             args = arg.split()
             self.showcmds.do(self, args[0], args)
 
+        return False
+            
     def do_signal(self, arg):
         """signal [signum|signame]
 
@@ -1542,7 +1586,7 @@ Send a signal to the debugged process.
                              % arg)
                     return
         os.kill(os.getpid(), signum)
-
+        return False
         
     def do_source(self, arg):
         """source FILE
@@ -1554,7 +1598,8 @@ Send a signal to the debugged process.
         file and control is returned to the console."""
         self.setup_source(os.path.expanduser(arg), True);
         rc = self.execRcLines()
-        if rc == 1:  return rc
+        if rc == 1:  return True
+        return False
 
     def do_step(self, arg):
         """s(tep) [count]
@@ -1591,6 +1636,7 @@ Deletes the specified alias."""
         if len(args) == 0: return
         if args[0] in self.aliases:
             del self.aliases[args[0]]
+        return False
 
     # Print a traceback starting at the top stack frame.
     # The most recently entered frame is printed last;
@@ -1617,6 +1663,7 @@ Deletes the specified alias."""
                     self.errmsg('index %r is not a number' % i)
         else:
             self.display.deleteAll()
+        return False
 
     def do_up(self, arg):
         """up [count]
@@ -1634,6 +1681,7 @@ Deletes the specified alias."""
         if self.gdb_dialect:
             count = -count
         self.__adjust_frame(pos=count, absolute_pos=False)
+        return False
 
     def do_whatis(self, arg):
         """whatis arg

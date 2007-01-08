@@ -1,6 +1,8 @@
-"""$Id: display.py,v 1.3 2006/07/28 09:37:49 rockyb Exp $
-Classes to support gdb-like display/undisplay for pydb, the Extended
-Python debugger. Class Display and DisplayNode are defined."""
+# -*- coding: utf-8 -*-
+"""Classes to support gdb-like display/undisplay for pydb, the Extended
+Python debugger. Class Display and DisplayNode are defined.
+
+$Id: display.py,v 1.4 2007/01/08 12:09:19 rockyb Exp $"""
 
 import fns
 

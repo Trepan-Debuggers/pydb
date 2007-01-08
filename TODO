@@ -1,3 +1,7 @@
+upcase signal names
+Note invalid combinations "stop pass"
+
+
 Remote debugging
 add for threading:
    step [count] Thread-name
@@ -35,4 +39,4 @@ Eric or Idle integration.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.17 2006/12/10 04:13:11 rockyb Exp $
+$Id: TODO,v 1.18 2007/01/08 12:09:13 rockyb Exp $
