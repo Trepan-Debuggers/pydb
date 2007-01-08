@@ -1,6 +1,4 @@
-upcase signal names
-Note invalid combinations "stop pass"
-
+Note invalid combinations "stop pass", "noprint stack" is buggy.
 
 Remote debugging
 add for threading:
@@ -39,4 +37,4 @@ Eric or Idle integration.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.18 2007/01/08 12:09:13 rockyb Exp $
+$Id: TODO,v 1.19 2007/01/08 12:10:03 rockyb Exp $
