@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.102 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: gdb.py.in,v 1.103 2007/01/09 14:26:58 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -1040,8 +1040,7 @@ that."""
                 dis.dis(obj)
             except NameError:
                 pass
-            finally:
-                sys.stdout = orig_stdout
+            sys.stdout = orig_stdout
         return False
 
     def do_display(self, arg):
