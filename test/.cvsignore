@@ -5,11 +5,13 @@
 Makefile
 Makefile.in
 connect.py
+disassem.py
 except.py
 fifo_connect.py
 file.py
 fns.py
 history.hst
+import.py
 pm.py
 runtest.py
 settrace.py
