@@ -1,6 +1,7 @@
 #!@PYTHON@ -t
-# $Id: test.py.in,v 1.35 2006/10/27 02:15:39 rockyb Exp $ -*- Python -*-
-"Unit test for the Extended Python debugger."
+# -*- Python -*-
+# $Id: test.py.in,v 1.36 2007/01/13 12:05:17 rockyb Exp $
+"Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
 top_builddir = "@top_builddir@"
@@ -21,9 +22,11 @@ class PdbTest(pydb.Pdb):
         self.msgLines = []
         self.msg_last_nocr = False
         self.stack = self.curframe = self.botframe = None
+        return
 
     def errmsg(self, msg):
         self.errLines.append(msg)
+        return
 
     def msg(self, msg):
         if self.msg_last_nocr:
@@ -31,6 +34,7 @@ class PdbTest(pydb.Pdb):
         else:
             self.msgLines.append(msg)
         self.msg_last_nocr = False
+        return
 
     def msg_nocr(self, msg):
         if self.msg_last_nocr:
@@ -38,9 +42,11 @@ class PdbTest(pydb.Pdb):
         else:
             self.msgLines.append(msg)
         self.msg_last_nocr = True
+        return
 
     def msgReset(self):
         self.msgLines = []
+        return
 
 builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:

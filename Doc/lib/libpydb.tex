@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.109 2007/01/13 04:37:57 rockyb Exp $
+% $Id: libpydb.tex,v 1.110 2007/01/13 12:05:17 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1291,7 +1291,7 @@ Execute the rest of the line as a shell command.
 
 \begin{description}
 
-\item[disassemble \optional{\var{starting-line-number} \optional{\var{ending-line-number}}}]
+\item[disassemble \optional{object-or-class} \optional{\var{starting-line-number} \optional{\var{ending-line-number}}}]
 
 With no argument, disassemble the current frame.  With one integer
 argument, the disassembly is narrowed to not show lines before that

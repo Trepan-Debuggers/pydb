@@ -44,14 +44,24 @@ def dis(obj, x=None, start_line=-1, end_line=None):
               type(x).__name__
     return
 
-def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None):
+def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None,
+                ):
     """Disassemble a code object."""
-    code = co.co_code
+    disassemble_string(obj, co.co_code, lasti, co.co_firstlineno,
+                       start_line, end_line,
+                       co.co_varnames, co.co_names, co.co_consts,
+                       co.co_cellvars, co.co_freevars,
+                       dict(findlinestarts(co)))
+    return
+
+def disassemble_string(obj, code, lasti=-1, cur_line=0,
+                       start_line=-1, end_line=None,
+                       varnames=(), names=(), consts=(), cellvars=(),
+                       freevars=(), linestarts={}):
+    """Disassemble byte string of code."""
     labels = findlabels(code)
-    linestarts = dict(findlinestarts(co))
     n = len(code)
     i = 0
-    cur_line = co.co_firstlineno
     extended_arg = 0
     free = None
     null_print = lambda x: None
@@ -94,18 +104,18 @@ def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None):
                 extended_arg = oparg*65536L
             msg_nocr(repr(oparg).rjust(5))
             if op in hasconst:
-                msg_nocr('(' + repr(co.co_consts[oparg]) + ')')
+                msg_nocr('(' + repr(consts[oparg]) + ')')
             elif op in hasname:
-                msg_nocr('(' + co.co_names[oparg] + ')')
+                msg_nocr('(' + names[oparg] + ')')
             elif op in hasjrel:
                 msg_nocr('(to ' + repr(i + oparg) + ')')
             elif op in haslocal:
-                msg_nocr('(' + co.co_varnames[oparg] + ')')
+                msg_nocr('(' + varnames[oparg] + ')')
             elif op in hascompare:
                 msg_nocr('(' + cmp_op[oparg] + ')')
             elif op in hasfree:
                 if free is None:
-                    free = co.co_cellvars + co.co_freevars
+                    free = cellvars + freevars
                 msg_nocr('(' + free[oparg] + ')')
         msg("")
     return

@@ -1,0 +1,72 @@
+#!@PYTHON@ -t
+# -*- Python -*-
+# $Id: disassem.py.in,v 1.1 2007/01/13 12:05:17 rockyb Exp $
+"Unit test for Extended Python debugger's signal handling commands "
+import os, time, sys, unittest
+
+top_builddir = "@top_builddir@"
+if top_builddir[-1] != os.path.sep:
+    top_builddir += os.path.sep
+sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+import pydb
+
+class PdbTest(pydb.Pdb):
+    def __init__(self):
+        pydb.Pdb.__init__(self)
+        self.errLines = []
+        self.msgLines = []
+        self.msg_last_nocr = False
+        self.stack = self.curframe = self.botframe = None
+        return
+
+    def errmsg(self, msg):
+        self.errLines.append(msg)
+        return
+
+    def msg(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = False
+        return
+
+    def msg_nocr(self, msg):
+        if self.msg_last_nocr:
+            self.msgLines[-1] += msg
+        else:
+            self.msgLines.append(msg)
+        self.msg_last_nocr = True
+        return
+
+    def msgReset(self):
+        self.msgLines = []
+        return
+
+class PdbTests(unittest.TestCase):
+
+    def test_disassemble(self):
+        """Unit test dissassemble command"""
+        import atexit
+        deb = PdbTest()
+        deb.do_disassemble('atexit.register')
+        all_lines = len(deb.msgLines)
+        self.assertEqual(True, all_lines > 0)
+        deb.msgReset()
+        deb.do_disassemble('atexit.register 1')
+        from_1 = len(deb.msgLines)
+        self.assertEqual(True,  from_1 <= all_lines)
+        deb.msgReset()
+        deb.do_disassemble('atexit.register 1 100')
+        self.assertEqual(True,  len(deb.msgLines) <= from_1)
+        deb.msgReset()
+        return
+        
+if __name__ == "__main__":
+    unittest.main()
+
