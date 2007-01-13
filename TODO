@@ -1,6 +1,5 @@
 Note invalid combinations "stop pass", "noprint stack" is buggy.
 break line thread-name buggy
-break out code for disassemble into its own file; add dis()
 investigate quit exception passing through in ipython.
 Add to ddd recent features, e.g. assembly, threads, display expressions
 
@@ -41,4 +40,4 @@ Eric or Idle integration.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.20 2007/01/13 04:37:56 rockyb Exp $
+$Id: TODO,v 1.21 2007/01/13 12:14:29 rockyb Exp $
