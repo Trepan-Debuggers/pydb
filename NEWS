@@ -12,6 +12,8 @@
 
 * Allow lowercase signal names, e.g. "int" or "sigint" for "SIGINT".
 
+* disassemble command allows for a start line and end line to limit
+  disassembly, same as gdb.
 
 1.20 2006-12-10
 
