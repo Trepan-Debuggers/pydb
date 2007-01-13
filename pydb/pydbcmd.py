@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.34 2007/01/06 12:50:57 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.35 2007/01/13 04:37:58 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -25,6 +25,7 @@ class Cmd(cmd.Cmd):
         self._user_requested_quit = False
         self.aliases              = {}
         self.cmdtrace             = False
+        self.flush                = False        # flush after each write
         self.logging              = False
         self.logging_file         = "pydb.txt"
         self.logging_fileobj      = None         # file object from open()
@@ -322,11 +323,13 @@ See also 'examine' an 'whatis'.
         if self.logging:
             if self.logging_fileobj is not None:
                 print >> self.logging_fileobj, msg,
+                if self.flush: self.logging_fileobj.flush()
             do_print = not self.logging_redirect
         if do_print:
             if out is None:
                 out = self.stdout
             print >> out, msg,
+            if self.flush: out.flush()
 
     def precmd(self, line):
         """Method executed just before the command line line is

@@ -1,4 +1,4 @@
-"""$Id: show.py,v 1.11 2006/10/30 15:28:16 rockyb Exp $
+"""$Id: show.py,v 1.12 2007/01/13 04:37:58 rockyb Exp $
 show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -47,6 +47,11 @@ Follow this command with any number of args, to be passed to the program."""
 $cwd in search path means the current working directory.
 $cdir in the path means the compilation directory of the source file."""
         self.msg("Source directories searched: %s." % self.search_path)
+
+    def show_flush(self, args):
+        """Show whether we flush output after each write."""
+        self.msg('Flushing output is "%s".' %
+                 fns.show_onoff(self.flush))
 
     def show_interactive(self, args):
         """Show whether we are interactive"""

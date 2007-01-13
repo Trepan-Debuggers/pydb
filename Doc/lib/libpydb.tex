@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.108 2007/01/08 12:09:19 rockyb Exp $
+% $Id: libpydb.tex,v 1.109 2007/01/13 04:37:57 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -222,7 +222,7 @@ by ``\code{;;}''---the same as you would do inside the debugger. You may
 need to quote this option to prevent command shell
 interpretation, e.g. \code{--exec "break 20;; continue"}.
 
-\item[--{}--nx\code{\Large{|}}]\label{switch:nx}
+\item[--{}--n\code{\Large{|}} --nx]\label{switch:nx}
 
 Before execution is started, a debugger configuration file
 \code{.pydbrc} is run. In some situations, for example regression
@@ -244,7 +244,7 @@ Write the error output
 \item[--{}--threading]\label{switch:threading}
 Allow thread debugging. See \ref{subsection-thread}.
 
-\item[--{}--trace]\label{switch:trace}
+\item[--{}--trace \code{\Large{|}}--X]\label{switch:trace}
 
 POSIX-style line tracing is available. In POSIX shells the short
 option for this is \code{-x}; however since we follow \code{gdb}

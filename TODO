@@ -1,4 +1,10 @@
 Note invalid combinations "stop pass", "noprint stack" is buggy.
+break line thread-name buggy
+break out code for disassemble into its own file; add dis()
+investigate quit exception passing through in ipython.
+Add to ddd recent features, e.g. assembly, threads, display expressions
+
+Write Bdb documentation. 
 
 Remote debugging
 add for threading:
@@ -26,8 +32,6 @@ the code.
 
 Add online debugger concept help and in LaTeX? 
 
-Write Bdb documentation. 
-
 Add in patches of various Bdb's such as the one in Eric.
 
 Better history completion. Better history completion interaction inside
@@ -37,4 +41,4 @@ Eric or Idle integration.
 
 Use inspect module get_stack rather than bdb's?
 
-$Id: TODO,v 1.19 2007/01/08 12:10:03 rockyb Exp $
+$Id: TODO,v 1.20 2007/01/13 04:37:56 rockyb Exp $

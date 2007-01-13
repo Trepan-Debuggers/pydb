@@ -1,4 +1,4 @@
-"""$Id: set.py,v 1.13 2006/11/05 12:52:24 rockyb Exp $
+"""$Id: set.py,v 1.14 2007/01/13 04:37:58 rockyb Exp $
 set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
@@ -86,6 +86,14 @@ object variables.
         self.do_handle("%s noprint nostop pass" % signame)
         ## FIXME assign signal handler here.
         self.msg('debug-signal set to: %s' % self.debug_signal)
+        return False
+
+    def set_flush(self, args):
+        """Set whether we flush output after each write."""
+        try:
+            self.flush = self.get_onoff(args[1])
+        except ValueError:
+            pass
 
     def set_history(self, args):
         """Generic command for setting command history parameters."""
@@ -152,7 +160,9 @@ object variables.
                 return
             except ValueError:
                 try:
-                    if args[1] == 'overwrite':
+                    if args[1] == 'file':
+                        if len(args) > 2: self.__open_log(args[2])
+                    elif args[1] == 'overwrite':
                         self.logging_overwrite = self.get_onoff(args[2],
                                                                 default=True,
                                                                 print_error=True)
@@ -160,11 +170,9 @@ object variables.
                         self.logging_redirect = self.get_onoff(args[2],
                                                                default=True,
                                                                print_error=True)
-                    elif args[1] == 'file':
-                        if len(args) > 2: self.__open_log(args[2])
                     else:
                         self.undefined_cmd("set logging", args[1])
-                except ValueError:
+                except (IndexError, ValueError):
                     return
         else:
             self.msg("""Usage: set logging on

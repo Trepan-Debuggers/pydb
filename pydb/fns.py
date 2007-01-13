@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """Functions to support the Extended Python Debugger.
 
-$Id: fns.py,v 1.33 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: fns.py,v 1.34 2007/01/13 04:37:58 rockyb Exp $"""
 
-import dis, inspect, linecache, os, shlex, sys, re, traceback, types
-from opcode import *
-from opcode import __all__ as _opcodes_all
+import inspect, linecache, os, shlex, sys, re, traceback, types
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
@@ -32,74 +30,6 @@ def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
         return new_fn(*args, **kw)
     wrapper.__doc__ = old_fn.__doc__ + additional_text
     return wrapper
-
-# Modified from dis. Changed output to use msg and msg_nocr.
-# Added first_line and last_line parameters
-def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None):
-    """Disassemble a code object."""
-    code = co.co_code
-    labels = dis.findlabels(code)
-    linestarts = dict(dis.findlinestarts(co))
-    n = len(code)
-    i = 0
-    cur_line = co.co_firstlineno
-    extended_arg = 0
-    free = None
-    null_print = lambda x: None
-    if start_line > cur_line:
-        msg_nocr = null_print
-        msg = null_print
-    else:
-        msg_nocr = obj.msg_nocr
-        msg = obj.msg
-    while i < n:
-        c = code[i]
-        op = ord(c)
-        if i in linestarts:
-            if i > 0:
-                msg("")
-            cur_line = linestarts[i]
-            if start_line and start_line > cur_line:
-                msg_nocr = null_print
-                msg = null_print
-            else:
-                msg_nocr = obj.msg_nocr
-                msg = obj.msg
-            if end_line and cur_line > end_line+1: break
-            msg_nocr("%3d" % cur_line)
-        else:
-            msg_nocr('   ')
-
-        if i == lasti: msg_nocr('-->')
-        else: msg_nocr('   ')
-        if i in labels: msg_nocr('>>')
-        else: msg_nocr('  ')
-        msg_nocr(repr(i).rjust(4))
-        msg_nocr(opname[op].ljust(20))
-        i = i+1
-        if op >= HAVE_ARGUMENT:
-            oparg = ord(code[i]) + ord(code[i+1])*256 + extended_arg
-            extended_arg = 0
-            i = i+2
-            if op == EXTENDED_ARG:
-                extended_arg = oparg*65536L
-            msg_nocr(repr(oparg).rjust(5))
-            if op in hasconst:
-                msg_nocr('(' + repr(co.co_consts[oparg]) + ')')
-            elif op in hasname:
-                msg_nocr('(' + co.co_names[oparg] + ')')
-            elif op in hasjrel:
-                msg_nocr('(to ' + repr(i + oparg) + ')')
-            elif op in haslocal:
-                msg_nocr('(' + co.co_varnames[oparg] + ')')
-            elif op in hascompare:
-                msg_nocr('(' + cmp_op[oparg] + ')')
-            elif op in hasfree:
-                if free is None:
-                    free = co.co_cellvars + co.co_freevars
-                msg_nocr('(' + free[oparg] + ')')
-        msg("")
-    return
 
 def checkline(obj, filename, lineno):
     """Check whether specified line seems to be executable.
