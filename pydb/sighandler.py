@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.29 2007/01/08 07:29:42 rockyb Exp $
+"""$Id: sighandler.py,v 1.30 2007/01/14 07:38:31 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -7,7 +7,16 @@ Handles signal handlers within Pydb.
 #         ignore=True, print=False, pass=True
 #     
 #
-import signal
+import signal, types
+
+def YN(bool):
+    """Return 'Yes' for True and 'No' for False, and ?? for anything
+    else."""
+    if type(bool) != types.BooleanType:
+        return "??"
+    if bool:
+        return "Yes"
+    return "No"
 
 def lookup_signame(num):
     """Find the corresponding signal name for 'num'. Return None
@@ -32,6 +41,54 @@ def lookup_signum(name):
         return None
 
 fatal_signals = ['SIGKILL', 'SIGSTOP']
+
+# I copied these from GDB source code.
+signal_description = {
+  "SIGHUP"    : "Hangup",
+  "SIGINT"    : "Interrupt",
+  "SIGQUIT"   : "Quit",
+  "SIGILL"    : "Illegal instruction",
+  "SIGTRAP"   : "Trace/breakpoint trap",
+  "SIGABRT"   : "Aborted",
+  "SIGEMT"    : "Emulation trap",
+  "SIGFPE"    : "Arithmetic exception",
+  "SIGKILL"   : "Killed",
+  "SIGBUS"    : "Bus error",
+  "SIGSEGV"   : "Segmentation fault",
+  "SIGSYS"    : "Bad system call",
+  "SIGPIPE"   : "Broken pipe",
+  "SIGALRM"   : "Alarm clock",
+  "SIGTERM"   : "Terminated",
+  "SIGURG"    : "Urgent I/O condition",
+  "SIGSTOP"   : "Stopped (signal)",
+  "SIGTSTP"   : "Stopped (user)",
+  "SIGCONT"   : "Continued",
+  "SIGCHLD"   : "Child status changed",
+  "SIGTTIN"   : "Stopped (tty input)",
+  "SIGTTOU"   : "Stopped (tty output)",
+  "SIGIO"     : "I/O possible",
+  "SIGXCPU"   : "CPU time limit exceeded",
+  "SIGXFSZ"   : "File size limit exceeded",
+  "SIGVTALRM" : "Virtual timer expired",
+  "SIGPROF"   : "Profiling timer expired",
+  "SIGWINCH"  : "Window size changed",
+  "SIGLOST"   : "Resource lost",
+  "SIGUSR1"   : "User defined signal 1",
+  "SIGUSR2"   : "User defined signal 2",
+  "SIGPWR"    : "Power fail/restart",
+  "SIGPOLL"   : "Pollable event occurred",
+  "SIGWIND"   : "SIGWIND",
+  "SIGPHONE"  : "SIGPHONE",
+  "SIGWAITING": "Process's LWPs are blocked",
+  "SIGLWP"    : "Signal LWP",
+  "SIGDANGER" : "Swap space dangerously low",
+  "SIGGRANT"  : "Monitor mode granted",
+  "SIGRETRACT": "Need to relinquish monitor mode",
+  "SIGMSG"    : "Monitor mode data available",
+  "SIGSOUND"  : "Sound completed",
+  "SIGSAK"    : "Secure attention"
+  }
+
 
 class SignalManager:
 
@@ -67,9 +124,10 @@ class SignalManager:
                            'SIGWAITING', 'SIGLWP',   'SIGCANCEL', 'SIGTRAP',
                            'SIGTERM',    'SIGQUIT',  'SIGILL']
 
-        self.info_fmt='%-14s%-4s\t%-4s\t%-11s\t%s'
+        self.info_fmt='%-14s%-4s\t%-4s\t%-5s\t%-4s\t%s'
         self.header  = self.info_fmt % ('Signal', 'Stop', 'Print',
-                                        'Print Stack', 'Pass to program')
+                                        'Stack', 'Pass',
+                                        'Description')
         if default_print:
             default_print = self.pydb.msg
 
@@ -121,18 +179,24 @@ class SignalManager:
 
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
+        if signame in signal_description:
+            description=signal_description[signame]
+        else:
+            description=""
         if signame not in self.sigs.keys():
             # Fake up an entry as though signame were in sigs.
             self.pydb.msg(self.info_fmt
-                          % (signame, 'False', 'False', 'False', 'True'))
+                          % (signame, 'No', 'No', 'No', 'Yes', description))
             return
             
         sig_obj = self.sigs[signame]
         self.pydb.msg(self.info_fmt % (signame,
-                                       str(sig_obj.stop_method  is not None),
-                                       str(sig_obj.print_method is not None),
-                                       str(sig_obj.print_stack),
-                                       str(sig_obj.pass_along)))
+                                       YN(sig_obj.stop_method  is not None),
+                                       YN(sig_obj.print_method is not None),
+                                       YN(sig_obj.pass_along),
+                                       YN(sig_obj.print_stack),
+                                       description
+                                       ))
         return
 
     def info_signal(self, args):
@@ -318,6 +382,7 @@ if __name__=='__main__':
             assert(signum == lookup_signum(signame[3:]))
 
     h = SignalManager()
+    h.info_signal(["TRAP"])
     # Set to known value
     h.action('SIGUSR1')
     h.action('usr1 print pass stop')
@@ -333,4 +398,4 @@ if __name__=='__main__':
     h.info_signal(['SIGUSR1'])
     h.action('SIGUSR1 nopass stack')
     h.info_signal(['SIGUSR1'])
-    
+
