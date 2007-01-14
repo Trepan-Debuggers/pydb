@@ -28,7 +28,7 @@ basename is on.
 + ########################################
 + show listsize
 Number of source lines pydb will list by default is 10.
-+ set listsize 20
++ set listsize 10+10
 + show listsi
 Number of source lines pydb will list by default is 20.
 + set listsize abc

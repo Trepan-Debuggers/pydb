@@ -39,9 +39,8 @@ def dis(obj, x=None, start_line=-1, end_line=None):
     elif isinstance(x, str):
         dis.disassemble_string(x)
     else:
-        raise TypeError, \
-              "don't know how to disassemble %s objects" % \
-              type(x).__name__
+       obj.errmsg("Don't know how to disassemble %s objects." % 
+                  type(x).__name__)
     return
 
 def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None,

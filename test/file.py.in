@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: file.py.in,v 1.2 2006/09/25 00:08:13 rockyb Exp $ -*- Python -*-
+# $Id: file.py.in,v 1.3 2007/01/14 21:08:29 rockyb Exp $ -*- Python -*-
 "Unit test of the file command for Extended Python debugger "
 import difflib, os, time, sys, unittest
 
@@ -62,9 +62,10 @@ def run_debugger(testname, pydb_opts='', args=''):
 class PdbTests(unittest.TestCase):
 
     def test_trace(self):
-        """Test running program via the 'fil'e command"""
+        """Test running program via the 'file' command"""
         result=run_debugger(testname='file', pydb_opts='--basename')
         self.assertEqual(True, result, "pydb 'file' command comparision")
+        return
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.104 2007/01/13 04:37:58 rockyb Exp $"""
+$Id: gdb.py.in,v 1.105 2007/01/14 21:08:28 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -358,7 +358,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         # arg is list of display points
         for i in arg:
             try:
-                i = int(i)
+                i = int(eval(i))
                 self.display.enable(i, flag)
             except ValueError:
                 self.msg('index %r is not a number' % i)
@@ -456,7 +456,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                         return (None, None, None)
                     if last < first:
                         try:
-                            int(args[1])
+                            int(eval(args[1]))
                             # Assume it's a count
                             last = first + last
                         except ValueError:
@@ -1034,17 +1034,19 @@ that."""
         except ValueError:
             try:
                 if len(args) > 1:
-                    start_line = int(args[1])
-                    if len(args) == 3:
-                        try:
+                    try:
+                        start_line = self.get_int(args[1],
+                                                  cmdname="disassemble")
+                        if len(args) == 3:
                             end_line = self.get_int(args[2],
                                                     cmdname="disassemble")
-                        except ValueError:
+                        elif len(args) > 3:
+                            self.errmsg("Expecting 0-3 parameters, got %d" %
+                                        len(args))
                             return False
-                    elif len(args) > 3:
-                        self.errmsg("Expecting 0-3 parameters, got %d" %
-                                    len(args))
+                    except ValueError:
                         return False
+
                 if hasattr(self, 'curframe') and self.curframe:
                     obj=self.getval(args[0])
                 else:
@@ -1118,8 +1120,8 @@ that."""
 
         for i in args:
             try:
-                i = int(i)
-            except ValueError:
+                i = int(eval(i))
+            except (NameError, ValueError):
                 self.msg('Breakpoint index %r is not a number' % i)
                 continue
 
@@ -1196,8 +1198,8 @@ is no Python file."""
             self.msg("Program has no stack frame set.")
             return
         try:
-            arg = int(arg)
-        except ValueError:
+            arg = int(eval(arg))
+        except (NameError, SyntaxError, ValueError):
             self.errmsg(("The 'frame' command requires a frame number."+
                          " Got: %s") % arg)
             return
@@ -1234,9 +1236,9 @@ recognized actions include "stop", "nostop", "print", "noprint",
         reached and the breakpoint is not disabled and any associated
         condition evaluates to true."""
         args = arg.split()
-        bpnum = int(args[0].strip())
+        bpnum = int(eval(args[0]))
         try:
-            count = int(args[1].strip())
+            count = int(eval(args[1]))
         except:
             count = 0
         bp = bdb.Breakpoint.bpbynumber[bpnum]
@@ -1284,7 +1286,7 @@ recognized actions include "stop", "nostop", "print", "noprint",
             self.errmsg("You can only jump within the bottom frame")
             return
         try:
-            arg = int(arg)
+            arg = int(eval(arg))
         except ValueError:
             self.errmsg("The 'jump' command requires a line number.")
         else:
@@ -1586,7 +1588,7 @@ Send a signal to the debugged process.
             signum = 0
         else:
             try: 
-                signum = int(arg)
+                signum = int(eval(arg))
                 if sighandler.lookup_signame(signum) == None:
                     self.msg("Signal number %d not a known signal number."
                              % signum)
@@ -1669,7 +1671,7 @@ Deletes the specified alias."""
             args = arg.split()
             for i in args:
                 try:
-                    i = int(i)
+                    i = int(eval(i))
                     self.display.deleteOne(i)
                 except ValueError:
                     self.errmsg('index %r is not a number' % i)

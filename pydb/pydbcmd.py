@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.35 2007/01/13 04:37:58 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.36 2007/01/14 21:08:28 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -206,9 +206,11 @@ See also 'examine' an 'whatis'.
     def get_int(self, arg, default=1, cmdname=None):
         """If arg is an int, use that otherwise take default."""
         if arg:
-            try: 
-                default = int(arg)
-            except ValueError:
+            try:
+                # eval() is used so we will allow arithmetic expressions,
+                # variables etc.
+                default = int(eval(arg)) 
+            except (SyntaxError, NameError, ValueError):
                 if cmdname:
                     self.errmsg('%s command: Expecting an integer, got: %s' %
                                 (cmdname, str(arg)))
@@ -238,7 +240,9 @@ See also 'examine' an 'whatis'.
         least min, use that otherwise report an error."""
         if arg:
             try: 
-                default = int(arg)
+                # eval() is used so we will allow arithmetic expressions,
+                # variables etc.
+                default = int(eval(arg))
                 if default < min:
                     if cmdname:
                         self.errmsg(('%s command: Expecting a positive ' +
@@ -251,7 +255,7 @@ See also 'examine' an 'whatis'.
                     # Really should use something custom? 
                     raise ZeroDivisionError
                     
-            except ValueError:
+            except (SyntaxError, NameError, ValueError):
                 if cmdname:
                     self.errmsg(('%s command: Expecting a positive integer, '
                                  + "got: %s") % (cmdname, str(arg)))
