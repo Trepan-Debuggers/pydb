@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.35 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: threaddbg.py,v 1.36 2007/01/15 18:04:35 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -106,7 +106,7 @@ class threadDbg(pydb.Pdb):
             except:
                 self.info_thread = self.info_thread_old
         ## self.traceall()
-        self.infocmds.add('thread',  self.info_thread,  2, False)
+        self.infocmds.add('threads',  self.info_thread,  2, False)
 
     def find_nondebug_frame(self, f):
         """Find the first frame that isn't a debugger frame.

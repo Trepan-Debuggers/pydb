@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.106 2007/01/15 12:53:06 rockyb Exp $"""
+$Id: gdb.py.in,v 1.107 2007/01/15 18:04:35 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -293,6 +293,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('program',        self.info_program)
         self.infocmds.add('signal',         self.sigmgr.info_signal, 2, False)
         self.infocmds.add('source',         self.info_source, 2)
+        self.infocmds.add('threads',        self.info_threads, 2)
         ## self.infocmds.add('target',         self.info_target)
 
     def __init_set(self):

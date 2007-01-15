@@ -335,6 +335,7 @@ info locals -- Local variables of current stack frame
 info program -- Execution status of the program
 info signal -- Print information about a signal
 info source -- Information about the current Python file
+info threads -- Show thread information (disabled)
 + #######################################
 + # The below  "help info" lines should
 + # have '.' append to the end whereas

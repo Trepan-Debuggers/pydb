@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-$Id: info.py,v 1.6 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: info.py,v 1.7 2007/01/15 18:04:35 rockyb Exp $"""
 import bdb, fns, inspect, os, pprint
+
+# from threadinfo import *
 
 class SubcmdInfo:
 
@@ -30,6 +32,7 @@ class SubcmdInfo:
             self.msg_nocr("%s=" %  name)
             if name in d: self.msg(d[name])
             else: self.msg("*** undefined ***")
+        return False
 
     def info_breakpoints(self, arg):
         """Status of user-settable breakpoints.
@@ -44,11 +47,13 @@ The short command name is L."""
                     self.bpprint(bp)
         else:
             self.msg("No breakpoints.")
+        return False
 
     def info_display(self, arg):
         """Expressions to display when program stops, with code numbers."""
         if not self.display.displayAll():
             self.msg('There are no auto-display expressions now.')
+        return False
 
     def info_globals(self, arg):
         """Global variables of current stack frame"""
@@ -58,6 +63,7 @@ The short command name is L."""
         self.msg("\n".join(["%s = %s"
                             % (l, pprint.pformat(self.getval(l)))
                             for l in self.curframe.f_globals]))
+        return False
 
     def info_line(self, arg):
         """Current line number in source file"""
@@ -85,6 +91,7 @@ The short command name is L."""
                  (inspect.getlineno(self.curframe),
                   self.filename(self.canonic_filename(self.curframe)),
                   self.curframe.f_lasti))
+        return False
 
     def info_locals(self, arg):
         """Local variables of current stack frame"""
@@ -112,6 +119,8 @@ The short command name is L."""
                 self.msg('It stopped at a return.')
             else:
                 self.msg("It stopped after stepping, next'ing or initial start.")
+        return False
+    
     def info_source(self, arg):
         """Information about the current Python file."""
         if not self.curframe:
@@ -119,8 +128,16 @@ The short command name is L."""
             return
         self.msg('Current Python file is %s' %
                  self.filename(self.canonic_filename(self.curframe)))
+        return False
 
     def info_target(self, args):
         """Display information about the current target."""
         self.msg('target is %s' % self.target)
+        return False
+
+    def info_threads(self, args):
+        """Show thread information (disabled)
+Note: this command currently not enabled. Enable via the --threading option."""
+        self.errmsg('Command disabled - debugger needs to be run with the --threading option')
+        return False
 
