@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.110 2007/01/13 12:05:17 rockyb Exp $
+% $Id: libpydb.tex,v 1.111 2007/01/15 12:53:03 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -311,7 +311,8 @@ The debugger supports aliases.  Aliases can have parameters which
 allow a certain level of adaptability to the context under
 examination. See \ref{command:aliases}.
 
-{\bf Debugger Prompt}:\label{debugger:prompt}\\
+\subsection{Debugger Prompt}\label{debugger:prompt}
+
 By default the debugger's prompt string is \samp{(Pydb) } with 
 a trailing blank. Recursive invocations using the
 \samp{debug} command strip off the trailing blanks, add a layer of
@@ -326,13 +327,25 @@ prompt.}
 
 If you do need to change the prompt see \ref{command:prompt}.
 
+\subsection{Command Parsing}
+Parameters to commands are separated by white space. No sophistacted
+parsing to figure out parameter boundaries is done.
+
 Multiple commands may be entered on a single line, separated by
-\samp{;;}.  (A single \samp{;} is not used because it is
-the separator for multiple commands in a line that is passed to
-the Python parser.)
-No intelligence is applied to separating the commands;
-the input is split at the first \samp{;;} pair, even if it is in
-the middle of a quoted string.
+\samp{;;}.  (A single \samp{;} is not used because it is the separator
+for multiple commands in a line that is passed to the Python parser.)
+No intelligence is applied to separating the commands; the input is
+split at the first \samp{;;} pair, even if it is in the middle of a
+quoted string.
+
+Many commands take an integer parameter. In most cases a Python
+expression which evaluates to an integer expression can be used. For
+example the \code{6}, \code{0x6} and \code{2+4}, or \code{int(2*3.1)}
+(among many others) represent the same value, six. You can even use
+values from variables in your program if you want -- although I'm not
+sure why this would be a good thing to do. However again be mindful of
+using white space since that is used to separate parameters. So
+\code{2 + 4} is not read the same as \code{2+4}.
 
 \subsection{Status and Debugger Settings ({\tt info}, {\tt set}, {\tt show})\label{subsection-status}}
 

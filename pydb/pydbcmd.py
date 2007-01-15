@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.36 2007/01/14 21:08:28 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.37 2007/01/15 12:53:06 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -202,6 +202,24 @@ See also 'examine' an 'whatis'.
                     # places needed. So live with it.
                     if self.onecmd(line) == 1:
                         return 1
+
+    def get_an_int(self, arg, errmsg=None):
+        """Another get_int() routine, this one simpler and less stylized
+        than get_int(). We evval arg return it as an integer value or
+        None if there was an error in parsing this.
+        """
+        if arg:
+            try:
+                # eval() is used so we will allow arithmetic expressions,
+                # variables etc.
+                default = int(eval(arg)) 
+            except (SyntaxError, NameError, ValueError):
+                if errmsg:
+                    self.errmsg(errmsg)
+                else:
+                    self.errmsg('Expecting an integer, got: %s' % str(arg))
+                return None
+        return default
 
     def get_int(self, arg, default=1, cmdname=None):
         """If arg is an int, use that otherwise take default."""

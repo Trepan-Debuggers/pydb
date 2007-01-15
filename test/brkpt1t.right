@@ -18,7 +18,7 @@ No breakpoints.
 + info break
 No breakpoints.
 + enable foo
-Breakpoint index 'foo' is not a number
+*** Breakpoint index 'foo' is not a number
 + disable 1
 No breakpoint numbered 1
 + disable
@@ -96,5 +96,5 @@ Breakpoint 4 set in file hanoi.py, line 5.
 + clear hanoi
 Deleted breakpoint 4
 + q
-Requesting exit from MainThread (id -1210001744)
+Requesting exit from MainThread (id -1209817424)
 The program exited via sys.exit(). Exit status: 

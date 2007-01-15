@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.105 2007/01/14 21:08:28 rockyb Exp $"""
+$Id: gdb.py.in,v 1.106 2007/01/15 12:53:06 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -357,12 +357,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     def display_enable(self, arg, flag):
         # arg is list of display points
         for i in arg:
-            try:
-                i = int(eval(i))
+            i = self.get_an_int(i, 'index %r is not a number' % i)
+            if i is not None:
                 self.display.enable(i, flag)
-            except ValueError:
-                self.msg('index %r is not a number' % i)
-                continue
         return
 
     def lineinfo(self, identifier):
@@ -455,15 +452,15 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                         self.errmsg('filename in the range must be the same')
                         return (None, None, None)
                     if last < first:
-                        try:
-                            int(eval(args[1]))
-                            # Assume it's a count
-                            last = first + last
-                        except ValueError:
-                            self.errmsg('2nd number (%s) is less than the '
-                                        + '1st number %d is not a pure integer'
-                                        % args[1], first)
+                        i = self.get_an_int(args[1],
+                                            ('2nd number (%s) is less than the'
+                                            + ' 1st number %d, but it does not'
+                                            + ' evaluate to an integer')
+                                            % (args[1], first))
+                        if i is None:
                             return (None, None, None)
+                        # Assume last is a count rather than an end line number
+                        last = first + last
                 elif len(args) > 2:
                     self.errmsg('At most 2 arguments allowed. Saw: %d' %
                                 len(args))
@@ -1119,11 +1116,8 @@ that."""
             return
 
         for i in args:
-            try:
-                i = int(eval(i))
-            except (NameError, ValueError):
-                self.msg('Breakpoint index %r is not a number' % i)
-                continue
+            i = self.get_an_int(i, 'Breakpoint index %r is not a number' % i)
+            if i is None: continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
                 self.errmsg('No breakpoint numbered %d' % i)
@@ -1196,13 +1190,11 @@ is no Python file."""
 
         if not self.stack:
             self.msg("Program has no stack frame set.")
-            return
-        try:
-            arg = int(eval(arg))
-        except (NameError, SyntaxError, ValueError):
-            self.errmsg(("The 'frame' command requires a frame number."+
-                         " Got: %s") % arg)
-            return
+            return False
+        arg = self.get_an_int(arg,
+                              ("The 'frame' command requires a frame number."+
+                               " Got: %s") % arg)
+        if arg is None: return False
 
         i_stack = len(self.stack)
         if arg < -i_stack or arg > i_stack-1:
@@ -1210,6 +1202,7 @@ is no Python file."""
                   % (-i_stack, i_stack-1))
         else:
             self.__adjust_frame(pos=arg, absolute_pos=True)
+        return False
 
     def do_handle(self, arg):
         """Specify how to handle a signal.
@@ -1236,11 +1229,19 @@ recognized actions include "stop", "nostop", "print", "noprint",
         reached and the breakpoint is not disabled and any associated
         condition evaluates to true."""
         args = arg.split()
-        bpnum = int(eval(args[0]))
-        try:
-            count = int(eval(args[1]))
-        except:
+
+        bpnum = self.get_an_int(args[0],
+                                ("ignore: bpnumber %s does not evaluate to an"
+                                + " integer") % args[0])
+        if bpnum is None: return False
+        if len(args) > 1:
+            count = self.get_an_int(args[1],
+                                    ("ignore: count %s does not evaluate to an"
+                                    + " integer") % args[0])
+            if count is None: return False
+        else:
             count = 0
+            
         bp = bdb.Breakpoint.bpbynumber[bpnum]
         if bp:
             bp.ignore = count
@@ -1280,24 +1281,24 @@ recognized actions include "stop", "nostop", "print", "noprint",
         Set the next line that will be executed."""
 
         if not self.is_running():
-            return
+            return False
 
         if self.curindex + 1 != len(self.stack):
             self.errmsg("You can only jump within the bottom frame")
-            return
+            return False
+        arg = self.get_an_int(arg,
+                              "jump: a line number is required, got %s." %
+                              arg)
+        if arg is None: return False
         try:
-            arg = int(eval(arg))
-        except ValueError:
-            self.errmsg("The 'jump' command requires a line number.")
-        else:
-            try:
-                # Do the jump, fix up our copy of the stack, and display the
-                # new position
-                self.curframe.f_lineno = arg
-                self.stack[self.curindex] = self.stack[self.curindex][0], arg
-                self.print_location()
-            except ValueError, e:
-                self.errmsg('%s failed: %s' % (cmdname, e))
+            # Do the jump, fix up our copy of the stack, and display the
+            # new position
+            self.curframe.f_lineno = arg
+            self.stack[self.curindex] = self.stack[self.curindex][0], arg
+            self.print_location()
+        except ValueError, e:
+            self.errmsg('%s failed: %s' % (cmdname, e))
+        return False
 
     def do_kill(self, arg):
         """kill [unconditionally]
@@ -1670,11 +1671,9 @@ Deletes the specified alias."""
         if arg:
             args = arg.split()
             for i in args:
-                try:
-                    i = int(eval(i))
+                i = self.get_an_int(i, 'index %r is not a number' % i)
+                if i is not None:
                     self.display.deleteOne(i)
-                except ValueError:
-                    self.errmsg('index %r is not a number' % i)
         else:
             self.display.deleteAll()
         return False

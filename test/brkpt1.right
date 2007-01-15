@@ -17,7 +17,7 @@ No breakpoints.
 + info break
 No breakpoints.
 + enable foo
-Breakpoint index 'foo' is not a number
+*** Breakpoint index 'foo' is not a number
 + disable 1
 No breakpoint numbered 1
 + disable

@@ -66,7 +66,7 @@ Maximum number of characters in an argument list is 100
 + disable 10
 No breakpoint numbered 10
 + enable foo
-Breakpoint index 'foo' is not a number
+*** Breakpoint index 'foo' is not a number
 + disable foo
 Breakpoint index 'foo' is not a number
 + ########################################
