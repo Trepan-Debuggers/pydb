@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-$Id: info.py,v 1.7 2007/01/15 18:04:35 rockyb Exp $"""
+$Id: info.py,v 1.8 2007/01/16 13:13:51 rockyb Exp $"""
 import bdb, fns, inspect, os, pprint
 
 # from threadinfo import *
@@ -133,11 +133,5 @@ The short command name is L."""
     def info_target(self, args):
         """Display information about the current target."""
         self.msg('target is %s' % self.target)
-        return False
-
-    def info_threads(self, args):
-        """Show thread information (disabled)
-Note: this command currently not enabled. Enable via the --threading option."""
-        self.errmsg('Command disabled - debugger needs to be run with the --threading option')
         return False
 

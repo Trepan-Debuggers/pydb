@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.36 2007/01/15 18:04:35 rockyb Exp $"""
+$Id: threaddbg.py,v 1.37 2007/01/16 13:13:51 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -11,55 +11,7 @@ import fns
 
 import thread, threading
 from gdb import Restart
-
-def id2threadName(thread_id):
-    """Turn a thread id into a thread name. Works in Python 2.5 or greater."""
-    return threading.Thread.getName(threading._active[thread_id])
-
-def is_in_threaddbg_dispatch(f):
-    """Returns True if frame f is the threaddbg dispatch routine"""
-
-    ## First check that the routine name and prefix of the filename's
-    ## basename are what we expect.
-
-    (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
-    (path, basename)=os.path.split(filename)
-    ## print routine, filename
-    if routine != 'trace_dispatch' or not basename.startswith('threaddbg.py'):
-        return False
-
-    # Next check to see that local variable breadcrumb exists and
-    # has the magic dynamic value. 
-    if 'breadcrumb' in f.f_locals:
-        if is_in_threaddbg_dispatch == f.f_locals['breadcrumb']:
-            return True
-    return False
-
-def is_in_threaddbg(f):
-    """Find the first frame that isn't a debugger frame.
-    Generally we want traceback information without polluting
-    it with debugger information.
-        """
-    """Returns the most recent frame that doesn't contain a threaddbg
-    frame as its parent. Note this frame is not part of threaddg.
-    If there is no frame (i.e. no thread debugging) then f would
-    be returned."""
-    return_frame=f
-    while f:
-        if is_in_threaddbg_dispatch(f):
-            # Can't use previous return_frame
-            return_frame = f.f_back
-        f = f.f_back
-    return return_frame
-
-def stack_trace(obj, f):
-    """A mini stack trace routine for threads."""
-    f = obj.find_nondebug_frame(f)
-    while f:
-        is_in_threaddbg_dispatch(f)
-        s = obj.format_stack_entry((f, f.f_lineno))
-        obj.msg(" "*4 + s)
-        f = f.f_back
+from threadinfo import *
 
 class threadDbg(pydb.Pdb):
     """A class to extend the Pdb class to add thread debugging.
@@ -107,32 +59,6 @@ class threadDbg(pydb.Pdb):
                 self.info_thread = self.info_thread_old
         ## self.traceall()
         self.infocmds.add('threads',  self.info_thread,  2, False)
-
-    def find_nondebug_frame(self, f):
-        """Find the first frame that isn't a debugger frame.
-        Generally we want traceback information without polluting
-        it with debugger information.
-        """
-        if self.dbg_pydb: return f
-
-        f = is_in_threaddbg(f)
-
-        ### FIXME: would like a routine like is_in_threaddb_dispatch
-        ### but works with threading instead. Decorating or subclassing
-        ### threadding might do the trick.
-        (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
-        (path, basename)=os.path.split(filename)
-        while (basename.startswith('threading.py') or
-               basename.startswith('gdb.py') or
-               basename.startswith('threaddbg.py') or
-               basename.startswith('subcmd.py') or
-               basename.startswith('pydb.py') or
-               routine == 'trace_dispatch_gdb') and f.f_back:
-            f = f.f_back
-            (filename, line_no, routine) = \
-                       inspect.getframeinfo(f)[0:3]
-            (path, basename)=os.path.split(filename)
-        return f
 
     def get_threadframe_frame(self, thread_name):
         """Return the frame having thread name that we look up
@@ -219,7 +145,7 @@ newest frame."""
                         self.info_thread_terse()
                         return
                     frame = threads[thread_id]
-                    newframe = self.find_nondebug_frame(frame)
+                    newframe = find_nondebug_frame(self, frame)
                     if newframe is not None:  frame = newframe
                     self.stack, self.curindex = self.get_stack(frame, None)
                     if len(args) == 1:
@@ -244,7 +170,7 @@ newest frame."""
                     self.msg("Python 2.5 or install threadframe.")
                     return
 
-                newframe = self.find_nondebug_frame(frame)
+                newframe = find_nondebug_frame(self, frame)
                 if newframe is not None:  frame = newframe
                 self.stack, self.curindex = self.get_stack(frame, None)
                 if len(args) == 1:
@@ -349,7 +275,7 @@ set_trace and threads have already been created.  """
 
         threads = sys._current_frames()
         for t in threads.keys():
-            frame = self.find_nondebug_frame(threads[t])
+            frame = find_nondebug_frame(self, threads[t])
             self.set_trace(frame)
 
     def do_where(self, arg):
@@ -430,7 +356,7 @@ stack trace is given for each frame.
                 thread_id = self.traced[thread_name]
 
             frame = threads[thread_id]
-            frame = self.find_nondebug_frame(frame)
+            frame = find_nondebug_frame(self, frame)
             stack_trace(self, frame)
             return
 
@@ -457,7 +383,7 @@ stack trace is given for each frame.
                 s += "    thread id: %d" % thread_id
 
             s += "\n    "
-            frame = self.find_nondebug_frame(threads[thread_id])
+            frame = find_nondebug_frame(self, threads[thread_id])
             s += self.format_stack_entry((frame, frame.f_lineno))
             self.msg('-' * 40)
             self.msg(s)
@@ -515,7 +441,7 @@ To get the full stack trace for a specific thread pass in the thread name.
                 thread_id = self.traced[thread_name]
 
             frame = threads[thread_id]
-            frame = self.find_nondebug_frame(frame)
+            frame = find_nondebug_frame(self, frame)
             stack_trace(self, frame)
             return
 
@@ -524,7 +450,7 @@ To get the full stack trace for a specific thread pass in the thread name.
         thread_key_list.sort(key=id2threadName)
         for thread_id in thread_key_list:
             frame = threads[thread_id]
-            frame = self.find_nondebug_frame(frame)
+            frame = find_nondebug_frame(self, frame)
 
             s = ''
             # Print location where thread was created and line number

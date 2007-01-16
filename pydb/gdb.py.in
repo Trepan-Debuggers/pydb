@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.107 2007/01/15 18:04:35 rockyb Exp $"""
+$Id: gdb.py.in,v 1.108 2007/01/16 13:13:51 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -26,6 +26,7 @@ from show        import *
 from pydbcmd import Cmd
 from pydbbdb import Bdb
 
+from threadinfo import *
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged Python program."""
@@ -293,8 +294,25 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.infocmds.add('program',        self.info_program)
         self.infocmds.add('signal',         self.sigmgr.info_signal, 2, False)
         self.infocmds.add('source',         self.info_source, 2)
-        self.infocmds.add('threads',        self.info_threads, 2)
+
+        if hasattr(sys, "_current_frames"):
+            self.info_threads = lambda arg: info_thread_new(self, arg)
+            doc               = info_thread_new.__doc__
+        else:
+            try:
+                import threadframe
+                sys._current_frames = threadframe.dict # Make it look like 2.5
+                self.info_threads   = lambda arg: info_threadframe(self, arg)
+                doc                 = info_threadframe.__doc__
+                
+            except:
+                self.info_threads = info_thread_old
+                doc               = info_thread_old.__doc__
+        self.info_threads.__doc__ = doc
+
+        self.infocmds.add('threads', self.info_threads, 2)
         ## self.infocmds.add('target',         self.info_target)
+        return
 
     def __init_set(self):
         """Initialize set subcommands. Note: instance variable name
