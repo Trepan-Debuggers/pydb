@@ -18,6 +18,8 @@
 * Allow limited expressions anywhere an an int parameter is used in
   a debugger command
 
+* Allow "info thread" always. That is we don't need --threading for this
+
 * signal command's output more like gdb's.
 
 * Add pydoc's help (i.e. python's built-in help) to debugger "help"
