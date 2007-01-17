@@ -7,7 +7,7 @@ def find_nondebug_frame(obj, f):
     """
     if obj.dbg_pydb: return f
 
-    f = is_in_threaddbg(f)
+    f = obj.is_in_dbg(f)
 
     ### FIXME: would like a routine like is_in_threaddb_dispatch
     ### but works with threading instead. Decorating or subclassing
@@ -55,12 +55,48 @@ def is_in_threaddbg(f):
     it with debugger information.
         """
     """Returns the most recent frame that doesn't contain a threaddbg
-    frame as its parent. Note this frame is not part of threaddg.
+    frame as its parent. Note this frame is not part of threaddbg.
     If there is no frame (i.e. no thread debugging) then f would
     be returned."""
     return_frame=f
     while f:
         if is_in_threaddbg_dispatch(f):
+            # Can't use previous return_frame
+            return_frame = f.f_back
+        f = f.f_back
+    return return_frame
+
+def is_in_gdb_dispatch(f):
+    """Returns True if frame f is the threaddbg dispatch routine"""
+
+    ## First check that the routine name and prefix of the filename's
+    ## basename are what we expect.
+
+    (filename, line_no, routine) = inspect.getframeinfo(f)[0:3]
+    (path, basename)=os.path.split(filename)
+    ## print routine, filename
+    if (routine != 'trace_dispatch_gdb' or not basename.startswith('gdb.py')):
+        return False
+
+    # Next check to see that local variable breadcrumb exists and
+    # has the magic dynamic value. 
+    if 'breadcrumb' in f.f_locals:
+        if is_in_gdb_dispatch == f.f_locals['breadcrumb']:
+            return True
+    return False
+
+def is_in_gdb(f):
+    """Find the first frame that isn't a debugger frame.
+    Generally we want traceback information without polluting
+    it with debugger information.
+        """
+    """Returns the most recent frame that doesn't contain a gdb_dbg
+    frame as its parent. Note this frame is not part of dbg.
+    If there is no frame (i.e. no thread debugging) then f would
+    be returned."""
+    return_frame=f
+    while f:
+        if is_in_gdb_dispatch(f):
             # Can't use previous return_frame
             return_frame = f.f_back
         f = f.f_back
@@ -292,8 +328,8 @@ def info_thread_line(obj, thread_name):
 def info_thread_missing(obj):
     """Show information about threads we might not know about"""
     if not hasattr(obj, "traced"): return
-    if hasattr(sys, "_current_frames") and \
-           len(obj.traced) != len(sys._current_frames()):
+    if (hasattr(sys, "_current_frames") and 
+        len(obj.traced) != len(sys._current_frames())):
         frames = sys._current_frames()
         thread_ids = frames.keys()
         obj.msg("Untraced/unknown threads:")

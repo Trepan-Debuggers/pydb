@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.37 2007/01/16 13:13:51 rockyb Exp $"""
+$Id: threaddbg.py,v 1.38 2007/01/17 09:38:40 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -32,6 +32,7 @@ class threadDbg(pydb.Pdb):
         # If the variable is None than any thread can run.
         self.desired_thread=None
 
+        self.is_in_dbg               = is_in_threaddbg
         self.thread_id               = thread.get_ident()
         self.thread_name             = threading.currentThread().getName()
         self.curframe_thread_name    = self.thread_name
@@ -207,7 +208,7 @@ newest frame."""
             if frames:
                 if thread_id in frames.keys():
                     frame = frames[thread_id]
-                    if not is_in_threaddbg(frame):
+                    if not self.is_in_dbg(frame):
                         self.msg("Thread %s is not blocked by the debugger."
                                  % thread_name)
                         really_quit = False

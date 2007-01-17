@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.138 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: pydb.py.in,v 1.139 2007/01/17 09:38:40 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -257,7 +257,7 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
     _pydb_trace.curframe=inspect.currentframe()
 
     if _pydb_trace.running:
-        _pydb_trace.do_next(2)
+        _pydb_trace.do_next('2')
         return
     _pydb_trace.running = True
 

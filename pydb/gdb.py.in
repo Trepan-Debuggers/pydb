@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.108 2007/01/16 13:13:51 rockyb Exp $"""
+$Id: gdb.py.in,v 1.109 2007/01/17 09:38:40 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -72,6 +72,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
+        self.is_in_dbg       = is_in_gdb
         self.lastcmd         = ''     # last debugger command run
         self.linetrace       = False
         self.linetrace_delay = 0
@@ -185,9 +186,16 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
     def trace_dispatch_gdb(self, frame, event, arg):
         """Check to see if the signal handler's we are interested have
         changed. If so we'll intercept them. """
-        if not hasattr(self, 'thread_name') \
-           or self.thread_name == 'MainThread':
+        if (not hasattr(self, 'thread_name') 
+            or self.thread_name == 'MainThread'):
             self.sigmgr.check_and_adjust_sighandlers()
+
+        # The below variable will be used to scan down frames to determine
+        # if trace_dispatch has been called. We key on the variable
+        # name, method name, type of variable and even the value.
+
+        breadcrumb = is_in_gdb_dispatch
+
         return self.trace_dispatch_old(frame, event, arg)
 
     def __adjust_frame(self, pos, absolute_pos):
