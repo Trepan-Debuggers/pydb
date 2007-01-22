@@ -6,14 +6,14 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.139 2007/01/17 09:38:40 rockyb Exp $"""
+$Id: pydb.py.in,v 1.140 2007/01/22 17:53:07 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
-_debugger_name = '@PACKAGE_NAME@'
+__title__ = '@PACKAGE_NAME@'
 
 # The name of the debugger we are currently going by.
-_version = '@PACKAGE_VERSION@'
+__version__ = '@PACKAGE_VERSION@'
 
 import inspect, os, re, sys, traceback
 
@@ -249,7 +249,7 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
         _pydb_trace.reset()
         _pydb_trace._program_sys_argv = list(sys.argv)
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
-        _pydb_trace._sys_argv[:0] = [_debugger_name]
+        _pydb_trace._sys_argv[:0] = [__title__]
         _pydb_trace.main_dirname = os.path.dirname(sys.argv[0])
 
     # We don't support "run" so we'll make "run" and "R" be "restart"
@@ -295,9 +295,9 @@ def exception_hook(type, value, tb, dbg_cmds=None, cmdfile=None):
 
 # print help
 def help():
-    doc_file='%s.doc' % _debugger_name
+    doc_file='%s.doc' % __title__
     for dirname in sys.path:
-        fullname = os.path.join(dirname, _debugger_name, doc_file)
+        fullname = os.path.join(dirname, __title__, doc_file)
         if os.path.exists(fullname):
             sts = os.system('${PAGER-more} '+fullname)
             if sts: print 'Pager exit status: %s' % str(sts)
@@ -396,7 +396,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
     if 0 == len(p._sys_argv):
         # Fake script invocation (restart) args since we don don't have any
         p._sys_argv = list(p._program_sys_argv)
-        p._sys_argv[:0] = [_debugger_name]
+        p._sys_argv[:0] = [__title__]
 
     if cmdfile is not None:
         p.do_source(cmdfile)
@@ -587,7 +587,7 @@ def main(p=None):
 
     if p is None:
         p = Pdb()
-    (opts, p) = process_options(p, _debugger_name, '@PACKAGE_VERSION@')
+    (opts, p) = process_options(p, __title__, __version__)
 
     # process_options has munged sys.argv to remove any options that
     # options that belong to this debugger. The original options to
