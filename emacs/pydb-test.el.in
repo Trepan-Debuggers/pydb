@@ -1,5 +1,5 @@
-(load-file "./elk-test.el")
-(load-file "./pydb.el")
+(load-file "@srcdir@/elk-test.el")
+(load-file "@srcdir@/pydb.el")
 
 (defun regexp-test (location-str file-str)
   "Test to see that location-str matches gud-pydb-marker-regexp"
