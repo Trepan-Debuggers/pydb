@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.109 2007/01/17 09:38:40 rockyb Exp $"""
+$Id: gdb.py.in,v 1.110 2007/01/25 10:19:13 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -330,7 +330,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds=subcmd.Subcmd("set",   self.help_set.__doc__)
         self.setcmds.add('args',            self.set_args)
         self.setcmds.add('basename',        self.set_basename)
-        self.setcmds.add('cmdtrace',        self.set_cmdtrace)
         self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
         self.setcmds.add('flush',           self.set_flush)
         ## self.setcmds.add('debug-signal',    self.set_debug_signal)
@@ -343,6 +342,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('prompt',          self.set_prompt)
         self.setcmds.add('sigcheck',        self.set_sigcheck)
         ## self.setcmds.add('target-address',  self.set_target_address)
+        self.setcmds.add('trace-commands',  self.set_cmdtrace)
         self.setcmds.add('warnoptions',     self.set_warnoptions)
         return
 
@@ -355,7 +355,6 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('basename',       self.show_basename)
         self.showcmds.add('debug-pydb',     self.show_dbg_pydb)
         ## self.showcmds.add('debug-signal',   self.show_debug_signal)
-        self.showcmds.add('cmdtrace',       self.show_cmdtrace,    2)
         self.showcmds.add('commands',       self.show_commands,    2, False)
         self.showcmds.add('directories',    self.show_directories, 1)
         self.showcmds.add('flush',          self.show_flush)
@@ -368,6 +367,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('prompt',         self.show_prompt)
         self.showcmds.add('sigcheck',       self.show_sigcheck)
         ## self.showcmds.add('target-address', self.show_target_address)
+        self.showcmds.add('trace-commands', self.show_cmdtrace,    1)
         self.showcmds.add('version',        self.show_version)
         self.showcmds.add('warnoptions',    self.show_warnoptions)
 

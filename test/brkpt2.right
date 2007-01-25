@@ -1,58 +1,58 @@
-+ ###############################################################
-+ ### Clear nonexist break; 
-+ ###############################################################
-+ clear
++###############################################################
++### Clear nonexist break; 
++###############################################################
++clear
 *** No breakpoint at gcd.py:10.
-+ ###############################################################
-+ ### Multiple breakpoints on a line and clearing all
-+ ###############################################################
-+ break 28
++###############################################################
++### Multiple breakpoints on a line and clearing all
++###############################################################
++break 28
 Breakpoint 1 set in file gcd.py, line 28.
-+ break gcd.py:28
++break gcd.py:28
 Breakpoint 2 set in file gcd.py, line 28.
-+ info break
++info break
 Num Type          Disp Enb    Where
 1   breakpoint    keep y   at gcd.py:28
 2   breakpoint    keep y   at gcd.py:28
-+ clear 28
++clear 28
 Deleted breakpoints 1 2
-+ ###############################################################
-+ ### Clear by current line number
-+ ###############################################################
-+ break 28
++###############################################################
++### Clear by current line number
++###############################################################
++break 28
 Breakpoint 3 set in file gcd.py, line 28.
-+ continue
-+ clear
++continue
++clear
 Deleted breakpoint 3
-+ info break
++info break
 No breakpoints.
-+ ###############################################################
-+ ### Test Delete: invalid/valid number.
-+ ###############################################################
-+ delete 1
++###############################################################
++### Test Delete: invalid/valid number.
++###############################################################
++delete 1
 *** Breakpoint (1) already deleted
-+ break 11
++break 11
 Breakpoint 4 set in file gcd.py, line 11.
-+ info break
++info break
 Num Type          Disp Enb    Where
 4   breakpoint    keep y   at gcd.py:11
-+ delete 4
++delete 4
 Deleted breakpoint 4
-+ tbreak 31
++tbreak 31
 Breakpoint 5 set in file gcd.py, line 31.
-+ continue
++continue
 Deleted breakpoint 5
-+ info break
++info break
 No breakpoints.
-+ ###############################################################
-+ ### Test Continue with a line number
-+ ###############################################################
-+ c 35
++###############################################################
++### Test Continue with a line number
++###############################################################
++c 35
 Breakpoint 6 set in file gcd.py, line 35.
 Deleted breakpoint 6
-+ info break
++info break
 No breakpoints.
-+ where 2
++where 2
 -> 0 gcd(a=3, b=5) called from file 'gcd.py' at line 35
 ## 1 <module>() called from file 'gcd.py' at line 41
-+ quit
++quit

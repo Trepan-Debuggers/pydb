@@ -1,50 +1,50 @@
-+ info program
++info program
 Program stopped.
 It stopped after stepping, next'ing or initial start.
-+ continue
++continue
 The program finished and will be restarted
-+ ######################################
-+ ### Now restart with a breakpoint
-+ ######################################
-+ break hanoi
++######################################
++### Now restart with a breakpoint
++######################################
++break hanoi
 Breakpoint 1 set in file hanoi.py, line 5.
-+ show args
++show args
 Argument list to give program being debugged when it is started is 
 "".
-+ run
++run
 Restarting hanoi.py with arguments:
 	
-+ continue
-+ info args
++continue
++info args
 n= 3
 a= a
 b= b
 c= c
-+ info program
++info program
 Program stopped.
 It stopped at breakpoint 1.
-+ where 2
++where 2
 -> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'hanoi.py' at line 6
 ## 1 in file 'hanoi.py' at line 31
-+ ######################################
-+ ### We should be at that breakpoint
-+ ### delete it and run again 
-+ ### this time changing a parameter
-+ ######################################
-+ info break
++######################################
++### We should be at that breakpoint
++### delete it and run again 
++### this time changing a parameter
++######################################
++info break
 Num Type          Disp Enb    Where
 1   breakpoint    keep y   at hanoi.py:5
 	breakpoint already hit 2 times
-+ delete 1
++delete 1
 Deleted breakpoint 1
-+ run 1
++run 1
 Restarting hanoi.py with arguments:
 	1
-+ continue
++continue
 The program finished and will be restarted
-+ show args
++show args
 Argument list to give program being debugged when it is started is 
 "1".
-+ info args
-+ ####
-+ quit
++info args
++####
++quit

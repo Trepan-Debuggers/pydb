@@ -1,8 +1,8 @@
-# $Id: cmdparse.cmd,v 1.19 2007/01/14 21:08:29 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.20 2007/01/25 10:19:15 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
-set cmdtrace on
+set trace-commands on
 ### *******************************
 ### ***   Set/show commands     ***
 ### *******************************

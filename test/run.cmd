@@ -1,8 +1,8 @@
 # Test of restart and linetracing 
-# $Id: run.cmd,v 1.5 2006/09/26 19:16:53 rockyb Exp $
+# $Id: run.cmd,v 1.6 2007/01/25 10:19:15 rockyb Exp $
 #
 set basename on
-set cmdtrace on
+set trace-commands on
 info program
 continue
 ######################################

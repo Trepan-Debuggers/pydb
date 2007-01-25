@@ -1,8 +1,8 @@
 # 
 # Test of the 'file' command
-# $Id: file.cmd,v 1.3 2007/01/14 21:08:29 rockyb Exp $
+# $Id: file.cmd,v 1.4 2007/01/25 10:19:15 rockyb Exp $
 #
-set cmd on
+set trace-commands on
 file hanoi.py
 info line
 where 2

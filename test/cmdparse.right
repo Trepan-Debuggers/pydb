@@ -1,78 +1,78 @@
-+ ### *******************************
-+ ### ***   Set/show commands     ***
-+ ### *******************************
-+ ########################################
-+ ###   test args and baseneme...
-+ ########################################
-+ set args this is a test
-+ show args
++### *******************************
++### ***   Set/show commands     ***
++### *******************************
++########################################
++###   test args and baseneme...
++########################################
++set args this is a test
++show args
 Argument list to give program being debugged when it is started is 
 "this is a test".
-+ show basename
++show basename
 basename is on.
-+ set basename foo
++set basename foo
 *** Expecting 'on', 1, 'off', or 0. Got: foo.
-+ show base
++show base
 basename is on.
-+ set basename off
-+ show basename
++set basename off
++show basename
 basename is off.
-+ set basename 0
-+ show basename
++set basename 0
++show basename
 basename is off.
-+ set basename 1
-+ show basename
++set basename 1
++show basename
 basename is on.
-+ ########################################
-+ ###   test listsize tests...
-+ ########################################
-+ show listsize
++########################################
++###   test listsize tests...
++########################################
++show listsize
 Number of source lines pydb will list by default is 10.
-+ set listsize 10+10
-+ show listsi
++set listsize 10+10
++show listsi
 Number of source lines pydb will list by default is 20.
-+ set listsize abc
++set listsize abc
 *** Expecting an integer, got: abc
-+ set listsize -20
-+ set listsize 20 forever
-+ ########################################
-+ ###  test linetrace...
-+ ########################################
-+ set linetrace delay
++set listsize -20
++set listsize 20 forever
++########################################
++###  test linetrace...
++########################################
++set linetrace delay
 *** Need a 3rd floating-point number
-+ set linetrace delay 2
-+ show linetrace delay
++set linetrace delay 2
++show linetrace delay
 line trace delay is 2.0. (In seconds)
-+ set linetrace delay 0.5
-+ show linetrace delay
++set linetrace delay 0.5
++show linetrace delay
 line trace delay is 0.5. (In seconds)
-+ set linetrace delay foo
++set linetrace delay foo
 *** 3rd argument foo is not a floating-point number
-+ show linetrace delay
++show linetrace delay
 line trace delay is 0.5. (In seconds)
-+ set linetrace on
-+ show linetrace
++set linetrace on
++show linetrace
 line tracing is on.
-+ set linetrace off
-+ show linetrace
++set linetrace off
++show linetrace
 line tracing is off.
-+ show maxargsize
++show maxargsize
 Maximum number of characters in an argument list is 100
-+ ########################################
-+ ###  bad enable disable
-+ ########################################
-+ enable 10
++########################################
++###  bad enable disable
++########################################
++enable 10
 *** No breakpoint numbered 10
-+ disable 10
++disable 10
 No breakpoint numbered 10
-+ enable foo
++enable foo
 *** Breakpoint index 'foo' is not a number
-+ disable foo
++disable foo
 Breakpoint index 'foo' is not a number
-+ ########################################
-+ ###   test list
-+ ########################################
-+ list
++########################################
++###   test list
++########################################
++list
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
   3  	import sys
@@ -93,7 +93,7 @@ Breakpoint index 'foo' is not a number
  18  	    n=3
  19  	
  20  	    if i_args > 1:
-+ list
++list
  21  	      try: 
  22  	        n = int(sys.argv[1])
  23  	      except ValueError, msg:
@@ -106,7 +106,7 @@ Breakpoint index 'foo' is not a number
  30  	
  31  	    hanoi(n, "a", "b", "c")
 [EOF]
-+ list -
++list -
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
   3  	import sys
@@ -127,19 +127,19 @@ Breakpoint index 'foo' is not a number
  18  	    n=3
  19  	
  20  	    if i_args > 1:
-+ list 10 15
++list 10 15
  10  	       hanoi(n-1, c, b, a) 
  11  	
  12  	if __name__=='__main__':
  13  	    i_args=len(sys.argv)
  14  	    if i_args != 1 and i_args != 2:
  15  	        print "*** Need number of disks or no parameter"
-+ list 10 3
++list 10 3
  10  	       hanoi(n-1, c, b, a) 
  11  	
  12  	if __name__=='__main__':
  13  	    i_args=len(sys.argv)
-+ list hanoi.py:12
++list hanoi.py:12
   2  ->	"""Towers of Hanoi"""
   3  	import sys
   4  	
@@ -160,7 +160,7 @@ Breakpoint index 'foo' is not a number
  19  	
  20  	    if i_args > 1:
  21  	      try: 
-+ list hanoi
++list hanoi
   1  	#!/usr/bin/python
   2  ->	"""Towers of Hanoi"""
   3  	import sys
@@ -181,14 +181,14 @@ Breakpoint index 'foo' is not a number
  18  	    n=3
  19  	
  20  	    if i_args > 1:
-+ list hanoi 10
++list hanoi 10
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
   7  	       hanoi(n-1, a, c, b) 
   8  	    print "Move disk %s to %s" % (a, b)
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
-+ list gcd.py:24
++list gcd.py:24
  14  	    if len(sys.argv) != 3:
  15  	        # Rather than use sys.exit let's just raise an error
  16  	        raise Exception, "Need to give two numbers"
@@ -209,70 +209,70 @@ Breakpoint index 'foo' is not a number
  31  	    if a <= 0:
  32  	        return None
  33  	    if a == 1 or b-a == 0:
-+ # first and last file names are different
-+ list gcd.py:24 hanoi.py:10
++# first and last file names are different
++list gcd.py:24 hanoi.py:10
 *** filename in the range must be the same
-+ # File doesn't have 50 lines
-+ list 50
++# File doesn't have 50 lines
++list 50
 [EOF]
-+ set listsi 6
-+ list 5
++set listsi 6
++list 5
   2  ->	"""Towers of Hanoi"""
   3  	import sys
   4  	
   5  	def hanoi(n,a,b,c):
   6  	    if n-1 > 0:
   7  	       hanoi(n-1, a, c, b) 
-+ # Invalid list command - need lineno or fn name
-+ list hanoi.py
++# Invalid list command - need lineno or fn name
++list hanoi.py
 *** The specified object 'hanoi.py' is not a function, or not found along sys.path or no line given.
-+ ########################################
-+ ###  test prompt, misc...
-+ ########################################
-+ show prompt
++########################################
++###  test prompt, misc...
++########################################
++show prompt
 pydb's prompt is "(Pydb) ".
-+ show foo
++show foo
 *** Undefined show command "foo".
-+ cd
++cd
 *** Argument required (new working directory).
-+ ########################################
-+ ###   test numeric argument syntax 
-+ ########################################
-+ up fdsafdsa
++########################################
++###   test numeric argument syntax 
++########################################
++up fdsafdsa
 *** up command: Expecting an integer, got: fdsafdsa
-+ u='foo'
-+ down 1 b c
++u='foo'
++down 1 b c
 *** down command: Expecting an integer, got: 1 b c
-+ frame foo
++frame foo
 *** The 'frame' command requires a frame number. Got: foo
-+ step -1
++step -1
 *** step command: Expecting a positive integer at least 0, got: -1
-+ next -1
++next -1
 *** next command: Expecting a positive integer at least 0, got: -1
-+ ########################################
-+ ###   test info
-+ ########################################
-+ info line
++########################################
++###   test info
++########################################
++info line
 Line 2 of "hanoi.py" at instruction 0
-+ info source
++info source
 Current Python file is hanoi.py
-+ ########################################
-+ ###   help/info stuff
-+ ########################################
-+ help nogood
++########################################
++###   help/info stuff
++########################################
++help nogood
 Undefined command or invalid expression "nogood".
 Type "help" for a list of debugger commands.
 
-+ help restart
++help restart
 restart - Restart debugger and program via an exec
         call. All state is lost, and new copy of the debugger is used.
-+ help run
++help run
 run [arg_str]
 
         Run/Restart the debugged Python program. If a string (arg_str) is
         supplied that becomes the new command arguments.  History,
         breakpoints, actions and debugger options are preserved.
-+ help set
++help set
 This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command.
 
@@ -280,7 +280,6 @@ List of set subcommands:
 
 set args -- Set argument list to give program being debugged when it is started
 set basename -- Set short filenames (the basename) in debug output
-set cmdtrace -- Set to show lines read from the debugger command file
 set debug-pydb -- Set whether we allow tracing the debugger
 set flush -- Set whether we flush output after each write
 set history -- Generic command for setting command history parameters
@@ -291,19 +290,19 @@ set logging -- Set logging options
 set maxargsize -- Set maximum size to use in showing argument parameters
 set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
+set trace-commands -- Set to show lines read from the debugger command file
 set warnoptions -- Set the Python warning options that are in effect when a
-+ help set linesize
++help set linesize
 *** Unknown 'help set' subcommand linesize
-+ help set listsize
++help set listsize
 Set number of source lines the debugger will list by default.
-+ help show
++help show
 Generic command for showing things about the debugger.
 
 List of show subcommands:
 
 show args -- Show argument list to give debugged program when it is started
 show basename -- Show if we are to show short of long filenames
-show cmdtrace -- Show if we are to show debugger commands before running
 show commands -- Show the history of commands you typed
 show debug-pydb -- Show whether tracebacks include debugger routines
 show directories -- Current search path for finding source files
@@ -316,11 +315,12 @@ show logging -- Show logging options
 show maxargsize -- Show number maximum number of characters in argument list
 show prompt -- Show debugger's prompt
 show sigcheck -- Show status of signal checking/adjusting
+show trace-commands -- Show if we are to show debugger commands before running
 show version -- Show what version of the debugger this is
 show warnoptions -- Show Python warning options to be used in running programs
-+ help show listsize
++help show listsize
 Show number of source lines the debugger will list by default
-+ help info
++help info
 Generic command for showing things about the program being debugged.
 
 List of info subcommands:
@@ -336,26 +336,26 @@ info program -- Execution status of the program
 info signal -- Print information about a signal
 info source -- Information about the current Python file
 info threads -- List all currently-known thread names
-+ #######################################
-+ # The below  "help info" lines should
-+ # have '.' append to the end whereas
-+ # in the above listing they were 
-+ # omitted. 
-+ #######################################
-+ help info program
++#######################################
++# The below  "help info" lines should
++# have '.' append to the end whereas
++# in the above listing they were 
++# omitted. 
++#######################################
++help info program
 Execution status of the program.
-+ help info source
++help info source
 Information about the current Python file.
-+ #######################################
-+ # The below "help show" commands have 
-+ # more than one line of output also
-+ # ommited in a simple "show"
-+ #######################################
-+ help show args
++#######################################
++# The below "help show" commands have 
++# more than one line of output also
++# ommited in a simple "show"
++#######################################
++help show args
 Show argument list to give debugged program when it is started.
 Follow this command with any number of args, to be passed to the program.
-+ help show commands
++help show commands
 Show the history of commands you typed.
 You can supply a command number to start with, or a `+' to start after
 the previous command number shown. A negative number starts from the end.
-+ quit
++quit

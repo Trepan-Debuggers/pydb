@@ -1,7 +1,7 @@
 # Test of restart and linetracing 
-# $Id: pm.cmd,v 1.1 2006/02/27 15:40:39 rockyb Exp $
+# $Id: pm.cmd,v 1.2 2007/01/25 10:19:15 rockyb Exp $
 #
-set cmdtrace on
+set trace-commands on
 set interactive off
 set basename on
 show args

@@ -1,7 +1,7 @@
-+ #############################################
-+ ## Test to see that __file__ is set.
-+ ## Just run the program and it does the work.
-+ #############################################
-+ continue
++#############################################
++## Test to see that __file__ is set.
++## Just run the program and it does the work.
++#############################################
++continue
 The program finished and will be restarted
-+ quit
++quit

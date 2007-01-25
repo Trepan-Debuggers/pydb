@@ -1,10 +1,10 @@
-+ set interactive off
-+ set basename on
-+ show args
++set interactive off
++set basename on
++show args
 Argument list to give program being debugged when it is started is 
 "".
-+ info args
-+ list
++info args
++list
  29  	pydir        = os.path.join(top_builddir, "pydb")
  30  	pydb_short   = "pydb.py"
  31  	pydb_path    = os.path.join(pydir, pydb_short)
@@ -15,16 +15,14 @@ Argument list to give program being debugged when it is started is
  36  	class PdbTests(unittest.TestCase):
  37  	
  38  	    ## Don't use assertTrue to be compatible with older version of
-+ where
-+ step
++where
++step
 The program being debugged is not being run.
-+ next
++next
 The program being debugged is not being run.
-+ finish
++finish
 The program being debugged is not being run.
-+ return
++return
 The program being debugged is not being run.
-+ quit
-+ 
-+ 
++quit
 (pm.py:34):  raise_error

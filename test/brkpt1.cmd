@@ -1,9 +1,9 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt1.cmd,v 1.5 2006/10/25 10:50:12 rockyb Exp $
+# $Id: brkpt1.cmd,v 1.6 2007/01/25 10:19:15 rockyb Exp $
 #
 set base on
-set cmd on
+set trace-commands on
 ###############################################################
 # Test the breakpoint by line number
 ###############################################################

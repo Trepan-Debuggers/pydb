@@ -1,9 +1,9 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt3.cmd,v 1.3 2006/10/25 10:58:00 rockyb Exp $
+# $Id: brkpt3.cmd,v 1.4 2007/01/25 10:19:15 rockyb Exp $
 #
 set basename on
-set cmdtrace on
+set trace-commands on
 ###############################################################
 ### Test bad command parameters
 ###############################################################

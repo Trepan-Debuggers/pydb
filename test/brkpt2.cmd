@@ -1,9 +1,9 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt2.cmd,v 1.4 2006/09/29 04:05:26 rockyb Exp $
+# $Id: brkpt2.cmd,v 1.5 2007/01/25 10:19:15 rockyb Exp $
 #
 set basename on
-set cmdtrace on
+set trace-commands on
 ###############################################################
 ### Clear nonexist break; 
 ###############################################################

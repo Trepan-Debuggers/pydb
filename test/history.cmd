@@ -1,8 +1,8 @@
 # Test of history mechanism
-# $Id: history.cmd,v 1.3 2006/06/24 08:47:02 rockyb Exp $
+# $Id: history.cmd,v 1.4 2007/01/25 10:19:15 rockyb Exp $
 #
 set basename on
-set cmdtrace on
+set trace-commands on
 set history size 5
 set history filename
 set history filename history.hst

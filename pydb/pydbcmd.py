@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.37 2007/01/15 12:53:06 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.38 2007/01/25 10:19:13 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -192,8 +192,7 @@ See also 'examine' an 'whatis'.
             for line in rcLines:
                 self.rcLines = self.rcLines[1:]
                 line = line[:-1]
-                if self.cmdtrace: self.msg("+ %s" % line)
-                if len(line) > 0 and line[0] != '#':
+                if len(line) > 0:
                     # Some commands like step, continue,
                     # return return 1 to indicate execution
                     # should be continued. The return code
@@ -425,6 +424,7 @@ See also 'examine' an 'whatis'.
         prompt or in a breakpoint command list definition """
 
         if not self.commands_defining:
+            if self.cmdtrace: self.msg("+%s" % line)
             return cmd.Cmd.onecmd(self, line)
         else:
             return self.handle_command_def(line)
