@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.26 2007/01/04 03:51:50 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.27 2007/01/25 19:04:44 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -21,7 +21,11 @@ class Bdb(bdb.Bdb):
         # Create a custom safe Repr instance and increase its maxstring.
         # The default of 30 truncates error messages too easily.
         self._repr = Repr()
-        self._repr.maxstring = 200
+        self._repr.maxstring = 100
+        self._repr.maxother  = 60
+        self._repr.maxset    = 10
+        self._repr.maxfrozen = 10
+        self._repr.array     = 10
         self._saferepr = self._repr.repr
 
     def __print_location_if_linetrace(self, frame):

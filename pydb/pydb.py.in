@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.141 2007/01/25 12:46:42 rockyb Exp $"""
+$Id: pydb.py.in,v 1.142 2007/01/25 19:04:44 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -410,7 +410,11 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
         except:
             pass
 
-        p.interaction(None, t)
+        # Possibly a bug in Python 2.5. Why f.f_lineno is
+        # not always equal to t.tb_lineno, I don't know.
+        f = t.tb_frame
+        if f and f.f_lineno != t.tb_lineno : f = f.f_back
+        p.interaction(f, t)
     except Restart:
         while True:
             sys.argv = list(p._program_sys_argv)
@@ -670,8 +674,14 @@ def main(p=None):
             p.errmsg( "Running 'c' or 'step' will restart the program")
             p.running = False;
             t = sys.exc_info()[2]
-            while t.tb_next is not None:
-                t = t.tb_next
+
+            # I believe the commented code below discards information
+            # about where the exception was originally raised and just
+            # keeps us at the point where the exception was handled. I
+            # think though we want to this information.
+
+#             while t.tb_next is not None:
+#                 t = t.tb_next
             try:
                 p.interaction(t.tb_frame,t)
             except Restart:
