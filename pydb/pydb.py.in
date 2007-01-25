@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.140 2007/01/22 17:53:07 rockyb Exp $"""
+$Id: pydb.py.in,v 1.141 2007/01/25 12:46:42 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -372,7 +372,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
         t = fns.get_last_tb_or_frame_tb(frameno+1)
         if t is None:
             print "Can't find traceback for post_mortem " + \
-                  "in sys.last_traceback or sys.exec_info"
+                  "in sys.last_traceback or sys.exec_info()"
             return
 
     # t has least-recent traceback entry first. We want the most-recent
@@ -410,7 +410,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
         except:
             pass
 
-        p.interaction(t.tb_frame, t)
+        p.interaction(None, t)
     except Restart:
         while True:
             sys.argv = list(p._program_sys_argv)

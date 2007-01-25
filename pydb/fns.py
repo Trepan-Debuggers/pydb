@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Functions to support the Extended Python Debugger.
 
-$Id: fns.py,v 1.34 2007/01/13 04:37:58 rockyb Exp $"""
+$Id: fns.py,v 1.35 2007/01/25 12:46:42 rockyb Exp $"""
 
 import inspect, linecache, os, shlex, sys, re, traceback, types
 
@@ -153,15 +153,15 @@ def get_last_tb_or_frame_tb(frameno=1):
     fielding an exception. So assume that sys.exec_info()[frameno]
     is where we want to look."""
 
-    traceback = sys.exc_info()[frameno]
+    tb = sys.exc_info()[frameno]
 
     try:
         if inspect.istraceback(sys.last_traceback):
             # We do have a traceback so prefer that.
-            traceback = sys.last_traceback
+            tb = sys.last_traceback
     except AttributeError:
         pass
-    return traceback
+    return tb
 
 def print_dict(s, obj, title):
     if hasattr(obj, "__dict__"):

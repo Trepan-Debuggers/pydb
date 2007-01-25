@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.110 2007/01/25 10:19:13 rockyb Exp $"""
+$Id: gdb.py.in,v 1.111 2007/01/25 12:46:42 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -429,11 +429,11 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.curframe = None
         return
 
-    def interaction(self, frame, traceback):
+    def interaction(self, frame, tb):
         """Possibly goes into loop to read debugger commands."""
-        do_loop = self.setup(frame, traceback) != 1
+        do_loop = self.setup(frame, tb) != 1
         if do_loop:
-            if frame:
+            if frame or tb:
                 self.print_location(print_line=self.linetrace)
                 self.display.displayAny(self.curframe)
             if not self.noninteractive:
@@ -509,7 +509,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.quitting = 0
         return
 
-    def setup(self, frame, traceback=None):
+    def setup(self, frame, tb=None):
         """Initialization done before entering the debugger-command
         loop. In particular we set up the call stack used for local
         variable lookup and frame/up/down commands.
@@ -519,8 +519,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.forget()
         if self.dbg_pydb:
             frame = inspect.currentframe()
-        if frame:
-            self.stack, self.curindex = self.get_stack(frame, traceback)
+        if frame or tb:
+            self.stack, self.curindex = self.get_stack(frame, tb)
             self.curframe = self.stack[self.curindex][0]
         else:
             self.stack = self.curframe = self.botframe = None
