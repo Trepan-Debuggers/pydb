@@ -55,4 +55,13 @@ No breakpoints.
 +where 2
 -> 0 gcd(a=3, b=5) called from file 'gcd.py' at line 35
 ## 1 <module>() called from file 'gcd.py' at line 41
++###############################################################
++### Test ignore
++###############################################################
++ignore 0 1
+*** Expecting integer value to be at least 1, got: 0.
++break 11
+Breakpoint 7 set in file gcd.py, line 11.
++ignore 4 -1
++## FIXME: need a real ignore test, not just invalid cases
 +quit

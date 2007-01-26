@@ -30,7 +30,8 @@
 
 * Add "set"/"show" cmdtrace is now trace-commands to match gdb 6.6.
 
-* Fix bug in using wrong call stack in pm/post_mortem. 
+* work-around a possible Python 2.5 bug manifested in pm/post_mortem where
+  t.tb_frame.f_lineno != t.tb_lineno
 
 1.20 2006-12-10
 
@@ -53,10 +54,10 @@
 
 * Recover more gracefully if a post-mortem is called and there is none.
 
-* set_trace is now an alias for debugger which is probably a more natural
-  name.
+* "set_trace" is now an alias for "debugger" which is probably a more
+  natural name.
 
-* We tolerate now back to Python 2.3.3
+* We now tolerate back to Python version 2.3.3
 
 * A number of small bugs fixed and document updates.
 

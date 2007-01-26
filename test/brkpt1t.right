@@ -14,15 +14,15 @@ No breakpoints.
 +enable
 *** No breakpoint number given
 +enable 1
-*** No breakpoint numbered 1
+*** No breakpoint numbered 1.
 +info break
 No breakpoints.
 +enable foo
 *** Breakpoint index 'foo' is not a number
 +disable 1
-No breakpoint numbered 1
+No breakpoint numbered 1.
 +disable
-*** No breakpoint number given
+*** No breakpoint number given.
 +info break
 No breakpoints.
 +################################################################
@@ -70,15 +70,15 @@ Breakpoint 3 set in file hanoi.py, line 22.
 +condition 1 x==0
 +### FIXME: there is no condition 2!
 +### condition 2 y > 25
-+condition 4 y > 25
-*** No breakpoint number 4.
++condition 2+2 y > 25
+*** No breakpoint numbered 4.
 +info break
 Num Type          Disp Enb    Where
 3   breakpoint    keep y   at hanoi.py:22
 +### FIXME: there still is no condition 2
 +### condition 2
 +condition 4
-*** No breakpoint number 4.
+*** No breakpoint numbered 4.
 +info break
 Num Type          Disp Enb    Where
 3   breakpoint    keep y   at hanoi.py:22
@@ -87,7 +87,9 @@ Num Type          Disp Enb    Where
 +condition bad
 *** condition command: Expecting a positive integer, got: bad
 +condition 30 y==1
-*** No breakpoint number 30.
+*** No breakpoint numbered 30.
++condition 0 y==1
+*** condition command: Expecting a positive integer at least 1, got: 0.
 +###############################################################
 +### *** Test breakpoints by function name
 +###############################################################
@@ -96,5 +98,5 @@ Breakpoint 4 set in file hanoi.py, line 5.
 +clear hanoi
 Deleted breakpoint 4
 +q
-Requesting exit from MainThread (id -1209817424)
+Requesting exit from MainThread (id -1210284368)
 The program exited via sys.exit(). Exit status: 

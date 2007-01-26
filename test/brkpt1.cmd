@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt1.cmd,v 1.6 2007/01/25 10:19:15 rockyb Exp $
+# $Id: brkpt1.cmd,v 1.7 2007/01/26 13:14:35 rockyb Exp $
 #
 set base on
 set trace-commands on
@@ -49,7 +49,7 @@ break 22
 condition 1 x==0
 ### FIXME: there is no condition 2!
 ### condition 2 y > 25
-condition 4 y > 25
+condition 2+2 y > 25
 info break
 ### FIXME: there still is no condition 2
 ### condition 2
@@ -58,6 +58,7 @@ info break
 condition x==1
 condition bad
 condition 30 y==1
+condition 0 y==1
 ###############################################################
 ### *** Test breakpoints by function name
 ###############################################################

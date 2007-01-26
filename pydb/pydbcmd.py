@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.38 2007/01/25 10:19:13 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.39 2007/01/26 13:14:34 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -202,23 +202,32 @@ See also 'examine' an 'whatis'.
                     if self.onecmd(line) == 1:
                         return 1
 
-    def get_an_int(self, arg, errmsg=None):
+    def get_an_int(self, arg, errmsg=None, min_value=None, max_value=None):
         """Another get_int() routine, this one simpler and less stylized
-        than get_int(). We evval arg return it as an integer value or
+        than get_int(). We eval arg return it as an integer value or
         None if there was an error in parsing this.
         """
         if arg:
             try:
                 # eval() is used so we will allow arithmetic expressions,
                 # variables etc.
-                default = int(eval(arg)) 
+                ret_value = int(eval(arg)) 
             except (SyntaxError, NameError, ValueError):
                 if errmsg:
                     self.errmsg(errmsg)
                 else:
-                    self.errmsg('Expecting an integer, got: %s' % str(arg))
+                    self.errmsg('Expecting an integer, got: %s.' % str(arg))
                 return None
-        return default
+
+        if min_value and ret_value < min_value:
+            self.errmsg('Expecting integer value to be at least %d, got: %d.' %
+                        (min_value, ret_value))
+            return None
+        elif max_value and ret_value > max_value:
+            self.errmsg('Expecting integer value to be at most %d, got: %d.' %
+                        (max_value, ret_value))
+            return None
+        return ret_value
 
     def get_int(self, arg, default=1, cmdname=None):
         """If arg is an int, use that otherwise take default."""
@@ -229,10 +238,10 @@ See also 'examine' an 'whatis'.
                 default = int(eval(arg)) 
             except (SyntaxError, NameError, ValueError):
                 if cmdname:
-                    self.errmsg('%s command: Expecting an integer, got: %s' %
+                    self.errmsg('%s command: Expecting an integer, got: %s.' %
                                 (cmdname, str(arg)))
                 else:
-                    self.errmsg('Expecting an integer, got: %s' % str(arg))
+                    self.errmsg('Expecting an integer, got: %s.' % str(arg))
                 raise ValueError
         return default
 
@@ -252,23 +261,23 @@ See also 'examine' an 'whatis'.
             self.errmsg("Expecting 'on', 1, 'off', or 0. Got: %s." % str(arg))
         raise ValueError
 
-    def get_pos_int(self, arg, min=0, default = 1, cmdname=None):
+    def get_pos_int(self, arg, min_value=0, default=1, cmdname=None):
         """If no argument use the default If arg is a positive int at
-        least min, use that otherwise report an error."""
+        least min_value, use that otherwise report an error."""
         if arg:
             try: 
                 # eval() is used so we will allow arithmetic expressions,
                 # variables etc.
                 default = int(eval(arg))
-                if default < min:
+                if default < min_value:
                     if cmdname:
                         self.errmsg(('%s command: Expecting a positive ' +
-                                     'integer at least %d, got: %d') 
-                                    % (cmdname, min, default))
+                                     'integer at least %d, got: %d.') 
+                                    % (cmdname, min_value, default))
                     else: 
                         self.errmsg(('Expecting a positive ' +
                                      'integer at least %d, got: %d')
-                                    % (min, default))
+                                    % (min_value, default))
                     # Really should use something custom? 
                     raise ZeroDivisionError
                     

@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.111 2007/01/25 12:46:42 rockyb Exp $"""
+$Id: gdb.py.in,v 1.112 2007/01/26 13:14:34 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -807,7 +807,7 @@ the .py suffix may be omitted."""
             bnum = len(bdb.Breakpoint.bpbynumber)-1
         else:
             try:
-                bnum = self.get_pos_int(arg, min=0, default=None,
+                bnum = self.get_pos_int(arg, min_value=0, default=None,
                                         cmdname="'commands'")
             except ValueError:
                 return False
@@ -846,7 +846,7 @@ the .py suffix may be omitted."""
 
         args = arg.split(' ', 1)
         try:
-            bpnum = self.get_pos_int(args[0].strip(), min=1,
+            bpnum = self.get_pos_int(args[0].strip(), min_value=1,
                                      cmdname='condition')
         except ValueError:
             return
@@ -859,7 +859,7 @@ the .py suffix may be omitted."""
         try:
             bp = bdb.Breakpoint.bpbynumber[bpnum]
         except IndexError:
-            self.errmsg("No breakpoint number %d." % bpnum)
+            self.errmsg("No breakpoint numbered %d." % bpnum)
             return False
         if bp:
             bp.cond = cond
@@ -960,7 +960,7 @@ position before running an (unconditional) continue."""
         numberlist = arg.split()
         for arg in numberlist:
             try:
-                i = self.get_pos_int(arg, min=1, default=None,
+                i = self.get_pos_int(arg, min_value=1, default=None,
                                      cmdname='delete')
             except ValueError:
                 continue
@@ -1000,7 +1000,7 @@ the default."""
 
         args = arg.split()
         if len(args) == 0:
-            self.errmsg('No breakpoint number given')
+            self.errmsg('No breakpoint number given.')
             return
         if args[0] == 'display':
             self.display_enable(args[1:], 0)
@@ -1009,11 +1009,11 @@ the default."""
             try:
                 i = int(i)
             except ValueError:
-                self.msg('Breakpoint index %r is not a number' % i)
+                self.msg('Breakpoint index %r is not a number.' % i)
                 continue
 
             if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.msg('No breakpoint numbered %d' % i)
+                self.msg('No breakpoint numbered %d.' % i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
@@ -1146,8 +1146,8 @@ that."""
             i = self.get_an_int(i, 'Breakpoint index %r is not a number' % i)
             if i is None: continue
 
-            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
-                self.errmsg('No breakpoint numbered %d' % i)
+            if not (1 <= i < len(bdb.Breakpoint.bpbynumber)):
+                self.errmsg('No breakpoint numbered %d.' % i)
                 continue
 
             bp = bdb.Breakpoint.bpbynumber[i]
@@ -1259,12 +1259,16 @@ recognized actions include "stop", "nostop", "print", "noprint",
 
         bpnum = self.get_an_int(args[0],
                                 ("ignore: bpnumber %s does not evaluate to an"
-                                + " integer") % args[0])
+                                + " integer") % args[0], min_value=1)
         if bpnum is None: return False
+        if not (0 <= bpnum < len(bdb.Breakpoint.bpbynumber)):
+                self.errmsg('No breakpoint numbered %d.' % bpnum)
+                return False
+
         if len(args) > 1:
             count = self.get_an_int(args[1],
                                     ("ignore: count %s does not evaluate to an"
-                                    + " integer") % args[0])
+                                    + " integer.") % args[0], min_value=0)
             if count is None: return False
         else:
             count = 0

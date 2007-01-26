@@ -32,7 +32,7 @@ Number of source lines pydb will list by default is 10.
 +show listsi
 Number of source lines pydb will list by default is 20.
 +set listsize abc
-*** Expecting an integer, got: abc
+*** Expecting an integer, got: abc.
 +set listsize -20
 +set listsize 20 forever
 +########################################
@@ -62,13 +62,13 @@ Maximum number of characters in an argument list is 100
 +###  bad enable disable
 +########################################
 +enable 10
-*** No breakpoint numbered 10
+*** No breakpoint numbered 10.
 +disable 10
-No breakpoint numbered 10
+No breakpoint numbered 10.
 +enable foo
 *** Breakpoint index 'foo' is not a number
 +disable foo
-Breakpoint index 'foo' is not a number
+Breakpoint index 'foo' is not a number.
 +########################################
 +###   test list
 +########################################
@@ -239,16 +239,16 @@ pydb's prompt is "(Pydb) ".
 +###   test numeric argument syntax 
 +########################################
 +up fdsafdsa
-*** up command: Expecting an integer, got: fdsafdsa
+*** up command: Expecting an integer, got: fdsafdsa.
 +u='foo'
 +down 1 b c
-*** down command: Expecting an integer, got: 1 b c
+*** down command: Expecting an integer, got: 1 b c.
 +frame foo
 *** The 'frame' command requires a frame number. Got: foo
 +step -1
-*** step command: Expecting a positive integer at least 0, got: -1
+*** step command: Expecting a positive integer at least 0, got: -1.
 +next -1
-*** next command: Expecting a positive integer at least 0, got: -1
+*** next command: Expecting a positive integer at least 0, got: -1.
 +########################################
 +###   test info
 +########################################

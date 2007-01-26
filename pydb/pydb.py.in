@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.142 2007/01/25 19:04:44 rockyb Exp $"""
+$Id: pydb.py.in,v 1.143 2007/01/26 13:14:34 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -671,7 +671,8 @@ def main(p=None):
                 p.errmsg("Uncaught exception.")
                 break
             p.errmsg("Uncaught exception. Entering post mortem debugging")
-            p.errmsg( "Running 'c' or 'step' will restart the program")
+            if mainpyfile:
+                p.errmsg( "Running 'c' or 'step' will restart the program")
             p.running = False;
             t = sys.exc_info()[2]
 
@@ -691,7 +692,8 @@ def main(p=None):
                             " ".join(p._program_sys_argv[1:])))
             else:
                 p.msg("Post mortem debugger finished.")
-                p.msg(mainpyfile + " will be restarted")
+                if mainpyfile:
+                    p.msg(mainpyfile + " will be restarted")
         p.step_ignore = 0
 
     if p.stdout != sys.stdout:
