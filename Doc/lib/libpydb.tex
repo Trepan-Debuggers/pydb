@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.111 2007/01/15 12:53:03 rockyb Exp $
+% $Id: libpydb.tex,v 1.112 2007/01/26 13:17:04 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -277,7 +277,7 @@ want to make sure a user's profile doesn't get in the way. See
 the \samp{--nx} command option, \ref{switch:nx}.
 
 For tracking down problems with command files, see the \samp{set
-cmdtrace on} debugger command, \ref{command:cmdtrace}. To run a
+trace-commands on} debugger command, \ref{command:trace-commands}. To run a
 debugger command script inside the debugger see the \samp{source}
 command, \ref{command:source}.
 
@@ -450,7 +450,7 @@ be different. You may want to use this in other
 situtations as well, like showing a debugger session in a manual
 such as this one. 
 
-\item[set cmdtrace on\code{\Large{|}}off]\label{command:cmdtrace}
+\item[set trace-commands on\code{\Large{|}}off]\label{command:trace-commands}
  
 Show lines as they are read from the debugger command file (or
 \samp{source} debugger command). This is useful in running
@@ -693,7 +693,7 @@ restarted
 
 Show short or long filenames
 
-\item[show cmdtrace]
+\item[show trace-commands]
 
 Show the debugger commands before running
 
@@ -1430,7 +1430,7 @@ An error in any command terminates execution of the command and
 control is returned to the console.
 
 For tracking down problems with command files, see the \samp{set
-cmdtrace on} debugger command. See \ref{command:cmdtrace}. 
+trace-commands on} debugger command. See \ref{command:trace-commands}. 
 
 \item[unalias \var{name}]\label{command:unalias}
 
