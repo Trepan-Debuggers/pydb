@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.27 2007/01/25 19:04:44 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.28 2007/01/28 02:35:40 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -198,6 +198,14 @@ class Bdb(bdb.Bdb):
         if not self.breaks[filename]:
             del self.breaks[filename]
         return brkpts
+
+    def complete(self, text, state):
+        if hasattr(self, "completer"):
+            self.completer.namespace = self.curframe.f_globals.copy()
+            self.completer.namespace.update(self.curframe.f_locals)
+            cmds=self.all_completions(text)
+            self.completer.namespace.update(dict(zip(cmds, cmds)))
+            return self.completer.complete(text, state)
 
     def filename(self, filename=None):
         """Return filename or the basename of that depending on the

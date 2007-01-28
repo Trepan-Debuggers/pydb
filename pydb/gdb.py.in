@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.112 2007/01/26 13:14:34 rockyb Exp $"""
+$Id: gdb.py.in,v 1.113 2007/01/28 02:35:40 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -12,11 +12,13 @@ _version = '@PACKAGE_VERSION@'
 import atexit, inspect, linecache, os, pprint, pydoc, shlex
 import bdb, disassemble, re, subcmd, sys, types
 
+
 import pydbcmd, pydbbdb
 import signal
 import sighandler
 
 ## from connection import ConnectionServerFactory, ConnectionClientFactory, ConnectionFailed
+from bdb         import BdbQuit
 from display     import Display, DisplayNode
 from fns         import *
 from info        import *
@@ -144,6 +146,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         # Try to load readline if it exists
         try:
             import @READLINE@
+            import rlcompleter
+            self.completer = rlcompleter.Completer(sys._getframe().f_locals)
             self.hist_last = 0
             self.hist_save = False
             self.set_history_length = readline.set_history_length
@@ -196,7 +200,14 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         breadcrumb = is_in_gdb_dispatch
 
-        return self.trace_dispatch_old(frame, event, arg)
+        try:
+            return self.trace_dispatch_old(frame, event, arg)
+        except BdbQuit:
+            if self.noninteractive:
+                arg='unconditionally'
+            else:
+                arg=''
+            return self.do_kill('')
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
