@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.114 2007/01/28 09:46:48 rockyb Exp $"""
+$Id: gdb.py.in,v 1.115 2007/01/28 10:35:43 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -148,6 +148,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         try:
             import @READLINE@
             import rlcompleter
+            self.readline  = readline
             self.completer = rlcompleter.Completer(sys._getframe().f_locals)
             self.hist_last = 0
             self.hist_save = False
