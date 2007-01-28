@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.143 2007/01/26 13:14:34 rockyb Exp $"""
+$Id: pydb.py.in,v 1.144 2007/01/28 09:46:48 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -255,6 +255,9 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
     # We don't support "run" so we'll make "run" and "R" be "restart"
     _pydb_trace.do_R = _pydb_trace.do_run = _pydb_trace.do_restart
     _pydb_trace.curframe=inspect.currentframe()
+
+    # Dispatcher needs to field BdbQuit exception
+    _pydb_trace.field_BdbQuit   = True
 
     if _pydb_trace.running:
         _pydb_trace.do_next('2')

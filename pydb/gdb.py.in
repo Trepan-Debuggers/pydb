@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.113 2007/01/28 02:35:40 rockyb Exp $"""
+$Id: gdb.py.in,v 1.114 2007/01/28 09:46:48 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -74,6 +74,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
+        self.field_BdbQuit   = False  # does dispatcher field BdbQuit?
         self.is_in_dbg       = is_in_gdb
         self.lastcmd         = ''     # last debugger command run
         self.linetrace       = False
@@ -203,11 +204,15 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         try:
             return self.trace_dispatch_old(frame, event, arg)
         except BdbQuit:
-            if self.noninteractive:
-                arg='unconditionally'
+            if self.field_BdbQuit:
+                if self.noninteractive:
+                    arg='unconditionally'
+                else:
+                    arg=''
+                self.do_kill('')
+                return False
             else:
-                arg=''
-            return self.do_kill('')
+                raise BdbQuit
 
     def __adjust_frame(self, pos, absolute_pos):
         """Adjust stack frame by pos positions. If absolute_pos then
