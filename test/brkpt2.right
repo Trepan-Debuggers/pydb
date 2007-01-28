@@ -56,6 +56,15 @@ No breakpoints.
 -> 0 gcd(a=3, b=5) called from file 'gcd.py' at line 35
 ## 1 <module>() called from file 'gcd.py' at line 41
 +###############################################################
++### Test frame command
++###############################################################
++frame 0
+(gcd.py:35):  gcd
++frame 1*2
+(<string>:1):  <module>
++frame -3
+(gcd.py:41):  <module>
++###############################################################
 +### Test ignore
 +###############################################################
 +ignore 0 1

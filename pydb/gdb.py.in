@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.115 2007/01/28 10:35:43 rockyb Exp $"""
+$Id: gdb.py.in,v 1.116 2007/01/28 23:31:41 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -234,7 +234,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                 if pos >= 0:
                     pos = len(self.stack)-pos-1
                 else:
-                    pos -= len(self.stack)
+                    pos = -pos-1
             elif pos < 0:
                 pos = len(self.stack)+pos
         else:

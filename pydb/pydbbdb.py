@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.29 2007/01/28 10:35:43 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.30 2007/01/28 23:31:41 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -208,7 +208,7 @@ class Bdb(bdb.Bdb):
                 line_buffer=''
                 cmds=self.all_completions(text)
             self.completer.namespace = dict(zip(cmds, cmds))
-            if len(line_buffer.strip()) == 0:
+            if len(line_buffer.strip()) in ['', 'p', 'pp', 'x', 'whatis']:
                 self.completer.namespace.update(self.curframe.f_globals.copy())
                 self.completer.namespace.update(self.curframe.f_locals)
             return self.completer.complete(text, state)
