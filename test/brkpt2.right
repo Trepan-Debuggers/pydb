@@ -60,17 +60,17 @@ No breakpoints.
 +###############################################################
 +frame 0
 (gcd.py:35):  gcd
-+frame 1*2
++frame abs(-1*2)
 (<string>:1):  <module>
 +frame -3
 (gcd.py:41):  <module>
++frame -2
+(<string>:1):  <module>
 +###############################################################
 +### Test ignore
 +###############################################################
 +ignore 0 1
 *** Expecting integer value to be at least 1, got: 0.
-+break 11
-Breakpoint 7 set in file gcd.py, line 11.
 +ignore 4 -1
 +## FIXME: need a real ignore test, not just invalid cases
 +quit

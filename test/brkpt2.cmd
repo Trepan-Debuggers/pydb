@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt2.cmd,v 1.7 2007/01/28 23:31:45 rockyb Exp $
+# $Id: brkpt2.cmd,v 1.8 2007/01/29 02:58:10 rockyb Exp $
 #
 set basename on
 set trace-commands on
@@ -42,13 +42,13 @@ where 2
 ### Test frame command
 ###############################################################
 frame 0
-frame 1*2
+frame abs(-1*2)
 frame -3
+frame -2
 ###############################################################
 ### Test ignore
 ###############################################################
 ignore 0 1
-break 11
 ignore 4 -1
 ## FIXME: need a real ignore test, not just invalid cases
 quit
