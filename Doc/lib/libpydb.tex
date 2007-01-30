@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.112 2007/01/26 13:17:04 rockyb Exp $
+% $Id: libpydb.tex,v 1.113 2007/01/30 11:05:34 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1732,8 +1732,9 @@ See \ref{command:tbreak}. If a specific thread name is given then a
 
 \section{The Debugger Module (\module{pydb}) and Class (\class{Pdb}) \label{pydb-module-class}}
 
-The module \module{pydb} defines an interactive source code
-debugger\index{debugging} for Python programs.
+The module \module{pydb} defines a source-code
+debugger\index{debugging} for Python programs which is command-line
+oriented. 
 
 \file{pydb.py} can be invoked as a script to debug other scripts.  For
 example:
@@ -1765,14 +1766,16 @@ name here is \code{completekey} an its default value is the tab key.
 
 The \class{Pdb} extension interface of \class{Gdb} a gdb-like debugger
 command interface. This in turn inherts from \class{Cmd} and
-\class{Bdb}; \class{Cmd} handles command-line aspects (e.g. keyboard
-input, completion, help system, top-level command-invocation), while
+\class{Bdb}. The \class{Bdb} class is described in the next section.
+
+\class{Cmd} handles command-line aspects (e.g. keyboard input,
+completion, help system, top-level command-invocation), while
 \class{Bdb} handles debugger aspects (e.g. breakpoints, stepping, call
 stack formatting). However \class{Cmd} and \class{Bdb} go through two
 more modules \module{pycmd} and \module{pybdb} which are extensions of
-\ulink{\module{cmd}}{http://docs.python.org/lib/module-cmd.html} and \module{bdb}
-respectively. In general these extensions are used to paper over
-deficiencies or differences in operation that are needed.
+\ulink{\module{cmd}}{http://docs.python.org/lib/module-cmd.html} and
+\module{bdb} respectively. In general these extensions are used to
+paper over deficiencies or differences in operation that are needed.
 
 All of the methods intended for outside use are documented. In fact
 the help documentation for commands comes from the document strings of
@@ -2287,6 +2290,71 @@ Another name for debugger. This is the older name and is kept for
 backward compatibility with pdb. Also it is analogous to the
 underlying command used in the \ulink{\module{sys}}{http://docs.python.org/lib/module-sys.html} of the same name.
 \end{funcdesc}
+
+\section{The ``Basic'' Debugger module (\module{bdb}) and Classes \class{Bdb} and \class{Breakpoint}\label{bdb-module-class}}
+
+As mentioned in the previous section the \class{Pdb} class is really
+an inheritance of two other classes, \class{Cmd} and
+\class{Bdb}. While the \class{Cmd} class handles command-like
+interaction, the \class{Bdb} handles basic debugger functions. It is
+the meat of this debugger or any debugger. Thus, you will find other
+debuggers such as
+\ulink{Eric}{http://www.die-offenbachs.de/detlev/eric.html} or Idle
+using the \module{bdb} module (not \module{pdb} or \class{pydb}).
+
+The module defines an exception used for quitting the debugger
+\class{BdbQuit}. It defines two other classes: \class{Bdb}, basic
+debugger routines, and \class{Breakpoint} a class for handling
+debugger breakpoints.
+
+\begin{classdesc}{Bdb}{}\label{Bdb}
+
+\begin{methoddesc}{canonic}{filename}
+  Regularizes or canonicalizes filename in some sort of standard
+  form. This may involve regularizing the case of letters, using
+  the absolute pathname
+\end{methoddesc}
+
+\begin{methoddesc}{reset}{}
+  The debugger keeps track of frames it needs to stop at. This routine
+  resets this information so that no frames are recorded as places to
+  enter the debugger.
+\end{methoddesc}
+
+\begin{methoddesc}{trace_dispatch}{}
+  This gets called on every debugger event and reroutes or dispatches
+  the call based on the efent. Events are described in the next
+  section \ref{debugger-hooks}.  
+\end{methoddesc}
+
+\begin{methoddesc}{dispatch_exception}{}
+  Called from trace_dispatch on an ``exception'' event. Generally you
+  don't change this but instead override \method{user_exception}.
+\end{methoddesc}
+
+\begin{methoddesc}{dispatch_line}{}
+  Called from trace_dispatch on an ``line'' event. Generally you
+  don't change this but instead override \method{user_line}.
+\end{methoddesc}
+
+\begin{methoddesc}{dispatch_return}{}
+  Called from trace_dispatch on an ``return event. Generally you
+  don't change this but instead override \method{user_return}.
+\end{methoddesc}
+
+\begin{methoddesc}{user_exception}{}
+  Called on an ``exception'' event. Debuggers may override this method.
+\end{methoddesc}
+
+\begin{methoddesc}{user_line}{}
+  Called on a ``line'' event. Debuggers may override this method.
+\end{methoddesc}
+
+\begin{methoddesc}{user_return}{}
+  Called on a ``return'' event. Debuggers may override this method.
+\end{methoddesc}
+
+\end{classdesc}
 
 \section{How the Debugger Works \label{debugger-hooks}}
 
