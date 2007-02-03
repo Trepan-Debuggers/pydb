@@ -33,7 +33,8 @@
 * work-around a possible Python 2.5 bug manifested in pm/post_mortem where
   t.tb_frame.f_lineno != t.tb_lineno
 
-* Experimental command completion.
+* Experimental command completion. "complete" command now adds in local and
+  global names on the first word
 
 * Handle a quit when called via pydb.debugger(). Also experimental.
 

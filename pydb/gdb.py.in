@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.116 2007/01/28 23:31:41 rockyb Exp $"""
+$Id: gdb.py.in,v 1.117 2007/02/03 18:57:03 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -277,11 +277,13 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             args = arg.split()
             cmd_prefix=args[0]
         if len(args) > 1:
+            # Subcommand completion
             complete_cmds = pydbcmd.Cmd.complete(self, cmd_prefix, 0)
             if complete_cmds is not None and args[0] in complete_cmds:
                 return self.__complete_subcommand(args, args[1])
-            return
+            return None
 
+        # command completion for initial word
         seen = {};
         i=0
         completions = []
@@ -293,6 +295,17 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
                 seen[text]=True
             i += 1
             text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
+
+        # Add in command completion of global and local variables
+        fr=self.curframe
+        if fr:
+            for name in fr.f_globals.keys() + fr.f_globals.keys():
+                if name.startswith(cmd_prefix):
+                    if text not in seen.keys():
+                        completions.append(name)
+                        seen[text]=True
+            
+        completions.sort()
         return completions
 
     def __do_complete(self, arg):
