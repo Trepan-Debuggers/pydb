@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.117 2007/02/03 18:57:03 rockyb Exp $"""
+$Id: gdb.py.in,v 1.118 2007/02/03 19:10:46 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -301,9 +301,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if fr:
             for name in fr.f_globals.keys() + fr.f_globals.keys():
                 if name.startswith(cmd_prefix):
-                    if text not in seen.keys():
+                    if name not in seen.keys():
                         completions.append(name)
-                        seen[text]=True
+                        seen[name]=True
             
         completions.sort()
         return completions
