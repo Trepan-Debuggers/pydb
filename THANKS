@@ -8,6 +8,11 @@ the organization and phrases from the GNU Debugger Manual (gdb).
 Stuart Frankel, Ph. Mad. did some amazing proof reading and editing of
 the manual. (I may have mucked it up some since then though.)
 
+Also thanks to:
 
-$Id: THANKS,v 1.1 2006/01/29 18:45:17 rockyb Exp $
+Stephen Emslie        - Python Patch 1641544 
+Matt Fleming          - Gdb-style signal handling and NetBSD packaging
+Oleksandr Moskalenko  - Debian packaging
+
+$Id: THANKS,v 1.2 2007/02/03 21:04:26 rockyb Exp $
 
