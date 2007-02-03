@@ -28,7 +28,7 @@
 * Add "set"/"show" option to force debugger output to be flushed on
   write.
 
-* Add "set"/"show" cmdtrace is now trace-commands to match gdb 6.6.
+* set/show "cmdtrace" is now "trace-commands" to match gdb 6.6.
 
 * work-around a possible Python 2.5 bug manifested in pm/post_mortem where
   t.tb_frame.f_lineno != t.tb_lineno
