@@ -1,5 +1,5 @@
-"""Handles gdb-like subcommand processing.
-$Id: subcmd.py,v 1.8 2007/02/04 11:38:53 rockyb Exp $"""
+"""Handles gdb-like subcommand processing."""
+__revision="$Id: subcmd.py,v 1.9 2007/02/04 13:00:12 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -21,10 +21,10 @@ $Id: subcmd.py,v 1.8 2007/02/04 11:38:53 rockyb Exp $"""
 class Subcmd:
     """Gdb-like subcommand handling """
     def __init__(self, name, doc):
-        self.name=name
-        self.doc=doc
-        self.subcmds={}
-        self.cmdlist=[]
+        self.name    = name
+        self.doc     = doc
+        self.subcmds = {}
+        self.cmdlist = []
 
     def lookup(self, subcmd_prefix):
         """Find subcmd in self.subcmds"""
@@ -39,7 +39,7 @@ class Subcmd:
         if label:
             obj.msg_nocr("%s %s --" % (self.name, subcmd_name))
 
-        entry=self.lookup(subcmd_name)
+        entry = self.lookup(subcmd_name)
         if entry:
             d = entry['doc']
             if strip:
@@ -83,7 +83,7 @@ class Subcmd:
     def help(self, obj, *args):
         """help for subcommands."""
 
-        subcmd_prefix=args[0]
+        subcmd_prefix = args[0]
         if not subcmd_prefix or len(subcmd_prefix) == 0:
             obj.msg(self.doc)
             obj.msg("""
@@ -93,7 +93,7 @@ List of %s subcommands:
                 self._subcmd_helper(subcmd_name, obj, True, True)
             return
 
-        entry=self.lookup(subcmd_prefix)
+        entry = self.lookup(subcmd_prefix)
         if entry:
             self._subcmd_helper(entry['name'], obj)
         else:
@@ -101,22 +101,23 @@ List of %s subcommands:
                        % (self.name, subcmd_prefix))
 
     def list(self):
-        l=self.subcmds.keys()
+        l = self.subcmds.keys()
         l.sort()
         return l
 
 
 # When invoked as main program, invoke the debugger on a script
-if __name__=='__main__':
+if __name__ == '__main__':
 
     class FakeGdb:
+        "A Mock Gdb class"
         def msg_nocr(self, msg): print msg,
         def msg(self, msg): print msg
         def errmsg(self, msg): print msg
 
         def info_args(self, arg):
-          "Print the arguments of the current function."
-          print "a=1, b=2"
+            "Print the arguments of the current function."
+            print "a=1, b=2"
         def info_break(self, arg):
             "Without argument, list info about all breakpoints"
             print "no breakpoints"
@@ -138,15 +139,14 @@ if __name__=='__main__':
             print "cmdtraces is on."
 
 
-    gdb=FakeGdb()
-    infocmd=Subcmd('info',
-                   """Generic command for showing things about the program being debugged.
-             """)
+    gdb = FakeGdb()
+    infocmd = Subcmd('info',
+"""Generic command for showing things about the program being debugged. """)
 
     infocmd.add('args', gdb.info_args)
     infocmd.add('break', gdb.info_break)
-    showcmd=Subcmd('show',
-                   """Generic command for showing things about the debugger.""")
+    showcmd = Subcmd('show',
+    """Generic command for showing things about the debugger.""")
     showcmd.add('args', gdb.show_args)
     showcmd.add('basename', gdb.show_basename,)
     showcmd.add('cmdtrace', gdb.show_cmdtrace)
@@ -160,8 +160,8 @@ if __name__=='__main__':
     infocmd.help(gdb, '')
     print "-" * 20
     infocmd.help(gdb, 'basename')
-    setcmd=Subcmd('set',
-             """This command modifies parts of the debugger environment.
+    setcmd = Subcmd('set',
+    """This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command.""")
 
     setcmd.add('args', gdb.set_args)
