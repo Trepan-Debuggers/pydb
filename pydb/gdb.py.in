@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.122 2007/02/04 14:17:06 rockyb Exp $"""
+$Id: gdb.py.in,v 1.123 2007/02/04 14:54:02 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -82,7 +82,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.__init_set()    # Initialize 'set' subcommands
         self.__init_show()   # Initialize 'show' subcommands
 
-        self.all_completions = all_completions
+        self.all_completions = lambda arg: all_completions(self, arg)
         self.basename        = False
         self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
@@ -281,7 +281,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         """Print a list of command names that can start with the
         supplied command prefix. If there is no completion nothing
         is printed."""
-        completions = self.all_completions(self, arg)
+        completions = self.all_completions(arg)
         if completions is None: return
         for complete in completions:  self.msg(complete)
         return

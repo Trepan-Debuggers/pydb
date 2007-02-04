@@ -98,22 +98,6 @@ def list_completions(l, prefix, seen, completions, left_context=''):
                 seen[name]=True
     return completions
 
-def rl_complete(obj, text, state):
-    """A readline complete replacement function."""
-    if hasattr(obj, "completer"):
-        if obj.readline:
-            line_buffer=obj.readline.get_line_buffer()
-            cmds=obj.all_completions(line_buffer)
-        else:
-            line_buffer=''
-            cmds=obj.all_completions(text)
-        obj.completer.namespace = dict(zip(cmds, cmds))
-        if len(line_buffer.strip()) in ['', 'p', 'pp', 'x', 'whatis']:
-            obj.completer.namespace.update(obj.curframe.f_globals.copy())
-            obj.completer.namespace.update(obj.curframe.f_locals)
-        return obj.completer.complete(text, state)
-    return None
-
 # When invoked as main program, some little tests
 if __name__=='__main__':
     c=[]; seen={}
