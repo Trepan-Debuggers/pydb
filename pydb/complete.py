@@ -63,22 +63,33 @@ def complete_subcommand(obj, subcmd, prefix):
        """
     completions = []
     subcmd_name = "%scmds" % subcmd[0]
+    left_context="%s " % subcmd[0]
+    seen={}
     if hasattr(obj, subcmd_name):
         subcmd_obj = getattr(obj, subcmd_name)
         if hasattr(subcmd_obj, "cmdlist"):
-            left_context="%s " % subcmd[0]
-            seen={}
             completions = list_completions(l=subcmd_obj.cmdlist,
                                            prefix=prefix,
                                            seen=seen,
                                            completions=completions,
                                            left_context=left_context)
+    if subcmd[0] in obj.first_can_be_obj:
+        fr=obj.curframe
+        if fr:
+            l = fr.f_globals.keys() + fr.f_globals.keys()
+            completions=list_completions(l=l,
+                                         prefix=prefix,
+                                         seen=seen,
+                                         completions=completions,
+                                         left_context=left_context)
+        
     return completions
 
 def list_completions(l, prefix, seen, completions, left_context=''):
     """Given a list l, add to completions those which start with prefix.
-    We omit any that are in the dictionary of boolean values, 'seen' and to
-    that we add those value in l that we've added. completions is returned.
+    We omit any that are in the dictionary of boolean values, 'seen'. To
+    that we add those values in l that we've added. completions is returned.
+    left_context is the prepended to each completion string.
     """
     for name in l:
         if name.startswith(prefix):

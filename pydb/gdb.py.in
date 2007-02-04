@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.119 2007/02/04 11:38:53 rockyb Exp $"""
+$Id: gdb.py.in,v 1.120 2007/02/04 12:09:05 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -76,6 +76,14 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.display         = Display()
         self.gdb_dialect     = True   # Controls how stack is shown
         self.field_BdbQuit   = False  # does dispatcher field BdbQuit?
+
+        # A list of the commands for which the first argument can be a
+        # Python object. This is used by subcommand completions.
+        self.first_can_be_obj = [
+            "disassemble", "examine", "help", "p", "pp", "pydoc", "x",
+            "whatis"
+            ]
+        
         self.is_in_dbg       = is_in_gdb
         self.lastcmd         = ''     # last debugger command run
         self.linetrace       = False
