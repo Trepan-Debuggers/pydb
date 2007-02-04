@@ -2,7 +2,7 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: gdb.py.in,v 1.118 2007/02/03 19:10:46 rockyb Exp $"""
+$Id: gdb.py.in,v 1.119 2007/02/04 11:38:53 rockyb Exp $"""
 
 _debugger_name = '@PACKAGE_NAME@'
 
@@ -16,6 +16,7 @@ import bdb, disassemble, re, subcmd, sys, types
 import pydbcmd, pydbbdb
 import signal
 import sighandler
+from complete import *
 
 ## from connection import ConnectionServerFactory, ConnectionClientFactory, ConnectionFailed
 from bdb         import BdbQuit
@@ -252,67 +253,11 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.print_location()
         self.lineno = None
 
-    def __complete_subcommand(self, subcmd, text):
-        """Print a list of completions for subcmd that start with text.
-           We get the list of completions from self._*subcmd*_cmds.
-           If no completion we return the empty list.
-           """
-        matches = []
-        subcmd_name = "%scmds" % subcmd[0]
-        if hasattr(self, subcmd_name):
-            subcmd_obj = getattr(self, subcmd_name)
-            if hasattr(subcmd_obj, "cmdlist"):
-                for word in subcmd_obj.cmdlist:
-                    if word.startswith(text):
-                        matches.append("%s %s" % (subcmd[0], word))
-        return matches
-
-    def all_completions(self, arg):
-        """Return a list of command names that can start with the
-        supplied command prefix."""
-        if not arg:
-            cmd_prefix=''
-            args=[]
-        else:
-            args = arg.split()
-            cmd_prefix=args[0]
-        if len(args) > 1:
-            # Subcommand completion
-            complete_cmds = pydbcmd.Cmd.complete(self, cmd_prefix, 0)
-            if complete_cmds is not None and args[0] in complete_cmds:
-                return self.__complete_subcommand(args, args[1])
-            return None
-
-        # command completion for initial word
-        seen = {};
-        i=0
-        completions = []
-        text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
-        while True:
-            if text is None: break
-            if text not in seen.keys():
-                completions.append(text)
-                seen[text]=True
-            i += 1
-            text=pydbcmd.Cmd.complete(self, cmd_prefix, i)
-
-        # Add in command completion of global and local variables
-        fr=self.curframe
-        if fr:
-            for name in fr.f_globals.keys() + fr.f_globals.keys():
-                if name.startswith(cmd_prefix):
-                    if name not in seen.keys():
-                        completions.append(name)
-                        seen[name]=True
-            
-        completions.sort()
-        return completions
-
     def __do_complete(self, arg):
         """Print a list of command names that can start with the
         supplied command prefix. If there is no completion nothing
         is printed."""
-        completions = self.all_completions(arg)
+        completions = all_completions(self, arg)
         if completions is None: return
         for complete in completions:  self.msg(complete)
         return
@@ -1909,9 +1854,6 @@ was reached.
             self.infocmds.help(self, args[0])
             return
         return
-
-    def help_pydb(self, *arg):
-        help()
 
     # Note: format of help is compatible with ddd.
     def help_set(self, args):

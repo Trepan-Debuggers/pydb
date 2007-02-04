@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.30 2007/01/28 23:31:41 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.31 2007/02/04 11:38:53 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -6,17 +6,15 @@ get merged into bdb.py
 import bdb, inspect, linecache, time, types
 from repr import Repr
 from fns import *
+from complete import rl_complete
 
 class Bdb(bdb.Bdb):
 
     def __init__(self):
         bdb.Bdb.__init__(self)
 
-        # A 0 value means stop on this occurrence. A positive value means to
-        # skip that many more step/next's.
-        self.step_ignore = 0
-
-        self.bdb_set_trace = bdb.Bdb.set_trace
+        self.bdb_set_trace   = bdb.Bdb.set_trace
+        self.complete        = rl_complete
 
         # Create a custom safe Repr instance and increase its maxstring.
         # The default of 30 truncates error messages too easily.
@@ -27,6 +25,11 @@ class Bdb(bdb.Bdb):
         self._repr.maxfrozen = 10
         self._repr.array     = 10
         self._saferepr = self._repr.repr
+
+        # A 0 value means stop on this occurrence. A positive value means to
+        # skip that many more step/next's.
+        self.step_ignore      = 0
+        return
 
     def __print_location_if_linetrace(self, frame):
         if self.linetrace:
@@ -198,21 +201,6 @@ class Bdb(bdb.Bdb):
         if not self.breaks[filename]:
             del self.breaks[filename]
         return brkpts
-
-    def complete(self, text, state):
-        if hasattr(self, "completer"):
-            if self.readline:
-                line_buffer=self.readline.get_line_buffer()
-                cmds=self.all_completions(line_buffer)
-            else:
-                line_buffer=''
-                cmds=self.all_completions(text)
-            self.completer.namespace = dict(zip(cmds, cmds))
-            if len(line_buffer.strip()) in ['', 'p', 'pp', 'x', 'whatis']:
-                self.completer.namespace.update(self.curframe.f_globals.copy())
-                self.completer.namespace.update(self.curframe.f_locals)
-            return self.completer.complete(text, state)
-        return None
 
     def filename(self, filename=None):
         """Return filename or the basename of that depending on the

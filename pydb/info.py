@@ -1,7 +1,24 @@
-# -*- coding: utf-8 -*-
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-$Id: info.py,v 1.8 2007/01/16 13:13:51 rockyb Exp $"""
+$Id: info.py,v 1.9 2007/02/04 11:38:53 rockyb Exp $"""
+# -*- coding: utf-8 -*-
+#   Copyright (C) 2006, 2007 Rocky Bernstein
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#    02110-1301 USA.
+
 import bdb, fns, inspect, os, pprint
 
 # from threadinfo import *

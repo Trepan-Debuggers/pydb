@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.57 2007/01/25 19:04:44 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.58 2007/02/04 11:38:52 rockyb Exp $])dnl
 AC_INIT([pydb],[1.21cvs],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 MIN_VERSION='2.3.3'
@@ -128,6 +128,7 @@ AC_CONFIG_FILES([pydb/__init__.py])
 AC_CONFIG_FILES([pydb/gdb.py])
 AC_CONFIG_FILES([pydb/pydb.py],[chmod +x pydb/pydb.py])
 AC_CONFIG_FILES([setup.py],[chmod +x setup.py])
+AC_CONFIG_FILES([test/complete.py],[chmod +x test/complete.py])
 AC_CONFIG_FILES([test/connect.py],[chmod +x test/connect.py])
 AC_CONFIG_FILES([test/disassem.py],[chmod +x test/disassem.py])
 AC_CONFIG_FILES([test/except.py],[chmod +x test/except.py])

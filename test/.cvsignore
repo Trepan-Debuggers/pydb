@@ -4,6 +4,7 @@
 *.pyo
 Makefile
 Makefile.in
+complete.py
 connect.py
 disassem.py
 except.py

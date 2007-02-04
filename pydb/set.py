@@ -1,7 +1,24 @@
-"""$Id: set.py,v 1.14 2007/01/13 04:37:58 rockyb Exp $
-set subcommands, except those that need some sort of text substitution.
+"""set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
+$Id: set.py,v 1.15 2007/02/04 11:38:53 rockyb Exp $
 """
+# -*- coding: utf-8 -*-
+#   Copyright (C) 2006, 2007 Rocky Bernstein
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#    02110-1301 USA.
 
 import inspect, re, sighandler, sys
 
@@ -19,6 +36,7 @@ class SubcmdSet:
             self.logging_file = filename
         except:
             self.errmsg("Error in opening %s" % filename)
+        return
 
     ######## Note: the docstrings of methods here get used in
     ######## help output.
@@ -32,6 +50,7 @@ Follow this command with any number of args, to be passed to the program."""
         else:
             self._program_sys_argv = []
             self._program_sys_argv[:0] = argv_start
+        return
 
     def set_basename(self, args):
         """Set short filenames (the basename) in debug output"""
@@ -39,6 +58,7 @@ Follow this command with any number of args, to be passed to the program."""
             self.basename = self.get_onoff(args[1])
         except ValueError:
             pass
+        return
 
     def set_cmdtrace(self, args):
         """Set to show lines read from the debugger command file"""
@@ -46,6 +66,7 @@ Follow this command with any number of args, to be passed to the program."""
             self.cmdtrace = self.get_onoff(args[1])
         except ValueError:
             pass
+        return
 
     def set_dbg_pydb(self, args):
         """Set whether we allow tracing the debugger.
@@ -62,6 +83,7 @@ object variables.
 
         except ValueError:
             pass
+        return
 
     def set_debug_signal(self, args):
         """Set the signal sent to a process to trigger debugging."""
@@ -94,6 +116,7 @@ object variables.
             self.flush = self.get_onoff(args[1])
         except ValueError:
             pass
+        return
 
     def set_history(self, args):
         """Generic command for setting command history parameters."""
@@ -119,6 +142,7 @@ object variables.
             self.noninteractive = not self.get_onoff(args[1])
         except ValueError:
             pass
+        return
 
     def set_linetrace(self, args):
         """Set line execution tracing and delay on tracing"""
@@ -136,6 +160,7 @@ object variables.
                 self.linetrace = self.get_onoff(args[1])
             except ValueError:
                 pass
+        return
 
     def set_listsize(self, args):
         """Set number of source lines the debugger will list by default."""
@@ -143,6 +168,7 @@ object variables.
             self.listsize = self.get_int(args[1])
         except ValueError:
             pass
+        return
 
     def set_logging(self, args):
         """Set logging options"""
@@ -180,6 +206,7 @@ set logging off
 set logging file FILENAME
 set logging overwrite [on|off]
 set logging redirect [on|off]""")
+        return
 
 
     def set_maxargsize(self, args):
@@ -188,6 +215,7 @@ set logging redirect [on|off]""")
             self.maxargstrsize = self.get_int(args[1])
         except ValueError:
             pass
+        return
 
     def set_prompt(self, args):
         """Set debugger's prompt"""
@@ -199,6 +227,7 @@ set logging redirect [on|off]""")
             self.prompt = mo.group(1)
         else:
             self.errmsg("Something went wrong trying to find the prompt")
+        return
 
     def set_sigcheck(self, args):
         """Set signal handler checking/adjusting.
@@ -227,12 +256,14 @@ signal is encountered you should set this on."""
             self.sigcheck = sigcheck
         except ValueError:
             pass
+        return
 
     def set_target_address(self, args):
         """Set the address of a target."""
         self.target_addr = "".join(["%s " % a for a in args[1:]])
         self.target_addr = self.target_addr.strip()
         self.msg('target address set to %s' % self.target_addr)
+        return
 
     def set_warnoptions(self, args):
 
@@ -249,3 +280,4 @@ Examples:
 
         sys.warnoptions = args[1:]
         self.show_warnoptions(args)
+        return
