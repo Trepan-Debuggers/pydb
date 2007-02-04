@@ -1,5 +1,5 @@
 """Routines to show Thread information
-$Id: threadinfo.py,v 1.3 2007/02/04 11:38:53 rockyb Exp $"""
+$Id: threadinfo.py,v 1.4 2007/02/04 12:50:36 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -18,7 +18,7 @@ $Id: threadinfo.py,v 1.3 2007/02/04 11:38:53 rockyb Exp $"""
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-import inspect, os, sys, thread, threading
+import inspect, os, sys, threading
 
 def find_nondebug_frame(obj, f):
     """Find the first frame that isn't a debugger frame.

@@ -7,7 +7,7 @@ communication line, or via a FIFO.
 
 Modified from Matt Fleming's 2006 Google Summer of Code project.
 
-$Id: connection.py,v 1.8 2007/01/08 12:09:19 rockyb Exp $"""
+$Id: connection.py,v 1.9 2007/02/04 12:50:36 rockyb Exp $"""
 
 NotImplementedMessage = "This method must be overriden in a subclass"
 
@@ -350,7 +350,6 @@ class ConnectionServerFactory:
         elif target.lower() == 'serial':
             return ConnectionSerial()
         elif target.lower() == 'fifo':
-            import os
             return ConnectionFIFO(is_server=True)
         else:
             return import_hook(target)
@@ -359,7 +358,7 @@ class ConnectionServerFactory:
 # When invoked as main program, do some basic tests 
 if __name__=='__main__':
     # FIFO test
-    import os, thread
+    import thread
     
     fname='test_file'
     server = ConnectionFIFO(is_server=True)

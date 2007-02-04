@@ -3,7 +3,6 @@
 import types
 from dis import distb, findlabels, findlinestarts
 from opcode import *
-from opcode import __all__ as _opcodes_all
 
 def dis(obj, x=None, start_line=-1, end_line=None):
     """Disassemble classes, methods, functions, or code.

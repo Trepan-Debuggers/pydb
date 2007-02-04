@@ -1,6 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-$Id: info.py,v 1.9 2007/02/04 11:38:53 rockyb Exp $"""
+"""
+__revision = "$Id: info.py,v 1.10 2007/02/04 12:50:36 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #

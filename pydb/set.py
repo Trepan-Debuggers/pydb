@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
-$Id: set.py,v 1.15 2007/02/04 11:38:53 rockyb Exp $
 """
+__revision__ = "$Id: set.py,v 1.16 2007/02/04 12:50:36 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -146,7 +146,7 @@ object variables.
 
     def set_linetrace(self, args):
         """Set line execution tracing and delay on tracing"""
-        if args[1]=='delay':
+        if args[1] == 'delay':
             try:
                 delay = float(args[2])
                 self.linetrace_delay = delay
@@ -191,7 +191,8 @@ object variables.
                     elif args[1] == 'overwrite':
                         self.logging_overwrite = self.get_onoff(args[2],
                                                                 default=True,
-                                                                print_error=True)
+                                                                print_error=True
+								)
                     elif args[1] == 'redirect':
                         self.logging_redirect = self.get_onoff(args[2],
                                                                default=True,
