@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.32 2007/02/04 14:54:02 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.33 2007/02/04 18:35:03 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -6,6 +6,7 @@ get merged into bdb.py
 import bdb, inspect, linecache, time, types
 from repr import Repr
 from fns import *
+## from complete import rl_complete
 
 class Bdb(bdb.Bdb):
 
@@ -13,7 +14,8 @@ class Bdb(bdb.Bdb):
         bdb.Bdb.__init__(self)
 
         self.bdb_set_trace   = bdb.Bdb.set_trace
-
+        ## self.complete        = lambda arg: complete.rl_complete(self, arg)
+        
         # Create a custom safe Repr instance and increase its maxstring.
         # The default of 30 truncates error messages too easily.
         self._repr = Repr()
@@ -201,17 +203,18 @@ class Bdb(bdb.Bdb):
         return brkpts
 
     def complete(self, text, state):
+        "A readline complete replacement"
         if hasattr(self, "completer"):
             if self.readline:
-                line_buffer=self.readline.get_line_buffer()
-                cmds=self.all_completions(line_buffer)
+                # line_buffer = self.readline.get_line_buffer()
+                cmds        = self.all_completions(line_buffer)
             else:
-                line_buffer=''
-                cmds=self.all_completions(text)
+                # line_buffer = ''
+                cmds        = self.all_completions(text)
+            #args = shlex.split(line_buffer)
             self.completer.namespace = dict(zip(cmds, cmds))
-            if len(line_buffer.strip()) in ['', 'p', 'pp', 'x', 'whatis']:
-                self.completer.namespace.update(self.curframe.f_globals.copy())
-                self.completer.namespace.update(self.curframe.f_locals)
+            self.completer.namespace.update(self.curframe.f_globals.copy())
+            self.completer.namespace.update(self.curframe.f_locals)
             return self.completer.complete(text, state)
         return None
 
