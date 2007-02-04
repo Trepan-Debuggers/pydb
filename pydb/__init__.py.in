@@ -1,3 +1,4 @@
+"""Python Debugger with a gdb-like command interface."""
 # -*- coding: UTF-8 -*-
 app_name = 'Python Extended Debugger'
 version = '@PACKAGE_VERSION@'
