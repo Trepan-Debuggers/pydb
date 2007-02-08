@@ -18,20 +18,21 @@
 #    02110-1301 USA.
 import pydbcmd
 
-def all_completions(obj, arg):
+def all_completions(obj, arg, add_left_context=True):
     """Return a list of command names that can start with the
     supplied command prefix."""
     if not arg:
-        cmd_prefix=''
         args=[]
+        cmd_prefix=''
     else:
         args = arg.split()
         cmd_prefix=args[0]
+            
     if len(args) > 1:
         # Subcommand completion
         complete_cmds = pydbcmd.Cmd.complete(obj, cmd_prefix, 0)
         if complete_cmds is not None and args[0] in complete_cmds:
-            return complete_subcommand(obj, args, args[1])
+            return complete_subcommand(obj, args, args[1], add_left_context)
         return None
 
     # command completion for initial word
@@ -56,14 +57,17 @@ def all_completions(obj, arg):
     completions.sort()
     return completions
 
-def complete_subcommand(obj, subcmd, prefix):
+def complete_subcommand(obj, subcmd, prefix, add_left_context=True):
     """Print a list of completions for subcmd that start with text.
        We get the list of completions from obj._*subcmd*_cmds.
        If no completion we return the empty list.
        """
     completions = []
     subcmd_name = "%scmds" % subcmd[0]
-    left_context="%s " % subcmd[0]
+    if add_left_context:
+        left_context="%s " % subcmd[0]
+    else:
+        left_context=""
     seen={}
     if hasattr(obj, subcmd_name):
         subcmd_obj = getattr(obj, subcmd_name)
@@ -82,6 +86,11 @@ def complete_subcommand(obj, subcmd, prefix):
                                          seen=seen,
                                          completions=completions,
                                          left_context=left_context)
+
+    # help command should include all debugger commands.
+    # FIXME: generalize
+    if subcmd[0] == 'help':
+        completions = completions + all_completions(obj, prefix, False)
         
     return completions
 
@@ -116,3 +125,14 @@ if __name__=='__main__':
     assert list_completions(l, "be", seen, c) == []
     c=[]; seen={}
     assert list_completions(l, "o",  seen, c, "foo") == []
+    import pydb
+    dbg = pydb.Pdb()
+    dbg.curframe = None
+    assert all_completions(dbg, "s") == [
+        's', 'set', 'shell', 'show', 'signal', 'source', 'step']        
+    assert all_completions(dbg, "set l") == [
+        'set linetrace', 'set listsize', 'set logging']
+    assert all_completions(dbg, "set l", False) == [
+        'linetrace', 'listsize', 'logging']
+    assert all_completions(dbg, "help s") == [
+        's', 'set', 'shell', 'show', 'signal', 'source', 'step']

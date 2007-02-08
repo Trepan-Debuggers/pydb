@@ -25,6 +25,18 @@ source
 srcdir
 step
 sys
++complete help s
+help sys
+help srcdir
+s
+set
+shell
+show
+signal
+source
+srcdir
+step
+sys
 +where
 +step
 The program being debugged is not being run.
