@@ -90,7 +90,12 @@ def complete_subcommand(obj, subcmd, prefix, add_left_context=True):
     # help command should include all debugger commands.
     # FIXME: generalize
     if subcmd[0] == 'help':
-        completions = completions + all_completions(obj, prefix, False)
+        help_completions = all_completions(obj, prefix, False)
+        if add_left_context:
+            obj.do_where("")
+            help_completions = map(lambda cmd: "help " + cmd,
+                                   help_completions)
+        completions += help_completions
         
     return completions
 

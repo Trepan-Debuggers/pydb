@@ -28,15 +28,15 @@ sys
 +complete help s
 help sys
 help srcdir
-s
-set
-shell
-show
-signal
-source
-srcdir
-step
-sys
+help s
+help set
+help shell
+help show
+help signal
+help source
+help srcdir
+help step
+help sys
 +where
 +step
 The program being debugged is not being run.
