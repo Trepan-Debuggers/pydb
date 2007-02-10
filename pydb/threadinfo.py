@@ -1,5 +1,5 @@
 """Routines to show Thread information
-$Id: threadinfo.py,v 1.4 2007/02/04 12:50:36 rockyb Exp $"""
+$Id: threadinfo.py,v 1.5 2007/02/10 01:56:58 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -133,7 +133,7 @@ def stack_trace(obj, f):
 
 # For Python before 2.5b1 and no threadframe module
 def info_thread_old(obj, args, short_display=False):
-    """Show thread IDs of currently known threads.
+    """List all currently-known thread names.
 
 This routine is used when the version of Python is prior to 2.5 and
 threadframe has not been installed."""
