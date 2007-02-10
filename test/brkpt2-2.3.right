@@ -60,10 +60,12 @@ No breakpoints.
 +###############################################################
 +frame 0
 (gcd.py:35):  gcd
+35     return gcd(b-a, a)
 +frame abs(-1*2)
 (<string>:1): 
 +frame -3
 (gcd.py:41): 
+41     print "The GCD of %d and %d is %d" % (a, b, gcd(a, b))
 +frame -2
 (<string>:1): 
 +###############################################################
