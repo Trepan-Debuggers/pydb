@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.113 2007/01/30 11:05:34 rockyb Exp $
+% $Id: libpydb.tex,v 1.114 2007/02/11 02:32:44 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -829,10 +829,9 @@ number to which all the other breakpoint commands refer.
 If a second argument is present, it is an expression which must
 evaluate to true before the breakpoint is honored.
 
-Without an argument, list all breaks, including for each breakpoint:
-the number of times that breakpoint has been hit, the current ignore
-count, and the associated condition if any. Note that this is a
-different behavior from \code{pdb}.
+Without an argument, a breakpoint is set at the current location.
+Note that this is a different behavior from \code{pdb} (but the same
+behavior as \code{gdb}).
 
 If threading is enabled, you can also specify a thread name. See \ref{command:thread-extensions}.
 
