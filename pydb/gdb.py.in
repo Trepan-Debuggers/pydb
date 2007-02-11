@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.124 2007/02/08 17:54:11 rockyb Exp $"""
+$Id: gdb.py.in,v 1.125 2007/02/11 00:54:40 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -232,6 +232,12 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             return self.trace_dispatch_old(frame, event, arg)
         except BdbQuit:
             if self.field_BdbQuit:
+                # If we have one thread (and know that this this is the case),
+                # then we can use sys.exit(). Otherwise kill is the
+                # only way to leave.
+                if hasattr(sys, '_current_frames'):
+                    if len(sys._current_frames()) == 1:
+                        sys.exit()
                 if self.noninteractive:
                     arg='unconditionally'
                 else:

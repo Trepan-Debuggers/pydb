@@ -38,6 +38,11 @@
 
 * Handle a quit when called via pydb.debugger(). Also experimental.
 
+* We now print the line text and (and again the line number) when we stop.
+  This is more helpful and more consistent with gdb and other debuggers.
+  Note linetrace adds also (redundant) linenumber
+
+
 1.20 2006-12-10
 
 * Turning on signal checking may slow things down too much. So off
