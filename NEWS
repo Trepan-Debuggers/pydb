@@ -13,7 +13,8 @@
 * Allow lowercase signal names, e.g. "int" or "sigint" for "SIGINT".
 
 * disassemble command allows for a start line and end line to limit
-  disassembly, same as gdb.
+  disassembly, same as gdb. Due to these changes, we now require at least 
+  Python 2.4.3.
 
 * Allow limited expressions many places an int parameter is used in
   a debugger command
@@ -40,8 +41,7 @@
 
 * We now print the line text and (and again the line number) when we stop.
   This is more helpful and more consistent with gdb and other debuggers.
-  Note linetrace adds also (redundant) linenumber
-
+  Note linetrace adds also (redundant) line number.
 
 1.20 2006-12-10
 
