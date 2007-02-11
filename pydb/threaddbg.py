@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.38 2007/01/17 09:38:40 rockyb Exp $"""
+$Id: threaddbg.py,v 1.39 2007/02/11 02:28:08 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -92,10 +92,10 @@ class threadDbg(pydb.Pdb):
 
     def do_break(self, arg, temporary=0, thread_name=None):
         """b(reak) {[file:]lineno | function} [thread Thread-name] [, condition]
-With a line number argument, set a break there in the current
-file.  With a function name, set a break at first executable line
-of that function.  Without argument, list all breaks.  If a second
-argument is present, it is a string specifying an expression
+With a line number argument, set a break there in the current file.
+With a function name, set a break at first executable line of that
+function.  Without argument, set a breakpoint at current location.  If
+a second argument is present, it is a string specifying an expression
 which must evaluate to true before the breakpoint is honored.
 
 The line number may be prefixed with a filename and a colon,

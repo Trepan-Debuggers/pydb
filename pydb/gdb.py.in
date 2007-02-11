@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.125 2007/02/11 00:54:40 rockyb Exp $"""
+$Id: gdb.py.in,v 1.126 2007/02/11 02:28:08 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -669,11 +669,13 @@ alias ps pi self
             self.aliases[args[0]] = ' '.join(args[1:])
 
     def do_break(self, arg, temporary = 0, thread_name=None):
+
         """b(reak) [[file:]lineno | function] [, condition]
-With a line number argument, set a break there in the current
-file.  With a function name, set a break at first executable line
-of that function.  Without argument, list all breaks.  If a second
-argument is present, it is a string specifying an expression
+
+With a line number argument, set a break there in the current file.
+With a function name, set a break at first executable line of that
+function.  Without argument, set a breakpoint at current location.  If
+a second argument is present, it is a string specifying an expression
 which must evaluate to true before the breakpoint is honored.
 
 The line number may be prefixed with a filename and a colon,
