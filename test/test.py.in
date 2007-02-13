@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.37 2007/02/13 11:42:55 rockyb Exp $
+# $Id: test.py.in,v 1.38 2007/02/13 11:53:12 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -219,6 +219,7 @@ class PdbTests(unittest.TestCase):
         result=run_debugger(testname='history',
                             pythonfile='%shanoi.py' % srcdir)
         self.assertEqual(True, result, "history")
+        if os.path.exists("history.hst"): os.unlink("history.hst")
 
     def test_logging(self):
         """Test 'set logging' and 'show logging' debugger commands."""
