@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.144 2007/01/28 09:46:48 rockyb Exp $"""
+$Id: pydb.py.in,v 1.145 2007/02/13 21:20:23 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -329,23 +329,24 @@ def help():
 
 # Post-Mortem interface
 
-def pm(dbg_cmds=None, frameno=1):
+def pm(dbg_cmds=None, frameno=1, p=None):
 
     """Set up post-mortem debugging using the last traceback.  But if
     there is no traceback, we'll assume that sys.exec_info() contains
     what we want and frameno is the index location of where we want
     to start.
 
-    dbg_cmds is an optional list of debugger commands you want to run.
+    'dbg_cmds' is an optional list of debugger commands you want to run.
+    'p', is an optional pydb.Pdb object.
     """
 
     # frameno+1 because we are about to add one more level of call
     # in get_last_tb_or_frame_tb
     tb = fns.get_last_tb_or_frame_tb(frameno+1)
-    post_mortem(tb, dbg_cmds)
+    post_mortem(tb, dbg_cmds, p)
     return
 
-def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
+def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
     """Enter debugger read loop after your program has crashed.
 
     If no traceback parameter, t, is supplied, the last traceback and
@@ -353,18 +354,19 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1):
     contains what we want and frameno is the index location of where
     we want to start.
 
-    dbg_cmds is a list of debugger commands you want to run.
+    'dbg_cmds' is an optional list of debugger commands you want to run.
 
-    cmdfile is an optional debugger command file you want to run
+    'cmdfile' is an optional debugger command file you want to run
     "source" on.
 
-    frameno specifies how many frames to ignore in the traceback.  The
+    'frameno' specifies how many frames to ignore in the traceback.  The
     default is 1 - we don't need the call to post_mortem. If you have
     wrapper functions that call this one, you may want to increase
     frameno.
     """
 
-    p = Pdb()
+    if p == None:
+        p = Pdb()
     p.reset()
     p.running = False
     re_bogus_file = re.compile("^<.+>$")
