@@ -1,4 +1,4 @@
-;; Copyright (C) 2006 Free Software Foundation, Inc.
+;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
 ;; This file is (not yet) part of GNU Emacs.
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -124,7 +124,7 @@ and source-file directory for your debugger."
 
   (gud-def gud-args   "info args" "a"
 	   "Show arguments of current stack.")
-  (gud-def gud-break  "break %f:%l""\C-b"
+  (gud-def gud-break  "break %d%f:%l""\C-b"
 	   "Set breakpoint at current line.")
   (gud-def gud-cont   "continue"   "\C-r" 
 	   "Continue with display.")
@@ -136,7 +136,7 @@ and source-file directory for your debugger."
 	   "Step one line (skip functions).")
   (gud-def gud-print  "p %e"        "\C-p"
 	   "Evaluate bash expression at point.")
-  (gud-def gud-remove "clear %f:%l" "\C-d"
+  (gud-def gud-remove "clear %d%f:%l" "\C-d"
 	   "Remove breakpoint at current line")
   (gud-def gud-run    "run"       "R"
 	   "Restart the Python script.")
@@ -144,7 +144,7 @@ and source-file directory for your debugger."
 	   "Execute Python statement at point.")
   (gud-def gud-step   "step %p"       "\C-s"
 	   "Step one source line with display.")
-  (gud-def gud-tbreak "tbreak %f:%l"  "\C-t"
+  (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
 	   "Set temporary breakpoint at current line.")
   (gud-def gud-up     "up %p"
 	   "<" "Up N stack frames (numeric arg).")
