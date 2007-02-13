@@ -14,7 +14,7 @@
 
 * disassemble command allows for a start line and end line to limit
   disassembly, same as gdb. Due to these changes, we now require at least 
-  Python 2.4.3.
+  Python 2.4.0.
 
 * Allow limited expressions many places an int parameter is used in
   a debugger command
