@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.36 2007/01/13 12:05:17 rockyb Exp $
+# $Id: test.py.in,v 1.37 2007/02/13 11:42:55 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -61,12 +61,17 @@ pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
 def run_debugger(testname, pythonfile, args='', outfile=None,
-                 rightfile=None, pydb_opts='', truncate=None):
+                 rightfile=None, pydb_opts='', truncate=None,
+                 cmdfile=None):
     global srcdir, builddir, pydir
-    cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
+    if cmdfile is None:
+        cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
     outfile_opt = ''
     if outfile is None:
-        outfile     = "%s.out" % testname
+        test_dir    = "@top_srcdir@"
+
+        outfile     = os.path.join("@top_srcdir@", "test",
+                                   "%s.out" % testname)
         outfile_opt = '--output=%s ' % outfile
 
     if rightfile is None:
@@ -77,6 +82,7 @@ def run_debugger(testname, pythonfile, args='', outfile=None,
 
     if os.path.exists(outfile): os.unlink(outfile)
 
+    os.environ['PYTHONPATH']=os.pathsep.join(sys.path)
     cmd = "%s %s --command %s %s %s %s" % \
           (pydb_path, pydb_opts, cmdfile, outfile_opt, pythonfile, args)
     
@@ -129,17 +135,21 @@ class PdbTests(unittest.TestCase):
 
     def test_brkpt3(self):
         """Unit test breakpoint setting and display - part 3."""
+        cmdfile=os.path.join(builddir, 'brkpt3.cmd')
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
+                            rightfile=os.path.join(builddir, "brkpt3.right"),
                             args='3 5',
-                            truncate=-2)
+                            truncate=-2,
+                            cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3")
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5',
                             pydb_opts='--threading',
-                            rightfile=os.path.join(srcdir, "brkpt3t.right"),
-                            truncate=-2)
+                            rightfile=os.path.join(builddir, "brkpt3t.right"),
+                            truncate=-2,
+                            cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3 --threading")
 
     def test_cmdparse(self):
@@ -212,9 +222,11 @@ class PdbTests(unittest.TestCase):
 
     def test_logging(self):
         """Test 'set logging' and 'show logging' debugger commands."""
+        global top_builddir
+        logfile=os.path.join(top_builddir, "test", "logging.out")
         result=run_debugger(testname='logging',
                             pythonfile='%shanoi.py' % srcdir,
-                            outfile='logging.out')
+                            outfile=logfile)
         self.assertEqual(True, result, "logging")
 
     def test_no_script(self):

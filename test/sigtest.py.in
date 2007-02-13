@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sigtest.py.in,v 1.18 2006/11/17 17:16:20 rockyb Exp $
+# $Id: sigtest.py.in,v 1.19 2007/02/13 11:42:54 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, sys, unittest, signal
 
@@ -31,7 +31,7 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 outfile      = 'sighandler.out'
-program      = 'sigtestexample.py'
+program      = os.path.join(srcdir, 'sigtestexample.py')
 
 class SigTests(unittest.TestCase):
     def tearDown(self):
@@ -49,6 +49,7 @@ class SigTests(unittest.TestCase):
         that is given. Debugger output is stored in outfile. Note that
         there is also output produced by the debugged program.
         """
+        os.environ['PYTHONPATH']=os.pathsep.join(sys.path)
         if arg:
             pid = os.spawnlp(os.P_WAIT, pydb_path, pydb_path, '--sigcheck',
                              '-o', outfile,

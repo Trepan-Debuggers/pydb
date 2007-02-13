@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.36 2007/02/04 11:38:53 rockyb Exp $
+#$Id: Makefile.am,v 1.37 2007/02/13 11:42:54 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -25,9 +25,6 @@ check_DATA = \
 	brkpt2.cmd        \
 	brkpt2.right      \
 	brkpt2-2.3.right  \
-	brkpt3.cmd        \
-	brkpt3.right      \
-	brkpt3t.right     \
 	cmdparse.cmd      \
 	cmdparse.right    \
 	comm1.cmd         \
@@ -36,9 +33,6 @@ check_DATA = \
 	connect.py        \
 	disassem.py       \
 	except.py         \
-	file.cmd          \
-	file.right        \
-	file-2.5.right    \
 	filebug.cmd       \
 	filebug.py        \
 	filebug.right     \
@@ -77,9 +71,14 @@ TESTS = complete.py disassem.py fns.py test.py file.py import.py pm.py \
 	connect.py tcp_connect.py fifo_connect.py 
 
 
-EXTRA_DIST = $(check_DATA) complete.py.in disassem.py.in except.py.in \
-	file.py.in fns.py.in \
+EXTRA_DIST = $(check_DATA) brkpt3.cmd.in complete.py.in disassem.py.in \
+	brkpt3t.right brkpt3.right    \
+	file.right.in file-2.5.right.in    \
+	except.py.in file.cmd.in file.py.in fns.py.in \
         import.py pm.py.in runtest.py.in settrace.py.in test.py.in \
         sighandle.py.in	sigtest.py.in trace.py.in 
 
 test: check
+
+clean-generic:
+	-rm $(top_builddir)/test/*.pyc $(top_builddir)/test/history.hst

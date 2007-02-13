@@ -19,6 +19,10 @@
    "(/tmp/gcd.py:29):  gcd"
    "/tmp/gcd.py"
    )
+  (regexp-test 
+   "(/tmp/gcd.py:29)"
+   "/tmp/gcd.py"
+   )
 )
 
 (build-suite "pydb-suite" "pydb-marker-regexp-test")

@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: runtest.py.in,v 1.3 2006/10/27 02:15:39 rockyb Exp $
+# $Id: runtest.py.in,v 1.4 2007/02/13 11:42:54 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -15,15 +15,11 @@ sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
 import pydb
 
-builddir     = "."
+builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:
     builddir += os.path.sep
 
-top_builddir = "../"
-if top_builddir[-1] != os.path.sep:
-    top_builddir += os.path.sep
-
-srcdir = "."
+srcdir = "@srcdir@"
 if srcdir[-1] != os.path.sep:
     srcdir += os.path.sep
 

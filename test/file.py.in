@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: file.py.in,v 1.3 2007/01/14 21:08:29 rockyb Exp $ -*- Python -*-
+# $Id: file.py.in,v 1.4 2007/02/13 11:42:54 rockyb Exp $ -*- Python -*-
 "Unit test of the file command for Extended Python debugger "
 import difflib, os, time, sys, unittest
 
@@ -28,11 +28,12 @@ def run_debugger(testname, pydb_opts='', args=''):
     global srcdir, builddir, pydir
 
     if sys.version_info[0:2] == (2, 5):
-        rightfile   = os.path.join(srcdir, "%s-2.5.right" % testname)
+        rightfile   = os.path.join(builddir, "%s-2.5.right" % testname)
     else:
-        rightfile   = os.path.join(srcdir, "%s.right" % testname)
+        rightfile   = os.path.join(builddir, "%s.right" % testname)
 
-    cmdfile     = os.path.join(srcdir, "%s.cmd"   % testname)
+    os.environ['PYTHONPATH']=os.pathsep.join(sys.path)
+    cmdfile     = os.path.join(builddir, "%s.cmd"   % testname)
     outfile     = "%s.out" % testname
     outfile_opt = '--output=%s ' % outfile
 

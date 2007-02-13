@@ -1,3 +1,4 @@
++cd @srcdir@
 +file hanoi.py
 +info line
 Line 2 of "hanoi.py" at instruction 0

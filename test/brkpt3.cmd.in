@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt3.cmd,v 1.4 2007/01/25 10:19:15 rockyb Exp $
+# $Id: brkpt3.cmd.in,v 1.1 2007/02/13 11:42:54 rockyb Exp $
 #
 set basename on
 set trace-commands on
@@ -20,9 +20,11 @@ commands 5
 ###        parsing to the "end"
 ###############################################################
 break 28
+cd @srcdir@
 source comm1.cmd
 continue
 break 31
 source comm2.cmd
+cd @builddir@
 continue
 quit

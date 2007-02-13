@@ -25,13 +25,15 @@
   "History of argument lists passed to pydb.")
 
 (defconst gud-pydb-marker-regexp
-  "^(\\(\\(?:[a-zA-Z]:\\)?[-a-zA-Z0-9_/.\\\\]+\\):\\([0-9]+\\)):[ \t]?"
+  "^(\\(\\(?:[a-zA-Z]:\\)?[-a-zA-Z0-9_/.\\\\]+\\):\\([0-9]+\\))"
   "Regular expression used to find a file location given by pydb.
 
 Program-location lines look like this:
    (/usr/bin/zonetab2pot.py:15): <module>
 or MS Windows:
    (c:\\mydirectory\\gcd.py:10): <module>
+and in tracebacks like this:
+   (/usr/bin/zonetab2pot.py:15)
 ")
 
 (defconst gud-pydb-marker-regexp-file-group 1

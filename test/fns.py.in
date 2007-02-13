@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: fns.py.in,v 1.3 2007/01/05 21:54:19 rockyb Exp $ -*- Python -*-
+# $Id: fns.py.in,v 1.4 2007/02/13 11:42:54 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
@@ -50,9 +50,10 @@ class TestFns(unittest.TestCase):
        fname = "gcd.py"
        self.assertEqual( fname, fns.whence_file(fname),
                          "Test of whence_file path expansion - not found " )
-       os.environ["PATH"] = os.curdir
+       test_dir = os.path.join(top_srcdir, "test")
+       os.environ["PATH"] = test_dir
        fname = "gcd.py"
-       expand_fname = os.path.join(os.curdir, fname)
+       expand_fname = os.path.join(test_dir, fname)
        self.assertEqual( expand_fname, fns.whence_file(fname),
                          "Test of whence_file path expansion - found" )
 

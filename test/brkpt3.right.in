@@ -1,4 +1,3 @@
---Call--
 +###############################################################
 +### Test bad command parameters
 +###############################################################
@@ -18,12 +17,12 @@
 +###############################################################
 +break 28
 Breakpoint 1 set in file gcd.py, line 28.
++cd @srcdir@
 +source comm1.cmd
 +continue
 +break 31
 Breakpoint 2 set in file gcd.py, line 31.
 +source comm2.cmd
++cd @builddir@
 +continue
 +quit
-Requesting exit from MainThread (id -1210034512)
-The program exited via sys.exit(). Exit status: 
