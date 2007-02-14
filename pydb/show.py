@@ -1,7 +1,23 @@
-"""$Id: show.py,v 1.12 2007/01/13 04:37:58 rockyb Exp $
-show subcommands, except those that need some sort of text substitution.
+"""show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
+__revision = "$Id: show.py,v 1.13 2007/02/14 12:10:03 rockyb Exp $"
+#   Copyright (C) 2006, 2007 Rocky Bernstein
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#    02110-1301 USA.
 import fns, sys
 
 class SubcmdShow:
@@ -46,7 +62,7 @@ Follow this command with any number of args, to be passed to the program."""
         """Current search path for finding source files.
 $cwd in search path means the current working directory.
 $cdir in the path means the compilation directory of the source file."""
-        self.msg("Source directories searched: %s." % self.search_path)
+        self.msg("Source directories searched:\n\t%s." % str(self.search_path))
 
     def show_flush(self, args):
         """Show whether we flush output after each write."""

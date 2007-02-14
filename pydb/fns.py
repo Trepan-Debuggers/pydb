@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.37 2007/02/14 02:45:45 rockyb Exp $"""
+$Id: fns.py,v 1.38 2007/02/14 12:10:02 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -278,13 +278,12 @@ def print_stack_trace(obj, count=None):
         pass
     return
 
-def search_file(filename, path, cdir):
+def search_file(filename, directories, cdir):
     """Return a full pathname for filename if we can find one. path
     is a list of directories to prepend to filename. If no file is
     found we'll return None"""
 
-    dirs=path.split(":")
-    for trydir in dirs:
+    for trydir in directories:
 
         # Handle $cwd and $cdir
         if trydir =='$cwd': trydir='.'
@@ -391,9 +390,8 @@ if __name__ == '__main__':
     assert show_onoff(True) == 'on'
     print "show_onoff(False is %s)" % str(show_onoff(False))
     assert show_onoff(False) == 'off'
-    print "search_file('fns.py', '.', '.'): %s" % search_file("fns.py",
-                                                              "$cwd:$cdir",
-                                                              ".")
+    print "search_file('fns.py', '.', '.'): %s" % (
+        search_file("fns.py", ["$cwd", "$cdir"], "."))
     assert printf(31, "/o") == '037'
     assert printf(31, "/t") == '00011111'
     assert printf(33, "/c") == '!'

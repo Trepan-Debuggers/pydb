@@ -1,7 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: info.py,v 1.11 2007/02/04 13:00:12 rockyb Exp $"
+__revision = "$Id: info.py,v 1.12 2007/02/14 12:10:03 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -20,7 +20,7 @@ __revision = "$Id: info.py,v 1.11 2007/02/04 13:00:12 rockyb Exp $"
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-import bdb, fns, inspect, os, pprint
+import bdb, fns, inspect, os, pprint, sys
 
 # from threadinfo import *
 
@@ -95,7 +95,8 @@ The short command name is L."""
             if answer[0]:
                 item, filename, lineno = answer
                 if not os.path.isfile(filename):
-                    filename = fns.search_file(filename, self.search_path,
+                    filename = fns.search_file(filename,
+                                               self.search_path,
                                                self.main_dirname)
                 self.msg('Line %s of "%s" <%s>' %
                          (lineno, filename, item))
