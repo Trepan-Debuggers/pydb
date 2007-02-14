@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.36 2007/02/04 11:38:53 rockyb Exp $"""
+$Id: fns.py,v 1.37 2007/02/14 02:45:45 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -281,7 +281,7 @@ def print_stack_trace(obj, count=None):
 def search_file(filename, path, cdir):
     """Return a full pathname for filename if we can find one. path
     is a list of directories to prepend to filename. If no file is
-    found we'll return filename"""
+    found we'll return None"""
 
     dirs=path.split(":")
     for trydir in dirs:
@@ -293,6 +293,7 @@ def search_file(filename, path, cdir):
         tryfile = os.path.abspath(os.path.join(trydir, filename))
         if os.path.isfile(tryfile):
             return tryfile
+    return None
     
 def show_onoff(bool):
     """Return 'on' for True and 'off' for False, and ?? for anything

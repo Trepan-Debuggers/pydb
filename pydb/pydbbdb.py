@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.35 2007/02/09 02:23:15 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.36 2007/02/14 02:45:45 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -169,8 +169,10 @@ class Bdb(bdb.Bdb):
             else:
                 canonic = os.path.abspath(filename)
             if not os.path.isfile(canonic):
-                canonic = search_file(filename, self.search_path,
-                                      self.main_dirname)
+                canonic = search_file(filename, ":".join(sys.path), self.main_dirname)
+                if not canonic:
+                    canonic = search_file(filename, self.search_path,
+                                          self.main_dirname)
                 # Not if this is right for utter failure.
                 if not canonic: canonic = filename
             canonic = os.path.normcase(canonic)
