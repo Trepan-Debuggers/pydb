@@ -1,0 +1,8 @@
+(hanoi.py:2):  <module>
+2 """Towers of Hanoi"""
++ c 12
+Breakpoint 1 set in file hanoi.py, line 12.
+Deleted breakpoint 1
+(hanoi.py:12):  <module>
+12 if __name__=='__main__':
++ quit
