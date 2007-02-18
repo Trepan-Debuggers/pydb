@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.40 2007/02/10 15:19:18 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.41 2007/02/18 23:00:24 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -34,6 +34,22 @@ class Cmd(cmd.Cmd):
         self.nohelp               = 'Undefined command or invalid expression \"%s\".\nType \"help\" for a list of debugger commands.'
         self.prompt               = '(Pydb) '
         self.rcLines              = []
+
+    def format_source_line(self, lineno, line):
+        """Print out a source line of text , e.g. the second
+        line in:
+            (/tmp.py:2):  <module>
+            2 import sys,os
+            (Pydb)
+
+        We define this method
+        specifically so it can be customized for such applications
+        like ipython."""
+
+        # We don't use the filename normally. ipython and other applications
+        # however might.
+        self.msg_nocr('%d %s' % (lineno, line))
+        return
 
     def _runscript(self, filename):
         # When bdb sets tracing, a number of call and line events happens
@@ -420,8 +436,7 @@ See also 'examine' an 'whatis'.
                 self.msg_nocr('+ ')
             line=linecache.getline(filename, lineno)
             if line and len(line.strip()) != 0:
-                self.msg_nocr('%d %s' % (lineno,
-                                         linecache.getline(filename, lineno)))
+                self.format_source_line(lineno, line)
 
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.

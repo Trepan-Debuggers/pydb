@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.145 2007/02/13 21:20:23 rockyb Exp $"""
+$Id: pydb.py.in,v 1.146 2007/02/18 23:00:24 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -343,7 +343,7 @@ def pm(dbg_cmds=None, frameno=1, p=None):
     # frameno+1 because we are about to add one more level of call
     # in get_last_tb_or_frame_tb
     tb = fns.get_last_tb_or_frame_tb(frameno+1)
-    post_mortem(tb, dbg_cmds, p)
+    post_mortem(tb, dbg_cmds=dbg_cmds, p=p)
     return
 
 def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
