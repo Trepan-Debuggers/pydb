@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.128 2007/02/17 10:53:00 rockyb Exp $"""
+$Id: gdb.py.in,v 1.129 2007/02/19 02:30:55 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1509,7 +1509,7 @@ source file to document. If name is 'keywords', 'topics', or
         while True and not self.noninteractive:
             try:
                 # reply = raw_input('Make %s return now? (y or n) ')
-                reply = raw_input('Return now? (y or n) ')
+                reply = raw_input('Return now? (y or n) ').strip()
             except EOFError:
                 reply = 'no'
                 reply = reply.strip().lower()

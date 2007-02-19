@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.38 2007/02/14 12:10:02 rockyb Exp $"""
+$Id: fns.py,v 1.39 2007/02/19 02:30:55 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -113,7 +113,7 @@ def get_confirmation(obj, prompt, default=False):
     """
     while True and not obj.noninteractive:
         try:
-            reply = raw_input(prompt)
+            reply = raw_input(prompt).strip()
         except EOFError:
             reply = 'no'
             reply = reply.strip().lower()
