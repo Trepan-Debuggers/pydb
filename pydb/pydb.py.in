@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.146 2007/02/18 23:00:24 rockyb Exp $"""
+$Id: pydb.py.in,v 1.147 2007/02/19 02:46:38 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -671,7 +671,7 @@ def main(p=None):
             p.running = False;
             if p.noninteractive or hasattr(p,'desired_thread'): break
         except:
-            traceback.print_exc()
+            traceback.print_exc(file=p.stdout)
             if p.noninteractive:
                 p.errmsg("Uncaught exception.")
                 break
