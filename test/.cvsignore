@@ -10,6 +10,7 @@ brkpt3.right
 brkpt3t.right
 complete.py
 connect.py
+contbug.py
 disassem.py
 except.py
 fifo_connect.py
