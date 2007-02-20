@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.38 2007/02/17 10:53:00 rockyb Exp $
+#$Id: Makefile.am,v 1.39 2007/02/20 18:21:52 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 # SUBDIRS := thread
 
 check_DATA = \
+        .pydbrc           \
 	brkpt1.cmd        \
 	brkpt1.right      \
 	brkpt1t.right     \
@@ -51,6 +52,8 @@ check_DATA = \
 	pm.cmd            \
 	pm.py             \
 	pm.right          \
+	pydbrc.cmd        \
+	pydbrc.right      \
 	run.cmd           \
 	run.right         \
 	run2.cmd          \
@@ -75,7 +78,7 @@ TESTS = complete.py contbug.py disassem.py file.py \
 	connect.py tcp_connect.py fifo_connect.py 
 
 
-EXTRA_DIST = $(check_DATA) brkpt3.cmd.in \
+EXTRA_DIST = $(check_DATA) brkpt3.cmd.in .pydbrc.in \
 	brkpt3t.right brkpt3.right    \
 	complete.py.in contbug.py.in disassem.py.in \
 	file.right.in file-2.5.right.in    \

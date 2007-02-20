@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.41 2007/02/18 23:00:24 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.42 2007/02/20 18:21:52 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -35,7 +35,7 @@ class Cmd(cmd.Cmd):
         self.prompt               = '(Pydb) '
         self.rcLines              = []
 
-    def format_source_line(self, lineno, line):
+    def print_source_line(self, lineno, line):
         """Print out a source line of text , e.g. the second
         line in:
             (/tmp.py:2):  <module>
@@ -436,7 +436,7 @@ See also 'examine' an 'whatis'.
                 self.msg_nocr('+ ')
             line=linecache.getline(filename, lineno)
             if line and len(line.strip()) != 0:
-                self.format_source_line(lineno, line)
+                self.print_source_line(lineno, line)
 
             # If we are stopped at an "exec" or print the next outer
             # location for that front-ends tracking source execution.

@@ -2,6 +2,7 @@
 *.out
 *.pyc
 *.pyo
+.pydbrc
 Makefile
 Makefile.in
 brkpt3.cmd

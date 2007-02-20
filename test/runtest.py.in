@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: runtest.py.in,v 1.4 2007/02/13 11:42:54 rockyb Exp $
+# $Id: runtest.py.in,v 1.5 2007/02/20 18:21:52 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -72,6 +72,20 @@ class RunTests(unittest.TestCase):
         pydb.runv(args)
         result = diff_files(outfile, rightfile)
         self.assertEqual(True, result, "cmdparse (via runv)")
+
+    def test_pydbrc(self):
+        """Test pydb.runl()"""
+        python_script = '%shanoi.py' % srcdir
+        cmdfile       = '%spydbrc.cmd' % srcdir
+        rightfile     = '%spydbrc.right' % srcdir
+        outfile       = 'pydbrc.out'
+        if os.path.exists(outfile): os.unlink(outfile)
+        os.environ['HOME'] = srcdir
+        args = ('--basename', '--batch', '--output', outfile,
+                '--command', cmdfile, python_script)
+        pydb.runv(args)
+        result = diff_files(outfile, rightfile)
+        self.assertEqual(True, result, "pydbrc test")
 
 if __name__ == '__main__':
     unittest.main()

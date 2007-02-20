@@ -270,10 +270,6 @@ Currently-active file is at the head of the list.")
   "Regular expression that describes tracebacks.")
 
 ;; pydbtrack contants
-(defconst pydb-pydbtrack-stack-entry-regexp
-      "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
-  "Regular expression pydbtrack uses to find a stack trace entry.")
-
 (defconst pydb-pydbtrack-input-prompt "\n(+Pydb)+ *"
   "Regular expression pydbtrack uses to recognize a pydb prompt.")
 

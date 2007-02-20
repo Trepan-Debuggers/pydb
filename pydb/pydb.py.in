@@ -6,7 +6,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.147 2007/02/19 02:46:38 rockyb Exp $"""
+$Id: pydb.py.in,v 1.148 2007/02/20 18:21:52 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -135,13 +135,16 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
     p.linetrace = opts.linetrace
     p.noninteractive = opts.noninteractive
 
-    # --nx or -n
+    # --nx or -n ?
     if not opts.noexecute:
-        # Read $HOME/.pydbrc and ./.pydbrc
+        # Read debugger startup file(s), e.g. $HOME/.pydbrc and ./.pydbrc
+        debugger_startup = ".%src" % debugger_name
         if 'HOME' in os.environ:
-            envHome = os.environ['HOME']
-            p.setup_source("%s.%src" % (envHome, debugger_name))
-        p.setup_source(".%src" % debugger_name);
+            debug_startup_home = os.path.join(os.environ['HOME'],
+                                              debugger_startup)
+            p.setup_source(debug_startup_home)
+            
+        p.setup_source(debugger_startup)
 
     if opts.cd:
         os.chdir(opts.cd)
