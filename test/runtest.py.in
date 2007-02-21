@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: runtest.py.in,v 1.5 2007/02/20 18:21:52 rockyb Exp $
+# $Id: runtest.py.in,v 1.6 2007/02/21 09:00:11 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -86,6 +86,14 @@ class RunTests(unittest.TestCase):
         pydb.runv(args)
         result = diff_files(outfile, rightfile)
         self.assertEqual(True, result, "pydbrc test")
+        if srcdir[-1] == os.path.sep:
+            # Chop off pathsep to make sure that works
+            os.environ['HOME'] = srcdir[0:-1]
+        else:
+            # Add of pathsep to make sure that works
+            os.environ['HOME'] = srcdir + os.path.sep
+        pydb.runv(args)
+        result = diff_files(outfile, rightfile)
 
 if __name__ == '__main__':
     unittest.main()
