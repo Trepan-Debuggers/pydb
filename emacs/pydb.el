@@ -25,7 +25,7 @@
   "History of argument lists passed to pydb.")
 
 (defconst gud-pydb-marker-regexp
-  "^(\\(\\(?:[a-zA-Z]:\\)?[-a-zA-Z0-9_/.\\\\]+\\):\\([0-9]+\\))"
+  "^(\\(\\(?:[a-zA-Z]:\\)?[-a-zA-Z0-9_/.\\\\ ]+\\):\\([0-9]+\\))"
   "Regular expression used to find a file location given by pydb.
 
 Program-location lines look like this:
@@ -254,7 +254,7 @@ Currently-active file is at the head of the list.")
 ;; Constants
 
 (defconst pydb-position-re 
-  "\\(^\\|\n\\)(\\([^:]+\\):\\([0-9]*\\)).*\n"
+  "\\(^\\|\n\\)(\\(\\(?:[A-Za-z]:\\)?[^:]+\\):\\([0-9]*\\)).*\n"
   "Regular expression for a pydb position")
 
 (defconst pydb-marker-regexp-file-group 2
