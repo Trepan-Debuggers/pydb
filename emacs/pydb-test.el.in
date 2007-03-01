@@ -1,3 +1,4 @@
+; -*- emacs-lisp -*-
 (load-file "@srcdir@/elk-test.el")
 (load-file "@srcdir@/pydb.el")
 
