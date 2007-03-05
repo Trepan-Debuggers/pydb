@@ -13,7 +13,7 @@
 #   You should have received a copy of the GNU General Public License along
 #   with Bash; see the file COPYING.  If not, write to the Free Software
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-#$Id: Makefile.am,v 1.8 2007/01/22 10:55:28 rockyb Exp $
+#$Id: Makefile.am,v 1.9 2007/03/05 04:02:20 rockyb Exp $
 
 check_DATA := pydb-test.el elk-test.el
 EXTRA_DIST := pydb.el $(check_DATA)
@@ -25,4 +25,5 @@ endif
 test: check
 
 check:
-	$(EMACS) -batch -q -l pydb-test.el elk-test.el
+	$(EMACS) -batch -q -l $(top_builddir)/emacs/pydb-test.el $(srcdir)/elk-test.el
+

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.39 2007/02/11 02:28:08 rockyb Exp $"""
+$Id: threaddbg.py,v 1.40 2007/03/05 04:02:21 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -616,7 +616,14 @@ To get the full stack trace for a specific thread pass in the thread name.
 
         # FIXME: the below code is not clean or reliable.
         #        Make more like is_in_threaddbg
-        (filename, line_no, routine) = inspect.getframeinfo(frame)[0:3]
+        try: 
+            # "inspect" can return IOError, and on some version of
+            # Python 2.4 inspect has raises an IndexError see 
+            # bug #1673507 
+            (filename, line_no, routine) = inspect.getframeinfo(frame)[0:3]
+        except:
+            return self.trace_dispatch
+            
         (path, basename)=os.path.split(filename)
         if basename.startswith('threading.py'):
             return self.trace_dispatch
