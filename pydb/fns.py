@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.39 2007/02/19 02:30:55 rockyb Exp $"""
+$Id: fns.py,v 1.40 2007/03/15 02:21:24 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -84,7 +84,7 @@ def file2module(filename):
 
 def find_function(funcname, filename):
     try:
-        cre = re.compile(r'def\s+%s\s*[(]' % funcname)
+        cre = re.compile(r'def\s+%s\s*[(]' % re.escape(funcname))
         # cre = re.compile(r'%s\s*%s\s*[(]' % (_re_def_str, funcname))
     except:
         return None
