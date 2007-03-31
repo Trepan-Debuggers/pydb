@@ -1,12 +1,11 @@
 #!@PYTHON@ -t
-# -*- coding: Latin-1 -*-
 """A Python debugger. Contains user-callable routines, e.g.
 exception_hook, run, runl, runv, debugger (AKA set_trace), post_mortem,
 or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.148 2007/02/20 18:21:52 rockyb Exp $"""
+$Id: pydb.py.in,v 1.149 2007/03/31 11:38:35 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -525,7 +524,7 @@ def runv(argv, p=None):
 
     This function may be useful inside Python shells.
 
-    Parapmeter p allows you to pass in your own Pdb object.
+    Parameter p allows you to pass in your own Pdb object.
     """
     ## FIXME: redo so we don't call main and don't have to save/restore
     ### sys.argv              
