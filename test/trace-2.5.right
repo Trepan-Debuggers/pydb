@@ -18,21 +18,21 @@
 +  27     if n < 1 or n > 100: 
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
---Call level 7--
+--Call level 3--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
---Call level 8--
+--Call level 4--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
---Call level 9--
+--Call level 5--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -41,7 +41,7 @@
 +  8     print "Move disk %s to %s" % (a, b)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 9 (<type 'NoneType'>)--
+--Return from level 5 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
 (hanoi.py:8):  hanoi
@@ -50,7 +50,7 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Call level 9--
+--Call level 5--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -59,10 +59,10 @@
 +  8     print "Move disk %s to %s" % (a, b)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 9 (<type 'NoneType'>)--
+--Return from level 5 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 8 (<type 'NoneType'>)--
+--Return from level 4 (<type 'NoneType'>)--
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
 (hanoi.py:8):  hanoi
@@ -71,14 +71,14 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Call level 8--
+--Call level 4--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
---Call level 9--
+--Call level 5--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -87,7 +87,7 @@
 +  8     print "Move disk %s to %s" % (a, b)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 9 (<type 'NoneType'>)--
+--Return from level 5 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
 (hanoi.py:8):  hanoi
@@ -96,7 +96,7 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Call level 9--
+--Call level 5--
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -105,18 +105,18 @@
 +  8     print "Move disk %s to %s" % (a, b)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 9 (<type 'NoneType'>)--
+--Return from level 5 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 8 (<type 'NoneType'>)--
+--Return from level 4 (<type 'NoneType'>)--
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Return from level 7 (<type 'NoneType'>)--
+--Return from level 3 (<type 'NoneType'>)--
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Return from level 6 (<type 'NoneType'>)--
+--Return from level 2 (<type 'NoneType'>)--
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
---Return from level 5 (<type 'NoneType'>)--
+--Return from level 1 (<type 'NoneType'>)--
 (<string>:1):  <module>
 + 

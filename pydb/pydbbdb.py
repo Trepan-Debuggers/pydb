@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.38 2007/04/07 10:53:29 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.39 2007/04/07 13:53:28 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -328,7 +328,7 @@ class Bdb(bdb.Bdb):
         if self._wait_for_mainpyfile:
             return
         if self.stop_here(frame):
-            self.msg('--Call level %d--' % count_frames(frame))
+            self.msg('--Call level %d--' % (count_frames(frame)-4))
             if self.linetrace or self.fntrace:
                 self.__print_location_if_trace(frame)
                 if not self.break_here(frame): return
@@ -402,10 +402,10 @@ class Bdb(bdb.Bdb):
         if type(return_value) in [types.StringType, types.IntType, 
                                   types.FloatType,  types.BooleanType]:
             self.msg('--Return from level %d: %s--' 
-                     % (count_frames(frame), repr(return_value)))
+                     % (count_frames(frame)-4, repr(return_value)))
         else:
             self.msg('--Return from level %d (%s)--' 
-                     % (count_frames(frame), repr(type(return_value))))
+                     % (count_frames(frame)-4, repr(type(return_value))))
         self.stop_reason = 'return'
         self.__print_location_if_trace(frame, False)
         if self.returnframe != None:

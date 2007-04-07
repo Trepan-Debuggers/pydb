@@ -1,4 +1,4 @@
---Call level 6--
+--Call level 2--
 +###############################################################
 +# Test the breakpoint by line number
 +###############################################################
@@ -98,5 +98,5 @@ Breakpoint 4 set in file hanoi.py, line 5.
 +clear hanoi
 Deleted breakpoint 4
 +q
-Requesting exit from MainThread (id -1210194256)
+Requesting exit from MainThread (id -1209882960)
 The program exited via sys.exit(). Exit status: 
