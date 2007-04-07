@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.16 2007/02/04 12:50:36 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.17 2007/04/07 10:53:29 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -114,6 +114,14 @@ object variables.
         """Set whether we flush output after each write."""
         try:
             self.flush = self.get_onoff(args[1])
+        except ValueError:
+            pass
+        return
+
+    def set_fntrace(self, args):
+        """Set function execution tracing"""
+        try:
+            self.fntrace = self.get_onoff(args[1])
         except ValueError:
             pass
         return

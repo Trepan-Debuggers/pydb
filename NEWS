@@ -1,3 +1,20 @@
+1.22x
+* Add function tracing and option -F.
+
+* Call and return trace lines show nesting level. Return will show the
+  value if it is a scalar or string type or return type otherwise.
+
+* Make pydb.el work on Emacs 22 and 23. (was previously just 21).
+  Better emacs toleratoin on MS Windows.
+
+* fix bug in "info thread" when threadframe is not installed (and
+  python < 2.5).
+
+* Better ipython interaction.
+
+* pm distinquishes now where an excpetion rolled back to versus where
+  the exception occurred.
+
 1.21 2007-02-13
 
 * pydb script will do a path search to find a script, same as gdb.

@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.40 2007/03/15 02:21:24 rockyb Exp $"""
+$Id: fns.py,v 1.41 2007/04/07 10:53:28 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -35,6 +35,14 @@ def arg_split(s,posix=False):
     lex = shlex.shlex(s, posix=posix)
     lex.whitespace_split = True
     return list(lex)
+
+def count_frames(frame):
+    "Return a count of number of frames"
+    count = 0
+    while frame: 
+        count += 1
+        frame = frame.f_back
+    return count
 
 def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
     """Make new_fn have old_fn's doc string. This is particularly useful

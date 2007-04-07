@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.130 2007/03/31 11:38:35 rockyb Exp $"""
+$Id: gdb.py.in,v 1.131 2007/04/07 10:53:28 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -91,6 +91,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.dbg_pydb        = False  # Debug the debugger?
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
+        self.fntrace         = False  # Tracing functions/methods
         self.gdb_dialect     = True   # Controls how stack is shown
         self.field_BdbQuit   = False  # does dispatcher field BdbQuit?
 
@@ -206,9 +207,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         return
 
     def break_anywhere_gdb(self, frame):
-        """Decorate bdb break_anyhwere to consider the sigcheck and
+        """Decorate bdb break_anywhere to consider the sigcheck and
         linetrace flags."""
-        if self.sigcheck or self.linetrace: return True
+        if self.sigcheck or self.linetrace or self.fntrace: return True
         return self.break_anywhere(frame)
 
     ### FIXME: trace_dispatch could be a performance bottleneck. If
@@ -338,6 +339,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('basename',        self.set_basename)
         self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
         self.setcmds.add('flush',           self.set_flush)
+        self.setcmds.add('fntrace',         self.set_fntrace, 2)
         ## self.setcmds.add('debug-signal',    self.set_debug_signal)
         self.setcmds.add('history',         self.set_history)
         self.setcmds.add('interactive',     self.set_interactive)
@@ -363,6 +365,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         ## self.showcmds.add('debug-signal',   self.show_debug_signal)
         self.showcmds.add('commands',       self.show_commands,    2, False)
         self.showcmds.add('directories',    self.show_directories, 1)
+        self.showcmds.add('fntrace',        self.show_fntrace,     2)
         self.showcmds.add('flush',          self.show_flush)
         self.showcmds.add('history',        self.show_history)
         self.showcmds.add('interactive',    self.show_interactive)
@@ -440,7 +443,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         do_loop = self.setup(frame, tb) != 1
         if do_loop:
             if frame or tb:
-                self.print_location(print_line=self.linetrace)
+                self.print_location(print_line=self.linetrace or self.fntrace)
                 self.display.displayAny(self.curframe)
             if not self.noninteractive:
                 try:
@@ -885,7 +888,7 @@ line position is given, continue until that line is reached. This is
 exactly the same thing as setting a temporary breakpoint at that
 position before running an (unconditional) continue."""
         if not self.is_running(): return
-        if self.linetrace:
+        if self.linetrace or self.fntrace:
             # linetracing is like stepping, but we just don't stop. If
             # we were to calling set_continue, it  *might* remove all
             # stopping if there were no breakpoints.
@@ -901,7 +904,7 @@ position before running an (unconditional) continue."""
                 self.do_tbreak(arg)
 
         # This has to be done after do_tbreak
-        if not self.linetrace:
+        if not (self.linetrace or self.fntrace):
             self.set_continue()
             
         # Tell cmdloop to break out of its loop.
@@ -928,6 +931,7 @@ position before running an (unconditional) continue."""
         p.aliases         = self.aliases
         p.basename        = self.basename
         p.cmdtrace        = self.cmdtrace
+        p.fntrace         = self.fntrace
         p.gdb_dialect     = self.gdb_dialect
         p.infocmds        = self.infocmds
         p.linetrace       = self.linetrace

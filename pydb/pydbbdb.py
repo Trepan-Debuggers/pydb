@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.37 2007/02/14 12:10:03 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.38 2007/04/07 10:53:29 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -31,8 +31,8 @@ class Bdb(bdb.Bdb):
         self.step_ignore      = 0
         return
 
-    def __print_location_if_linetrace(self, frame):
-        if self.linetrace:
+    def __print_location_if_trace(self, frame, include_fntrace=True):
+        if self.linetrace or (self.fntrace and include_fntrace):
             self.setup(frame)
             self.print_location(print_line=True)
             self.display.displayAny(self.curframe)
@@ -41,7 +41,7 @@ class Bdb(bdb.Bdb):
 
     def bp_commands(self, frame):
 
-        """ Call every command that was set for the current
+        """Call every command that was set for the current
         active breakpoint (if there is one) Returns True if
         the normal interaction function must be called,
         False otherwise """
@@ -62,8 +62,8 @@ class Bdb(bdb.Bdb):
             if self.commands_doprompt[currentbp]:
                 self.cmdloop()
             self.forget()
-            return 
-        return 1
+            return False
+        return True
 
     def is_running(self):
         if self.running: return True
@@ -328,9 +328,9 @@ class Bdb(bdb.Bdb):
         if self._wait_for_mainpyfile:
             return
         if self.stop_here(frame):
-            self.msg('--Call--')
-            if self.linetrace:
-                self.__print_location_if_linetrace(frame)
+            self.msg('--Call level %d--' % count_frames(frame))
+            if self.linetrace or self.fntrace:
+                self.__print_location_if_trace(frame)
                 if not self.break_here(frame): return
             self.interaction(frame, None)
 
@@ -351,7 +351,10 @@ class Bdb(bdb.Bdb):
         self.interaction(frame, exc_traceback)
 
     def user_line(self, frame):
-        """This function is called when we stop or break at this line."""
+        """This function is called when we stop or break at this line.
+        However it's *also* called when line OR function tracing is 
+        in effect. A little bit confusing and this code needs to be 
+        simplified."""
         self.stop_reason = 'line'
         if self._wait_for_mainpyfile:
             if (self.mainpyfile != self.canonic_filename(frame)
@@ -359,7 +362,7 @@ class Bdb(bdb.Bdb):
                 return
             self._wait_for_mainpyfile = False
 
-        if self.stop_here(frame) or self.linetrace:
+        if self.stop_here(frame) or self.linetrace or self.fntrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
             filename = self.filename(self.canonic_filename(frame))
@@ -370,19 +373,23 @@ class Bdb(bdb.Bdb):
                 # Don't stop this time, just note a step was done in
                 # step count
                 self.step_ignore -= 1
-                self.__print_location_if_linetrace(frame)
+                self.__print_location_if_trace(frame, False)
                 return
             elif self.step_ignore < 0:
                 # We are stepping only because we tracing
-                self.__print_location_if_linetrace(frame)
+                self.__print_location_if_trace(frame, False)
                 return
             if not self.break_here(frame):
                 if is_def_stmt(line, frame):
-                    self.__print_location_if_linetrace(frame)
+                    self.__print_location_if_trace(frame, False)
+                    return
+                elif self.fntrace:
+                    # The above test is a real hack. We need to clean
+                    # up this code. 
                     return
         else:
             if not self.break_here(frame) and self.step_ignore > 0:
-                self.__print_location_if_linetrace(frame)
+                self.__print_location_if_trace(frame, False)
                 self.step_ignore -= 1
                 return
         if self.bp_commands(frame):
@@ -392,9 +399,15 @@ class Bdb(bdb.Bdb):
         """This function is called when a return trap is set here."""
         self.stop_reason = 'return'
         frame.f_locals['__return__'] = return_value
-        self.msg('--Return--')
+        if type(return_value) in [types.StringType, types.IntType, 
+                                  types.FloatType,  types.BooleanType]:
+            self.msg('--Return from level %d: %s--' 
+                     % (count_frames(frame), repr(return_value)))
+        else:
+            self.msg('--Return from level %d (%s)--' 
+                     % (count_frames(frame), repr(type(return_value))))
         self.stop_reason = 'return'
-        self.__print_location_if_linetrace(frame)
+        self.__print_location_if_trace(frame, False)
         if self.returnframe != None:
             self.interaction(frame, None)
 

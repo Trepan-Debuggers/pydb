@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.149 2007/03/31 11:38:35 rockyb Exp $"""
+$Id: pydb.py.in,v 1.150 2007/04/07 10:53:29 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -48,6 +48,10 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
     optparser.add_option("-X", "--trace", dest="linetrace",
                          action="store_true", default=False, 
                          help="Show lines before executing them. " +
+                         "This option also sets --batch")
+    optparser.add_option("-F", "--fntrace", dest="fntrace",
+                         action="store_true", default=False, 
+                         help="Show functions before executing them. " +
                          "This option also sets --batch")
     optparser.add_option("--batch", dest="noninteractive",
                          action="store_true", default=False, 
@@ -130,7 +134,8 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
 ##         target(opts.pid, opts, p)
 ##         sys.exit()
 
-    if opts.linetrace: opts.noninteractive = True
+    if opts.linetrace or opts.fntrace: opts.noninteractive = True
+    p.fntrace = opts.fntrace
     p.linetrace = opts.linetrace
     p.noninteractive = opts.noninteractive
 
@@ -658,7 +663,12 @@ def main(p=None):
 
             if p._user_requested_quit: break
             if p.noninteractive: break
-            p.msg("The program finished and will be restarted")
+            if p.fntrace: 
+               # fn tracing does something to not put a stop at the beginning.
+                p.msg("The program finished")
+                p.interaction(None, None)
+            else:
+                p.msg("The program finished and will be restarted")
         except Restart:
             if p._program_sys_argv:
                 sys.argv = list(p._program_sys_argv)

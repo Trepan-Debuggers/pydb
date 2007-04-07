@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.13 2007/02/14 12:10:03 rockyb Exp $"
+__revision = "$Id: show.py,v 1.14 2007/04/07 10:53:29 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -68,6 +68,10 @@ $cdir in the path means the compilation directory of the source file."""
         """Show whether we flush output after each write."""
         self.msg('Flushing output is "%s".' %
                  fns.show_onoff(self.flush))
+
+    def show_fntrace(self, args):
+        "Show the line function status. Can also add 'delay'"
+        self.msg("function tracing is %s." % fns.show_onoff(self.fntrace))
 
     def show_interactive(self, args):
         """Show whether we are interactive"""
