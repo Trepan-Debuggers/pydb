@@ -1,0 +1,16 @@
+--Call level 0
+(gcd.py:13):  check_args
++  13 def check_args():
+--Return from level 0 (<type 'NoneType'>)
+--Call level 0
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+----Call level 1
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+------Call level 2
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+------Return from level 2 => 2 (<type 'int'>)
+----Return from level 1 => 2 (<type 'int'>)
+--Return from level 0 => 2 (<type 'int'>)

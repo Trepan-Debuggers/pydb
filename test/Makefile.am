@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.39 2007/02/20 18:21:52 rockyb Exp $
+#$Id: Makefile.am,v 1.40 2007/04/11 09:28:50 rockyb Exp $
 #   Copyright (C) 2006 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ check_DATA = \
 	filebug.cmd       \
 	filebug.py        \
 	filebug.right     \
+	fntrace.right     \
 	gcd.py            \
 	hanoi.py          \
 	history.cmd       \

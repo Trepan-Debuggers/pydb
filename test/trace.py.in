@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: trace.py.in,v 1.9 2007/02/13 11:42:55 rockyb Exp $ -*- Python -*-
+# $Id: trace.py.in,v 1.10 2007/04/11 09:28:50 rockyb Exp $ -*- Python -*-
 "Unit test of program execution tracing using the Extended Python debugger "
 import difflib, os, time, sys, unittest
 
@@ -24,10 +24,11 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
-def run_debugger(testname, pythonfile, pydb_opts='', args='', outfile=None):
+def run_debugger(testname, pythonfile, pydb_opts='', args='', 
+                 outfile=None, need_25=True):
     global srcdir, builddir, pydir
 
-    if sys.version_info[0:2] == (2, 5):
+    if sys.version_info[0:2] == (2, 5) and need_25:
         rightfile   = os.path.join(srcdir, "%s-2.5.right" % testname)
     else:
         rightfile   = os.path.join(srcdir, "%s.right" % testname)
@@ -63,12 +64,27 @@ def run_debugger(testname, pythonfile, pydb_opts='', args='', outfile=None):
     
 class PdbTests(unittest.TestCase):
 
-    def test_trace(self):
+    def test_linetrace(self):
         """Test running program tracing: --trace option"""
-        result=run_debugger(testname='trace',
-                            pydb_opts='--trace --basename',
-                            pythonfile='%shanoi.py' % srcdir)
-        self.assertEqual(True, result, "hanoi trace output comparision")
+        for trace_opt in ['--trace', '-X']:
+            result=run_debugger(testname='trace',
+                                pydb_opts='%s --basename' % trace_opt,
+                                pythonfile='%shanoi.py' % srcdir)
+            self.assertEqual(True, result, 
+                             "hanoi line trace (%s) output comparision" % 
+                             trace_opt)
+        
+
+    def test_fntrace(self):
+        """Test running program tracing: --fntrace option"""
+        for trace_opt in ['--fntrace', '-F']:
+            result=run_debugger(testname='fntrace',
+                                pydb_opts='%s --basename' % trace_opt,
+                                pythonfile='%sgcd.py' % srcdir,
+                                args='4 6', need_25 = False)
+        self.assertEqual(True, result, 
+                         "gcd function trace (%s) output comparision" %
+                         trace_opt)
         
 
     def test_trace_compiled(self):

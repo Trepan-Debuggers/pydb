@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.41 2007/04/07 10:53:28 rockyb Exp $"""
+$Id: fns.py,v 1.42 2007/04/11 09:28:50 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -36,9 +36,9 @@ def arg_split(s,posix=False):
     lex.whitespace_split = True
     return list(lex)
 
-def count_frames(frame):
+def count_frames(frame, count_start=0):
     "Return a count of number of frames"
-    count = 0
+    count = -count_start
     while frame: 
         count += 1
         frame = frame.f_back

@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.39 2007/04/07 13:53:28 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.40 2007/04/11 09:28:50 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -9,6 +9,10 @@ from fns import *
 ## from complete import rl_complete
 
 class Bdb(bdb.Bdb):
+
+    # Additional levels call frames usually on the stack.
+    # Perhaps should be an instance variable?
+    extra_call_frames = 7  # Yes, it's really that many!
 
     def __init__(self):
         bdb.Bdb.__init__(self)
@@ -328,7 +332,8 @@ class Bdb(bdb.Bdb):
         if self._wait_for_mainpyfile:
             return
         if self.stop_here(frame):
-            self.msg('--Call level %d--' % (count_frames(frame)-4))
+            frame_count = count_frames(frame, Bdb.extra_call_frames)
+            self.msg('--%sCall level %d' % ('-' * (2*frame_count), frame_count))
             if self.linetrace or self.fntrace:
                 self.__print_location_if_trace(frame)
                 if not self.break_here(frame): return
@@ -399,13 +404,14 @@ class Bdb(bdb.Bdb):
         """This function is called when a return trap is set here."""
         self.stop_reason = 'return'
         frame.f_locals['__return__'] = return_value
-        if type(return_value) in [types.StringType, types.IntType, 
+        frame_count = count_frames(frame, Bdb.extra_call_frames)
+        if frame_count >= 0:
+            self.msg_nocr("--%sReturn from level %d" % ('-' * (2*frame_count), 
+                          frame_count))
+            if type(return_value) in [types.StringType, types.IntType, 
                                   types.FloatType,  types.BooleanType]:
-            self.msg('--Return from level %d: %s--' 
-                     % (count_frames(frame)-4, repr(return_value)))
-        else:
-            self.msg('--Return from level %d (%s)--' 
-                     % (count_frames(frame)-4, repr(type(return_value))))
+                self.msg_nocr('=> %s' % repr(return_value))
+            self.msg('(%s)' % repr(type(return_value)))
         self.stop_reason = 'return'
         self.__print_location_if_trace(frame, False)
         if self.returnframe != None:

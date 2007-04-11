@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.114 2007/02/11 02:32:44 rockyb Exp $
+% $Id: libpydb.tex,v 1.115 2007/04/11 09:28:50 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -255,8 +255,15 @@ option can be used in conjunction with the \code{--output} and
 \code{--error} options described above when a terminal is not
 available or when not running interactively. The corresponding
 debugger command is \samp{set linetrace on}. See
-\ref{command:linetrace} for more information.
+\ref{command:linetrace} for an example of output from such a trace.
 
+\item[--{}--fntrace \code{\Large{|}}--F]\label{switch:fntrace}
+
+If line tracing produces too much output, there is also function
+call/return tracing. When function tracing is turned on, each call and
+return are printed with the nesting level. On a return we show a
+return type and/or return value if it is a scalar or string.
+See \ref{command:fntrace} for an example of such a trace.
 \end{description}
 
 \subsection{Startup files ({\tt .pydbrc})\label{subsection-startup-files}}
@@ -373,7 +380,8 @@ precisely what happened.  The \code{set history} commands to manage
 the command history facility.
 
 POSIX-style line tracing is available and the \code{set linetrace}
-commands can be used to control that.
+commands can be used to control that. Call return tracing is avialable
+via \code{set fntrace}.
 
 You may want to save the output of \code{pydb} commands to a file.
 See the \code{set logging} commands to control \code{pydb}'s logging.
@@ -468,6 +476,44 @@ the frame ``up'' to get where the program was before entering the
 debugger. (In some versions this and some situations \code{frame 6}
 gets you out of the debugger and into the debugged program.
 
+\item[set fntrace on\code{\Large{|}}off]\label{command:fntrace}
+
+If this is set on, every call and return of a function or method will
+be indicated with the nesting level. Return show the return type
+and/or value if the value is a scalar or string.  By default this is
+off. Using the command-line option \samp{--fntrace} when invoking
+\code{pydb} implicitly sets this on.  For information on
+\samp{--fntrace}, see \ref{switch:fntrace}.
+
+\begin{verbatim}
+$ pydb --basename --fntrace gcd.py 4 6
+--Call level 3--
+(gcd.py:13):  check_args
++  13 def check_args():
+--Return from level 3 (<type 'NoneType'>)--
+--Call level 3--
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+--Call level 4--
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+--Call level 5--
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+--Return from level 5: 2--
+--Return from level 4: 2--
+--Return from level 3: 2--
+The GCD of 4 and 6 is 2
+--Return from level 2 (<type 'NoneType'>)--
+--Return from level 1 (<type 'NoneType'>)--
+\end{verbatim}
+
+Adding function tracing output will slow down your
+program. Unless single stepping through a program, normally the
+debugger is called only at breakpoints or at the call and return of a
+function or method. However when line tracing is turned on, the
+debugger is called on execution of every statement. 
+
 \item[set history filename \var{filename}]\label{command:hist-filename}
 
 Set the filename in which to record the command history.
@@ -493,81 +539,80 @@ option \samp{--trace} when invoking \code{pydb} implicitly sets this
 on.  For information on \samp{--trace}, see \ref{switch:trace}.
 
 \begin{verbatim}
-# pydb --basename --trace hanoi.py 2
-(hanoi.py:2): 
-+ """Towers of Hanoi"""
-(hanoi.py:3): 
-+ import sys
-(hanoi.py:5): 
-+ def hanoi(n,a,b,c):
-(hanoi.py:12): 
-+ if __name__=='__main__':
-(hanoi.py:13): 
-+     i_args=len(sys.argv)
-(hanoi.py:14): 
-+     if i_args != 1 and i_args != 2:
-(hanoi.py:18): 
-+     n=3
-(hanoi.py:20): 
-+     if i_args > 1:
-(hanoi.py:21): 
-+       try: 
-(hanoi.py:22): 
-+         n = int(sys.argv[1])
-(hanoi.py:27): 
-+     if n < 1 or n > 100: 
-(hanoi.py:31): 
-+     hanoi(n, "a", "b", "c")
---Call--
+pydb --basename --trace hanoi.py 2
+(hanoi.py:2):  <module>
++  2 """Towers of Hanoi"""
+(hanoi.py:3):  <module>
++  3 import sys
+(hanoi.py:5):  <module>
++  5 def hanoi(n,a,b,c):
+(hanoi.py:12):  <module>
++  12 if __name__=='__main__':
+(hanoi.py:13):  <module>
++  13     i_args=len(sys.argv)
+(hanoi.py:14):  <module>
++  14     if i_args != 1 and i_args != 2:
+(hanoi.py:18):  <module>
++  18     n=3
+(hanoi.py:20):  <module>
++  20     if i_args > 1:
+(hanoi.py:21):  <module>
++  21       try: 
+(hanoi.py:22):  <module>
++  22         n = int(sys.argv[1])
+(hanoi.py:27):  <module>
++  27     if n < 1 or n > 100: 
+(hanoi.py:31):  <module>
++  31     hanoi(n, "a", "b", "c")
+--Call level 3--
 (hanoi.py:5):  hanoi
-+ def hanoi(n,a,b,c):
++  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
-+     if n-1 > 0:
++  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
-+        hanoi(n-1, a, c, b) 
---Call--
++  7        hanoi(n-1, a, c, b) 
+--Call level 4--
 (hanoi.py:5):  hanoi
-+ def hanoi(n,a,b,c):
++  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
-+     if n-1 > 0:
++  6     if n-1 > 0:
 (hanoi.py:8):  hanoi
-+     print "Move disk %s to %s" % (a, b)
++  8     print "Move disk %s to %s" % (a, b)
 Move disk a to c
 (hanoi.py:9):  hanoi
-+     if n-1 > 0:
---Return--
++  9     if n-1 > 0:
+--Return from level 4 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
-+     if n-1 > 0:
++  9     if n-1 > 0:
 (hanoi.py:8):  hanoi
-+     print "Move disk %s to %s" % (a, b)
++  8     print "Move disk %s to %s" % (a, b)
 Move disk a to b
 (hanoi.py:9):  hanoi
-+     if n-1 > 0:
++  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
-+        hanoi(n-1, c, b, a) 
---Call--
++  10        hanoi(n-1, c, b, a) 
+--Call level 4--
 (hanoi.py:5):  hanoi
-+ def hanoi(n,a,b,c):
++  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
-+     if n-1 > 0:
++  6     if n-1 > 0:
 (hanoi.py:8):  hanoi
-+     print "Move disk %s to %s" % (a, b)
++  8     print "Move disk %s to %s" % (a, b)
 Move disk c to b
 (hanoi.py:9):  hanoi
-+     if n-1 > 0:
---Return--
++  9     if n-1 > 0:
+--Return from level 4 (<type 'NoneType'>)--
 (hanoi.py:9):  hanoi
-+     if n-1 > 0:
---Return--
++  9     if n-1 > 0:
+--Return from level 3 (<type 'NoneType'>)--
 (hanoi.py:10):  hanoi
-+        hanoi(n-1, c, b, a) 
---Return--
-(hanoi.py:31): 
-+     hanoi(n, "a", "b", "c")
---Return--
-(<string>:1): 
-+  (bdb.py:366):  run
-+                 exec cmd in globals, locals
++  10        hanoi(n-1, c, b, a) 
+--Return from level 2 (<type 'NoneType'>)--
+(hanoi.py:31):  <module>
++  31     hanoi(n, "a", "b", "c")
+--Return from level 1 (<type 'NoneType'>)--
+(<string>:1):  <module>
++ 
 \end{verbatim}
 
 Adding linetracing output will slow down your
