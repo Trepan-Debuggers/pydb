@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.48 2007/02/04 11:38:52 rockyb Exp $
+#$Id: Makefile.am,v 1.49 2007/04/11 09:51:49 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,15 +16,15 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-SUBDIRS := test emacs
+SUBDIRS = test emacs
 
 # Basename of debugger, used to form help doc, python script and script
 # installed in an executable directory.
-DEBUGGER := pydb
+DEBUGGER = pydb
 
 # The Python debugger script
-python_debugger_script := $(DEBUGGER).py
-pkgpython_PYTHON := \
+python_debugger_script = $(DEBUGGER).py
+pkgpython_PYTHON = \
 	$(DEBUGGER)/__init__.py \
         $(DEBUGGER)/$(python_debugger_script) \
 	$(DEBUGGER)/complete.py  	\
@@ -44,7 +44,7 @@ pkgpython_PYTHON := \
 	$(DEBUGGER)/threaddbg.py        \
 	$(DEBUGGER)/threadinfo.py
 
-pkgdata_DATA := $(DEBUGGER)/$(DEBUGGER).doc
+pkgdata_DATA = $(DEBUGGER)/$(DEBUGGER).doc
 pkgdatadir = $(pkgpythondir)
 
 # Section 1 are general commands
@@ -54,11 +54,11 @@ man1_MANS = Doc/$(DEBUGGER).$(EXT)
 # We in fact do install python_PYTHON, just not in the executable directory.
 # Instead it's installed with other python programs. The noinst however
 # forces a changed pydb.py to get created whenever pydb.py.in changes.
-noinst_SCRIPTS := $(python_PYTHON)
+noinst_SCRIPTS = $(python_PYTHON)
 
-bin_SCRIPTS := $(DEBUGGER)
+bin_SCRIPTS = $(DEBUGGER)
 
-PHONY := $(DEBUGGER) test
+PHONY = $(DEBUGGER) test
 
 EXTRA_DIST = ChangeLog TODO THANKS        \
 	     Doc/Makefile.deps            \
