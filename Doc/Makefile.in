@@ -57,8 +57,8 @@ srcdir=@srcdir@
 DISTFILES=lib/lib.tex lib/libpydb.tex Makefile.in Makefile.deps \
 	html
 
-PYTHON_SRC:=$(shell cd @top_srcdir@ && pwd)
-PYTHON_DOC:=$(shell cd @srcdir@ && pwd)
+PYTHON_SRC=$(shell cd @top_srcdir@ && pwd)
+PYTHON_DOC=$(shell cd @srcdir@ && pwd)
 
 # Customization -- you *may* have to edit this
 
@@ -79,10 +79,10 @@ TOOLSDIR=	$(srcdir)/tools
 # doesn't exist or needs to be changed.  Documents which depend on the
 # version number should use \input{patchlevel} and include
 # commontex/patchlevel.tex in their dependencies.
-RELEASE:=$(shell $(PYTHON) $(PYTHON_DOC)/tools/getversioninfo)
+RELEASE=$(shell $(PYTHON) $(PYTHON_DOC)/tools/getversioninfo)
 
-PYTHON:=	   python
-DVIPS:=	   dvips -N0 -t $(PAPER)
+PYTHON=	   python
+DVIPS=	   dvips -N0 -t $(PAPER)
 
 # This is ugly!  The issue here is that there are two different levels
 # in the directory tree at which we execute mkhowto, so we can't
@@ -97,7 +97,7 @@ PWD=$(shell pwd)
 
 # (The trailing colon in the value is needed; TeX places its default
 # set of paths at the location of the empty string in the path list.)
-TEXINPUTS:=$(PYTHON_DOC)/commontex:
+TEXINPUTS=$(PYTHON_DOC)/commontex:
 
 # The mkhowto script can be run from the checkout using the first
 # version of this variable definition, or from a preferred version
