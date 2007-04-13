@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: contbug.py.in,v 1.1 2007/02/20 18:28:20 rockyb Exp $
+# $Id: contbug.py.in,v 1.2 2007/04/13 10:00:35 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -48,7 +48,12 @@ class RunTests(unittest.TestCase):
     def test_continue_bug(self):
         """Test --exec and a bug whith 'c lineno' when given initially."""
         python_script = '%shanoi.py' % srcdir
-        rightfile     = '%scontbug.right' % srcdir
+
+        if sys.version_info[0:2] == (2, 5):
+            rightfile = os.path.join(srcdir, "contbug-2.5.right")
+        else:
+            rightfile = os.path.join(srcdir, "contbug.right")
+
         outfile       = 'contbug.out'
         if os.path.exists(outfile): os.unlink(outfile)
         args = ('--basename', '--nx', '--output', outfile,

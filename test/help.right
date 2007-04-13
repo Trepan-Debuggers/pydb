@@ -1,0 +1,30 @@
+Usage: pydb.py [debugger-options] [python-script [script-options...]]
+
+       Runs the extended python debugger
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -X, --trace           Show lines before executing them. This option also
+                        sets --batch
+  -F, --fntrace         Show functions before executing them. This option also
+                        sets --batch
+  --batch               Don't run interactive commands shell on stops.
+  --basename            Filenames strip off basename, (e.g. for regression
+                        tests)
+  -x FILE, --command=FILE
+                        Execute commands from FILE.
+  --cd=DIR              Change current directory to DIR.
+  --error=FILE          Write debugger's error output (stderr) to FILE
+  -e EXECUTE, --exec=EXECUTE
+                        list of debugger commands to execute. Separate the
+                        commands with ;;
+  -n, --nx              Don't execute commands found in any initialization
+                        files
+  -o FILE, --output=FILE
+                        Write debugger's output (stdout) to FILE
+  --sigcheck            Set to watch for signal handler changes
+  -t TARGET, --target=TARGET
+                        Specify a target to connect to. Arguments should be of
+                        form, 'protocol address'.
+  -T, --threading       Start off with threading debug support

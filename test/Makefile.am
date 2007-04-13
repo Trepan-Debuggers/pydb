@@ -1,5 +1,5 @@
-#$Id: Makefile.am,v 1.40 2007/04/11 09:28:50 rockyb Exp $
-#   Copyright (C) 2006 Rocky Bernstein
+#$Id: Makefile.am,v 1.41 2007/04/13 10:00:35 rockyb Exp $
+#   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-# SUBDIRS := thread
+# SUBDIRS = thread
 
 check_DATA = \
         .pydbrc           \
@@ -33,8 +33,9 @@ check_DATA = \
 	complete.py       \
 	connect.py        \
 	contbug.cmd       \
-	contbug.py       \
+	contbug.py        \
 	contbug.right     \
+	contbug-2.5.right \
 	disassem.py       \
 	except.py         \
 	filebug.cmd       \
@@ -43,6 +44,8 @@ check_DATA = \
 	fntrace.right     \
 	gcd.py            \
 	hanoi.py          \
+	help.py           \
+	help.right        \
 	history.cmd       \
 	history.right     \
 	import.py         \
@@ -74,7 +77,7 @@ check_DATA = \
 	trace.right
 
 TESTS = complete.py contbug.py disassem.py file.py \
-	fns.py import.py pm.py runtest.py \
+	fns.py help.py import.py pm.py runtest.py \
 	sighandle.py sigtest.py trace.py test.py \
 	connect.py tcp_connect.py fifo_connect.py 
 
@@ -83,7 +86,7 @@ EXTRA_DIST = $(check_DATA) brkpt3.cmd.in .pydbrc.in \
 	brkpt3t.right brkpt3.right    \
 	complete.py.in contbug.py.in disassem.py.in \
 	file.right.in file-2.5.right.in    \
-	except.py.in file.cmd.in file.py.in fns.py.in \
+	except.py.in file.cmd.in file.py.in fns.py.in help.py.in \
         import.py pm.py.in runtest.py.in settrace.py.in test.py.in \
         sighandle.py.in	sigtest.py.in trace.py.in 
 
