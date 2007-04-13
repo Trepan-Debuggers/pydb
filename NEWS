@@ -5,7 +5,7 @@
   value if it is a scalar or string type or return type otherwise.
 
 * Make pydb.el work on Emacs 22 and 23. (was previously just 21).
-  Better emacs toleratoin on MS Windows.
+  Better emacs tolerance on MS Windows.
 
 * fix bug in "info thread" when threadframe is not installed (and
   python < 2.5).
