@@ -1,5 +1,5 @@
-#!/usr/local/bin/python -t
-# $Id: help.py.in,v 1.1 2007/04/13 10:00:35 rockyb Exp $
+#!@PYTHON@ -t
+# $Id: help.py.in,v 1.2 2007/04/15 04:17:27 rockyb Exp $
 "Unit test of getting help options "
 import difflib, os, time, sys, unittest
 
