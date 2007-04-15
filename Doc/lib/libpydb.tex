@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.116 2007/04/15 17:14:49 rockyb Exp $
+% $Id: libpydb.tex,v 1.117 2007/04/15 22:34:16 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -486,24 +486,28 @@ off. Using the command-line option \samp{--fntrace} when invoking
 \samp{--fntrace}, see \ref{switch:fntrace}.
 
 \begin{verbatim}
-$ pydb --basename --fntrace gcd.py 4 6
---Call level 0
+$ pydb --basename --fntrace gcd.py 4 10
+--Call level 0 check_args()
 (gcd.py:13):  check_args
 +  13 def check_args():
 --Return from level 0 (<type 'NoneType'>)
---Call level 0
+--Call level 0 gcd(a=4, b=10)
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
-----Call level 1
+----Call level 1 gcd(a=6, b=4)
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
-------Call level 2
+------Call level 2 gcd(a=2, b=4)
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
+--------Call level 3 gcd(a=2, b=2)
+(gcd.py:24):  gcd
++  24 def gcd(a,b):
+--------Return from level 3 => 2 (<type 'int'>)
 ------Return from level 2 => 2 (<type 'int'>)
 ----Return from level 1 => 2 (<type 'int'>)
 --Return from level 0 => 2 (<type 'int'>)
-The GCD of 4 and 6 is 2
+The GCD of 4 and 10 is 2
 \end{verbatim}
 
 Adding function tracing output will slow down your
@@ -562,14 +566,14 @@ $ pydb --basename --trace hanoi.py 2
 +  27     if n < 1 or n > 100: 
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
---Call level 0
+--Call level 0 hanoi(n=2, a='a', b='b', c='c')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
-----Call level 1
+----Call level 1 hanoi(n=1, a='a', b='c', c='b')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -589,7 +593,7 @@ Move disk a to b
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
-----Call level 1
+----Call level 1 hanoi(n=1, a='c', b='b', c='a')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
