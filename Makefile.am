@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.49 2007/04/11 09:51:49 rockyb Exp $
+#$Id: Makefile.am,v 1.50 2007/04/15 15:17:19 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -130,6 +130,8 @@ ACLOCAL_AMFLAGS=-I .
 endif
 
 .PHONY: $(PHONY)
+
+.OPTIONAL: $(DEBUGGER)
 
 #;;; Local Variables: ***
 #;;; mode:makefile ***
