@@ -1,4 +1,5 @@
-1.22x
+1.22 2007-04-15
+
 * Add function tracing and option -F.
 
 * Call and return trace lines show nesting level. Return will show the
@@ -14,6 +15,8 @@
 
 * pm distinquishes now where an exception rolled back to versus where
   the exception occurred.
+
+* BSD Make tolerance
 
 1.21 2007-02-13
 
