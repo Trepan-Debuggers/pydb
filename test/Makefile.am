@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.41 2007/04/13 10:00:35 rockyb Exp $
+#$Id: Makefile.am,v 1.42 2007/04/15 22:27:45 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,7 @@ TESTS = complete.py contbug.py disassem.py file.py \
 
 
 EXTRA_DIST = $(check_DATA) brkpt3.cmd.in .pydbrc.in \
-	brkpt3t.right brkpt3.right    \
+	brkpt3t.right brkpt3-2.5t.right brkpt3.right    \
 	complete.py.in contbug.py.in disassem.py.in \
 	file.right.in file-2.5.right.in    \
 	except.py.in file.cmd.in file.py.in fns.py.in help.py.in \

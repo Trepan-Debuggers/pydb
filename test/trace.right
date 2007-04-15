@@ -18,21 +18,21 @@
 +  27     if n < 1 or n > 100: 
 (hanoi.py:31): 
 +  31     hanoi(n, "a", "b", "c")
---Call level 0
+--Call level 0 hanoi(n=3, a='a', b='b', c='c')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
-----Call level 1
+----Call level 1 hanoi(n=2, a='a', b='c', c='b')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
-------Call level 2
+------Call level 2 hanoi(n=1, a='a', b='b', c='c')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -50,7 +50,7 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
-------Call level 2
+------Call level 2 hanoi(n=1, a='b', b='c', c='a')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -71,14 +71,14 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
-----Call level 1
+----Call level 1 hanoi(n=2, a='c', b='b', c='a')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
-------Call level 2
+------Call level 2 hanoi(n=1, a='c', b='a', c='b')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -96,7 +96,7 @@
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
-------Call level 2
+------Call level 2 hanoi(n=1, a='a', b='b', c='c')
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi

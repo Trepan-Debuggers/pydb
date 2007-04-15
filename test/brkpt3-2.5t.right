@@ -1,0 +1,31 @@
+--Call level -1 
++###############################################################
++### Test bad command parameters
++###############################################################
++# Non integer argument
++commands a
+*** 'commands' command: Expecting a positive integer, got: a
++# No such breakpoint number
++commands 5
+*** No breakpoint numbered 5.
++###############################################################
++### Test valid command. Note that in order to do this
++### here we need to use the "source" command so that
++### input doesn't get confused.
++### FIXME: somehow output isn't coming out. 
++###        but at least we're testing part
++###        parsing to the "end"
++###############################################################
++break 28
+Breakpoint 1 set in file gcd.py, line 28.
++cd .
++source comm1.cmd
++continue
++break 31
+Breakpoint 2 set in file gcd.py, line 31.
++source comm2.cmd
++cd .
++continue
++quit
+Requesting exit from MainThread (id -1210472784)
+The program exited via sys.exit(). Exit status: 

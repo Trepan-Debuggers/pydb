@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.38 2007/02/13 11:53:12 rockyb Exp $
+# $Id: test.py.in,v 1.39 2007/04/15 22:27:45 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -143,11 +143,15 @@ class PdbTests(unittest.TestCase):
                             truncate=-2,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3")
+        if sys.version_info[0:2] == (2, 5):
+            rightfile = os.path.join(srcdir, "brkpt3-2.5t.right")
+        else:
+            rightfile = os.path.join(srcdir, "brkpt3t.right")
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5',
                             pydb_opts='--threading',
-                            rightfile=os.path.join(builddir, "brkpt3t.right"),
+                            rightfile=rightfile,
                             truncate=-2,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3 --threading")

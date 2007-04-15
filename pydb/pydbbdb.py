@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.40 2007/04/11 09:28:50 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.41 2007/04/15 22:27:44 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -34,6 +34,12 @@ class Bdb(bdb.Bdb):
         # skip that many more step/next's.
         self.step_ignore      = 0
         return
+
+    def __print_call_params(self, frame):
+        "Show call paramaters and values"
+        self.setup(frame)
+        self.msg(self.format_stack_entry(self.stack[-1],
+                                         include_location=False))
 
     def __print_location_if_trace(self, frame, include_fntrace=True):
         if self.linetrace or (self.fntrace and include_fntrace):
@@ -235,7 +241,8 @@ class Bdb(bdb.Bdb):
             return(os.path.basename(filename))
         return filename
 
-    def format_stack_entry(self, frame_lineno, lprefix=': '):
+    def format_stack_entry(self, frame_lineno, lprefix=': ',
+                           include_location=True):
         """Format and return a stack entry gdb-style.
         Note: lprefix is not used. It is kept for compatibility.
         """
@@ -265,20 +272,21 @@ class Bdb(bdb.Bdb):
             s += repr_mod.repr(rv)
 
         add_quotes_around_file = True
-        if s == '?()':
-            if is_exec_stmt(frame):
-                s = 'in exec'
-                exec_str = get_exec_string(frame.f_back)
-                if exec_str != None:
-                    filename = exec_str
-                    add_quotes_around_file = False
+        if include_location:
+            if s == '?()':
+                if is_exec_stmt(frame):
+                    s = 'in exec'
+                    exec_str = get_exec_string(frame.f_back)
+                    if exec_str != None:
+                        filename = exec_str
+                        add_quotes_around_file = False
+                else:
+                    s = 'in file'
             else:
-                s = 'in file'
-        else:
-            s += ' called from file'
+                s += ' called from file'
 
-        if add_quotes_around_file: filename = "'%s'" % filename
-        s += " %s at line %r" % (filename, lineno)
+            if add_quotes_around_file: filename = "'%s'" % filename
+            s += " %s at line %r" % (filename, lineno)
         return s
 
     # The following two methods can be called by clients to use
@@ -333,7 +341,12 @@ class Bdb(bdb.Bdb):
             return
         if self.stop_here(frame):
             frame_count = count_frames(frame, Bdb.extra_call_frames)
-            self.msg('--%sCall level %d' % ('-' * (2*frame_count), frame_count))
+            self.msg_nocr('--%sCall level %d' % 
+                          ('-' * (2*frame_count), frame_count))
+            if frame_count >= 0:
+                self.__print_call_params(frame)
+            else:
+                self.msg("")
             if self.linetrace or self.fntrace:
                 self.__print_location_if_trace(frame)
                 if not self.break_here(frame): return
