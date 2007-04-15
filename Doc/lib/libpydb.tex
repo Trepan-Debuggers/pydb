@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.115 2007/04/11 09:28:50 rockyb Exp $
+% $Id: libpydb.tex,v 1.116 2007/04/15 17:14:49 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -487,25 +487,23 @@ off. Using the command-line option \samp{--fntrace} when invoking
 
 \begin{verbatim}
 $ pydb --basename --fntrace gcd.py 4 6
---Call level 3--
+--Call level 0
 (gcd.py:13):  check_args
 +  13 def check_args():
---Return from level 3 (<type 'NoneType'>)--
---Call level 3--
+--Return from level 0 (<type 'NoneType'>)
+--Call level 0
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
---Call level 4--
+----Call level 1
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
---Call level 5--
+------Call level 2
 (gcd.py:24):  gcd
 +  24 def gcd(a,b):
---Return from level 5: 2--
---Return from level 4: 2--
---Return from level 3: 2--
+------Return from level 2 => 2 (<type 'int'>)
+----Return from level 1 => 2 (<type 'int'>)
+--Return from level 0 => 2 (<type 'int'>)
 The GCD of 4 and 6 is 2
---Return from level 2 (<type 'NoneType'>)--
---Return from level 1 (<type 'NoneType'>)--
 \end{verbatim}
 
 Adding function tracing output will slow down your
@@ -539,7 +537,7 @@ option \samp{--trace} when invoking \code{pydb} implicitly sets this
 on.  For information on \samp{--trace}, see \ref{switch:trace}.
 
 \begin{verbatim}
-pydb --basename --trace hanoi.py 2
+$ pydb --basename --trace hanoi.py 2
 (hanoi.py:2):  <module>
 +  2 """Towers of Hanoi"""
 (hanoi.py:3):  <module>
@@ -564,14 +562,14 @@ pydb --basename --trace hanoi.py 2
 +  27     if n < 1 or n > 100: 
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
---Call level 3--
+--Call level 0
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
 +  6     if n-1 > 0:
 (hanoi.py:7):  hanoi
 +  7        hanoi(n-1, a, c, b) 
---Call level 4--
+----Call level 1
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -581,7 +579,7 @@ pydb --basename --trace hanoi.py 2
 Move disk a to c
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 4 (<type 'NoneType'>)--
+----Return from level 1 (<type 'NoneType'>)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
 (hanoi.py:8):  hanoi
@@ -591,7 +589,7 @@ Move disk a to b
 +  9     if n-1 > 0:
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Call level 4--
+----Call level 1
 (hanoi.py:5):  hanoi
 +  5 def hanoi(n,a,b,c):
 (hanoi.py:6):  hanoi
@@ -601,16 +599,14 @@ Move disk a to b
 Move disk c to b
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 4 (<type 'NoneType'>)--
+----Return from level 1 (<type 'NoneType'>)
 (hanoi.py:9):  hanoi
 +  9     if n-1 > 0:
---Return from level 3 (<type 'NoneType'>)--
+--Return from level 0 (<type 'NoneType'>)
 (hanoi.py:10):  hanoi
 +  10        hanoi(n-1, c, b, a) 
---Return from level 2 (<type 'NoneType'>)--
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
---Return from level 1 (<type 'NoneType'>)--
 (<string>:1):  <module>
 + 
 \end{verbatim}
