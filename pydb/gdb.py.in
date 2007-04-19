@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.131 2007/04/07 10:53:28 rockyb Exp $"""
+$Id: gdb.py.in,v 1.132 2007/04/19 20:09:10 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1651,7 +1651,7 @@ Send a signal to the debugged process.
         
     def do_source(self, arg):
         """source FILE
-        Read commands from a file named FILE.
+        Read debugger commands from a file named FILE.
         Note that the file '.@PACKAGE_NAME@rc' is read automatically
         in this way when @PACKAGE_NAME@ is started.
 
