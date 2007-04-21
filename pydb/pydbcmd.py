@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.42 2007/02/20 18:21:52 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.43 2007/04/21 10:40:50 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -72,6 +72,7 @@ class Cmd(cmd.Cmd):
         statement = 'execfile( "%s")' % filename
         self.running = True
         self.run(statement, globals=globals_, locals=locals_)
+        return
 
     def default(self, line):
         """Method called on an input line when the command prefix is

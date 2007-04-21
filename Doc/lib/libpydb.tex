@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.118 2007/04/19 20:09:07 rockyb Exp $
+% $Id: libpydb.tex,v 1.119 2007/04/21 10:40:46 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -522,13 +522,13 @@ Set the filename in which to record the command history.
 (the list of previous commands of which a record is kept). The default
 file is \verb|~/.pydbhist|.
 
-\item[set history save]
+\item[set history save on\code{\Large{|}}off]
 
 Set saving of the history record on exit.  Use ``on'' to enable the
 saving, and ``off'' to disable it.  Without an argument, saving is
 enabled.
 
-\item[set history size]
+\item[set history size \var{number}]
 
 Set the size of the command history, ie. the number of previous
 commands to keep a record of. The default is 256.
@@ -1270,6 +1270,11 @@ command with a \samp{global} command on the same line, e.g.:
 Enter a recursive debugger that steps through the code argument (which
 is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
+\ref{debugger:prompt}
+
+\item[ipython \var{options...}]\label{command:iptyhon}
+
+Run ipython as a subshell.
 \ref{debugger:prompt}
 
 \end{description}

@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.132 2007/04/19 20:09:10 rockyb Exp $"""
+$Id: gdb.py.in,v 1.133 2007/04/21 10:40:50 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1302,6 +1302,45 @@ recognized actions include "stop", "nostop", "print", "noprint",
                 self.msg('Will stop next time breakpoint %d is reached.' %
                          bpnum)
 
+    def do_ipython(self, arg_str):
+        """ipython [ipython-opt1 ipython-opt2 ...]
+
+Run ipython as a command subshell if it is around. If no ipython
+options are given the following options are passed:
+   -noconfirm_exit -prompt_in1 'Pydb In [\#]: '
+"""
+
+        # See if ipython is around
+        if not self.is_running():
+            return False
+        try:
+            import IPython
+        except ImportError:
+            self.msg("IPython doesn't seem to be importable.")
+            return False
+
+        if arg_str:
+            argv = arg_split(arg_str, posix=True)
+        else:
+            argv = ['-noconfirm_exit','-prompt_in1', 'Pydb In [\\#]: ']
+        user_ns = self.curframe.f_locals
+
+        # IPython does it's own history thing.
+        # Make sure it doesn't damage ours.
+        if self.readline:
+            try:
+                self.write_history_file
+            except IOError:
+                pass
+
+        ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
+        ipshell()
+        # Restore our history if we can do so.
+        if self.readline:
+            self.readline.read_history_file(self.histfile)
+
+        return
+
     def do_info(self, arg):
 
         """Generic command for showing things about the program being
@@ -1326,8 +1365,7 @@ recognized actions include "stop", "nostop", "print", "noprint",
 
         Set the next line that will be executed."""
 
-        if not self.is_running():
-            return False
+        if not self.is_running(): return False
 
         if self.curindex + 1 != len(self.stack):
             self.errmsg("You can only jump within the bottom frame")

@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.17 2007/04/07 10:53:29 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.18 2007/04/21 10:40:50 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -127,7 +127,12 @@ object variables.
         return
 
     def set_history(self, args):
-        """Generic command for setting command history parameters."""
+        """Generic command for setting command history parameters.
+
+set history filename - set location to save history
+set history save [on|off] - specify whether or not ot save history
+set history size n - set number of commands to save in history
+        """
         if args[1] == 'filename':
             if len(args) < 3:
                 self.errmsg("Argument required (filename to set it to).")

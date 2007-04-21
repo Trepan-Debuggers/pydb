@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.41 2007/04/15 22:27:44 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.42 2007/04/21 10:40:50 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -77,7 +77,7 @@ class Bdb(bdb.Bdb):
 
     def is_running(self):
         if self.running: return True
-        self.msg('The program being debugged is not being run.')
+        self.errmsg('The program being debugged is not being run.')
         return False
 
     def lookupmodule(self, filename):
