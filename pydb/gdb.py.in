@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.133 2007/04/21 10:40:50 rockyb Exp $"""
+$Id: gdb.py.in,v 1.134 2007/04/22 01:28:33 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1334,6 +1334,10 @@ options are given the following options are passed:
                 pass
 
         ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
+        if hasattr(ipshell.IP, "magic_pydb"):
+            # We an infinite loop when doing recursive edits
+            self.msg("Removing magic %pydb")
+            delattr(ipshell.IP, "magic_pydb")
         ipshell()
         # Restore our history if we can do so.
         if self.readline:
