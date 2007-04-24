@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.121 2007/04/24 05:50:52 rockyb Exp $
+% $Id: libpydb.tex,v 1.122 2007/04/24 06:05:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -909,6 +909,29 @@ Give breakpoint number as the argument after "commands".
 With no bpnumber argument, commands refers to the last one set.
 The commands themselves follow starting on the next line.
 Type a line containing "end" to terminate the commands.
+
+Here's an example:
+
+\begin{verbatim}
+(Pydb) break gcd
+Breakpoint 1 set in file gcd.py, line 24.
+(Pydb) commands
+Type commands for when breakpoint 1 is hit, one per line.
+End with a line saying just "end".
+>info locals
+>end
+(Pydb) c
+a = 3
+b = 5
+(gcd.py:28):  gcd
+28     if a > b:
+(Pydb) c
+a = 2
+b = 3
+(gcd.py:28):  gcd
+28     if a > b:
+(Pydb) 
+\end{verbatim}
 
 To remove all commands from a breakpoint, type commands and
 follow it immediately with \code{end}; that is, give no commands.
