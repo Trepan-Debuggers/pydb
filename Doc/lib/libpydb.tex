@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.122 2007/04/24 06:05:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.123 2007/04/24 06:24:58 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -110,13 +110,25 @@ debugging) is requested.
 
 \section{Invoking the Debugger \label{pydb-invocation}}
 
-First it should be noted that in various situations and for various
-reasons you might not be able to call the debugger directly from a
-command line or at the outset of the program. That's okay. See section
+It should be noted that in various situations and for various reasons
+you might not be able to call the debugger directly from a command
+line or at the outset of the program. That's okay. See section
 \ref{subsection-calling-pydb-inside-program} for how to invoke the
 debugger from inside your running Python program. Also, see section
 \ref{subsection-post-mortem} for how to invoke after an error is
-encontered and you have a traceback.
+encountered and you have a traceback. 
+
+The debugger traps all exceptions. So if the program raises an
+exception that it doesn't handle you will be left inside the
+debugger. The debugger also installs some default signal
+handlers---see \ref{subsection-signal}. If the program is running
+indefinitely, you may be able to go back into the debugger by sending
+an \code{INT} (interrupt) signal.
+
+After normal exit of the program or post-mortem debugging, the
+debugger will give a message that the program has ended. After
+soliciting input, the program will restart the program unless directed
+otherwise.  Restarting preserves debugger state (such as breakpoints).
 
 Of the many additions to the standard Python debugger,
 \ulink{\module{pdb}}{http://docs.python.org/lib/module-pdb.html} three
