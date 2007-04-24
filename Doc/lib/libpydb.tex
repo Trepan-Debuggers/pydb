@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.120 2007/04/24 05:37:20 rockyb Exp $
+% $Id: libpydb.tex,v 1.121 2007/04/24 05:50:52 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1306,9 +1306,10 @@ there are shared dynamically loaded objects those don't get unloaded.}
 \item[run \var{args...}]\label{command:run}
 
 Run or ``soft'' restart the debugged Python program. If a string is
-supplied that becomes the new command arguments.  History,
+supplied, it is splitted with \code{shlex} but preserving embedded
+quotes. The result is used as the new \code{sys.argv}.  History,
 breakpoints, actions and debugger options are preserved.  \code{R} is
-a short command alias for \code{run}. 
+a short command alias for \code{run}.
 
 You may notice that the sometimes you can \code{step} into modules
 included via an \code{import} statement, but after a \code{run} this

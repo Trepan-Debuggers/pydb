@@ -267,11 +267,14 @@ Type "help" for a list of debugger commands.
 restart - Restart debugger and program via an exec
         call. All state is lost, and new copy of the debugger is used.
 +help run
-run [arg_str]
+run [args...]
 
-        Run/Restart the debugged Python program. If a string (arg_str) is
-        supplied that becomes the new command arguments.  History,
-        breakpoints, actions and debugger options are preserved.
+        Run or "soft" restart the debugged Python program. If a string
+is supplied, it is splitted with "shlex" but preserving embedded quotes.
+The result is used as the new sys.argv.  History, breakpoints, actions
+and debugger options are preserved. R is a alias for 'run'.
+
+See also 'restart' for an exec-like restart.
 +help set
 This command modifies parts of the debugger environment.
 You can see these environment settings with the 'show' command.

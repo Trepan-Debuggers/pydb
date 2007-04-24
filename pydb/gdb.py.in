@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.134 2007/04/22 01:28:33 rockyb Exp $"""
+$Id: gdb.py.in,v 1.135 2007/04/24 05:50:52 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1609,14 +1609,17 @@ assignment to the variable __return__."""
     do_rv = do_retval
 
     def do_run(self, arg_str):
-        """run [arg_str]
+        """run [args...]
 
-        Run/Restart the debugged Python program. If a string (arg_str) is
-        supplied that becomes the new command arguments.  History,
-        breakpoints, actions and debugger options are preserved."""
+        Run or "soft" restart the debugged Python program. If a string
+is supplied, it is splitted with "shlex" but preserving embedded quotes.
+The result is used as the new sys.argv.  History, breakpoints, actions
+and debugger options are preserved. R is a alias for 'run'.
+
+See also 'restart' for an exec-like restart."""
         if not self._program_sys_argv:
-            self.msg("No Python program registered.")
-            self.msg("Perhaps you want to use the 'file' command?")
+            self.errmsg("No Python program registered.")
+            self.errmsg("Perhaps you want to use the 'file' command?")
             return
         if arg_str:
             argv_start = self._program_sys_argv[0:1]
