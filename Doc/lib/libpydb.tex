@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.125 2007/04/24 06:32:23 rockyb Exp $
+% $Id: libpydb.tex,v 1.126 2007/05/14 00:29:48 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -2016,14 +2016,17 @@ pydb.debugger(["set linetrace off", "continue"])
 
 It is also to possible enter the debugger after a crash or traceback
 even though the program was not started via \code{pydb}. This is
-called \emph{post-mortem debugging}.
+called \emph{post-mortem debugging}. In this state many of the
+debugger commands for examining variables and moving around in the
+stack will still work. However some commands such as those which imply
+a continuation of running code will no longer work.
 
 There are in fact three possibilities. The first way does not require
-modification to your program but does require that the program be run
-from the Python interpreter shell. The second possibility doesn't
-require one to be inside the Python interpreter shell, but does require
-modification to your program. The third possibility is if you had
-started using \code{pydb}.
+modification to your program but it does require that the program be
+run from the Python interpreter shell. The second possibility doesn't
+require one to be inside the Python interpreter shell, but does
+require modification to your program. The third possibility is if you
+had started using \code{pydb}.
 
 \subsubsection{Post-Mortem Debugging within a Python Interpreter Shell
 ({\tt pydb.post_mortem}, {\tt pydb.pm()})}
