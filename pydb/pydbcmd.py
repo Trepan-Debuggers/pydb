@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.43 2007/04/21 10:40:50 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.44 2007/05/19 01:19:09 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -224,6 +224,7 @@ See also 'examine' an 'whatis'.
         than get_int(). We eval arg return it as an integer value or
         None if there was an error in parsing this.
         """
+        ret_value = None
         if arg:
             try:
                 # eval() is used so we will allow arithmetic expressions,
