@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.42 2007/04/11 09:28:50 rockyb Exp $"""
+$Id: fns.py,v 1.43 2007/05/22 14:02:12 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -36,24 +36,6 @@ def arg_split(s,posix=False):
     lex.whitespace_split = True
     return list(lex)
 
-def count_frames(frame, count_start=0):
-    "Return a count of number of frames"
-    count = -count_start
-    while frame: 
-        count += 1
-        frame = frame.f_back
-    return count
-
-def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
-    """Make new_fn have old_fn's doc string. This is particularly useful
-    for the do_... commands that hook into the help system.
-    Adapted from from a comp.lang.python posting
-    by Duncan Booth."""
-    def wrapper(*args, **kw):
-        return new_fn(*args, **kw)
-    wrapper.__doc__ = old_fn.__doc__ + additional_text
-    return wrapper
-
 def checkline(obj, filename, lineno):
     """Check whether specified line seems to be executable.
 
@@ -71,6 +53,81 @@ def checkline(obj, filename, lineno):
         obj.errmsg('Blank or comment')
         return 0
     return lineno
+
+def columnize(list, displaywidth=80):
+    """Display a list of strings as a compact set of columns.
+
+    Each column is only as wide as necessary.
+    Columns are separated by two spaces (one was not legible enough).
+    """
+    if not list:
+        return "<empty>\n"
+
+    nonstrings = [i for i in range(len(list))
+                    if not isinstance(list[i], str)]
+    if nonstrings:
+        return ("list[i] not a string for i in %s" %
+                ", ".join(map(str, nonstrings)))
+    size = len(list)
+    if size == 1:
+        return '%s\n'%str(list[0])
+    # Try every row count from 1 upwards
+    for nrows in range(1, len(list)):
+        ncols = (size+nrows-1) // nrows
+        colwidths = []
+        totwidth = -2
+        for col in range(ncols):
+            colwidth = 0
+            for row in range(nrows):
+                i = row + nrows*col
+                if i >= size:
+                    break
+                x = list[i]
+                colwidth = max(colwidth, len(x))
+            colwidths.append(colwidth)
+            totwidth += colwidth + 2
+            if totwidth > displaywidth:
+                break
+        if totwidth <= displaywidth:
+            break
+    else:
+        nrows = len(list)
+        ncols = 1
+        colwidths = [0]
+    s = ''
+    for row in range(nrows):
+        texts = []
+        for col in range(ncols):
+            i = row + nrows*col
+            if i >= size:
+                x = ""
+            else:
+                x = list[i]
+            texts.append(x)
+        while texts and not texts[-1]:
+            del texts[-1]
+        for col in range(len(texts)):
+            texts[col] = texts[col].ljust(colwidths[col])
+        s += ("%s\n"%str("  ".join(texts)))
+    return s
+
+def count_frames(frame, count_start=0):
+    "Return a count of number of frames"
+    count = -count_start
+    while frame: 
+        count += 1
+        frame = frame.f_back
+    return count
+
+def decorate_fn_with_doc(new_fn, old_fn, additional_text=""):
+    """Make new_fn have old_fn's doc string. This is particularly useful
+    for the do_... commands that hook into the help system.
+    Adapted from from a comp.lang.python posting
+    by Duncan Booth."""
+    def wrapper(*args, **kw):
+        return new_fn(*args, **kw)
+    wrapper.__doc__ = old_fn.__doc__ + additional_text
+    return wrapper
 
 def file_pyc2py(filename):
     """Given a file name, if the suffix is pyo or pyc (an optimized bytecode
@@ -405,3 +462,23 @@ if __name__ == '__main__':
     assert printf(33, "/c") == '!'
     assert printf(33, "/x") == '0x21'
     assert file2module("/tmp/gcd.py") == 'gcd'
+    assert columnize(["a"]) == "a\n"
+    print columnize([
+            "one", "two", "three",
+            "4ne", "5wo", "6hree",
+            "7ne", "8wo", "9hree",
+            "10e", "11o", "12ree",
+            "13e", "14o", "15ree",
+            "16e", "17o", "18ree",
+            "19e", "20o", "21ree",
+            "22e", "23o", "24ree",
+            "25e", "26o", "27ree",
+            "28e", "29o", "30ree",
+            "31e", "32o", "33ree",
+            "34e", "35o", "36ree",
+            "37e", "38o", "39ree",
+            "40e", "41o", "42ree",
+            "43e", "44o", "45ree",
+            "46e", "47o", "48ree",
+            "one", "two", "three"])
+
