@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.135 2007/04/24 05:50:52 rockyb Exp $"""
+$Id: gdb.py.in,v 1.136 2007/05/23 01:39:06 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -1403,6 +1403,7 @@ we are in interactive mode, we'll prompt to make sure.
                get_confirmation(self, 'Really do a hard kill (y or n)? ',
                                 True):
             os.kill(os.getpid(), signal.SIGKILL)
+            return False # Not reached
 
     def do_list(self, arg):
         """l(ist) [- | first [last or count]]
@@ -1439,6 +1440,8 @@ we are in interactive mode, we'll prompt to make sure.
                     self.lineno = lineno
         except KeyboardInterrupt:
             pass
+        return False
+
     do_l = do_list
 
     def do_next(self, arg):
@@ -1452,7 +1455,7 @@ With an integer argument, perform that many times."""
             self.step_ignore = self.get_pos_int(arg, default=1,
                                                 cmdname='next') - 1
         except ValueError:
-            return
+            return False
 
         self.stepping = True  # Used in thread debugging
         self.set_next(self.curframe)
@@ -1473,8 +1476,24 @@ With an integer argument, perform that many times."""
         """pp expression
         Pretty-print the value of the expression."""
         try:
-            self.msg(pprint.pformat(self.getval(arg)))
-        except:
+            val = self.getval(arg)
+            if type(val) == types.ListType:
+                # Handle simple case where list is not nested
+                simple = True
+                for i in range(len(val)):
+                    if not (type(val[i]) in [types.BooleanType, types.FloatType, 
+                                         types.IntType,  types.StringType,
+                                         types.UnicodeType, types.NoneType,
+                                         types.LongType]):
+                        simple = False
+                        break
+
+                if simple: 
+                    self.msg(fns.columnize(val))
+                    return False
+                
+            self.msg(pprint.pformat(val))
+        except EOFError:
             pass
 
     def do_pwd(self, arg):

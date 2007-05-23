@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.43 2007/05/22 14:02:12 rockyb Exp $"""
+$Id: fns.py,v 1.44 2007/05/23 01:39:06 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -54,7 +54,7 @@ def checkline(obj, filename, lineno):
         return 0
     return lineno
 
-def columnize(list, displaywidth=80):
+def columnize(list, displaywidth=80, max_elts=50):
     """Display a list of strings as a compact set of columns.
 
     Each column is only as wide as necessary.
@@ -63,14 +63,22 @@ def columnize(list, displaywidth=80):
     if not list:
         return "<empty>\n"
 
-    nonstrings = [i for i in range(len(list))
-                    if not isinstance(list[i], str)]
-    if nonstrings:
-        return ("list[i] not a string for i in %s" %
-                ", ".join(map(str, nonstrings)))
+    if len(list) > max_elts:
+        list = list[0:max_elts-1]
+        elipsis = True
+    else:
+        elipsis = False
+    nonscalars = [i for i in range(len(list))
+                  if not (type(list[i]) in [types.BooleanType, types.FloatType, 
+                                            types.IntType,  types.StringType,
+                                            types.UnicodeType, types.NoneType,
+                                            types.LongType])]
+    if nonscalars:
+        return ("list[i] not a scalar for i in %s" %
+                ", ".join(map(str, nonscalars)))
     size = len(list)
     if size == 1:
-        return '%s\n'%str(list[0])
+        return '[%s]' % str(list[0])
     # Try every row count from 1 upwards
     for nrows in range(1, len(list)):
         ncols = (size+nrows-1) // nrows
@@ -79,11 +87,11 @@ def columnize(list, displaywidth=80):
         for col in range(ncols):
             colwidth = 0
             for row in range(nrows):
-                i = row + nrows*col
+                i = row*ncols + col
                 if i >= size:
                     break
                 x = list[i]
-                colwidth = max(colwidth, len(x))
+                colwidth = max(colwidth, len(repr(x)))
             colwidths.append(colwidth)
             totwidth += colwidth + 2
             if totwidth > displaywidth:
@@ -94,11 +102,11 @@ def columnize(list, displaywidth=80):
         nrows = len(list)
         ncols = 1
         colwidths = [0]
-    s = ''
+    s = '['
     for row in range(nrows):
         texts = []
         for col in range(ncols):
-            i = row + nrows*col
+            i = row*ncols + col
             if i >= size:
                 x = ""
             else:
@@ -107,8 +115,11 @@ def columnize(list, displaywidth=80):
         while texts and not texts[-1]:
             del texts[-1]
         for col in range(len(texts)):
-            texts[col] = texts[col].ljust(colwidths[col])
-        s += ("%s\n"%str("  ".join(texts)))
+            texts[col] = repr(texts[col]).ljust(colwidths[col])
+        s += ("%s\n "%str(", ".join(texts)))
+    s = s[0:-2] 
+    if elipsis: s += "..."
+    s += ']'
     return s
 
 def count_frames(frame, count_start=0):
