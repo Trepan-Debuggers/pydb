@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: fns.py.in,v 1.6 2007/05/23 01:39:07 rockyb Exp $ -*- Python -*-
+# $Id: fns.py.in,v 1.7 2007/05/23 09:25:43 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.
@@ -59,8 +59,8 @@ class TestFns(unittest.TestCase):
 
     def test_columnize(self):
         self.assertEqual("['one', 'two', 'three']", 
-                         fns.columnize(["one", "two", "three"]))
-        self.assertEqual("[oneitem]", fns.columnize(["oneitem"]))
+                         fns.columnize_array(["one", "two", "three"]))
+        self.assertEqual("[oneitem]", fns.columnize_array(["oneitem"]))
         self.assertEqual(
 """['one', 'two', 'three', '4ne', '5wo', '6hree', '7ne', '8wo', '9hree'
  '10e', '11o', '12ree', '13e', '14o', '15ree', '16e', '17o', '18ree'
@@ -68,7 +68,7 @@ class TestFns(unittest.TestCase):
  '28e', '29o', '30ree', '31e', '32o', '33ree', '34e', '35o', '36ree'
  '37e', '38o', '39ree', '40e', '41o', '42ree', '43e', '44o', '45ree'
  '46e', '47o', '48ree', 'one'...]""",
-                 fns.columnize([
+                 fns.columnize_array([
                     "one", "two", "three",
                     "4ne", "5wo", "6hree",
                     "7ne", "8wo", "9hree",

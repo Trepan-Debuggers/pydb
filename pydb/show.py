@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.14 2007/04/07 10:53:29 rockyb Exp $"
+__revision = "$Id: show.py,v 1.15 2007/05/23 09:25:43 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -142,3 +142,9 @@ program. See also 'set target-address' and 'attach'."""
             self.msg("\t -W%s" % ', -W'.join(sys.warnoptions))
         else:
             self.msg('No warning options have been set.')
+
+    def show_width(self, args):
+        """Show number of characters gdb thinks are in a line."""
+        self.msg("Number of lines to show in listing is %s."
+                 %  self.width)
+

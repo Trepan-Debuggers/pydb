@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.44 2007/05/19 01:19:09 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.45 2007/05/23 09:25:43 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -185,9 +185,12 @@ See also 'examine' an 'whatis'.
                     else:
                         cmds_undoc.append(cmd)
             self.msg("%s\n" % str(self.doc_leader))
-            self.print_topics(self.doc_header,   cmds_doc,   15,80)
-            self.print_topics(self.misc_header,  help_dict.keys(),15,80)
-            self.print_topics(self.undoc_header, cmds_undoc, 15,80)
+            self.print_topics(self.doc_header,   cmds_doc,   15,
+                              self.width)
+            self.print_topics(self.misc_header,  help_dict.keys(),15,
+                              self.width)
+            self.print_topics(self.undoc_header, cmds_undoc, 15,
+                              self.width)
 
     do_h = do_help
 

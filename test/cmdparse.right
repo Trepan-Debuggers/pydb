@@ -296,6 +296,7 @@ set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
 set trace-commands -- Set to show lines read from the debugger command file
 set warnoptions -- Set the Python warning options that are in effect when a
+set width -- Set number of characters the debugger thinks are in a line
 +help set linesize
 *** Unknown 'help set' subcommand linesize
 +help set listsize
@@ -323,6 +324,7 @@ show sigcheck -- Show status of signal checking/adjusting
 show trace-commands -- Show if we are to show debugger commands before running
 show version -- Show what version of the debugger this is
 show warnoptions -- Show Python warning options to be used in running programs
+show width -- Show number of characters gdb thinks are in a line
 +help show listsize
 Show number of source lines the debugger will list by default
 +help info

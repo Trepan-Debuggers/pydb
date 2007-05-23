@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.136 2007/05/23 01:39:06 rockyb Exp $"""
+$Id: gdb.py.in,v 1.137 2007/05/23 09:25:43 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -131,6 +131,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         self.target          = 'local' # local connections by default
         self.target_addr     = ''      # target address used by 'attach'
+        self.width           = 80      # Assume a printed line is this wide
 
         # self.break_anywhere, self.set_continue and
         # self.trace_dispatch are changed depending on the value of
@@ -351,7 +352,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('sigcheck',        self.set_sigcheck)
         ## self.setcmds.add('target-address',  self.set_target_address)
         self.setcmds.add('trace-commands',  self.set_cmdtrace)
-        self.setcmds.add('warnoptions',     self.set_warnoptions)
+        self.setcmds.add('warnoptions',     self.set_warnoptions, 2)
+        self.setcmds.add('width',           self.set_width,  2)
         return
 
     def __init_show(self):
@@ -378,7 +380,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         ## self.showcmds.add('target-address', self.show_target_address)
         self.showcmds.add('trace-commands', self.show_cmdtrace,    1)
         self.showcmds.add('version',        self.show_version)
-        self.showcmds.add('warnoptions',    self.show_warnoptions)
+        self.showcmds.add('warnoptions',    self.show_warnoptions, 2)
+        self.showcmds.add('width',          self.show_width, 2)
 
     # To be overridden in derived debuggers
     def defaultFile(self):
@@ -1489,7 +1492,7 @@ With an integer argument, perform that many times."""
                         break
 
                 if simple: 
-                    self.msg(fns.columnize(val))
+                    self.msg(fns.columnize_array(val, self.width))
                     return False
                 
             self.msg(pprint.pformat(val))

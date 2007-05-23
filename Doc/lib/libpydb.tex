@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.126 2007/05/14 00:29:48 rockyb Exp $
+% $Id: libpydb.tex,v 1.127 2007/05/23 09:25:42 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -731,6 +731,11 @@ No warning options have been set.
 (Pydb) 
 \end{verbatim}
 
+\item[set width {\var{columns}}]\label{command:width}
+
+Set number of characters the debugger thinks are in a line.
+
+We also change OS environment variable COLUMNS. 
 \end{description}
 
 \subsubsection{Show ({\tt show}) \label{subsubsection-show}}
@@ -824,6 +829,10 @@ See also \ref{command:sigwatch} and \ref{subsection-signal}.
 Show the Warning options that are in effect when a program is started
 or restarted. On the command-line these are the \code{-W} options,
 e.g. \code{-Werror}, or \code{-We::Deprecation}.
+
+\item[show width]
+
+Show number of characters the debugger thinks are in a line.
 
 \end{description}
 

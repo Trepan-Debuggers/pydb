@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.44 2007/05/23 01:39:06 rockyb Exp $"""
+$Id: fns.py,v 1.45 2007/05/23 09:25:43 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -54,10 +54,9 @@ def checkline(obj, filename, lineno):
         return 0
     return lineno
 
-def columnize(list, displaywidth=80, max_elts=50):
-    """Display a list of strings as a compact set of columns.
+def columnize_array(list, max_elts=50, displaywidth=80):
+    """Display an array as a compact column-aligned set of columns.
 
-    Each column is only as wide as necessary.
     Columns are separated by two spaces (one was not legible enough).
     """
     if not list:
@@ -79,15 +78,18 @@ def columnize(list, displaywidth=80, max_elts=50):
     size = len(list)
     if size == 1:
         return '[%s]' % str(list[0])
-    # Try every row count from 1 upwards
+    # Consider arranging list in 1 rows total, then 2 rows...
+    # Stop when at the smallest number of rows which
+    # can be arranged less than the display width.
     for nrows in range(1, len(list)):
-        ncols = (size+nrows-1) // nrows
+        ncols = (size+nrows-1) // nrows  # ceil(size/nrows)
         colwidths = []
         totwidth = -2
+        # get max column width for this column
         for col in range(ncols):
             colwidth = 0
             for row in range(nrows):
-                i = row*ncols + col
+                i = row*ncols + col # [rows, cols]
                 if i >= size:
                     break
                 x = list[i]
@@ -102,6 +104,10 @@ def columnize(list, displaywidth=80, max_elts=50):
         nrows = len(list)
         ncols = 1
         colwidths = [0]
+    # The smallest number of rows computed and the
+    # max widths for each column has been obtained.
+    # Now we just have to format each of the
+    # rows.
     s = '['
     for row in range(nrows):
         texts = []
@@ -473,8 +479,8 @@ if __name__ == '__main__':
     assert printf(33, "/c") == '!'
     assert printf(33, "/x") == '0x21'
     assert file2module("/tmp/gcd.py") == 'gcd'
-    assert columnize(["a"]) == "a\n"
-    print columnize([
+    assert columnize_array(["a"]) == "a\n"
+    print columnize_array([
             "one", "two", "three",
             "4ne", "5wo", "6hree",
             "7ne", "8wo", "9hree",

@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.18 2007/04/21 10:40:50 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.19 2007/05/23 09:25:43 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -295,3 +295,14 @@ Examples:
         sys.warnoptions = args[1:]
         self.show_warnoptions(args)
         return
+
+    def set_width(self, args):
+        """Set number of characters the debugger thinks are in a line.
+We also change OS environment variable COLUMNS."""
+        try:
+            self.width = self.get_int(args[1])
+            os.environ['COLUMNS'] = self.width
+        except ValueError:
+            pass
+        return
+
