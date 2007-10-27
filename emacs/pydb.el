@@ -52,9 +52,36 @@ and in tracebacks like this:
 ;; beginning of a marker, we save it here between calls to the
 ;; filter.
 (defun gud-pydb-marker-filter (string)
+  ;;(message "GOT: %s" string)
   (setq gud-marker-acc (concat gud-marker-acc string))
-  (let ((output ""))
+  ;;(message "ACC: %s" gud-marker-acc)
+  (let ((output "") s s2 (tmp ""))
 
+    ;; ALB first we process the annotations (if any)
+    (while (setq s (string-match pydb-annotation-start-regexp
+                                 gud-marker-acc))
+      (let ((name (substring gud-marker-acc (match-beginning 1) (match-end 1)))
+            (end (match-end 0)))
+        (if (setq s2 (string-match pydb-annotation-end-regexp
+                                   gud-marker-acc end))
+            ;; ok, annotation complete, process it and remove it
+            (let ((contents (substring gud-marker-acc end s2))
+                  (end2 (match-end 0)))
+              (pydb-process-annotation name contents)
+              (setq gud-marker-acc
+                    (concat (substring gud-marker-acc 0 s)
+                            (substring gud-marker-acc end2))))
+          ;; otherwise, save the partial annotation to a temporary, and re-add
+          ;; it to gud-marker-acc after normal output has been processed
+          (setq tmp (substring gud-marker-acc s))
+          (setq gud-marker-acc (substring gud-marker-acc 0 s)))))
+    
+    (when (setq s (string-match pydb-annotation-end-regexp gud-marker-acc))
+      ;; save the beginning of gud-marker-acc to tmp, remove it and restore it
+      ;; after normal output has been processed
+      (setq tmp (substring gud-marker-acc 0 s))
+      (setq gud-marker-acc (substring gud-marker-acc s)))
+           
     ;; Process all the complete markers in this chunk.
     ;; Format of line looks like this:
     ;;   (/etc/init.d/ntp.init:16):
@@ -68,7 +95,7 @@ and in tracebacks like this:
        (cons (substring gud-marker-acc 
 			(match-beginning gud-pydb-marker-regexp-file-group) 
 			(match-end gud-pydb-marker-regexp-file-group))
-	     (string-to-int 
+	     (string-to-number
 	      (substring gud-marker-acc
 			 (match-beginning gud-pydb-marker-regexp-line-group)
 			 (match-end gud-pydb-marker-regexp-line-group))))
@@ -94,17 +121,17 @@ and in tracebacks like this:
 
 	  ;; Everything after, we save, to combine with later input.
 	  (setq gud-marker-acc
-		(substring gud-marker-acc (match-beginning 0))))
+		(concat tmp (substring gud-marker-acc (match-beginning 0)))))
 
       (setq output (concat output gud-marker-acc)
-	    gud-marker-acc ""))
+	    gud-marker-acc tmp))
 
     output))
 
 (defun gud-pydb-find-file (f)
   (find-file-noselect f))
 
-(defcustom gud-pydb-command-name "pydb"
+(defcustom gud-pydb-command-name "pydb --annotate"
   "File name for executing the Python debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
@@ -177,6 +204,8 @@ and source-file directory for your debugger."
 
   ; remove other py-pdbtrack if which gets in the way
   (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
+
+  (when pydb-many-windows (pydb-setup-windows))
 
   (run-hooks 'pydb-mode-hook))
 
@@ -280,9 +309,9 @@ Currently-active file is at the head of the list.")
 ;; Utilities
 (defmacro pydb-safe (&rest body)
   "Safely execute BODY, return nil if an error occurred."
-  (` (condition-case nil
-	 (progn (,@ body))
-       (error nil))))
+  `(condition-case nil
+	 (progn (,@body))
+       (error nil)))
 
 
 ;;;###autoload
@@ -367,7 +396,7 @@ problem as best as we can determine."
       "line number cue not found"
 
     (let* ((filename (match-string pydb-marker-regexp-file-group block))
-           (lineno (string-to-int 
+           (lineno (string-to-number
 		    (match-string pydb-marker-regexp-line-group block)))
            funcbuffer)
 
@@ -422,6 +451,252 @@ problem as best as we can determine."
 	    pydb-pydbtrack-minor-mode-string)
 	  minor-mode-alist)) 
 ;; pydbtrack
+
+
+;;-----------------------------------------------------------------------------
+;; ALB - annotations support
+;;-----------------------------------------------------------------------------
+
+(defcustom pydb-many-windows t
+  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
+  :type 'boolean
+  :group 'pydb)
+
+(defconst pydb-annotation-start-regexp
+  "^\\([a-z]+\\)\n")
+(defconst pydb-annotation-end-regexp
+  "^\n")
+
+(defvar pydb--annotation-setup-map
+  (progn
+    (define-hash-table-test 'str-hash 'string= 'sxhash)
+    (let ((map (make-hash-table :test 'str-hash)))
+      (puthash "breakpoints" 'pydb--setup-breakpoints-buffer map)
+      (puthash "stack" 'pydb--setup-stack-buffer map)
+      (puthash "locals" 'pydb--setup-locals-buffer map)
+      map)))
+
+(defun pydb-process-annotation (name contents)
+  (let ((buf (get-buffer-create (format "*pydb-%s*" name))))
+    (with-current-buffer buf
+      (setq buffer-read-only t)
+      (let ((inhibit-read-only t)
+            (setup-func (gethash name pydb--annotation-setup-map)))
+        (erase-buffer)
+        (insert contents)
+        (when setup-func (funcall setup-func buf))))))
+
+(defun pydb-setup-windows ()
+  "Layout the window pattern for `pydb-many-windows'. This was mostly copied
+from `gdb-setup-windows', but simplified."
+  (pop-to-buffer gud-comint-buffer)
+  (delete-other-windows)
+  (split-window nil ( / ( * (window-height) 3) 4))
+  (split-window nil ( / (window-height) 3))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer (selected-window) (get-buffer-create "*pydb-locals*"))
+  (other-window 1)
+  (switch-to-buffer
+       (if gud-last-last-frame
+	   (gud-find-file (car gud-last-last-frame))
+         ;; Put buffer list in window if we
+         ;; can't find a source file.
+         (list-buffers-noselect)))
+  (other-window 1)
+  (set-window-buffer (selected-window) (get-buffer-create "*pydb-stack*"))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer (selected-window) (get-buffer-create "*pydb-breakpoints*"))
+  (other-window 1)
+  (goto-char (point-max)))
+
+(defun pydb-restore-windows ()
+  "Equivalent of `gdb-restore-windows' for pydb."
+  (interactive)
+  (when pydb-many-windows
+    (pydb-setup-windows)))
+
+;; ALB fontification and keymaps for secondary buffers (breakpoints, stack)
+
+;; -- breakpoints
+
+(defvar pydb--breakpoints-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-2] 'pydb-goto-breakpoint-mouse)
+    (define-key map [? ] 'pydb-toggle-breakpoint)
+    (define-key map [(control m)] 'pydb-goto-breakpoint)
+    (define-key map [?d] 'pydb-delete-breakpoint)
+    map)
+  "Keymap to navigate/set/enable pydb breakpoints.")
+
+(defconst pydb--breakpoint-regexp
+  "^\\([0-9]+\\) +breakpoint +\\([a-z]+\\) +\\([a-z]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
+  "Regexp to recognize breakpoint lines in pydb breakpoints buffers.")
+
+(defun pydb--setup-breakpoints-buffer (buf)
+  "Detects breakpoint lines and sets up mouse navigation."
+  (with-current-buffer buf
+    (let ((inhibit-read-only t))
+      (setq mode-name "PYDB Breakpoints")
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((b (point-at-bol)) (e (point-at-eol)))
+          (when (string-match pydb--breakpoint-regexp
+                              (buffer-substring b e))
+            (add-text-properties b e
+                                 (list 'mouse-face 'highlight
+                                       'keymap pydb--breakpoints-map))
+            ;; fontify "keep/del"
+            (let ((face (if (string= "keep" (buffer-substring
+                                             (+ b (match-beginning 2))
+                                             (+ b (match-end 2))))
+                            compilation-info-face
+                          compilation-warning-face)))
+              (add-text-properties
+               (+ b (match-beginning 2)) (+ b (match-end 2))
+               (list 'face face 'font-lock-face face)))
+            ;; fontify "enabled"
+            (when (string= "y" (buffer-substring (+ b (match-beginning 3))
+                                                 (+ b (match-end 3))))
+              (add-text-properties
+               (+ b (match-beginning 3)) (+ b (match-end 3))
+               (list 'face compilation-error-face
+                     'font-lock-face compilation-error-face))))
+        (forward-line)
+        (beginning-of-line))))))
+
+(defun pydb-goto-breakpoint-mouse (event)
+  "Displays the location in a source file of the selected breakpoint."
+  (interactive "e")
+  (with-current-buffer (window-buffer (posn-window (event-end event)))
+    (pydb-goto-breakpoint (posn-point (event-end event)))))
+
+(defun pydb-goto-breakpoint (pt)
+  "Displays the location in a source file of the selected breakpoint."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+      (when (string-match pydb--breakpoint-regexp s)
+        (pydb-display-line
+         (substring s (match-beginning 4) (match-end 4))
+         (string-to-number (substring s (match-beginning 5) (match-end 5))))
+        ))))
+
+(defun pydb-toggle-breakpoint (pt)
+  "Toggles the breakpoint at PT in the breakpoints buffer."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+      (when (string-match pydb--breakpoint-regexp s)
+        (let* ((enabled
+                (string= (substring s (match-beginning 3) (match-end 3)) "y"))
+               (cmd (if enabled "disable" "enable"))
+               (bpnum (substring s (match-beginning 1) (match-end 1))))
+          (gud-call (format "%s %s" cmd bpnum)))))))
+
+(defun pydb-delete-breakpoint (pt)
+  "Deletes the breakpoint at PT in the breakpoints buffer."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+      (when (string-match pydb--breakpoint-regexp s)
+        (let ((bpnum (substring s (match-beginning 1) (match-end 1))))
+          (gud-call (format "delete %s" bpnum)))))))
+
+(defun pydb-display-line (file line &optional move-arrow)
+  (let ((oldpos (and gud-overlay-arrow-position
+                     (marker-position gud-overlay-arrow-position)))
+        (oldbuf (and gud-overlay-arrow-position
+                     (marker-buffer gud-overlay-arrow-position))))
+    (gud-display-line file line)
+    (unless move-arrow
+      (when gud-overlay-arrow-position
+        (set-marker gud-overlay-arrow-position oldpos oldbuf)))))
+
+
+;; -- stack
+
+(defvar pydb--stack-frame-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'pydb-goto-stack-frame-mouse)
+    (define-key map [mouse-2] 'pydb-goto-stack-frame-mouse)
+    (define-key map [(control m)] 'pydb-goto-stack-frame)
+    map)
+  "Keymap to navigate pydb stack frames.")
+
+(defconst pydb--stack-frame-regexp
+  "^\\(->\\|##\\|  \\) +\\([0-9]+\\) +\\([^ (]+\\).+$"
+  "Regexp to recognize stack frame lines in pydb stack buffers.")
+
+(defun pydb--setup-stack-buffer (buf)
+  "Detects stack frame lines and sets up mouse navigation."
+  (with-current-buffer buf
+    (let ((inhibit-read-only t))
+      (setq mode-name "PYDB Stack Frames")
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let* ((b (point-at-bol)) (e (point-at-eol))
+               (s (buffer-substring b e)))
+          (when (string-match pydb--stack-frame-regexp s)
+            (add-text-properties
+             (+ b (match-beginning 3)) (+ b (match-end 3))
+             (list 'face font-lock-function-name-face
+                   'font-lock-face font-lock-function-name-face))
+            (if (string= (substring s (match-beginning 1) (match-end 1)) "->")
+                ;; highlight the currently selected frame
+                (add-text-properties b e
+                                     (list 'face 'bold
+                                           'font-lock-face 'bold))
+              ;; remove the trailing ## 
+              (beginning-of-line)
+              (delete-char 2)
+              (insert "  "))
+            (add-text-properties b e
+                                 (list 'mouse-face 'highlight
+                                       'keymap pydb--stack-frame-map))))
+        (forward-line)
+        (beginning-of-line)))))
+
+(defun pydb-goto-stack-frame (pt)
+  "Show the pydb stack frame correspoding at PT in the pydb stack buffer."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+      (when (string-match pydb--stack-frame-regexp s)
+        (let ((frame (substring s (match-beginning 2) (match-end 2))))
+          (gud-call (concat "frame " frame)))))))
+
+(defun pydb-goto-stack-frame-mouse (event)
+  "Show the pydb stack frame under the mouse in the pydb stack buffer."
+  (interactive "e")
+  (with-current-buffer (window-buffer (posn-window (event-end event)))
+    (pydb-goto-stack-frame (posn-point (event-end event)))))
+
+;; -- locals
+
+(defun pydb--setup-locals-buffer (buf)
+  (with-current-buffer buf
+    (setq mode-name "PYDB Locals")))
+
+;;-----------------------------------------------------------------------------
+;; ALB - redefinition of gud-reset for our own purposes
+
+(defvar pydb--orig-gud-reset (symbol-function 'gud-reset))
+
+(defun gud-reset ()
+  "Redefinition of `gud-reset' to take care of pydb cleanup."
+  (funcall pydb--orig-gud-reset)
+  (dolist (buffer (buffer-list))
+    (when (string-match "\\*pydb-[a-z]+\\*" (buffer-name buffer))
+      (let ((w (get-buffer-window buffer)))
+        (when w (delete-window w)))
+      (kill-buffer buffer))))
+
 
 (provide 'pydb)
 

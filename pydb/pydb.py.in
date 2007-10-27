@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.151 2007/04/13 10:00:35 rockyb Exp $"""
+$Id: pydb.py.in,v 1.152 2007/10/27 15:05:52 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -97,6 +97,21 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
     optparser.add_option("-T", "--threading", dest="threading",
                          action="store_true", default=False,
                          help="Start off with threading debug support")
+
+    # annotate option produces annotations, used in pydb.el for a better emacs
+    # integration. Annotations are similar in purpose to those of GDB (see
+    # that manual for a description), although the syntax is different.
+    # they have the following format:
+    #
+    # ^Z^Zannotname
+    # <arbitrary text>
+    # ^Z^Z
+    #
+    # where ^Z is the ctrl-Z character, and "annotname" is the name of the
+    # annotation. A line with only two ^Z ends the annotation (no nesting
+    # allowed). See pydb.el for the usage
+    optparser.add_option("--annotate", action="store_true", default=False,
+                         help="Use annotations (to work inside emacs)")
 
     # Set up to stop on the first non-option because that's the name
     # of the script to be debugged on arguments following that are
@@ -196,6 +211,9 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
                   opts.errors
             print sys.exc_info()[0]
             sys.exit(2)
+
+    p.annotate = opts.annotate
+            
     return (opts, p)
 
 class Pdb(Gdb):
@@ -211,7 +229,44 @@ class Pdb(Gdb):
     def __init__(self, completekey='tab', stdin=None, stdout=None,
                  siglist=None):
         Gdb.__init__(self, completekey, stdin, stdout, siglist)
+        self.annotate = False # if true, print annotations (for better emacs
+                              # integration)
+        self.__show_breakpoints_postcmd = set(["break", "b", "tbreak", 
+                                               "disable", "enable", "condition",
+                                               "cl", "clear", "delete"])
+        self.__show_annotations_preloop = set(["s", "step", "c", "continue",
+                                               "n", "next", "return", "jump"])
+        self.__show_annotations_postcmd = set(["frame"])
+        self.__show_annotations = True
         return
+
+    def postcmd(self, stop, line):
+        if self.annotate:
+            cmd = ""
+            if line: cmd = line.split()[0].strip()
+            if not cmd: cmd = self.lastcmd 
+            if cmd in self.__show_breakpoints_postcmd:
+                self.__annotation('breakpoints', self.do_info, 'breakpoints')
+            self.__show_annotations = cmd in self.__show_annotations_preloop
+            if cmd in self.__show_annotations_postcmd:
+                self.__annotation('stack', self.do_where, 0)
+                self.__annotation('locals', self.do_info, 'locals')
+        return stop
+
+    def preloop(self):
+        if self.annotate:
+            if self.__show_annotations:
+                # if we are here, the stack frames have changed outside the
+                # command loop (e.g. after a "continue" command), so we show
+                # the annotations again
+                self.__annotation('breakpoints', self.do_info, 'breakpoints')
+                self.__annotation('stack', self.do_where, 0)
+                self.__annotation('locals', self.do_info, 'locals')
+
+    def __annotation(self, label, cmd, *args):
+        self.msg(chr(26) + chr(26) + label) # chr(26) is Ctrl-Z
+        cmd(*args)
+        self.msg(chr(26) + chr(26))
 
 # -- end class Pdb
 
