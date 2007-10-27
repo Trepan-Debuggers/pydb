@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.45 2007/05/23 09:25:43 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.46 2007/10/27 14:55:44 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -267,8 +267,8 @@ See also 'examine' an 'whatis'.
         return default
 
     def get_onoff(self, arg, default=None, print_error=True):
-        """Return True if arg is 'on' or 1 and False arg is an 'off' or 0
-        Any other value is an error"""
+        """Return True if arg is 'on' or 1 and False arg is 'off' or 0.
+        Any other value is raises ValueError."""
         if not arg:
             if default is None:
                 if print_error:
