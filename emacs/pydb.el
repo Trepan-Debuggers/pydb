@@ -320,14 +320,6 @@ Currently-active file is at the head of the list.")
   "Max number of characters from end of buffer to search for stack entry.")
 
 
-;; Utilities
-(defmacro pydb-safe (&rest body)
-  "Safely execute BODY, return nil if an error occurred."
-  `(condition-case nil
-	 (progn (,@body))
-       (error nil)))
-
-
 ;;;###autoload
 
 (defun pydb-pydbtrack-overlay-arrow (activation)
