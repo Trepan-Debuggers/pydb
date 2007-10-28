@@ -42,6 +42,20 @@ and in tracebacks like this:
 (defconst gud-pydb-marker-regexp-line-group 2
   "Group position in gud-pydb-marker-regexp that matches the line number.")
 
+;;-----------------------------------------------------------------------------
+;; ALB - annotations support
+;;-----------------------------------------------------------------------------
+
+(defcustom pydb-many-windows t
+  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
+  :type 'boolean
+  :group 'pydb)
+
+(defconst pydb-annotation-start-regexp
+  "^\\([a-z]+\\)\n")
+(defconst pydb-annotation-end-regexp
+  "^\n")
+
 (defun gud-pydb-massage-args (file args)
   args)
 
@@ -456,16 +470,6 @@ problem as best as we can determine."
 ;;-----------------------------------------------------------------------------
 ;; ALB - annotations support
 ;;-----------------------------------------------------------------------------
-
-(defcustom pydb-many-windows t
-  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
-  :type 'boolean
-  :group 'pydb)
-
-(defconst pydb-annotation-start-regexp
-  "^\\([a-z]+\\)\n")
-(defconst pydb-annotation-end-regexp
-  "^\n")
 
 (defvar pydb--annotation-setup-map
   (progn
