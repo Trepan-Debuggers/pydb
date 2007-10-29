@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.16 2007/10/29 02:35:19 rockyb Exp $"
+__revision = "$Id: show.py,v 1.17 2007/10/29 14:26:06 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -32,8 +32,7 @@ class SubcmdShow:
 
     def show_annotate(self, args):
         """Show annotation_level.
-0 == normal;     1 == fullname (for use when running under emacs)
-2 == output annotated suitably for use by programs that control GDB.
+0 == normal;     1 == fullname (for use when running under emacs).
 """
         self.msg("Annotation level is %d." % self.annotate)
         return
