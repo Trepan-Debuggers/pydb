@@ -176,6 +176,13 @@ quote this option to prevent command shell interpretation, e.g. --exec
 .B \-\-error=FILE
 Write debugger's error output (stderr) to FILE
 .TP
+.B \-\-annotate=LEVEL
+Set annotation_level.
+.TP
+.B \-\-basename
+Report file locations as only the base filename, and omit the
+directory name. This is useful in running regression tests.
+.TP
 .B \-o | \-\-output=FILE
 Write debugger's output (stdout) to FILE
 .TP
