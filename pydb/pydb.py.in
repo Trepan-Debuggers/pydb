@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.153 2007/10/29 02:35:19 rockyb Exp $"""
+$Id: pydb.py.in,v 1.154 2007/10/29 04:22:48 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -236,7 +236,7 @@ class Pdb(Gdb):
                                                "cl", "clear", "delete"])
         self.__show_annotations_preloop = set(["s", "step", "c", "continue",
                                                "n", "next", "return", "jump"])
-        self.__show_annotations_postcmd = set(["frame"])
+        self.__show_annotations_postcmd = set(["down", "frame", "up"])
         self.__show_annotations = True
         return
 

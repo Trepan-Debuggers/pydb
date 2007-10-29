@@ -219,6 +219,7 @@ and source-file directory for your debugger."
   ; remove other py-pdbtrack if which gets in the way
   (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
 
+  (setq paragraph-start comint-prompt-regexp)
   (when pydb-many-windows (pydb-setup-windows))
 
   (run-hooks 'pydb-mode-hook))
