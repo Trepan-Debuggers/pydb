@@ -28,3 +28,4 @@ options:
                         Specify a target to connect to. Arguments should be of
                         form, 'protocol address'.
   -T, --threading       Start off with threading debug support
+  --annotate=ANNOTATE   Use annotations (to work inside emacs)

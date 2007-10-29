@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.19 2007/05/23 09:25:43 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.20 2007/10/29 02:35:19 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -40,6 +40,17 @@ class SubcmdSet:
 
     ######## Note: the docstrings of methods here get used in
     ######## help output.
+
+    def set_annotate(self, args):
+        """Set annotation level
+0 == normal;     1 == fullname (for use when running under emacs)
+2 == output annotated suitably for use by programs that control GDB.
+"""
+        try:
+            self.basename = self.get_int(args[1])
+        except ValueError:
+            pass
+        return
 
     def set_args(self, args):
         """Set argument list to give program being debugged when it is started.

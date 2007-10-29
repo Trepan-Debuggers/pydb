@@ -145,7 +145,7 @@ and in tracebacks like this:
 (defun gud-pydb-find-file (f)
   (find-file-noselect f))
 
-(defcustom gud-pydb-command-name "pydb --annotate"
+(defcustom gud-pydb-command-name "pydb --annotate=1"
   "File name for executing the Python debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string

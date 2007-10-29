@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.15 2007/05/23 09:25:43 rockyb Exp $"
+__revision = "$Id: show.py,v 1.16 2007/10/29 02:35:19 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -30,24 +30,36 @@ class SubcmdShow:
     ######## Note: the docstrings of methods here get used in
     ######## help output.
 
+    def show_annotate(self, args):
+        """Show annotation_level.
+0 == normal;     1 == fullname (for use when running under emacs)
+2 == output annotated suitably for use by programs that control GDB.
+"""
+        self.msg("Annotation level is %d." % self.annotate)
+        return
+
     def show_args(self, args):
         """Show argument list to give debugged program when it is started.
 Follow this command with any number of args, to be passed to the program."""
         self.msg("Argument list to give program being debugged " +
                  "when it is started is ")
         self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
+        return
 
     def show_basename(self, args):
         """Show if we are to show short of long filenames"""
         self.msg("basename is %s." % fns.show_onoff(self.basename))
+        return
 
     def show_cmdtrace(self, args):
         "Show if we are to show debugger commands before running"
         self.msg("cmdtrace is %s." % fns.show_onoff(self.cmdtrace))
+        return
 
     def show_dbg_pydb(self, args):
         """Show whether tracebacks include debugger routines"""
         self.msg("Dbg_pydb is %s." % fns.show_onoff(self.dbg_pydb))
+        return
 
     def show_debug_signal(self, arg):
         """Show the signal currently used for triggering debugging

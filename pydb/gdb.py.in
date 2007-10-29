@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.137 2007/05/23 09:25:43 rockyb Exp $"""
+$Id: gdb.py.in,v 1.138 2007/10/29 02:35:19 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -336,6 +336,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         to work."""
 
         self.setcmds=subcmd.Subcmd("set",   self.help_set.__doc__)
+        self.setcmds.add('annotate',        self.set_annotate)
         self.setcmds.add('args',            self.set_args)
         self.setcmds.add('basename',        self.set_basename)
         self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
@@ -362,6 +363,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         to work."""
         self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
         self.showcmds.add('args',           self.show_args)
+        self.showcmds.add('annotate',       self.show_annotate)
         self.showcmds.add('basename',       self.show_basename)
         self.showcmds.add('debug-pydb',     self.show_dbg_pydb)
         ## self.showcmds.add('debug-signal',   self.show_debug_signal)

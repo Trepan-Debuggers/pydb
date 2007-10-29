@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.152 2007/10/27 15:05:52 rockyb Exp $"""
+$Id: pydb.py.in,v 1.153 2007/10/29 02:35:19 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -110,7 +110,7 @@ def process_options(p, debugger_name, pkg_version, option_list=None):
     # where ^Z is the ctrl-Z character, and "annotname" is the name of the
     # annotation. A line with only two ^Z ends the annotation (no nesting
     # allowed). See pydb.el for the usage
-    optparser.add_option("--annotate", action="store_true", default=False,
+    optparser.add_option("--annotate", default=0, type="int",
                          help="Use annotations (to work inside emacs)")
 
     # Set up to stop on the first non-option because that's the name
@@ -229,7 +229,7 @@ class Pdb(Gdb):
     def __init__(self, completekey='tab', stdin=None, stdout=None,
                  siglist=None):
         Gdb.__init__(self, completekey, stdin, stdout, siglist)
-        self.annotate = False # if true, print annotations (for better emacs
+        self.annotate = 0     # if > 0, print annotations (for better emacs
                               # integration)
         self.__show_breakpoints_postcmd = set(["break", "b", "tbreak", 
                                                "disable", "enable", "condition",
@@ -241,7 +241,7 @@ class Pdb(Gdb):
         return
 
     def postcmd(self, stop, line):
-        if self.annotate:
+        if self.annotate > 0:
             cmd = ""
             if line: cmd = line.split()[0].strip()
             if not cmd: cmd = self.lastcmd 
@@ -254,7 +254,7 @@ class Pdb(Gdb):
         return stop
 
     def preloop(self):
-        if self.annotate:
+        if self.annotate > 0:
             if self.__show_annotations:
                 # if we are here, the stack frames have changed outside the
                 # command loop (e.g. after a "continue" command), so we show
