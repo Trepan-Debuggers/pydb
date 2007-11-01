@@ -1,8 +1,16 @@
 1.23cvs
 
-* Show parameters on Call
+* Show parameters on call
 
 * Some doc fixes.
+
+* pseudo gdb-like "annotate" set/show commands and option.
+
+* Better emacs interactive via above annotate
+
+* bug when "info local" is run inside a "with" statement
+
+  Fixes for last three items based patches by Albert Griggio
 
 1.22 2007-04-15
 
