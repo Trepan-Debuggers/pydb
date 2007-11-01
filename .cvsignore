@@ -9,3 +9,4 @@ config.status
 configure
 pydb*.tar.gz
 setup.py
+build
