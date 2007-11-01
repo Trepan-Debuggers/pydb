@@ -1,7 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: info.py,v 1.12 2007/02/14 12:10:03 rockyb Exp $"
+__revision = "$Id: info.py,v 1.13 2007/11/01 02:29:53 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -21,6 +21,15 @@ __revision = "$Id: info.py,v 1.12 2007/02/14 12:10:03 rockyb Exp $"
 #    02110-1301 USA.
 
 import bdb, fns, inspect, os, pprint, sys
+
+# ALB this is a fix for a problem with the new 'with' statement. It seems to
+# work, but I don't know exactly why... (the problem was in self.getval called
+# by info_locals)
+import re
+
+# when the "with" statement is used we seem to get variables having names
+# _[1], _[2], etc.
+_with_local_varname = re.compile(r'_\[[0-9+]\]')
 
 # from threadinfo import *
 
@@ -112,13 +121,25 @@ The short command name is L."""
                   self.curframe.f_lasti))
         return False
 
+    def filter_local(self, varname):
+        """When the "with" statement is used we seem to get variables having names
+        _[1], _[2], etc. We can't "eval" these because this will raise a NameError.
+        """
+
+        if _with_local_varname.match(varname):
+            return self.curframe.f_locals[varname]
+        else:
+            return pprint.pformat(self.getval(varname))
+        return
+
     def info_locals(self, arg):
         """Local variables of current stack frame"""
         if not self.curframe:
             self.msg("No frame selected.")
             return
-        self.msg("\n".join(["%s = %s"
-                            % (l, pprint.pformat(self.getval(l)))
+        import pydb
+        pydb.set_trace()
+        self.msg("\n".join(["%s = %s" % (l, self.filter_local(l))
                             for l in self.curframe.f_locals]))
 
     def info_program(self, arg):
