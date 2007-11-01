@@ -1,0 +1,7 @@
++continue 17
+Breakpoint 1 set in file withbug.py, line 17.
+Deleted breakpoint 1
++info local
+_[1] = <bound method FakeClass.__exit__ of <__main__.FakeClass instance at
+f = 1
++quit
