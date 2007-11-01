@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: complete.py.in,v 1.2 2007/02/08 17:54:13 rockyb Exp $ -*- Python -*-
+# $Id: test-complete.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $ -*- Python -*-
 
 import os, sys, unittest
 

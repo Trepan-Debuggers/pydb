@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: import.py.in,v 1.3 2007/01/13 12:09:44 rockyb Exp $ -*- Python -*-
+# $Id: test-import.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $ -*- Python -*-
 "Unit test of 'import pydb'"
 import os, sys, unittest
 

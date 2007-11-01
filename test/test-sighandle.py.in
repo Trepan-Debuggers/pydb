@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: sighandle.py.in,v 1.5 2007/01/14 07:38:32 rockyb Exp $
+# $Id: test-sighandle.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 

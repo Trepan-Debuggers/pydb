@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: contbug.py.in,v 1.2 2007/04/13 10:00:35 rockyb Exp $
+# $Id: test-contbug.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 

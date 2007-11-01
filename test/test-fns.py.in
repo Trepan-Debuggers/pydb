@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: fns.py.in,v 1.7 2007/05/23 09:25:43 rockyb Exp $ -*- Python -*-
+# $Id: test-fns.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $ -*- Python -*-
 
 # This unit test doesn't use any of the debugger code. It is meant solely
 # to test the connection classes.

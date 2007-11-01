@@ -47,5 +47,5 @@ help sys
 +return
 *** The program being debugged is not being run.
 +quit
-(pm.py:34):  raise_error
+(test-pm.py:34):  raise_error
 34     raise FloatingPointError

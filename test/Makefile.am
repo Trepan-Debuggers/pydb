@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.43 2007/11/01 02:30:02 rockyb Exp $
+#$Id: Makefile.am,v 1.44 2007/11/01 09:20:26 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -30,13 +30,8 @@ check_DATA = \
 	cmdparse.right    \
 	comm1.cmd         \
 	comm2.cmd         \
-	complete.py       \
-	connect.py        \
-	contbug.cmd       \
-	contbug.py        \
 	contbug.right     \
 	contbug-2.5.right \
-	disassem.py       \
 	except.py         \
 	filebug.cmd       \
 	filebug.py        \
@@ -44,55 +39,60 @@ check_DATA = \
 	fntrace.right     \
 	gcd.py            \
 	hanoi.py          \
-	help.py           \
 	help.right        \
 	history.cmd       \
 	history.right     \
-	import.py         \
 	logging.cmd       \
 	logging.right     \
 	noscript.cmd      \
 	noscript.right    \
 	pm.cmd            \
-	pm.py             \
 	pm.right          \
-	pydbrc.cmd        \
-	pydbrc.right      \
-	run.cmd           \
-	run.right         \
-	run2.cmd          \
-	run2.right        \
-	settrace.py       \
-	sighandle.py      \
-	sighandler.cmd    \
-	sighandler.right  \
-	sigtest.py        \
-        sigtestexample.py \
-	test.py           \
-	testwith.py       \
-	trace-2.5.right   \
-	trace.py          \
-	trace.right         \
-	tracetest-2.5.right \
-	tracetest.py        \
-	tracetest.right     \
-	withbug.cmd         \
-	withbug.py          \
+	pydbrc.cmd           \
+	pydbrc.right         \
+	run.cmd              \
+	run.right            \
+	run2.cmd             \
+	run2.right           \
+	settrace.py          \
+	sighandler.cmd       \
+	sighandler.right     \
+        sigtestexample.py    \
+	trace-2.5.right      \
+	trace.right          \
+	tracetest-2.5.right  \
+	tracetest.right      \
+	withbug.cmd          \
 	withbug.right
 
-TESTS = complete.py contbug.py disassem.py file.py \
-	fns.py help.py import.py pm.py runtest.py \
-	sighandle.py sigtest.py trace.py test.py \
-	connect.py tcp_connect.py fifo_connect.py \
-	testwith.py
+TESTS = test.py              \
+	test-complete.py     \
+	test-contbug.py      \
+        test-connect.py      \
+	test-disassem.py     \
+        test-file.py         \
+	test-fifo-connect.py \
+	test-fns.py          \
+        test-help.py         \
+	test-import.py       \
+	test-linetrace.py    \
+	test-pm.py           \
+	test-run.py          \
+        test-sig.py          \
+	test-sighandle.py    \
+        test-trace.py        \
+	test-tcp-connect.py  \
+	test-trace.py        \
+	test-with.py
 
-EXTRA_DIST = $(check_DATA) brkpt3.cmd.in .pydbrc.in \
+EXTRA_DIST = \
+	$(check_DATA) \
+	$(patsubst %.py,%.py.in, $(TESTS)) \
+	brkpt3.cmd.in \
+	.pydbrc.in \
 	brkpt3t.right brkpt3-2.5t.right brkpt3.right    \
-	complete.py.in contbug.py.in disassem.py.in \
-	file.right.in file-2.5.right.in    \
-	except.py.in file.cmd.in file.py.in fns.py.in help.py.in \
-        import.py pm.py.in runtest.py.in settrace.py.in test.py.in \
-        sighandle.py.in	sigtest.py.in trace.py.in 
+	file.right.in file-2.5.right.in file.cmd.in \
+        settrace.py.in
 
 test: check
 

@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: tracetest.py.in,v 1.2 2007/04/11 09:28:50 rockyb Exp $
+# $Id: test-linetrace.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $
 "Unit test for Extended Python debugger's set linetrace "
 import difflib, os, sys, time, unittest
 

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: pm.py.in,v 1.5 2006/12/06 02:28:24 rockyb Exp $ -*- Python -*-
+# $Id: test-pm.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's Post-Mortem (pm) commands "
 import difflib, os, time, sys, unittest
 
