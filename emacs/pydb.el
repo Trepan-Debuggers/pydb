@@ -176,7 +176,7 @@ and source-file directory for your debugger."
   (gud-def gud-next   "next %p"     "\C-n"
 	   "Step one line (skip functions).")
   (gud-def gud-print  "p %e"        "\C-p"
-	   "Evaluate bash expression at point.")
+	   "Evaluate python expression at point.")
   (gud-def gud-remove "clear %d%f:%l" "\C-d"
 	   "Remove breakpoint at current line")
   (gud-def gud-run    "run"       "R"
