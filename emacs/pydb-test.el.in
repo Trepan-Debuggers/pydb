@@ -76,6 +76,16 @@ file and line submatches."
    )
 )  
    
+(deftest "pydb-get-script-name-test"
+  (assert-equal "foo" (pydb-get-script-name '("foo")))
+  (assert-equal "foo" (pydb-get-script-name '("-o" "myfile" "foo")))
+  (assert-equal "foo" (pydb-get-script-name 
+		       '("pydb" "--target" "tcp:127.0.0.1" "--nx" "foo")))
+  (assert-equal "foo" (pydb-get-script-name 
+		       '("pydb" "--threading" "--sigcheck" "--error" 
+			 "errfile.out" "foo" "-1")))
+)
+
 (build-suite "pydb-suite" "pydb-marker-regexp-test" "pydb-position-re-test")
 (run-elk-test "pydb-suite"
               "test regular expression used in tracking lines")

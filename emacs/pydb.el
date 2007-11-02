@@ -1,4 +1,5 @@
 ;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+;; Copyright (C) 2007 Rocky Bernstein (rockyb@users.sf.net) 
 ;; This file is (not yet) part of GNU Emacs.
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -19,7 +20,67 @@
 ;; pydb (Python extended debugger) functions
 
 (require 'gud)
-(require 'comint)
+
+
+;; User-definable variables
+;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+(defcustom gud-pydb-command-name "pydb --annotate=1"
+  "File name for executing the Python debugger.
+This should be an executable on your path, or an absolute file name."
+  :type 'string
+  :group 'gud)
+
+(defcustom pydb-temp-directory
+  (let ((ok '(lambda (x)
+	       (and x
+		    (setq x (expand-file-name x)) ; always true
+		    (file-directory-p x)
+		    (file-writable-p x)
+		    x))))
+    (or (funcall ok (getenv "TMPDIR"))
+	(funcall ok "/usr/tmp")
+	(funcall ok "/tmp")
+	(funcall ok "/var/tmp")
+	(funcall ok  ".")
+	(error
+	 "Couldn't find a usable temp directory -- set `pydb-temp-directory'")))
+  "*Directory used for temporary files created by a *Python* process.
+By default, the first directory from this list that exists and that you
+can write into: the value (if any) of the environment variable TMPDIR,
+/usr/tmp, /tmp, /var/tmp, or the current directory."
+  :type 'string
+  :group 'pydb)
+
+(defgroup pydbtrack nil
+  "Pydb file tracking by watching the prompt."
+  :prefix "pydb-pydbtrack-"
+  :group 'shell)
+
+(defcustom pydb-pydbtrack-do-tracking-p nil
+  "*Controls whether the pydbtrack feature is enabled or not.
+When non-nil, pydbtrack is enabled in all comint-based buffers,
+e.g. shell buffers and the *Python* buffer.  When using pydb to debug a
+Python program, pydbtrack notices the pydb prompt and displays the
+source file and line that the program is stopped at, much the same way
+as gud-mode does for debugging C programs with gdb."
+  :type 'boolean
+  :group 'pydb)
+(make-variable-buffer-local 'pydb-pydbtrack-do-tracking-p)
+
+(defcustom pydb-many-windows t
+  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
+  :type 'boolean
+  :group 'pydb)
+
+(defcustom pydb-pydbtrack-minor-mode-string " PYDB"
+  "*String to use in the minor mode list when pydbtrack is enabled."
+  :type 'string
+  :group 'pydb)
+
+
+;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; NO USER DEFINABLE VARIABLES BEYOND THIS POINT
 
 (defvar gud-pydb-history nil
   "History of argument lists passed to pydb.")
@@ -45,11 +106,6 @@ and in tracebacks like this:
 ;;-----------------------------------------------------------------------------
 ;; ALB - annotations support
 ;;-----------------------------------------------------------------------------
-
-(defcustom pydb-many-windows t
-  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
-  :type 'boolean
-  :group 'pydb)
 
 (defconst pydb-annotation-start-regexp
   "^\\([a-z]+\\)\n")
@@ -145,11 +201,29 @@ and in tracebacks like this:
 (defun gud-pydb-find-file (f)
   (find-file-noselect f))
 
-(defcustom gud-pydb-command-name "pydb --annotate=1"
-  "File name for executing the Python debugger.
-This should be an executable on your path, or an absolute file name."
-  :type 'string
-  :group 'gud)
+(defun pydb-arg-test (args)
+  "Returns a pair as a list of arg and remaining args. If arg is
+  nil we have to continue, and args will be some stripped off options."
+  (let ((arg (car args)))
+    (setq args (cdr args))
+    (cond 
+     ((member arg '("--annotate" "-t" "--target" "-o" "--output"
+		    "--execute" "-e" "--error" "--cd" "-x" "--command"))
+	      (cons nil (cdr args)))
+     ((string-match "^-[a-zA-z]" arg) (cons nil args))
+     ((string-match "^--[a-zA-z]+" arg) (cons nil args))
+     ((string-match "^pydb" arg) (cons nil args))
+     (t (cons arg nil)))))
+
+(defun pydb-get-script-name (args)
+  "Pick out the script name from the command line. All the real work is done in pydb-arg-test.
+If you want to debug bashdb you need to make it look like a file-name e.g. ./pydb"
+  (let ((arg nil))
+
+    (while (and args (not arg))
+      (setq args (pydb-arg-test args))
+      (setq arg (pop args)))
+    arg))
 
 ;;;###autoload
 (defun pydb (command-line)
@@ -161,6 +235,21 @@ and source-file directory for your debugger."
 
   (gud-common-init command-line 'gud-pydb-massage-args
 		   'gud-pydb-marker-filter 'gud-pydb-find-file)
+
+  ; gud-common-init sets the pydb process buffer name incorrectly, because
+  ; it can't parse the command line properly to pick out the script name.
+  ; So we'll do it here and rename that buffer. The buffer we want to rename
+  ; happens to be the current buffer.
+  (let* ((words (split-string-and-unquote command-line))
+	(script-name (pydb-get-script-name 
+		      (gud-pydb-massage-args "1" words)))
+	(pydb-buffer-name (concat "*pydb-" 
+				    (file-name-nondirectory script-name) "*"))
+	(pydb-buffer (get-buffer pydb-buffer-name))
+	)
+    (when pydb-buffer (kill-buffer pydb-buffer))
+    (rename-buffer pydb-buffer-name))
+
   (set (make-local-variable 'gud-minor-mode) 'pydb)
 
   (gud-def gud-args   "info args" "a"
@@ -237,55 +326,6 @@ and source-file directory for your debugger."
 (require 'compile)
 (require 'shell)
 
-(defgroup pydbtrack nil
-  "Pydb file tracking by watching the prompt."
-  :prefix "pydb-pydbtrack-"
-  :group 'shell)
-
-
-;; user definable variables
-;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-(defcustom pydb-pydbtrack-do-tracking-p t
-  "*Controls whether the pydbtrack feature is enabled or not.
-When non-nil, pydbtrack is enabled in all comint-based buffers,
-e.g. shell buffers and the *Python* buffer.  When using pydb to debug a
-Python program, pydbtrack notices the pydb prompt and displays the
-source file and line that the program is stopped at, much the same way
-as gud-mode does for debugging C programs with gdb."
-  :type 'boolean
-  :group 'pydb)
-(make-variable-buffer-local 'pydb-pydbtrack-do-tracking-p)
-
-(defcustom pydb-pydbtrack-minor-mode-string " PYDB"
-  "*String to use in the minor mode list when pydbtrack is enabled."
-  :type 'string
-  :group 'pydb)
-
-(defcustom pydb-temp-directory
-  (let ((ok '(lambda (x)
-	       (and x
-		    (setq x (expand-file-name x)) ; always true
-		    (file-directory-p x)
-		    (file-writable-p x)
-		    x))))
-    (or (funcall ok (getenv "TMPDIR"))
-	(funcall ok "/usr/tmp")
-	(funcall ok "/tmp")
-	(funcall ok "/var/tmp")
-	(funcall ok  ".")
-	(error
-	 "Couldn't find a usable temp directory -- set `pydb-temp-directory'")))
-  "*Directory used for temporary files created by a *Python* process.
-By default, the first directory from this list that exists and that you
-can write into: the value (if any) of the environment variable TMPDIR,
-/usr/tmp, /tmp, /var/tmp, or the current directory."
-  :type 'string
-  :group 'pydb)
-
-
-;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-;; NO USER DEFINABLE VARIABLES BEYOND THIS POINT
 
 ;; have to bind pydb-file-queue before installing the kill-emacs-hook
 (defvar pydb-file-queue nil
