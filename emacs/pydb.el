@@ -210,7 +210,7 @@ annotate should be set to nil."
   (let ((arg (pop args)))
      (cond 
       ((not arg) (list nil annotate-p))
-      ((string-match arg "^--annotate=1")
+      ((string-match "^--annotate=[1-9]" arg)
        (pydb-get-script-name args t))
       ((member arg '("-t" "--target" "-o" "--output"
 		    "--execute" "-e" "--error" "--cd" "-x" "--command"))
@@ -332,7 +332,6 @@ and source-file directory for your debugger."
 (require 'compile)
 (require 'shell)
 
-
 ;; have to bind pydb-file-queue before installing the kill-emacs-hook
 (defvar pydb-file-queue nil
   "Queue of Makefile temp files awaiting execution.
@@ -359,7 +358,6 @@ Currently-active file is at the head of the list.")
   "^#[0-9]+[ \t]+\\((\\([a-zA-Z-.]+\\) at (\\(\\([a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\)).*\n"
   "Regular expression that describes tracebacks.")
 
-;; pydbtrack contants
 (defconst pydb-pydbtrack-input-prompt "\n(+Pydb)+ *"
   "Regular expression pydbtrack uses to recognize a pydb prompt.")
 
@@ -367,8 +365,6 @@ Currently-active file is at the head of the list.")
   "Max number of characters from end of buffer to search for stack entry.")
 
 
-;;;###autoload
-
 (defun pydb-pydbtrack-overlay-arrow (activation)
   "Activate or de arrow at beginning-of-line in current buffer."
   ;; This was derived/simplified from edebug-overlay-arrow
