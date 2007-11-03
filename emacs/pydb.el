@@ -201,29 +201,26 @@ and in tracebacks like this:
 (defun gud-pydb-find-file (f)
   (find-file-noselect f))
 
-(defun pydb-arg-test (args)
-  "Returns a pair as a list of arg and remaining args. If arg is
-  nil we have to continue, and args will be some stripped off options."
-  (let ((arg (car args)))
-    (setq args (cdr args))
-    (cond 
-     ((member arg '("--annotate" "-t" "--target" "-o" "--output"
+(defun pydb-get-script-name (args &optional annotate-p)
+  "Pick out the script name from the command line and return a
+list of that and whether the annotate option was set. Initially
+annotate should be set to nil."
+  (let ((arg (pop args)))
+     (cond 
+      ((not arg) (list nil annotate-p))
+      ((string-match arg "^--annotate=1")
+       (pydb-get-script-name args t))
+      ((member arg '("-t" "--target" "-o" "--output"
 		    "--execute" "-e" "--error" "--cd" "-x" "--command"))
-	      (cons nil (cdr args)))
-     ((string-match "^-[a-zA-z]" arg) (cons nil args))
-     ((string-match "^--[a-zA-z]+" arg) (cons nil args))
-     ((string-match "^pydb" arg) (cons nil args))
-     (t (cons arg nil)))))
-
-(defun pydb-get-script-name (args)
-  "Pick out the script name from the command line. All the real work is done in pydb-arg-test.
-If you want to debug bashdb you need to make it look like a file-name e.g. ./pydb"
-  (let ((arg nil))
-
-    (while (and args (not arg))
-      (setq args (pydb-arg-test args))
-      (setq arg (pop args)))
-    arg))
+       (if args 
+	   (pydb-get-script-name (cdr args) annotate-p)
+       ;else
+	 (list nil annotate-p)))
+      ((string-match "^-[a-zA-z]" arg) (pydb-get-script-name args annotate-p))
+      ((string-match "^--[a-zA-z]+" arg) (pydb-get-script-name args annotate-p))
+      ((string-match "^pydb" arg) (pydb-get-script-name args annotate-p))
+     ; found script name (or nil
+      (t (list arg annotate-p)))))
 
 ;;;###autoload
 (defun pydb (command-line)
@@ -233,86 +230,93 @@ and source-file directory for your debugger."
   (interactive
    (list (gud-query-cmdline 'pydb)))
 
-  (gud-common-init command-line 'gud-pydb-massage-args
-		   'gud-pydb-marker-filter 'gud-pydb-find-file)
-
-  ; gud-common-init sets the pydb process buffer name incorrectly, because
-  ; it can't parse the command line properly to pick out the script name.
-  ; So we'll do it here and rename that buffer. The buffer we want to rename
-  ; happens to be the current buffer.
+  ; Parse the command line and pick out the script name and whether --annotate
+  ; has been set.
   (let* ((words (split-string-and-unquote command-line))
-	(script-name (pydb-get-script-name 
-		      (gud-pydb-massage-args "1" words)))
-	(pydb-buffer-name (concat "*pydb-" 
-				    (file-name-nondirectory script-name) "*"))
+	(script-name-annotate-p (pydb-get-script-name 
+			       (gud-pydb-massage-args "1" words) nil))
+	(gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
+	(annotate-p (cadr script-name-annotate-p))
+	(pydb-buffer-name (format "*pydb-%s*" gud-target-name))
 	(pydb-buffer (get-buffer pydb-buffer-name))
 	)
+
+    ;; `gud-pydb-massage-args' needs whole `command-line'.
+    ;; command-line is refered through dyanmic scope.
+    (gud-common-init command-line 'gud-pydb-massage-args
+		     'gud-pydb-marker-filter 'gud-pydb-find-file)
+    
+    ; gud-common-init sets the pydb process buffer name incorrectly, because
+    ; it can't parse the command line properly to pick out the script name.
+    ; So we'll do it here and rename that buffer. The buffer we want to rename
+    ; happens to be the current buffer.
+    (setq gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
     (when pydb-buffer (kill-buffer pydb-buffer))
-    (rename-buffer pydb-buffer-name))
+    (rename-buffer pydb-buffer-name)
 
-  (set (make-local-variable 'gud-minor-mode) 'pydb)
+    (set (make-local-variable 'gud-minor-mode) 'pydb)
 
-  (gud-def gud-args   "info args" "a"
-	   "Show arguments of current stack.")
-  (gud-def gud-break  "break %d%f:%l""\C-b"
-	   "Set breakpoint at current line.")
-  (gud-def gud-cont   "continue"   "\C-r" 
-	   "Continue with display.")
-  (gud-def gud-down   "down %p"     ">"
-	   "Down N stack frames (numeric arg).")
-  (gud-def gud-finish "finish"      "f\C-f"
-	   "Finish executing current function.")
-  (gud-def gud-next   "next %p"     "\C-n"
-	   "Step one line (skip functions).")
-  (gud-def gud-print  "p %e"        "\C-p"
-	   "Evaluate python expression at point.")
-  (gud-def gud-remove "clear %d%f:%l" "\C-d"
-	   "Remove breakpoint at current line")
-  (gud-def gud-run    "run"       "R"
-	   "Restart the Python script.")
-  (gud-def gud-statement "eval %e" "\C-e"
-	   "Execute Python statement at point.")
-  (gud-def gud-step   "step %p"       "\C-s"
-	   "Step one source line with display.")
-  (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
-	   "Set temporary breakpoint at current line.")
-  (gud-def gud-up     "up %p"
-	   "<" "Up N stack frames (numeric arg).")
-  (gud-def gud-where   "where"
-	   "T" "Show stack trace.")
-  (local-set-key "\C-i" 'gud-gdb-complete-command)
-  (setq comint-prompt-regexp "^(+Pydb)+ *")
-  (setq paragraph-start comint-prompt-regexp)
-
-  ;; Update GUD menu bar
-  (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
+    (gud-def gud-args   "info args" "a"
+	     "Show arguments of current stack.")
+    (gud-def gud-break  "break %d%f:%l""\C-b"
+	     "Set breakpoint at current line.")
+    (gud-def gud-cont   "continue"   "\C-r" 
+	     "Continue with display.")
+    (gud-def gud-down   "down %p"     ">"
+	     "Down N stack frames (numeric arg).")
+    (gud-def gud-finish "finish"      "f\C-f"
+	     "Finish executing current function.")
+    (gud-def gud-next   "next %p"     "\C-n"
+	     "Step one line (skip functions).")
+    (gud-def gud-print  "p %e"        "\C-p"
+	     "Evaluate python expression at point.")
+    (gud-def gud-remove "clear %d%f:%l" "\C-d"
+	     "Remove breakpoint at current line")
+    (gud-def gud-run    "run"       "R"
+	     "Restart the Python script.")
+    (gud-def gud-statement "eval %e" "\C-e"
+	     "Execute Python statement at point.")
+    (gud-def gud-step   "step %p"       "\C-s"
+	     "Step one source line with display.")
+    (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
+	     "Set temporary breakpoint at current line.")
+    (gud-def gud-up     "up %p"
+	     "<" "Up N stack frames (numeric arg).")
+    (gud-def gud-where   "where"
+	     "T" "Show stack trace.")
+    (local-set-key "\C-i" 'gud-gdb-complete-command)
+    (setq comint-prompt-regexp "^(+Pydb)+ *")
+    (setq paragraph-start comint-prompt-regexp)
+    
+    ;; Update GUD menu bar
+    (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
 					 gud-args))
-  (define-key gud-menu-map [down]      '("Down Stack" . gud-down))
-  (define-key gud-menu-map [eval]      '("Execute Python statement at point" 
-					 . gud-statement))
-  (define-key gud-menu-map [finish]    '("Finish Function" . gud-finish))
-  (define-key gud-menu-map [run]       '("Restart the Python Script" . 
-					 gud-run))
-  (define-key gud-menu-map [stepi]     'undefined)
-  (define-key gud-menu-map [tbreak]    '("Temporary break" . gud-tbreak))
-  (define-key gud-menu-map [up]        '("Up Stack" . gud-up))
-  (define-key gud-menu-map [where]     '("Show stack trace" . gud-where))
-
-  (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
-  (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
-  (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
-
-  (setq comint-prompt-regexp "^(+Pydb)+ *")
-  (setq paragraph-start comint-prompt-regexp)
-
-  ; remove other py-pdbtrack if which gets in the way
-  (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
-
-  (setq paragraph-start comint-prompt-regexp)
-  (when pydb-many-windows (pydb-setup-windows))
-
-  (run-hooks 'pydb-mode-hook))
-
+    (define-key gud-menu-map [down]      '("Down Stack" . gud-down))
+    (define-key gud-menu-map [eval]      '("Execute Python statement at point" 
+					   . gud-statement))
+    (define-key gud-menu-map [finish]    '("Finish Function" . gud-finish))
+    (define-key gud-menu-map [run]       '("Restart the Python Script" . 
+					   gud-run))
+    (define-key gud-menu-map [stepi]     'undefined)
+    (define-key gud-menu-map [tbreak]    '("Temporary break" . gud-tbreak))
+    (define-key gud-menu-map [up]        '("Up Stack" . gud-up))
+    (define-key gud-menu-map [where]     '("Show stack trace" . gud-where))
+    
+    (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
+    (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
+    (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
+    
+    (setq comint-prompt-regexp "^(+Pydb)+ *")
+    (setq paragraph-start comint-prompt-regexp)
+    
+					; remove other py-pdbtrack if which gets in the way
+    (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
+    
+    (setq paragraph-start comint-prompt-regexp)
+    (when (and annotate-p pydb-many-windows) (pydb-setup-windows))
+    
+    (run-hooks 'pydb-mode-hook)))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; pydbtrack --- tracking pydb debugger in an Emacs shell window
 ;;; Modified from  python-mode in particular the part:
@@ -514,7 +518,7 @@ problem as best as we can determine."
       map)))
 
 (defun pydb-process-annotation (name contents)
-  (let ((buf (get-buffer-create (format "*pydb-%s*" name))))
+  (let ((buf (get-buffer-create (format "*pydb-%s-%s*" name gud-target-name))))
     (with-current-buffer buf
       (setq buffer-read-only t)
       (let ((inhibit-read-only t)
@@ -527,27 +531,34 @@ problem as best as we can determine."
   "Layout the window pattern for `pydb-many-windows'. This was mostly copied
 from `gdb-setup-windows', but simplified."
   (pop-to-buffer gud-comint-buffer)
-  (delete-other-windows)
-  (split-window nil ( / ( * (window-height) 3) 4))
-  (split-window nil ( / (window-height) 3))
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer (selected-window) (get-buffer-create "*pydb-locals*"))
-  (other-window 1)
-  (switch-to-buffer
-       (if gud-last-last-frame
+  (let ((script-name gud-target-name))
+    (delete-other-windows)
+    (split-window nil ( / ( * (window-height) 3) 4))
+    (split-window nil ( / (window-height) 3))
+    (split-window-horizontally)
+    (other-window 1)
+    (set-window-buffer 
+     (selected-window) 
+     (get-buffer-create (format "*pydb-locals-%s*" script-name)))
+    (other-window 1)
+    (switch-to-buffer
+     (if gud-last-last-frame
 	   (gud-find-file (car gud-last-last-frame))
-         ;; Put buffer list in window if we
-         ;; can't find a source file.
-         (list-buffers-noselect)))
-  (other-window 1)
-  (set-window-buffer (selected-window) (get-buffer-create "*pydb-stack*"))
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer (selected-window) (get-buffer-create "*pydb-breakpoints*"))
-  (other-window 1)
-  (goto-char (point-max)))
-
+       ;; Put buffer list in window if we
+       ;; can't find a source file.
+       (list-buffers-noselect)))
+    (other-window 1)
+    (set-window-buffer 
+     (selected-window)
+     (get-buffer-create (format "*pydb-stack-%s*" script-name)))
+    (split-window-horizontally)
+    (other-window 1)
+    (set-window-buffer 
+      (selected-window) 
+      (get-buffer-create (format "*pydb-breakpoints-%s*" script-name)))
+     (other-window 1)
+     (goto-char (point-max))))
+    
 (defun pydb-restore-windows ()
   "Equivalent of `gdb-restore-windows' for pydb."
   (interactive)
