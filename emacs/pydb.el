@@ -69,7 +69,9 @@ as gud-mode does for debugging C programs with gdb."
 (make-variable-buffer-local 'pydb-pydbtrack-do-tracking-p)
 
 (defcustom pydb-many-windows t
-  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'."
+  "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'.
+However only set to the multi-window display if the pydb
+command invocation has an annotate options (\"--annotate 1\"."
   :type 'boolean
   :group 'pydb)
 
