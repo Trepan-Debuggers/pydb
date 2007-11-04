@@ -68,7 +68,7 @@ as gud-mode does for debugging C programs with gdb."
   :group 'pydb)
 (make-variable-buffer-local 'pydb-pydbtrack-do-tracking-p)
 
-(defcustom pydb-many-windows t
+(defcustom pydb-many-windows nil
   "*If non-nil, display secondary pydb windows, in a layout similar to `gdba'.
 However only set to the multi-window display if the pydb
 command invocation has an annotate options (\"--annotate 1\"."
@@ -226,9 +226,37 @@ annotate should be set to nil."
 
 ;;;###autoload
 (defun pydb (command-line)
-  "Run pydb on program FILE in buffer `*gud-FILE*'.
+  "Run pydb on program FILE in buffer *gud-cmd-FILE*.
 The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger."
+and source-file directory for your debugger.
+
+The custom variable `gud-pydb-command-name' sets the pattern used
+to invoke pydb.
+
+If `pydb-many-windows' is nil (the default value) then pydb just
+starts with two windows: one displaying the GUD buffer and the
+other with the source file with the main routine of the inferior.
+
+If `pydb-many-windows' is t, regardless of the value of the layout
+below will appear.
+
++----------------------------------------------------------------------+
+|                               GDB Toolbar                            |
++-----------------------------------+----------------------------------+
+| GUD buffer (I/O of pydb)          | Locals buffer                    |
+|                                   |                                  |
+|                                   |                                  |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+| Source buffer                                                        |
+|                                                                      |
++-----------------------------------+----------------------------------+
+| Stack buffer                      | Breakpoints buffer               |
+| RET  pydb-goto-stack-frame        | SPC    pydb-toggle-breakpoint    |
+|                                   | RET    pydb-goto-breakpoint      |
+|                                   | D      pydb-delete-breakpoint    |
++-----------------------------------+----------------------------------+
+"
   (interactive
    (list (gud-query-cmdline 'pydb)))
 

@@ -18,7 +18,7 @@
 			   (match-beginning gud-pydb-marker-regexp-file-group) 
 			   (match-end gud-pydb-marker-regexp-file-group)))
 )
-(deftest "pydb-marker-regexp-file-test"
+(deftest "pydb-marker-regexp-test"
 
   (regexp-breakpoint-test
    "1   breakpoint    keep y   at /src/external-cvs/pydb/test/gcd.py:24")
