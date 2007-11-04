@@ -627,7 +627,8 @@ pydb-restore-windows if pydb-many-windows is set"
       (setq mode-name "PYDB Breakpoints")
       (goto-char (point-min))
       (while (not (eobp))
-        (let ((b (point-at-bol)) (e (point-at-eol)))
+        (let ((b (point-at-bol)) 
+	      (e (point-at-eol)))
           (when (string-match pydb--breakpoint-regexp
                               (buffer-substring b e))
             (add-text-properties b e
@@ -733,38 +734,46 @@ pydb-restore-windows if pydb-many-windows is set"
 (defun pydb--setup-stack-buffer (buf)
   "Detects stack frame lines and sets up mouse navigation."
   (with-current-buffer buf
-    (let ((inhibit-read-only t))
+    (let ((inhibit-read-only t)
+	  (frame-point nil) ; position in stack buffer of selected frame
+	  )
       (setq mode-name "PYDB Stack Frames")
       (goto-char (point-min))
       (while (not (eobp))
-        (let* ((b (point-at-bol)) (e (point-at-eol))
+        (let* ((b (point-at-bol)) 
+	       (e (point-at-eol))
                (s (buffer-substring b e)))
           (when (string-match pydb--stack-frame-regexp s)
             (add-text-properties
              (+ b (match-beginning 3)) (+ b (match-end 3))
              (list 'face font-lock-function-name-face
                    'font-lock-face font-lock-function-name-face))
-            (if (string= (substring s (match-beginning 1) (match-end 1)) "->")
+            (when (string= (substring s (match-beginning 1) (match-end 1)) "->")
                 ;; highlight the currently selected frame
                 (add-text-properties b e
                                      (list 'face 'bold
                                            'font-lock-face 'bold))
-              ;; remove the trailing ## 
-              (beginning-of-line)
-              (delete-char 2)
-              (insert "  "))
+		(setq overlay-arrow-position (make-marker))
+		(set-marker overlay-arrow-position (point))
+		(setq frame-point (point)))
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
                                        'keymap pydb--stack-frame-map))))
+	;; remove initial ##  or ->
+	(beginning-of-line)
+	(delete-char 2)
         (forward-line)
-        (beginning-of-line)))))
+        (beginning-of-line))
+      ; Go back to the selected frame if any
+      (when frame-point (goto-char frame-point))
+      )))
 
 (defun pydb-goto-stack-frame (pt)
   "Show the pydb stack frame correspoding at PT in the pydb stack buffer."
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+    (let ((s (concat "##" (buffer-substring (point-at-bol) (point-at-eol)))))
       (when (string-match pydb--stack-frame-regexp s)
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
           (gud-call (concat "frame " frame)))))))
