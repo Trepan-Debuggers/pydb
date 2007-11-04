@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
-# $Id: test-with.py.in,v 1.2 2007/11/04 14:07:26 rockyb Exp $ -*- Python -*-
-"""Unit test of the bug in using 'info local' when inside a "with" command."""
+# $Id: test-setshow.py.in,v 1.1 2007/11/04 14:07:26 rockyb Exp $ -*- Python -*-
+"Unit test of the file command for Extended Python debugger "
 import difflib, os, time, sys, unittest
 
 top_builddir = ".."
@@ -24,7 +24,7 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
-def run_debugger(testname, pydb_opts='', args=''):
+def run_debugger(testname, pythonfile, pydb_opts='', args=''):
     global srcdir, builddir, pydir
 
     rightfile   = os.path.join(builddir, "%s.right" % testname)
@@ -39,8 +39,8 @@ def run_debugger(testname, pydb_opts='', args=''):
 
     if os.path.exists(outfile): os.unlink(outfile)
 
-    cmd = "%s --command %s %s %s %s %s.py" % \
-          (pydb_path, cmdfile, outfile_opt, pydb_opts, args, testname)
+    cmd = "%s --command %s %s %s %s %s" % \
+          (pydb_path, cmdfile, outfile_opt, pydb_opts, args, pythonfile)
     
     os.system(cmd)
     fromfile  = rightfile
@@ -49,7 +49,6 @@ def run_debugger(testname, pydb_opts='', args=''):
     tofile    = outfile
     todate    = time.ctime(os.stat(tofile).st_mtime)
     tolines   = open(tofile, 'U').readlines()[0:-1]
-    tolines[4]= tolines[4][0:74] + "\n"
     diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
                                      tofile, fromdate, todate))
     if len(diff) == 0:
@@ -60,11 +59,11 @@ def run_debugger(testname, pydb_opts='', args=''):
     
 class PdbTests(unittest.TestCase):
 
-    def test_with(self):
-        """Test running bug running "info local" inside a "with" command"""
-        if sys.version_info[0:2] == (2, 5):
-            result=run_debugger(testname='withbug', pydb_opts='--basename')
-        self.assertEqual(True, result, "pydb 'withbug' command comparision")
+    def test_setshow(self):
+        """Test running program via the 'file' command"""
+        result=run_debugger(testname='setshow', pythonfile='',
+                            pydb_opts='--basename')
+        self.assertEqual(True, result, "pydb 'set/show' command comparision")
         return
 
 if __name__ == "__main__":

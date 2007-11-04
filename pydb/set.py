@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.20 2007/10/29 02:35:19 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.21 2007/11/04 14:07:23 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -20,7 +20,7 @@ __revision__ = "$Id: set.py,v 1.20 2007/10/29 02:35:19 rockyb Exp $"
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-import inspect, re, sighandler, sys
+import inspect, os, re, sighandler, sys
 
 class SubcmdSet:
 
@@ -47,7 +47,7 @@ class SubcmdSet:
 2 == output annotated suitably for use by programs that control GDB.
 """
         try:
-            self.basename = self.get_int(args[1])
+            self.annotate = self.get_int(args[1])
         except ValueError:
             pass
         return
@@ -312,7 +312,7 @@ Examples:
 We also change OS environment variable COLUMNS."""
         try:
             self.width = self.get_int(args[1])
-            os.environ['COLUMNS'] = self.width
+            os.environ['COLUMNS'] = args[1]
         except ValueError:
             pass
         return

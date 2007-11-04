@@ -26,6 +26,7 @@ test-import.py
 test-linetrace.py
 test-pm.py
 test-run.py
+test-setshow.py
 test-sig.py
 test-sighandle.py
 test-tcp-connect.py

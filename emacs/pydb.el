@@ -400,22 +400,23 @@ at the beginning of the line.
 
     (if (not (and currproc pydb-pydbtrack-do-tracking-p))
         (pydb-pydbtrack-overlay-arrow nil)
-
+      ;else 
       (let* ((procmark (process-mark currproc))
-             (block (buffer-substring (max comint-last-input-end
+             (block-str (buffer-substring (max comint-last-input-end
                                            (- procmark
                                               pydb-pydbtrack-track-range))
                                       procmark))
              target target_fname target_lineno target_buffer)
 
-        (if (not (string-match (concat pydb-pydbtrack-input-prompt "$") block))
+        (if (not (string-match (concat pydb-pydbtrack-input-prompt "$") block-str))
             (pydb-pydbtrack-overlay-arrow nil)
 
-          (setq target (pydb-pydbtrack-get-source-buffer block))
+          (setq target (pydb-pydbtrack-get-source-buffer block-str))
 
           (if (stringp target)
               (message "pydbtrack: %s" target)
-
+	    ;else
+	    (gud-pydb-marker-filter block-str)
             (setq target_lineno (car target))
             (setq target_buffer (cadr target))
             (setq target_fname (buffer-file-name target_buffer))
@@ -428,8 +429,9 @@ at the beginning of the line.
             )))))
   )
 
-(defun pydb-pydbtrack-get-source-buffer (block)
-  "Return line number and buffer of code indicated by block's traceback text.
+(defun pydb-pydbtrack-get-source-buffer (block-str)
+  "Return line number and buffer of code indicated by block-str's traceback 
+text.
 
 We look first to visit the file indicated in the trace.
 
@@ -440,13 +442,13 @@ having the named function.
 If we're unable find the source code we return a string describing the
 problem as best as we can determine."
 
-  (if (not (string-match pydb-position-re block))
+  (if (not (string-match pydb-position-re block-str))
 
       "line number cue not found"
 
-    (let* ((filename (match-string pydb-marker-regexp-file-group block))
+    (let* ((filename (match-string pydb-marker-regexp-file-group block-str))
            (lineno (string-to-number
-		    (match-string pydb-marker-regexp-line-group block)))
+		    (match-string pydb-marker-regexp-line-group block-str)))
            funcbuffer)
 
       (cond ((file-exists-p filename)
@@ -560,6 +562,16 @@ from `gdb-setup-windows', but simplified."
 (defun pydb-restore-windows ()
   "Equivalent of `gdb-restore-windows' for pydb."
   (interactive)
+  (when pydb-many-windows
+    (pydb-setup-windows)))
+
+(defun pydb-set-windows (&optional name)
+  "Sets window used in multi-window frame and issues
+pydb-restore-windows if pydb-many-windows is set"
+  (interactive "sProgram name: ")
+  (when name (setq gud-target-name name)
+	(setq gud-comint-buffer (current-buffer)))
+  (when gud-last-frame (setq gud-last-last-frame gud-last-frame))
   (when pydb-many-windows
     (pydb-setup-windows)))
 
