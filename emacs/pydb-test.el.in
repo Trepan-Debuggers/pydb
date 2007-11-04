@@ -10,7 +10,7 @@
   "Test to see that location-str matches pydb--breakpoint-regexp"
   (assert-equal 0 (string-match pydb--breakpoint-regexp location-str))
 )
-(defun regexp-test (location-str file-str)
+(defun regexp-file-test (location-str file-str)
   "Test to see that location-str matches gud-pydb-marker-regexp"
   (assert-equal 0 (string-match gud-pydb-marker-regexp location-str))
   (assert-equal file-str
@@ -18,7 +18,7 @@
 			   (match-beginning gud-pydb-marker-regexp-file-group) 
 			   (match-end gud-pydb-marker-regexp-file-group)))
 )
-(deftest "pydb-marker-regexp-test"
+(deftest "pydb-marker-regexp-file-test"
 
   (regexp-breakpoint-test
    "1   breakpoint    keep y   at /src/external-cvs/pydb/test/gcd.py:24")
@@ -29,19 +29,19 @@
   (regexp-stack-test 
    "   2 run(self=<__main__.Pdb instance at 0xb7d2cc6c>, cmd='execfile( \"../test/gcd.py\")\n', globals={'__builti...) called from file '/usr/local/lib/python2.5/site-packages/pydb/pydbbdb.py' at line 313")
 
-  (regexp-test 
+  (regexp-file-test 
    "(e:\\sources\\capfilterscanner\\capanalyzer.py:3):  <module>"
    "e:\\sources\\capfilterscanner\\capanalyzer.py"
    )
-  (regexp-test 
+  (regexp-file-test 
    "(e:\\Documents and Settings\\jsmith\\My Documents\\cpanalyzer test.py:3):  <module>"
    "e:\\Documents and Settings\\jsmith\\My Documents\\cpanalyzer test.py"
    )  
-  (regexp-test 
+  (regexp-file-test 
    "(/tmp/gcd.py:29):  gcd"
    "/tmp/gcd.py"
    )
-  (regexp-test 
+  (regexp-file-test 
    "(/tmp/gcd.py:29)"
    "/tmp/gcd.py"
    )

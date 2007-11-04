@@ -239,7 +239,7 @@ and source-file directory for your debugger."
 			       (gud-pydb-massage-args "1" words) nil))
 	(gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
 	(annotate-p (cadr script-name-annotate-p))
-	(pydb-buffer-name (format "*pydb-%s*" gud-target-name))
+	(pydb-buffer-name (format "*pydb-cmd-%s*" gud-target-name))
 	(pydb-buffer (get-buffer pydb-buffer-name))
 	)
 
@@ -593,6 +593,10 @@ from `gdb-setup-windows', but simplified."
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
                                        'keymap pydb--breakpoints-map))
+            (add-text-properties
+             (+ b (match-beginning 1)) (+ b (match-end 1))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face))
             ;; fontify "keep/del"
             (let ((face (if (string= "keep" (buffer-substring
                                              (+ b (match-beginning 2))
@@ -608,7 +612,15 @@ from `gdb-setup-windows', but simplified."
               (add-text-properties
                (+ b (match-beginning 3)) (+ b (match-end 3))
                (list 'face compilation-error-face
-                     'font-lock-face compilation-error-face))))
+                     'font-lock-face compilation-error-face)))
+            (add-text-properties
+             (+ b (match-beginning 4)) (+ b (match-end 4))
+             (list 'face font-lock-comment-face
+                   'font-lock-face font-lock-comment-face))
+            (add-text-properties
+             (+ b (match-beginning 5)) (+ b (match-end 5))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face)))
         (forward-line)
         (beginning-of-line))))))
 
