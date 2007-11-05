@@ -804,9 +804,41 @@ pydb-restore-windows if pydb-many-windows is set"
 
 ;; -- locals
 
+(defvar pydb-locals-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+    (define-key map "\r" 'pydb-edit-locals-value)
+    (define-key map "e" 'pydb-edit-locals-value)
+    (define-key map [mouse-1] 'pydb-edit-locals-value)
+    (define-key map [mouse-2] 'pydb-edit-locals-value)
+    (define-key map "q" 'kill-this-buffer)
+     map))
+
+(defun pydb-locals-mode ()
+  "Major mode for pydb locals.
+
+\\{pydb-locals-mode-map}"
+  ; (kill-all-local-variables)
+  (setq major-mode 'pydb-locals-mode)
+  (setq mode-name "PYDB Locals")
+  (setq buffer-read-only t)
+  (use-local-map pydb-locals-mode-map)
+  ; (set (make-local-variable 'font-lock-defaults)
+  ;     '(gdb-locals-font-lock-keywords))
+  (run-mode-hooks 'pydb-locals-mode-hook))
+
 (defun pydb--setup-locals-buffer (buf)
-  (with-current-buffer buf
-    (setq mode-name "PYDB Locals")))
+  (with-current-buffer buf (pydb-locals-mode)))
+
+(defun pydb-edit-locals-value (&optional event)
+  "Assign a value to a variable displayed in the locals buffer."
+  (interactive (list last-input-event))
+  (save-excursion
+    (if event (posn-set-point (event-end event)))
+    (beginning-of-line)
+    (let* ((var (current-word))
+	   (value (read-string (format "New value (%s): " var))))
+      (gud-call (format "! %s=%s" var value)))))
 
 ;;-----------------------------------------------------------------------------
 ;; ALB - redefinition of gud-reset for our own purposes
