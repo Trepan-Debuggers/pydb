@@ -398,11 +398,9 @@ Currently-active file is at the head of the list.")
 (defconst pydb-marker-regexp-line-group 3
   "Group position in pydb-position-re that matches the line number.")
 
-
-
 (defconst pydb-traceback-line-re
-  "^#[0-9]+[ \t]+\\((\\([a-zA-Z-.]+\\) at (\\(\\([a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\)).*\n"
-  "Regular expression that describes tracebacks.")
+  "^[ \t]+File \"\\([^\"]+\\)\", line \\([0-9]*\\),"
+  "Regular expression that describes Python tracebacks.")
 
 (defconst pydb-pydbtrack-input-prompt "\n(+Pydb)+ *"
   "Regular expression pydbtrack uses to recognize a pydb prompt.")
@@ -530,9 +528,12 @@ problem as best as we can determine."
   (interactive)
   (pydb-pydbtrack-toggle-stack-tracking 1)
   (setq pydb-pydbtrack-is-tracking-p t)
+  (local-set-key "\C-cg" 'pydb-goto-traceback-line)
   (add-hook 'comint-output-filter-functions 'pydb-pydbtrack-track-stack-file)
   ; remove other py-pdbtrack if which gets in the way
   (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file))
+  (remove-hook 'comint-output-filter-functions 
+	       'py-rdebugtrack-track-stack-file)
 
 
 (defun turn-off-pydbtrack ()
@@ -699,6 +700,19 @@ pydb-restore-windows if pydb-many-windows is set"
         (pydb-display-line
          (substring s (match-beginning 4) (match-end 4))
          (string-to-number (substring s (match-beginning 5) (match-end 5))))
+        ))))
+
+(defun pydb-goto-traceback-line (pt)
+  "Displays the location in a source file of the Python traceback line."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
+	  (gud-comint-buffer (current-buffer)))
+      (when (string-match pydb-traceback-line-re s)
+        (pydb-display-line
+         (substring s (match-beginning 1) (match-end 1))
+         (string-to-number (substring s (match-beginning 2) (match-end 2))))
         ))))
 
 (defun pydb-toggle-breakpoint (pt)
