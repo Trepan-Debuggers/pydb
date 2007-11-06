@@ -110,7 +110,7 @@ and in tracebacks like this:
 ;;-----------------------------------------------------------------------------
 
 (defconst pydb-annotation-start-regexp
-  "^\\([a-z]+\\)\n")
+  "\\([a-z]+\\)\n")
 (defconst pydb-annotation-end-regexp
   "^\n")
 
@@ -446,10 +446,9 @@ at the beginning of the line.
         (pydb-pydbtrack-overlay-arrow nil)
       ;else 
       (let* ((procmark (process-mark currproc))
-             (block-str (buffer-substring (max comint-last-input-end
-                                           (- procmark
-                                              pydb-pydbtrack-track-range))
-                                      procmark))
+	     (block-start (max comint-last-input-end
+			       (- procmark pydb-pydbtrack-track-range)))
+             (block-str (buffer-substring block-start procmark))
              target target_fname target_lineno target_buffer)
 
         (if (not (string-match (concat pydb-pydbtrack-input-prompt "$") block-str))
@@ -469,8 +468,22 @@ at the beginning of the line.
             (message "pydbtrack: line %s, file %s" target_lineno target_fname)
             (pydb-pydbtrack-overlay-arrow t)
             (pop-to-buffer origbuf t)
+	    )
 
-            )))))
+	  (save-excursion
+	    (let ((annotate-start)
+		  (annotate-end (point-max)))
+	      (goto-char block-start)
+	      (while (re-search-forward
+		      pydb-annotation-start-regexp annotate-end t)
+		(setq annotate-start (match-beginning 0))
+		(if (re-search-forward 
+		     pydb-annotation-end-regexp annotate-end t)
+		    (delete-region annotate-start (point))
+		;else
+		  (forward-line)))
+	      )))
+	)))
   )
 
 (defun pydb-pydbtrack-get-source-buffer (block-str)
