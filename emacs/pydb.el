@@ -470,6 +470,7 @@ at the beginning of the line.
             (pop-to-buffer origbuf t)
 	    )
 
+	  ; Delete processed annotations from buffer.
 	  (save-excursion
 	    (let ((annotate-start)
 		  (annotate-end (point-max)))
