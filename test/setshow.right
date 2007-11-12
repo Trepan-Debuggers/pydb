@@ -9,3 +9,5 @@ function tracing is on.
 function tracing is off.
 Number of source lines pydb will list by default is 10.
 Number of lines to show in listing is 60.
+Saving of the history record on exit is off
+The size of the command history is 256

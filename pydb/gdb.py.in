@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.138 2007/10/29 02:35:19 rockyb Exp $"""
+$Id: gdb.py.in,v 1.139 2007/11/12 04:07:13 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -595,13 +595,42 @@ the previous command number shown. A negative number starts from the end."""
         """Generic command for showing command history parameters"""
         try:
             import @READLINE@
-            self.msg(
-"""filename:  The filename in which to record the command history is
-"%s".""" % self.histfile)
-            self.msg("save:  Saving of the history record on exit is %s"
-                     % show_onoff(self.hist_save))
-            self.msg("size:  The size of the command history is %d"
-                     % readline.get_history_length())
+            if len(args) > 1 and args[1]:
+                show_save = show_size = show_filename = False
+                show_prefix = False
+                if args[1] == 'filename':
+                    show_filename = True
+                elif args[1] == 'save':
+                    show_save = True
+                elif args[1] == 'size':
+                    show_size = True
+                else:
+                    self.undefined_cmd("show history", args[1])
+                    return
+            else:
+                show_save = show_size = show_filename = True
+                show_prefix = True
+            if show_filename:
+                if show_prefix:
+                    prefix='filename: '
+                else:
+                    prefix=''
+                self.msg("""%sThe filename in which to record the command history is
+"%s".""" % (prefix, self.histfile))
+            if show_save:
+                if show_prefix:
+                    prefix='save: '
+                else:
+                    prefix=''
+                self.msg("%sSaving of the history record on exit is %s"
+                         % (prefix, show_onoff(self.hist_save)))
+            if show_size:
+                if show_prefix:
+                    prefix='size: '
+                else:
+                    prefix=''
+                self.msg("%sThe size of the command history is %d"
+                         % (prefix, readline.get_history_length()))
         except ImportError:
             pass
 

@@ -3,10 +3,10 @@
 *** Argument required (filename to set it to).
 +set history filename history.hst
 +show history
-filename:  The filename in which to record the command history is
+filename: The filename in which to record the command history is
 "history.hst".
-save:  Saving of the history record on exit is off
-size:  The size of the command history is 5
+save: Saving of the history record on exit is off
+size: The size of the command history is 5
 +#########################################
 +# Test save on and off.
 +# Test also using short abbreviated name
@@ -25,8 +25,8 @@ size:  The size of the command history is 5
   9  	    if n-1 > 0:
  10  	       hanoi(n-1, c, b, a) 
 +show hi
-filename:  The filename in which to record the command history is
+filename: The filename in which to record the command history is
 "history.hst".
-save:  Saving of the history record on exit is on
-size:  The size of the command history is 5
+save: Saving of the history record on exit is on
+size: The size of the command history is 5
 +quit
