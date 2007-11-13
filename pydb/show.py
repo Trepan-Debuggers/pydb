@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.18 2007/11/12 04:07:14 rockyb Exp $"
+__revision = "$Id: show.py,v 1.19 2007/11/13 13:49:06 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -75,48 +75,6 @@ $cwd in search path means the current working directory.
 $cdir in the path means the compilation directory of the source file."""
         self.msg("Source directories searched:\n\t%s." % str(self.search_path))
 
-    def show_history(self, args):
-        "Show history options"
-        s = []
-        if len(args) > 1 and args[1]:
-            show_prefix = True
-            show_save = False; show_size = False; show_filename = False
-            if args[1] == 'file':
-                show_filename = True
-            elif args[1] == 'save':
-                show_save = True
-            elif args[1] == 'size':
-                show_size = True
-            else:
-                self.undefined_cmd("show history", args[1])
-                return
-        else:
-           show_save = show_size = show_filename = True
-           show_prefix = False
-
-        if show_filename:
-            if show_prefix:
-                msg = 'filename: '
-            else:
-                msg = ''
-            self.msg("%sThe filename in which to record the command history is %s" %
-                     (prefix, self.histfile))
-        if show_save:
-            if show_prefix:
-                msg = 'save: '
-            else:
-                msg = ''
-            self.msg("%sSaving of history record on exit is %s" %
-                     (prefix, fns.show_onoff(self.hist_save)))
-        if show_size:
-            if show_prefix:
-                msg = 'size: '
-            else:
-                msg = ''
-            self.msg('%sDebugger history size is %s' % 
-                     (prefix, self.set_history_length))
-        return
-            
     def show_flush(self, args):
         """Show whether we flush output after each write."""
         self.msg('Flushing output is "%s".' %

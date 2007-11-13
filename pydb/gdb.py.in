@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.139 2007/11/12 04:07:13 rockyb Exp $"""
+$Id: gdb.py.in,v 1.140 2007/11/13 13:49:06 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -181,7 +181,12 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
             self.hist_last = 0
             self.hist_save = False
             self.set_history_length = readline.set_history_length
-            self.set_history_length(256)
+            # Set history length using gdb's rule.
+            try:
+                history_length = int(os.environ['HISTSIZE'])
+            except:
+                history_length = 256
+            self.set_history_length(history_length)
 
             # An application like ipython may have its own
             # history set up beforehand, clear that so we don't back up
