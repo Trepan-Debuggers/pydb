@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.128 2007/10/29 02:52:31 rockyb Exp $
+% $Id: libpydb.tex,v 1.129 2007/11/13 13:51:18 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -552,7 +552,8 @@ enabled.
 \item[set history size \var{number}]
 
 Set the size of the command history, ie. the number of previous
-commands to keep a record of. The default is 256.
+commands to keep a record of. This defaults to the value of the environment variable
+\code{HISTSIZE}, or to 256 if this variable is not set.
 
 \item[set linetrace on\code{\Large{|}}off]\label{command:linetrace}
 
