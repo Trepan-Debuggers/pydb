@@ -22,5 +22,6 @@ show listsize
 set width 60
 show width
 show history save
+set history size 100
 show history size
 quit
