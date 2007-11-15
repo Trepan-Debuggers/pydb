@@ -781,7 +781,7 @@ pydb-restore-windows if pydb-many-windows is set"
   "Detects stack frame lines and sets up mouse navigation."
   (with-current-buffer buf
     (let ((inhibit-read-only t)
-	  (frame-point nil) ; position in stack buffer of selected frame
+	  (current-frame-point nil) ; position in stack buffer of selected frame
 	  )
       (setq mode-name "PYDB Stack Frames")
       (goto-char (point-min))
@@ -801,7 +801,7 @@ pydb-restore-windows if pydb-many-windows is set"
                                            'font-lock-face 'bold))
 		(setq overlay-arrow-position (make-marker))
 		(set-marker overlay-arrow-position (point))
-		(setq frame-point (point)))
+		(setq current-frame-point (point)))
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
                                        'keymap pydb--stack-frame-map))))
@@ -811,7 +811,7 @@ pydb-restore-windows if pydb-many-windows is set"
         (forward-line)
         (beginning-of-line))
       ; Go back to the selected frame if any
-      (when frame-point (goto-char frame-point))
+      (when current-frame-point (goto-char current-frame-point))
       )))
 
 (defun pydb-goto-stack-frame (pt)
