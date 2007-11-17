@@ -25,7 +25,7 @@
 ;; User-definable variables
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-(defcustom gud-pydb-command-name "pydb --annotate=1"
+(defcustom gud-pydb-command-name "pydb --annotate=3"
   "File name for executing the Python debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
