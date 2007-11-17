@@ -881,20 +881,15 @@ pydb-restore-windows if pydb-many-windows is set"
 	   (value (read-string (format "New value (%s): " var))))
       (gud-call (format "! %s=%s" var value)))))
 
-;;-----------------------------------------------------------------------------
-;; ALB - redefinition of gud-reset for our own purposes
-
-(defvar pydb--orig-gud-reset (symbol-function 'gud-reset))
-
-(defun gud-reset ()
-  "Redefinition of `gud-reset' to take care of pydb cleanup."
-  (funcall pydb--orig-gud-reset)
+(defadvice gud-reset (before pydb-reset)
+  "pydb cleanup - remove debugger's internal buffers (frame, breakpoints, 
+etc.)."
   (dolist (buffer (buffer-list))
     (when (string-match "\\*pydb-[a-z]+\\*" (buffer-name buffer))
       (let ((w (get-buffer-window buffer)))
         (when w (delete-window w)))
       (kill-buffer buffer))))
 
-
+(ad-activate 'gud-reset)
 (provide 'pydb)
 
