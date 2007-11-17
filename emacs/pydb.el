@@ -765,13 +765,26 @@ pydb-restore-windows if pydb-many-windows is set"
 
 ;; -- stack
 
-(defvar pydb--stack-frame-map
+(defvar pydb-frames-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'pydb-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'pydb-goto-stack-frame-mouse)
     (define-key map [(control m)] 'pydb-goto-stack-frame)
     map)
   "Keymap to navigate pydb stack frames.")
+
+(defun pydb-frames-mode ()
+  "Major mode for pydb frames.
+
+\\{pydb-frames-mode-map}"
+  ; (kill-all-local-variables)
+  (interactive "")
+  (setq major-mode 'pydb-frames-mode)
+  (setq mode-name "PYDB Stack Frames")
+  (use-local-map pydb-frames-mode-map)
+  ; (set (make-local-variable 'font-lock-defaults)
+  ;     '(gdb-locals-font-lock-keywords))
+  (run-mode-hooks 'pydb-frames-mode-hook))
 
 (defconst pydb--stack-frame-regexp
   "^\\(->\\|##\\|  \\) +\\([0-9]+\\) +\\([^ (]+\\).+$"
@@ -783,7 +796,7 @@ pydb-restore-windows if pydb-many-windows is set"
     (let ((inhibit-read-only t)
 	  (current-frame-point nil) ; position in stack buffer of selected frame
 	  )
-      (setq mode-name "PYDB Stack Frames")
+      (pydb-frames-mode)
       (goto-char (point-min))
       (while (not (eobp))
         (let* ((b (point-at-bol)) 
@@ -804,7 +817,7 @@ pydb-restore-windows if pydb-many-windows is set"
 		(setq current-frame-point (point)))
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
-                                       'keymap pydb--stack-frame-map))))
+                                       'keymap pydb-frames-mode-map))))
 	;; remove initial ##  or ->
 	(beginning-of-line)
 	(delete-char 2)
