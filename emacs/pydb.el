@@ -640,8 +640,12 @@ pydb-restore-windows if pydb-many-windows is set"
 
 ;; -- breakpoints
 
-(defvar pydb--breakpoints-map
-  (let ((map (make-sparse-keymap)))
+(defvar pydb-breakpoints-mode-map
+  (let ((map (make-sparse-keymap))
+	(menu (make-sparse-keymap "Breakpoints")))
+    (define-key menu [quit] '("Quit"   . pydb-delete-frame-or-window))
+    (define-key menu [goto] '("Goto"   . pydb-goto-breakpoint))
+    (define-key menu [delete] '("Delete" . pydb-delete-breakpoint))
     (define-key map [mouse-2] 'pydb-goto-breakpoint-mouse)
     (define-key map [? ] 'pydb-toggle-breakpoint)
     (define-key map [(control m)] 'pydb-goto-breakpoint)
@@ -649,15 +653,36 @@ pydb-restore-windows if pydb-many-windows is set"
     map)
   "Keymap to navigate/set/enable pydb breakpoints.")
 
+(defun pydb-delete-frame-or-window ()
+  "Delete frame if there is only one window.  Otherwise delete the window."
+  (interactive)
+  (if (one-window-p) (delete-frame)
+    (delete-window)))
+
+(defun pydb-breakpoints-mode ()
+  "Major mode for rdebug breakpoints.
+
+\\{pydb-breakpoints-mode-map}"
+  (kill-all-local-variables)
+  (setq major-mode 'pydb-breakpoints-mode)
+  (setq mode-name "PYDB Breakpoints")
+  (use-local-map rpydbn-breakpoints-mode-map)
+  (setq buffer-read-only t)
+  (run-mode-hooks 'pydb-breakpoints-mode-hook)
+ ;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
+  ;    'gdb-invalidate-breakpoints
+  ;  'gdbmi-invalidate-breakpoints)
+)
+
 (defconst pydb--breakpoint-regexp
   "^\\([0-9]+\\) +breakpoint +\\([a-z]+\\) +\\([a-z]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in pydb breakpoints buffers.")
 
 (defun pydb--setup-breakpoints-buffer (buf)
-  "Detects breakpoint lines and sets up mouse navigation."
+  "Detects breakpoint lines and sets up keymap and mouse navigation."
   (with-current-buffer buf
     (let ((inhibit-read-only t))
-      (setq mode-name "PYDB Breakpoints")
+      (pydb-breakpoints-mode)
       (goto-char (point-min))
       (while (not (eobp))
         (let ((b (point-at-bol)) 
@@ -666,7 +691,7 @@ pydb-restore-windows if pydb-many-windows is set"
                               (buffer-substring b e))
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
-                                       'keymap pydb--breakpoints-map))
+                                       'keymap pydb-breakpoints-mode-map))
             (add-text-properties
              (+ b (match-beginning 1)) (+ b (match-end 1))
              (list 'face font-lock-constant-face
