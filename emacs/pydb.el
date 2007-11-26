@@ -1,5 +1,5 @@
 ;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
-;; Copyright (C) 2007 Rocky Bernstein (rockyb@users.sf.net) 
+;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org) 
 ;; This file is (not yet) part of GNU Emacs.
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -18,6 +18,11 @@
 ;; Boston, MA 02111-1307, USA.
 ;; ======================================================================
 ;; pydb (Python extended debugger) functions
+
+(if (< emacs-major-version 22)
+  (error
+   "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+   emacs-major-version))
 
 (require 'gud)
 
@@ -666,7 +671,7 @@ pydb-restore-windows if pydb-many-windows is set"
   (kill-all-local-variables)
   (setq major-mode 'pydb-breakpoints-mode)
   (setq mode-name "PYDB Breakpoints")
-  (use-local-map rpydbn-breakpoints-mode-map)
+  (use-local-map pydb-breakpoints-mode-map)
   (setq buffer-read-only t)
   (run-mode-hooks 'pydb-breakpoints-mode-hook)
  ;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
