@@ -21,7 +21,7 @@
 
 (if (< emacs-major-version 22)
   (error
-   "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+   "This version of pydb.el needs at least Emacs 22 or greater - you have version %d."
    emacs-major-version))
 
 (require 'gud)
