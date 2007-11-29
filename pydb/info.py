@@ -1,7 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: info.py,v 1.13 2007/11/01 02:29:53 rockyb Exp $"
+__revision = "$Id: info.py,v 1.14 2007/11/29 13:09:37 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -137,8 +137,6 @@ The short command name is L."""
         if not self.curframe:
             self.msg("No frame selected.")
             return
-        import pydb
-        pydb.set_trace()
         self.msg("\n".join(["%s = %s" % (l, self.filter_local(l))
                             for l in self.curframe.f_locals]))
 
