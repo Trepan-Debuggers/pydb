@@ -288,9 +288,9 @@ below will appear.
   (let* ((words (split-string-and-unquote command-line))
 	(script-name-annotate-p (pydb-get-script-name 
 			       (gud-pydb-massage-args "1" words) nil))
-	(gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
+	(target-name (file-name-nondirectory (car script-name-annotate-p)))
 	(annotate-p (cadr script-name-annotate-p))
-	(pydb-buffer-name (format "*pydb-cmd-%s*" gud-target-name))
+	(pydb-buffer-name (format "*pydb-cmd-%s*" target-name))
 	(pydb-buffer (get-buffer pydb-buffer-name))
 	)
 
@@ -303,7 +303,7 @@ below will appear.
     ; it can't parse the command line properly to pick out the script name.
     ; So we'll do it here and rename that buffer. The buffer we want to rename
     ; happens to be the current buffer.
-    (setq gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
+    (setq gud-target-name target-name)
     (when pydb-buffer (kill-buffer pydb-buffer))
     (rename-buffer pydb-buffer-name)
 
