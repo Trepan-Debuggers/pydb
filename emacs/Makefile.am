@@ -1,4 +1,4 @@
-#   Copyright (C) 2006 Rocky Bernstein rockyb@users.sourceforge.net
+#   Copyright (C) 2006, 2008 Rocky Bernstein rockyb@users.sourceforge.net
 #
 #   Bash is free software; you can redistribute it and/or modify it under
 #   the terms of the GNU General Public License as published by the Free
@@ -13,17 +13,15 @@
 #   You should have received a copy of the GNU General Public License along
 #   with Bash; see the file COPYING.  If not, write to the Free Software
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-#$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
+#$Id: Makefile.am,v 1.11 2008/01/11 13:58:46 rockyb Exp $
 
 check_DATA = pydb-test.el elk-test.el
 EXTRA_DIST = pydb.el $(check_DATA)
 ELCFILES   = pydb.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = pydb.el 
-endif
-
-test: check
 
 check:
 	$(EMACS) -batch -q -l $(top_builddir)/emacs/pydb-test.el $(srcdir)/elk-test.el
-
+endif
+test: check
