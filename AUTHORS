@@ -1,8 +1,17 @@
 The Python community or whoever wrote pdb.py is largely responsible
 for this.
 
-Richard Wolff (now retired) worked on the pydb.py that is in ddd. I
-get the impression he also worked a little on pdb.py. 
+Richard Wolff worked on the pydb.py that is in ddd. He
+also contributed a little to pdb.py. In email he relates:
+  
+  .. there was no attempt to make the two systems congruent.  I
+  haven't done any work on either for quite some time.  I'm retired
+  now and it's more than just unlikely that I'll ever do anything more
+  on either.  Which means that as far as ddd and pydb have anything to
+  do with me, you're more than welcome to do whatever you like.
+
+This effort merges in changes that were in the ddd pydb.py but not in
+pdb.py. In particular, display expressions.
 
 The command interface is from GDB, and so much of the error messages
 and some parts of the documentation too.
