@@ -15,10 +15,10 @@
 15     if n-1 > 0:
 -> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'settrace.py' at line 15
 ## 1 <module>() called from file 'settrace.py' at line 51
-add_threaddbg = False
-dbg_cmds = None
-new_instance = False
-add_exception_hook = True
+a = 'a'
+c = 'c'
+b = 'b'
+n = 3
 (settrace.py:16):  hanoi
 +  16        hanoi(n-1, a, c, b) 
 --Call level -4 

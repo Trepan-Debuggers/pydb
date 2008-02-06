@@ -206,7 +206,7 @@ and in tracebacks like this:
     output))
 
 (defun gud-pydb-find-file (f)
-  (find-file-noselect f))
+  (find-file-noselect f 'nowarn))
 
 ; From Emacs 23
 (unless (fboundp 'split-string-and-unquote)
