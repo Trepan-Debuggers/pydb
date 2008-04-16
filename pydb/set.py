@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.21 2007/11/04 14:07:23 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.22 2008/04/16 01:20:47 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -61,6 +61,14 @@ Follow this command with any number of args, to be passed to the program."""
         else:
             self._program_sys_argv = []
             self._program_sys_argv[:0] = argv_start
+        return
+
+    def set_autoeval(self, args):
+        """Evaluate every unrecognized command."""
+        try:
+            self.autoeval = self.get_onoff(args[1])
+        except ValueError:
+            pass
         return
 
     def set_basename(self, args):

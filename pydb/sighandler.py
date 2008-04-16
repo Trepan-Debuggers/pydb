@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.30 2007/01/14 07:38:31 rockyb Exp $
+"""$Id: sighandler.py,v 1.31 2008/04/16 01:20:47 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -144,7 +144,7 @@ class SignalManager:
         self.action('SIGINT stop print nostack nopass')
         return
 
-    def check_and_adjust_sighandler(self, signame):
+    def check_and_adjust_sighandler(self, signame, sigs):
         """Check to see if a single signal handler that we are interested in
         has changed or has not been set initially. On return signame
         should have our signal handler."""
@@ -155,12 +155,12 @@ class SignalManager:
             # On some OS's (Redhat 8), SIGNUM's are listed (like
             # SIGRTMAX) that getsignal can't handle.
             if signame in self.sigs:
-                self.sigs.pop(signame)
+                sigs.pop(signame)
             return True
         if old_handler != self.sigs[signame].handle:
             if old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
                 # save the program's signal handler
-                self.sigs[signame].old_handler = old_handler
+                sigs[signame].old_handler = old_handler
 
             # set/restore _our_ signal handler
             try:
@@ -174,7 +174,7 @@ class SignalManager:
         """Check to see if any of the signal handlers we are interested in have
         changed or is not initially set. Change any that are not right. """
         for signame in self.sigs.keys():
-            if not self.check_and_adjust_sighandler(signame):
+            if not self.check_and_adjust_sighandler(signame, self.sigs):
                 break
 
     def print_info_signal_entry(self, signame):
@@ -265,7 +265,7 @@ class SignalManager:
                 self.handle_print_stack(signame, on)
             else:
                 self.pydb.errmsg('Invalid arguments')
-        self.check_and_adjust_sighandler(signame)
+        self.check_and_adjust_sighandler(signame, self.sigs)
         return
 
     def handle_print_stack(self, signame, print_stack):

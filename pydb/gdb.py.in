@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.140 2007/11/13 13:49:06 rockyb Exp $"""
+$Id: gdb.py.in,v 1.141 2008/04/16 01:20:46 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -84,6 +84,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
 
         self.all_completions = lambda arg, left=True: \
                                all_completions(self, arg, left)
+        self.autoeval        = True
         self.basename        = False
         self.connection      = None   # For out-of-process communication
         self.currentbp       = None   # for "info program"
@@ -341,8 +342,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         to work."""
 
         self.setcmds=subcmd.Subcmd("set",   self.help_set.__doc__)
-        self.setcmds.add('annotate',        self.set_annotate)
-        self.setcmds.add('args',            self.set_args)
+        self.setcmds.add('annotate',        self.set_annotate, 2)
+        self.setcmds.add('args',            self.set_args, 2)
+        self.setcmds.add('autoeval',        self.set_autoeval, 2)
         self.setcmds.add('basename',        self.set_basename)
         self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
         self.setcmds.add('flush',           self.set_flush)
@@ -368,7 +370,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         to work."""
         self.showcmds=subcmd.Subcmd("show", self.help_show.__doc__)
         self.showcmds.add('args',           self.show_args)
-        self.showcmds.add('annotate',       self.show_annotate)
+        self.showcmds.add('annotate',       self.show_annotate, 2)
+        self.showcmds.add('autoeval',       self.show_autoeval, 2)
         self.showcmds.add('basename',       self.show_basename)
         self.showcmds.add('debug-pydb',     self.show_dbg_pydb)
         ## self.showcmds.add('debug-signal',   self.show_debug_signal)

@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.19 2007/11/13 13:49:06 rockyb Exp $"
+__revision = "$Id: show.py,v 1.20 2008/04/16 01:20:47 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,11 @@ Follow this command with any number of args, to be passed to the program."""
         self.msg("Argument list to give program being debugged " +
                  "when it is started is ")
         self.msg('"%s".' % " ".join(self._program_sys_argv[1:]))
+        return
+
+    def show_autoeval(self, args):
+        """Show if unrecognized command are evaluated"""
+        self.msg("autoeval is %s." % fns.show_onoff(self.autoeval))
         return
 
     def show_basename(self, args):

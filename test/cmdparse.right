@@ -283,6 +283,7 @@ List of set subcommands:
 
 set annotate -- Set annotation level
 set args -- Set argument list to give program being debugged when it is started
+set autoeval -- Evaluate every unrecognized command
 set basename -- Set short filenames (the basename) in debug output
 set debug-pydb -- Set whether we allow tracing the debugger
 set flush -- Set whether we flush output after each write
@@ -309,6 +310,7 @@ List of show subcommands:
 
 show annotate -- Show annotation_level
 show args -- Show argument list to give debugged program when it is started
+show autoeval -- Show if unrecognized command are evaluated
 show basename -- Show if we are to show short of long filenames
 show commands -- Show the history of commands you typed
 show debug-pydb -- Show whether tracebacks include debugger routines

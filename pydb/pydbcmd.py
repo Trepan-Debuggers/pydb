@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.46 2007/10/27 14:55:44 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.47 2008/04/16 01:20:47 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -81,6 +81,9 @@ class Cmd(cmd.Cmd):
 
         if line[:1] == '#': return
         if line[:1] == '$': line = line[1:]
+        if not self.autoeval: 
+            self.errmsg("""Undefined command: "%s".  Try "help".""" % line)
+            return
         if self.curframe:
             local_vars = self.curframe.f_locals
             global_vars = self.curframe.f_globals
