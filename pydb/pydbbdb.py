@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.42 2007/04/21 10:40:50 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.43 2008/05/14 18:02:02 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -126,6 +126,25 @@ class Bdb(bdb.Bdb):
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
                      (bp.hits, ss), out)
+
+    def output_break_commands(self):
+        "Output a list of 'break' commands"
+        # FIXME: for now we ae going to assume no breakpoints set
+        # previously
+        bp_no = 0 
+        out = []
+        for bp in bdb.Breakpoint.bpbynumber:
+            if bp:
+                bp_no += 1
+                if bp.cond: 
+                    condition = bp.cond
+                else:
+                    condition = ''
+                out.append("break %s:%s%s" % 
+                           (self.filename(bp.file), bp.line, condition))
+                if not bp.enabled:
+                    out.append("disable %s" % bp_no)
+        return out
 
     def break_here(self, frame):
         """This routine is almost copy of bdb.py's routine. Alas what pdb

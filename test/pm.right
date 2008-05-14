@@ -17,6 +17,7 @@ Argument list to give program being debugged when it is started is
  38  	    ## Don't use assertTrue to be compatible with older version of
 +complete s
 s
+save
 set
 shell
 show
@@ -29,6 +30,7 @@ sys
 help sys
 help srcdir
 help s
+help save
 help set
 help shell
 help show

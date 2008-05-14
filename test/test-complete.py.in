@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-complete.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $ -*- Python -*-
+# $Id: test-complete.py.in,v 1.2 2008/05/14 18:02:03 rockyb Exp $ -*- Python -*-
 
 import os, sys, unittest
 
@@ -39,7 +39,7 @@ class TestComplete(unittest.TestCase):
         dbg = pydb.Pdb()
         dbg.curframe = None
         self.assertEqual( all_completions(dbg, "s"),
-            ['s', 'set', 'shell', 'show', 'signal', 'source', 'step'])
+            ['s', 'save', 'set', 'shell', 'show', 'signal', 'source', 'step'])
         self.assertEqual( all_completions(dbg, "set l"),
                           ['set linetrace', 'set listsize', 'set logging'])
         self.assertEqual( all_completions(dbg, "set l", False),
