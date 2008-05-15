@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.143 2008/05/15 03:03:36 rockyb Exp $"""
+$Id: gdb.py.in,v 1.144 2008/05/15 11:31:43 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1343,6 +1343,8 @@ recognized actions include "stop", "nostop", "print", "noprint",
             else:
                 self.msg('Will stop next time breakpoint %d is reached.' %
                          bpnum)
+            return False
+        return False
 
     def do_ipython(self, arg_str):
         """ipython [ipython-opt1 ipython-opt2 ...]
@@ -1352,13 +1354,7 @@ options are given the following options are passed:
    -noconfirm_exit -prompt_in1 'Pydb In [\#]: '
 """
 
-        # See if ipython is around
         if not self.is_running():
-            return False
-        try:
-            import IPython
-        except ImportError:
-            self.msg("IPython doesn't seem to be importable.")
             return False
 
         if arg_str:
@@ -1375,6 +1371,13 @@ options are given the following options are passed:
             except IOError:
                 pass
 
+        # ipython should be around - it was before.
+        try:
+            import IPython
+        except ImportError:
+            self.msg("IPython doesn't seem to be importable.")
+            return False
+
         ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
         if hasattr(ipshell.IP, "magic_pydb"):
             # We an infinite loop when doing recursive edits
@@ -1389,7 +1392,7 @@ options are given the following options are passed:
                 pass
             return False
         return False
-
+                
     def do_info(self, arg):
 
         """Generic command for showing things about the program being
@@ -1561,6 +1564,41 @@ source file to document. If name is 'keywords', 'topics', or
         pydoc.cli()
         sys.argv      = sys_argv_save
         sys.path      = sys_path_save
+        return False
+
+    def do_python(self, arg_str):
+        """python 
+
+Run python as a command subshell.
+"""
+
+        if not self.is_running():
+            return False
+
+        # See if python's code module is around
+        try:
+            from code import interact
+        except ImportError:
+            self.msg("python code doesn't seem to be importable.")
+            return False
+
+        # Python does it's own history thing.
+        # Make sure it doesn't damage ours.
+        if self.readline:
+            try:
+                self.write_history_file
+            except IOError:
+                pass
+
+        interact(banner='Pydb python shell', local=self.curframe.f_locals)
+
+        # Restore our history if we can do so.
+        if self.readline and self.histfile is not None:
+            try:
+                self.readline.read_history_file(self.histfile)
+            except IOError:
+                pass
+            return False
         return False
 
     def do_quit(self, arg):
