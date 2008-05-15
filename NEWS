@@ -4,13 +4,17 @@
 
 * Some doc fixes.
 
+* add ipython command to go into an ipython shell
+
+* add "save" command to save the current breakpoints to a file.
+
 * pseudo gdb-like "annotate" set/show commands and option.
 
-* Better emacs interactive via above annotate
+* Better emacs interactivion via above annotate
 
 * bug when "info local" is run inside a "with" statement
 
-  Fixes for last three items based patches by Albert Griggio
+  Fixes for last three items based patches by Alberto Griggio
 
 1.22 2007-04-15
 

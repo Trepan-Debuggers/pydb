@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.142 2008/05/14 18:02:01 rockyb Exp $"""
+$Id: gdb.py.in,v 1.143 2008/05/15 03:03:36 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1382,10 +1382,13 @@ options are given the following options are passed:
             delattr(ipshell.IP, "magic_pydb")
         ipshell()
         # Restore our history if we can do so.
-        if self.readline:
-            self.readline.read_history_file(self.histfile)
-
-        return
+        if self.readline and self.histfile is not None:
+            try:
+                self.readline.read_history_file(self.histfile)
+            except IOError:
+                pass
+            return False
+        return False
 
     def do_info(self, arg):
 
