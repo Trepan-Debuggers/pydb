@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.130 2008/05/14 18:02:01 rockyb Exp $
+% $Id: libpydb.tex,v 1.131 2008/05/16 10:31:40 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1301,8 +1301,61 @@ that can be accessible.
 
 \end{description}
 
-\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !})\label{subsection-commands}}
+\subsection{Running Arbitrary Python Commands ({\tt debug}, {\tt !}, {\tt ipython}, {\tt python})\label{subsection-commands}}
 
+You can run arbitrary commands that change state. However there are
+some caveats. An assignment to a local variable doesn't have an
+effect, although changes to instance variables and globals do. This
+seems to be an artifact of how the interpeter is written to speed up
+name lookup for access to local variables. As a result, the locals
+dictionary seen may be created on the fly. (I could very well have the
+reason wrong, but net effect is the same---modifying a local variable
+doesn't still does not change the value after the command is finished.)
+\begin{verbatim}
+(Pydb) list
+ 23  	    
+ 24  	def gcd(a,b):
+ 25  	    """ GCD. We assume positive numbers"""
+ 26  	
+ 27  	    # Make: a <= b
+ 28  ->	    if a > b:
+ 29  	       (a, b) = (b, a)
+ 30  	       
+ 31  	    if a <= 0:
+ 32  	        return None
+(Pydb) p a
+3
+(Pydb) a=5; print a
+5
+(Pydb) p a
+3
+\end{verbatim}
+
+Another thing to keep in mind is the scope of setting \emph{new} local
+variables. They persist as long as the debugger stays inside the same
+scope. Furthermore you \emph{can} change these. Continuing from above:
+\begin{verbatim}
+(Pydb) d = 5
+(Pydb) p d
+5
+(Pydb) n
+31     if a <= 0:
+(Pydb) p d
+5
+(Pydb) d = 6 
+(Pydb) p d
+6
+finish
+--Return from level 4 => 1 (<type 'int'>)
+35     return gcd(b-a, a)
+(Pydb) p d
+6
+(Pydb) n
+34         return a
+(Pydb) p d
+*** NameError: d
+\end{verbatim}
+                
 \begin{description}
 
 \item[\optional{!}\var{statement}]
@@ -1326,10 +1379,21 @@ is an arbitrary expression or statement to be executed in the current
 environment). The prompt is changed to indicate nested behavior. See
 \ref{debugger:prompt}
 
-\item[ipython \var{options...}]\label{command:iptyhon}
+\item[ipython \var{options...}]\label{command:ipython}
 
-Run ipython as a subshell.
-\ref{debugger:prompt}
+  Run ipython as a subshell. You need to have ipython
+  (\ulink{IPython}{http://ipython.scipy.org/moin/ipython}) installed
+  for this command.
+
+  \var{options} are the options passed to ipython. If not are given
+  the following options are passed: 
+\begin{verbatim}
+  -noconfirm_exit -prompt_in1 'Pydb In [\#]: '
+\end{verbatim}
+
+\item[python]\label{command:python}
+
+Run python as a subshell.
 
 \end{description}
 
@@ -1466,12 +1530,27 @@ As an example, here are two useful aliases (especially when placed
 in the \code{.pydbrc} file):
 
 \begin{verbatim}
-#Print instance variables (usage "pi classInst")
-alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
-#Print instance variables in self
-alias ps pi self
+(Pydb) list
+ 23  	    
+ 24  	def gcd(a,b):
+ 25  	    """ GCD. We assume positive numbers"""
+ 26  	
+ 27  	    # Make: a <= b
+ 28  ->	    if a > b:
+ 29  	       (a, b) = (b, a)
+ 30  	       
+ 31  	    if a <= 0:
+ 32  	        return None
+(Pydb) p a
+3
+(Pydb) a=5; print a
+5
+(Pydb) p a
+3
 \end{verbatim}
-                
+So inside the command the value of \code{a} is changed. After the
+command finishes the value reverts back to its old value.
+
 \item[complete \var{command-prefix}]\label{command:complete}
 
 If
