@@ -24,4 +24,8 @@ show width
 show history save
 set history size 100
 show history size
+set deftrace off
+show deftrace
+set deftrace on
+show deftrace
 quit

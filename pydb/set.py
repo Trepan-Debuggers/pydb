@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.22 2008/04/16 01:20:47 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.23 2008/05/17 10:08:33 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -128,6 +128,14 @@ object variables.
         ## FIXME assign signal handler here.
         self.msg('debug-signal set to: %s' % self.debug_signal)
         return False
+
+    def set_deftrace(self, args):
+        """Set to def's (method creation) before they are run"""
+        try:
+            self.deftrace = self.get_onoff(args[1])
+        except ValueError:
+            pass
+        return
 
     def set_flush(self, args):
         """Set whether we flush output after each write."""

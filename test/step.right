@@ -1,0 +1,14 @@
++set deftrace off
++set listsize 1
++step
++list
+ 11  ->	import sys
++set deftrace on
++step
++list
+ 13  ->	def check_args():
++set deftrace off
++step
++list
+ 37  ->	if __name__=='__main__':
++quit

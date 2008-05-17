@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.145 2008/05/16 10:31:40 rockyb Exp $"""
+$Id: gdb.py.in,v 1.146 2008/05/17 10:08:33 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -346,7 +346,8 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.setcmds.add('args',            self.set_args, 2)
         self.setcmds.add('autoeval',        self.set_autoeval, 2)
         self.setcmds.add('basename',        self.set_basename)
-        self.setcmds.add('debug-pydb',      self.set_dbg_pydb)
+        self.setcmds.add('debug-pydb',      self.set_dbg_pydb, 2)
+        self.setcmds.add('deftrace',        self.set_deftrace, 2)
         self.setcmds.add('flush',           self.set_flush)
         self.setcmds.add('fntrace',         self.set_fntrace, 2)
         ## self.setcmds.add('debug-signal',    self.set_debug_signal)
@@ -375,6 +376,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.showcmds.add('basename',       self.show_basename)
         self.showcmds.add('debug-pydb',     self.show_dbg_pydb)
         ## self.showcmds.add('debug-signal',   self.show_debug_signal)
+        self.showcmds.add('deftrace',       self.show_deftrace,    3)
         self.showcmds.add('commands',       self.show_commands,    2, False)
         self.showcmds.add('directories',    self.show_directories, 1)
         self.showcmds.add('fntrace',        self.show_fntrace,     2)
@@ -1735,7 +1737,8 @@ See also 'restart' for an exec-like restart."""
 
     def do_save(self, arg):
         """save [all|break] [filename]
-        Save specified settings to a file."""
+        Save specified settings to a file as a script
+Use the 'source' command in another debug session to restore them."""
         args = arg.split()
         if len(args) > 2 or len(args) < 1:
             self.errmsg("Expecting 1 or two arguments, got %d." % len(args))

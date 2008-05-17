@@ -286,6 +286,7 @@ set args -- Set argument list to give program being debugged when it is started
 set autoeval -- Evaluate every unrecognized command
 set basename -- Set short filenames (the basename) in debug output
 set debug-pydb -- Set whether we allow tracing the debugger
+set deftrace -- Set to def's (method creation) before they are run
 set flush -- Set whether we flush output after each write
 set fntrace -- Set function execution tracing
 set history -- Generic command for setting command history parameters
@@ -314,6 +315,7 @@ show autoeval -- Show if unrecognized command are evaluated
 show basename -- Show if we are to show short of long filenames
 show commands -- Show the history of commands you typed
 show debug-pydb -- Show whether tracebacks include debugger routines
+show deftrace -- Show if we are to show def (method creation) statements
 show directories -- Current search path for finding source files
 show flush -- Show whether we flush output after each write
 show fntrace -- Show the line function status. Can also add 'delay'

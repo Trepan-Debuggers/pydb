@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.20 2008/04/16 01:20:47 rockyb Exp $"
+__revision = "$Id: show.py,v 1.21 2008/05/17 10:08:33 rockyb Exp $"
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -73,6 +73,11 @@ Follow this command with any number of args, to be passed to the program."""
             self.msg('debug-signal not set.')
             return
         self.msg('debug-signal is %s' % self.debug_signal)
+
+    def show_deftrace(self, args):
+        "Show if we are to show def (method creation) statements"
+        self.msg("deftrace is %s." % fns.show_onoff(self.deftrace))
+        return
 
     def show_directories(self, args):
         """Current search path for finding source files.

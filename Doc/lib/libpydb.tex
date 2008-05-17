@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.131 2008/05/16 10:31:40 rockyb Exp $
+% $Id: libpydb.tex,v 1.132 2008/05/17 10:08:33 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -479,6 +479,13 @@ be different. You may want to use this in other
 situtations as well, like showing a debugger session in a manual
 such as this one. 
 
+\item[set deftrace on\code{\Large{|}}off]\label{command:deftrace}
+ 
+In contrast to the stock python debugger, we don't show or stop at
+`def' (method creation) lines by default, because this makes stepping more
+cumbersome. However should you want to change this, you can seet
+this off.
+
 \item[set trace-commands on\code{\Large{|}}off]\label{command:trace-commands}
  
 Show lines as they are read from the debugger command file (or
@@ -764,6 +771,10 @@ restarted
 \item[show basename]
 
 Show short or long filenames
+
+\item[show deftrace]
+
+Show whither we should step/stop at ``def'' (method creation) commands.
 
 \item[show trace-commands]
 

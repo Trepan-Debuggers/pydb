@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.43 2008/05/14 18:02:02 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.44 2008/05/17 10:08:33 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -33,6 +33,9 @@ class Bdb(bdb.Bdb):
         # A 0 value means stop on this occurrence. A positive value means to
         # skip that many more step/next's.
         self.step_ignore      = 0
+
+        # Do we want to show/stop at def statements before they are run?
+        self.deftrace         = False
         return
 
     def __print_call_params(self, frame):
@@ -417,7 +420,7 @@ class Bdb(bdb.Bdb):
                 self.__print_location_if_trace(frame, False)
                 return
             if not self.break_here(frame):
-                if is_def_stmt(line, frame):
+                if is_def_stmt(line, frame) and not self.deftrace:
                     self.__print_location_if_trace(frame, False)
                     return
                 elif self.fntrace:

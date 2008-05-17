@@ -8,6 +8,9 @@
 
 * add "save" command to save the current breakpoints to a file.
 
+* add set/show "deftrac" to allow stopping at a def (method creation)
+  statement.
+
 * pseudo gdb-like "annotate" set/show commands and option.
 
 * Better emacs interactivion via above annotate
