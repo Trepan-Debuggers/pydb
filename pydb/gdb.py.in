@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.146 2008/05/17 10:08:33 rockyb Exp $"""
+$Id: gdb.py.in,v 1.147 2008/05/20 13:17:51 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -90,6 +90,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         self.currentbp       = None   # for "info program"
         self.cur_frame       = None   # current stack frame
         self.dbg_pydb        = False  # Debug the debugger?
+        self.def_trace       = False  # Show/stop at method create statements?
         self.debug_signal    = None   # The signal used by 'attach'
         self.display         = Display()
         self.fntrace         = False  # Tracing functions/methods
@@ -1736,24 +1737,43 @@ See also 'restart' for an exec-like restart."""
     do_R = do_run
 
     def do_save(self, arg):
-        """save [all|break] [filename]
+        """save [all|break|settings] [filename]
         Save specified settings to a file as a script
 Use the 'source' command in another debug session to restore them."""
         args = arg.split()
-        if len(args) > 2 or len(args) < 1:
-            self.errmsg("Expecting 1 or two arguments, got %d." % len(args))
+        if len(args) > 2:
+            self.errmsg("Expecting 0-2 arguments, got %d." % len(args))
             return False
-        if args[1]:
+        if 0 == len(args):
+            args = ['all']
+        if 2 == len(args):
             restart_file = open(args[1], 'w')
         else:
-            restart_file = open(os.path.expanduser("pydb-restart.txt"), 'w')
+            restart_file = open(os.path.expanduser("~/pydb-restart.txt"), 'w')
         if '' == args[0]: args[0] = 'all' 
+        what = ''
         if args[0] in ('all', 'break'):
             lines = self.output_break_commands()
             restart_file.write("\n".join(lines))
-        # if arg in ('all', 'settings'):
-        #   ...
-        restart_file.close()
+            what = 'Breakpoints'
+        if args[0] in ('all', 'settings'):
+            if '' == what:
+                what = 'Settings'
+            else:
+                what = 'Settings and breakpoints'
+            for subcommand in self.setcmds.list():
+                if subcommand in ['args', 'debug-pydb', 'history', 'logging', 
+                                  'prompt', 'trace-commands', 'warnoptions']: 
+                                  continue
+                # commands that have lots of output we can't handle right now.
+                if not self.showcmds.subcmds[subcommand]['in_list']:
+                    continue
+                val = eval('self.get_%s()' % subcommand)
+                restart_file.write('set %s %s\n' % (subcommand, val))
+        if what != '':
+            restart_file.close()
+            self.msg('%s saved to %s' % (what, restart_file.name))
+            return False
         return False
 
     def do_set(self, arg):

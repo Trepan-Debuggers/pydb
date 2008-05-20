@@ -4,11 +4,12 @@
 
 * Some doc fixes.
 
-* add ipython command to go into an ipython shell
+* add ipython and python command to go into an ipython or python shell
 
-* add "save" command to save the current breakpoints to a file.
+* add "save" command to save the current breakpoints and/or 
+  most settings to a file.
 
-* add set/show "deftrac" to allow stopping at a def (method creation)
+* add set/show "deftrace" to allow stopping at a def (method creation)
   statement.
 
 * pseudo gdb-like "annotate" set/show commands and option.
