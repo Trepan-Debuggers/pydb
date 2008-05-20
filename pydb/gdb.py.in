@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.147 2008/05/20 13:17:51 rockyb Exp $"""
+$Id: gdb.py.in,v 1.148 2008/05/20 18:24:56 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1754,7 +1754,7 @@ Use the 'source' command in another debug session to restore them."""
         what = ''
         if args[0] in ('all', 'break'):
             lines = self.output_break_commands()
-            restart_file.write("\n".join(lines))
+            restart_file.write("\n".join(lines) + "\n")
             what = 'Breakpoints'
         if args[0] in ('all', 'settings'):
             if '' == what:
