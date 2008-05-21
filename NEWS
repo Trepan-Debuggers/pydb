@@ -4,7 +4,7 @@
 
 * Some doc fixes.
 
-* add ipython and python command to go into an ipython or python shell
+* add ipython and python commands to go into an ipython or a python shell
 
 * add "save" command to save the current breakpoints and/or 
   most settings to a file. (Suggested at a NYC Python group meeting.)
