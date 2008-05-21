@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.149 2008/05/21 00:27:59 rockyb Exp $"""
+$Id: gdb.py.in,v 1.150 2008/05/21 10:50:52 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1576,9 +1576,6 @@ source file to document. If name is 'keywords', 'topics', or
 Run python as a command subshell.
 """
 
-        if not self.is_running():
-            return False
-
         # See if python's code module is around
         try:
             from code import interact
@@ -1594,7 +1591,10 @@ Run python as a command subshell.
             except IOError:
                 pass
 
-        interact(banner='Pydb python shell', local=self.curframe.f_locals)
+        if not self.is_running():
+            interact(banner='Pydb python shell')
+        else:
+            interact(banner='Pydb python shell', local=self.curframe.f_locals)
 
         # Restore our history if we can do so.
         if self.readline and self.histfile is not None:
