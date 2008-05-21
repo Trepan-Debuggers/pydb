@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.154 2007/10/29 04:22:48 rockyb Exp $"""
+$Id: pydb.py.in,v 1.155 2008/05/21 11:02:51 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -461,7 +461,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
         p._program_sys_argv[:0] = [p.mainpyfile]
 
     if 0 == len(p._sys_argv):
-        # Fake script invocation (restart) args since we don don't have any
+        # Fake script invocation (restart) args since we don't have any
         p._sys_argv = list(p._program_sys_argv)
         p._sys_argv[:0] = [__title__]
 

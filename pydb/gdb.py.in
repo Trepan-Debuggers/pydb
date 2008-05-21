@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.150 2008/05/21 10:50:52 rockyb Exp $"""
+$Id: gdb.py.in,v 1.151 2008/05/21 11:02:51 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1365,7 +1365,11 @@ given the following options are passed:
             argv = arg_split(arg_str, posix=True)
         else:
             argv = ['-noconfirm_exit','-prompt_in1', 'Pydb In [\\#]: ']
-        user_ns = self.curframe.f_locals
+
+        if self.curframe and self.curframe.f_locals:
+            user_ns = self.curframe.f_locals
+        else:
+            user_ns = None
 
         # IPython does it's own history thing.
         # Make sure it doesn't damage ours.
@@ -1382,7 +1386,11 @@ given the following options are passed:
             self.msg("IPython doesn't seem to be importable.")
             return False
 
-        ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
+        if user_ns:
+            ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
+        else:
+            ipshell = IPython.Shell.IPShellEmbed(argv=argv)
+
         if hasattr(ipshell.IP, "magic_pydb"):
             # We an infinite loop when doing recursive edits
             self.msg("Removing magic %pydb")
@@ -1591,10 +1599,15 @@ Run python as a command subshell.
             except IOError:
                 pass
 
-        if not self.is_running():
-            interact(banner='Pydb python shell')
+        if self.curframe and self.curframe.f_locals:
+            local = self.curframe.f_locals
         else:
-            interact(banner='Pydb python shell', local=self.curframe.f_locals)
+            local = None
+
+        if not local:
+            interact(banner='Pydb python shell', local=local)
+        else:
+            interact(banner='Pydb python shell')
 
         # Restore our history if we can do so.
         if self.readline and self.histfile is not None:
