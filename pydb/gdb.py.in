@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.148 2008/05/20 18:24:56 rockyb Exp $"""
+$Id: gdb.py.in,v 1.149 2008/05/21 00:27:59 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1741,26 +1741,38 @@ See also 'restart' for an exec-like restart."""
         Save specified settings to a file as a script
 Use the 'source' command in another debug session to restore them."""
         args = arg.split()
-        if len(args) > 2:
+        actions = ['all', 'break', 'settings']
+        filename = os.path.expanduser("~/pydb-restart.txt")
+        if 0 == len(args):
+            what = 'all'
+        elif 1 == len(args):
+            if args[0] in actions:
+                what = args[0]
+            else:
+                filename = os.path.expanduser(args[0])
+                what = 'all'
+        elif 2 == len(args):
+            what = args[0]
+            if args[0] not in actions:
+                self.errmsg("Action has to be 'all', 'break' or 'settings; " 
+                            "got '%s'." % args[0])
+                return False
+            filename = os.path.expanduser(args[1])
+        else: 
+            # len(args) > 2:
             self.errmsg("Expecting 0-2 arguments, got %d." % len(args))
             return False
-        if 0 == len(args):
-            args = ['all']
-        if 2 == len(args):
-            restart_file = open(args[1], 'w')
-        else:
-            restart_file = open(os.path.expanduser("~/pydb-restart.txt"), 'w')
-        if '' == args[0]: args[0] = 'all' 
-        what = ''
-        if args[0] in ('all', 'break'):
+        restart_file = open(filename, 'w')
+        what_str = ''
+        if what in ('all', 'break'):
             lines = self.output_break_commands()
             restart_file.write("\n".join(lines) + "\n")
-            what = 'Breakpoints'
-        if args[0] in ('all', 'settings'):
-            if '' == what:
-                what = 'Settings'
+            what_str = 'Breakpoints'
+        if what in ('all', 'settings'):
+            if '' == what_str:
+                what_str = 'Settings'
             else:
-                what = 'Settings and breakpoints'
+                what_str = 'Settings and breakpoints'
             for subcommand in self.setcmds.list():
                 if subcommand in ['args', 'debug-pydb', 'history', 'logging', 
                                   'prompt', 'trace-commands', 'warnoptions']: 
@@ -1770,9 +1782,9 @@ Use the 'source' command in another debug session to restore them."""
                     continue
                 val = eval('self.get_%s()' % subcommand)
                 restart_file.write('set %s %s\n' % (subcommand, val))
-        if what != '':
+        if what_str != '':
             restart_file.close()
-            self.msg('%s saved to %s' % (what, restart_file.name))
+            self.msg('%s saved to file %s' % (what_str, restart_file.name))
             return False
         return False
 
