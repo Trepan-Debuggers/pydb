@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.46 2008/05/17 10:08:33 rockyb Exp $
+#$Id: Makefile.am,v 1.47 2008/05/21 14:48:43 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -54,12 +54,15 @@ check_DATA = \
 	run.right            \
 	run2.cmd             \
 	run2.right           \
+	save.cmd             \
+	save.right           \
 	setshow.cmd          \
 	setshow.right        \
 	settrace.py          \
 	sighandler.cmd       \
 	sighandler.right     \
         sigtestexample.py    \
+	step.cmd             \
 	step.right           \
 	trace-2.5.right      \
 	trace.right          \
@@ -84,6 +87,7 @@ TESTS = test.py              \
         test-setshow.py      \
         test-sig.py          \
 	test-sighandle.py    \
+	test-save.py         \
 	test-step.py         \
         test-trace.py        \
 	test-tcp-connect.py  \

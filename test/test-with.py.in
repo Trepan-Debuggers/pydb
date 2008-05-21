@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-with.py.in,v 1.2 2007/11/04 14:07:26 rockyb Exp $ -*- Python -*-
+# $Id: test-with.py.in,v 1.3 2008/05/21 14:48:43 rockyb Exp $ -*- Python -*-
 """Unit test of the bug in using 'info local' when inside a "with" command."""
 import difflib, os, time, sys, unittest
 
@@ -64,7 +64,8 @@ class PdbTests(unittest.TestCase):
         """Test running bug running "info local" inside a "with" command"""
         if sys.version_info[0:2] == (2, 5):
             result=run_debugger(testname='withbug', pydb_opts='--basename')
-        self.assertEqual(True, result, "pydb 'withbug' command comparision")
+            self.assertEqual(True, result, "pydb 'withbug' command comparision")
+        self.assertTrue(True, 'With test skipped - not 2.5')
         return
 
 if __name__ == "__main__":
