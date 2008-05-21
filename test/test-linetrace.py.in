@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-linetrace.py.in,v 1.2 2008/05/21 15:30:04 rockyb Exp $
+# $Id: test-linetrace.py.in,v 1.3 2008/05/21 20:20:25 rockyb Exp $
 "Unit test for Extended Python debugger's set linetrace "
 import difflib, os, sys, time, unittest
 
@@ -35,10 +35,10 @@ def run_python(testname, pythonfile, args='', outfile=None):
     # Do diff on output
     fromfile  = rightfile
     fromdate  = time.ctime(os.stat(fromfile).st_mtime)
-    fromlines = open(fromfile, 'U').readlines()
+    fromlines = open(fromfile, 'U').readlines()[1:-1]
     tofile    = outfile
     todate    = time.ctime(os.stat(tofile).st_mtime)
-    tolines   = open(tofile, 'U').readlines()
+    tolines   = open(tofile, 'U').readlines()[1:-1]
 
     # 3rd line has a path in it. Pick out just the non-path tail of that
     fromlines[2] = fromlines[2][-24:]

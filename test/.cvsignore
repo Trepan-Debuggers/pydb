@@ -26,9 +26,11 @@ test-import.py
 test-linetrace.py
 test-pm.py
 test-run.py
+test-save.py
 test-setshow.py
 test-sig.py
 test-sighandle.py
+test-step.py
 test-tcp-connect.py
 test-trace.py
 test-with.py
