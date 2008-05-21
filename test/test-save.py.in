@@ -1,22 +1,22 @@
-#!/usr/bin/python -t
-# $Id: test-save.py,v 1.1 2008/05/20 18:24:57 rockyb Exp $ -*- Python -*-
+#!@PYTHON@ -t
+# $Id: test-save.py.in,v 1.1 2008/05/21 15:20:50 rockyb Exp $ -*- Python -*-
 """Unit test of the save command."""
 import difflib, os, time, sys, unittest
 
-top_builddir = ".."
+top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
     top_builddir += os.path.sep
 sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
-top_srcdir = ".."
+top_srcdir = "@top_srcdir@"
 if top_srcdir[-1] != os.path.sep:
     top_srcdir += os.path.sep
 sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
-builddir     = "."
+builddir     = "@builddir@"
 if builddir[-1] != os.path.sep:
     builddir += os.path.sep
 
-srcdir = "."
+srcdir = "@srcdir@"
 if srcdir[-1] != os.path.sep:
     srcdir += os.path.sep
 

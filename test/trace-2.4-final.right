@@ -1,0 +1,120 @@
+(hanoi.py:2): 
++  2 """Towers of Hanoi"""
+(hanoi.py:3): 
++  3 import sys
+(hanoi.py:5): 
++  5 def hanoi(n,a,b,c):
+(hanoi.py:12): 
++  12 if __name__=='__main__':
+(hanoi.py:13): 
++  13     i_args=len(sys.argv)
+(hanoi.py:14): 
++  14     if i_args != 1 and i_args != 2:
+(hanoi.py:18): 
++  18     n=3
+(hanoi.py:20): 
++  20     if i_args > 1:
+(hanoi.py:27): 
++  27     if n < 1 or n > 100: 
+(hanoi.py:31): 
++  31     hanoi(n, "a", "b", "c")
+--Call level 0 hanoi(n=3, a='a', b='b', c='c')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:7):  hanoi
++  7        hanoi(n-1, a, c, b) 
+----Call level 1 hanoi(n=2, a='a', b='c', c='b')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:7):  hanoi
++  7        hanoi(n-1, a, c, b) 
+------Call level 2 hanoi(n=1, a='a', b='b', c='c')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+------Return from level 2 (<type 'NoneType'>)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+------Call level 2 hanoi(n=1, a='b', b='c', c='a')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+------Return from level 2 (<type 'NoneType'>)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+----Return from level 1 (<type 'NoneType'>)
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+----Call level 1 hanoi(n=2, a='c', b='b', c='a')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:7):  hanoi
++  7        hanoi(n-1, a, c, b) 
+------Call level 2 hanoi(n=1, a='c', b='a', c='b')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+------Return from level 2 (<type 'NoneType'>)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+------Call level 2 hanoi(n=1, a='a', b='b', c='c')
+(hanoi.py:5):  hanoi
++  5 def hanoi(n,a,b,c):
+(hanoi.py:6):  hanoi
++  6     if n-1 > 0:
+(hanoi.py:8):  hanoi
++  8     print "Move disk %s to %s" % (a, b)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+------Return from level 2 (<type 'NoneType'>)
+(hanoi.py:9):  hanoi
++  9     if n-1 > 0:
+----Return from level 1 (<type 'NoneType'>)
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+--Return from level 0 (<type 'NoneType'>)
+(hanoi.py:10):  hanoi
++  10        hanoi(n-1, c, b, a) 
+(hanoi.py:31): 
++  31     hanoi(n, "a", "b", "c")
+(<string>:1): 
++ 

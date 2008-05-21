@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.47 2008/05/21 14:48:43 rockyb Exp $
+#$Id: Makefile.am,v 1.48 2008/05/21 15:20:50 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -65,7 +65,9 @@ check_DATA = \
 	step.cmd             \
 	step.right           \
 	trace-2.5.right      \
+	trace-2.4-final.right  \
 	trace.right          \
+	tracetest-2.4-final.right \
 	tracetest-2.5.right  \
 	tracetest.right      \
 	withbug.cmd          \

@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-trace.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $ -*- Python -*-
+# $Id: test-trace.py.in,v 1.2 2008/05/21 15:20:50 rockyb Exp $ -*- Python -*-
 "Unit test of program execution tracing using the Extended Python debugger "
 import difflib, os, time, sys, unittest
 
@@ -30,6 +30,9 @@ def run_debugger(testname, pythonfile, pydb_opts='', args='',
 
     if sys.version_info[0:2] == (2, 5) and need_25:
         rightfile   = os.path.join(srcdir, "%s-2.5.right" % testname)
+    elif (sys.version_info[0:2] == (2, 4) and sys.version_info[3] == 'final'
+        and need_25):
+        rightfile   = os.path.join(srcdir, "%s-2.4-final.right" % testname)
     else:
         rightfile   = os.path.join(srcdir, "%s.right" % testname)
 

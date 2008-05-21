@@ -1,0 +1,114 @@
+(/tmp/pydb-1.23cvs/test/settrace.py:51): 
+51 hanoi(n, "a", "b", "c")
+-> 0 in file 'settrace.py' at line 51
+ 46  	          'continue']
+ 47  	
+ 48  	import pydb
+ 49  	pydb.debugger(dbg_cmds)
+ 50  	
+ 51  ->	hanoi(n, "a", "b", "c")
+[EOF]
+--Call level -5 
+(settrace.py:14):  hanoi
+14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
+15     if n-1 > 0:
+-> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'settrace.py' at line 15
+## 1 in file 'settrace.py' at line 51
+a = 'a'
+c = 'c'
+b = 'b'
+n = 3
+(settrace.py:16):  hanoi
++  16        hanoi(n-1, a, c, b) 
+--Call level -4 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:16):  hanoi
++  16        hanoi(n-1, a, c, b) 
+--Call level -3 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk a to b
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk a to c
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+--Call level -3 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk b to c
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk a to b
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+--Call level -4 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:16):  hanoi
++  16        hanoi(n-1, a, c, b) 
+--Call level -3 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk c to a
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk c to b
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+--Call level -3 
+(settrace.py:14):  hanoi
++  14 def hanoi(n,a,b,c):
+(settrace.py:15):  hanoi
++  15     if n-1 > 0:
+(settrace.py:17):  hanoi
++  17     print "Move disk %s to %s" % (a, b)
+Move disk a to b
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:18):  hanoi
++  18     if n-1 > 0:
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+(settrace.py:19):  hanoi
++  19        hanoi(n-1, c, b, a)
+(settrace.py:51): 
++  51 hanoi(n, "a", "b", "c")
