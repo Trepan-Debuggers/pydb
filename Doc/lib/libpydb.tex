@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.132 2008/05/17 10:08:33 rockyb Exp $
+% $Id: libpydb.tex,v 1.133 2008/05/21 10:43:10 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -271,7 +271,7 @@ POSIX-style line tracing is available. In POSIX shells the short
 option for this is \code{-x}; however since we follow \code{gdb}
 conventions \code{-x} is used as a short option for
 \code{--command}. When line tracing is turned on, each location (file
-name and linenumber) is printed before the command is executed. This
+name and line number) is printed before the command is executed. This
 option can be used in conjunction with the \code{--output} and
 \code{--error} options described above when a terminal is not
 available or when not running interactively. The corresponding
@@ -299,7 +299,7 @@ overridden by the local file. Finally you can specify a command file
 to be read when invoking \code{pydb} and this is run last. See
 \ref{switch:command} for information on how to run a command file.
 
-Sometimes you may not want to run startup files. For example,
+Sometimes you may not want to run a startup file. For example,
 you may have a special installation script that uses the debugger and
 want to make sure a user's profile doesn't get in the way. See
 the \samp{--nx} command option, \ref{switch:nx}.
@@ -318,7 +318,7 @@ Most commands can be abbreviated to one or two letters;
 e.g., \samp{h(elp)} means that either \samp{h} or \samp{help} can be
 used to enter the help command (but not \samp{he}, \samp{hel},
 \samp{H}, \samp{Help}, or \samp{HELP}).  Arguments to commands must
-be separated by whitespace (spaces or tabs).  Optional arguments are
+be separated by white space (spaces or tabs).  Optional arguments are
 enclosed in square brackets (\samp{[]}) in the command syntax; the
 square brackets must not be typed.  Alternatives in the command syntax
 are separated by a vertical bar (\samp{|}).
@@ -356,7 +356,7 @@ prompt.}
 If you do need to change the prompt see \ref{command:prompt}.
 
 \subsection{Command Parsing}
-Parameters to commands are separated by white space. No sophistacted
+Parameters to commands are separated by white space. No sophisticated
 parsing to figure out parameter boundaries is done.
 
 Multiple commands may be entered on a single line, separated by
@@ -383,7 +383,7 @@ see these environment settings with the {\tt show} command.
 
 The subobptions to \code{info}, or \code{set} (or \code{show}) don't
 can be abbreviated to any prefix that uniquely specifies them. For
-example \code{info li} is a valid abbrevation for \code{info line}
+example \code{info li} is a valid abbreviation for \code{info line}
 while \code{info l} is not since there is another subcommand
 (\code{locals}) which also starts with an `l'.
 
@@ -401,7 +401,7 @@ precisely what happened.  The \code{set history} commands to manage
 the command history facility.
 
 POSIX-style line tracing is available and the \code{set linetrace}
-commands can be used to control that. Call return tracing is avialable
+commands can be used to control that. Call return tracing is available
 via \code{set fntrace}.
 
 You may want to save the output of \code{pydb} commands to a file.
@@ -448,7 +448,7 @@ Show the local variables. See \ref{command:info-locals}.
 
 Show the execution status of the program. The possible status is that
 the program is not running (e.g. in post-mortem dump), or the program is
-``stoppped'' and if stopped at a breakpoint that is shown as well.
+``stopped'' and if stopped at a breakpoint that is shown as well.
 
 \item[info signal]
 
@@ -464,7 +464,7 @@ Information about the current Python file.
 
 As with subobptions to \code{info}, or \code{set}, \code{show}
 subcommands can be abbreviated to any prefix that uniquely
-specifies them. For example \code{set lis 5} is a valid abbrevation for
+specifies them. For example \code{set lis 5} is a valid abbreviation for
 \code{info listsize 5} while \code{set li} is not since there is another
 subcommand (\code{linetrace}) which also starts with `li'.
 
@@ -476,14 +476,14 @@ When showing filenames print only the basename. This option is useful
 in regression testing where the base file names are the same
 on different installations even though the directory path may
 be different. You may want to use this in other
-situtations as well, like showing a debugger session in a manual
+situations as well, like showing a debugger session in a manual
 such as this one. 
 
 \item[set deftrace on\code{\Large{|}}off]\label{command:deftrace}
  
 In contrast to the stock python debugger, we don't show or stop at
 `def' (method creation) lines by default, because this makes stepping more
-cumbersome. However should you want to change this, you can seet
+cumbersome. However should you want to change this, you can set
 this off.
 
 \item[set trace-commands on\code{\Large{|}}off]\label{command:trace-commands}
@@ -558,13 +558,13 @@ enabled.
 
 \item[set history size \var{number}]
 
-Set the size of the command history, ie. the number of previous
+Set the size of the command history, i.e.\ the number of previous
 commands to keep a record of. This defaults to the value of the environment variable
 \code{HISTSIZE}, or to 256 if this variable is not set.
 
 \item[set linetrace on\code{\Large{|}}off]\label{command:linetrace}
 
-If this is set on, the position (file and linenumber) is shown before
+If this is set on, the position (file and line number) is shown before
 executing a statement. By default this is off. Using the command-line
 option \samp{--trace} when invoking \code{pydb} implicitly sets this
 on.  For information on \samp{--trace}, see \ref{switch:trace}.
@@ -1124,7 +1124,7 @@ The program finished and will be restarted
 \end{verbatim}
 
 Not that the assignment of 1,000 to \code{i} took effect, although it
-had no effect on termintating the \code{for} loop; \code{jump} was
+had no effect on terminating the \code{for} loop; \code{jump} was
 needed to get out of the loop early.
 
 \end{description}
@@ -1155,7 +1155,7 @@ There are two ``hanoi'' frames listed because this is a hanoi called
 itself recursively. In frame 2 and 3 we don't have a function name
 listed. That's because there is none. Furthermore in frame 3 there is
 a funny ``in file {\tt '<string>'} at line 1.'' That's because there
-isn't even a file assocated with the command. The command issued:
+isn't even a file associated with the command. The command issued:
 
 \begin{verbatim}
    exec cmd in globals, locals
@@ -1317,8 +1317,8 @@ that can be accessible.
 You can run arbitrary commands that change state. However there are
 some caveats. An assignment to a local variable doesn't have an
 effect, although changes to instance variables and globals do. This
-seems to be an artifact of how the interpeter is written to speed up
-name lookup for access to local variables. As a result, the locals
+seems to be an artifact of how the interpreter is written to speed up
+name look-up for access to local variables. As a result, the locals
 dictionary seen may be created on the fly. (I could very well have the
 reason wrong, but net effect is the same---modifying a local variable
 doesn't still does not change the value after the command is finished.)
@@ -1435,7 +1435,7 @@ there are shared dynamically loaded objects those don't get unloaded.}
 \item[run \var{args...}]\label{command:run}
 
 Run or ``soft'' restart the debugged Python program. If a string is
-supplied, it is splitted with \code{shlex} but preserving embedded
+supplied, it is split with \code{shlex} but preserving embedded
 quotes. The result is used as the new \code{sys.argv}.  History,
 breakpoints, actions and debugger options are preserved.  \code{R} is
 a short command alias for \code{run}.
@@ -1455,13 +1455,6 @@ well.
 In such a situation or other situations where \code{run} doesn't seem
 to have the effect of getting module initialization code executed,
 you might try using \code{restart} rather than \code{run}.
-
-\item[save \optional{\var{all|break}} \optional{\var{filename}}\label{command:save}]
-
-Save the breakpoint settings to a file which can be read back in
-another session using \code{source}. If \var{filename} is given the
-commands are saved that file. Otherwise they are saved to
-\code{~/pydb-restart.txt}.
 
 \end{description}
 
@@ -1483,7 +1476,6 @@ Print working directory.
 
 Execute the rest of the line as a shell command.
 
-
 \end{description}
 
 \subsection{Listing Program Code ({\tt list}, {\tt disassemble})\label{subsection-listing}}
@@ -1500,7 +1492,7 @@ a the the line number exceeds the ending line number.
 With a class, method, function, code or string argument disassemble
 that.
 
-\item[l(ist) \optional{- \Large{|} \var{first}\optional{, \var{last}}}]\label{command:list}
+\item[l(ist) \optional{- \code{\Large{|}} \var{first}\optional{, \var{last}}}]\label{command:list}
 
 List source code.  Without arguments, list
 \emph{n} lines centered around the current line or continue the previous
@@ -1517,7 +1509,7 @@ second argument is less than the first, it is a count. \var{first} and
 \end{description}
 
 \subsection{Interfacing to the debugger ({\tt alias}, {\tt complete}, 
-{\tt help}, {\tt quit}, {\tt kill}, {\tt source}, {\tt unalias})\label{subsection-misc}}
+{\tt help}, {\tt quit}, {\tt kill}, {\tt save}, {\tt source}, {\tt unalias})\label{subsection-misc}}
 
 \begin{description}
 
@@ -1620,6 +1612,14 @@ doing thread debugging.
 Since this is drastic, normally we prompt in interactive sessions
 whether this is really what you want to do. If however
 ``unconditional'' is added, no questions are asked.
+
+\item[save \optional{\var{all} \code{\Large{|}} \var{break} \code{\Large{|}} \var{settings}} \optional{\var{filename}}]\label{command:save}
+
+Save the breakpoint settings to a file which can be read back in
+another session using \code{source}. If \var{filename} is given the
+commands are saved that file. Otherwise they are saved to
+\verb|~/pydb-restart.txt|.
+
 
 \item[source \var{filename}]\label{command:source}
 
@@ -1966,7 +1966,7 @@ optionally specifying the key for command completion. The parameter
 name here is \code{completekey} an its default value is the tab key.
 
 The \class{Pdb} extension interface of \class{Gdb} a gdb-like debugger
-command interface. This in turn inherts from \class{Cmd} and
+command interface. This in turn inherits from \class{Cmd} and
 \class{Bdb}. The \class{Bdb} class is described in the next section.
 
 \class{Cmd} handles command-line aspects (e.g. keyboard input,
@@ -1992,7 +1992,7 @@ I needed far too many tests and working this way would not scale.
                   siglist=None}\label{Pdb}
 Right now this is basically the same thing as the Gdb class. In the
 future though we may break out more stand-alone aspects and put them here
-versues an embedded debugger which is what Gdb would be used for.
+versus an embedded debugger which is what Gdb would be used for.
 
 See the Gdb class documentation for more information and information on
 the meanings of the parameters.
@@ -2031,7 +2031,7 @@ possibly that specified inside \code{myscript.py}. Also \code{pydb}
 does not search your command path, as would be done if issued from a
 shell.
 
-Of course you can arrange to get the same interpeter by putting
+Of course you can arrange to get the same interpreter by putting
 \code{python} (with the right path) first before \code{pydb}; and you
 can give an explicit file path in the script name to debug.
 
@@ -2048,7 +2048,7 @@ When \code{pydb.debugger()} is called, the program stops before the
 next statement. To continue running the program, issue a debugger
 \code{next}, \code{step} or a \code{continue} command.
 
-The exit the program use the \code{quit} or a termanal EOF.
+The exit the program use the \code{quit} or a terminal EOF.
 
 To make this more clear, let's go through an example. Save this in a
 file called \code{hardtodebug.py}:
@@ -2094,7 +2094,7 @@ return from \code{test()}, which explains the \emph{second\/}
 the implicit return. If you want to stop inside \code{test()} put a
 statement after the \code{debugger()}, such as a \code{return}
 statement. Furthermore, if the program had ended at line 8, then
-\emph{no\/} stopping would have occured becuase the end of the program
+\emph{no\/} stopping would have occurred because the end of the program
 is reached first.\footnote{Perhaps this is a deficiency of the
 debugger. I'm not sure what the right way to address though. One could
 have another routine to stop at a return which would then skip
@@ -2232,10 +2232,10 @@ debugger's \code{handle} command. Here's an example:
 
 \end{verbatim}
 
-In the above example, a signal handler is set upt so that when the
+In the above example, a signal handler is set up so that when the
 \code{SIGUSR1} signal is sent, we will print a message, show the stack
 trace and then stop inside the debugger. If you don't want to stop
-inside the debuber bug just see where you are omit the ``stop''
+inside the debugger bug just see where you are omit the ``stop''
 keyword or change it it ``nostop''.
 
 See \ref{subsubsection-handle} for information parameters names used
@@ -2274,7 +2274,7 @@ Here's another way run a program under control of the debugger:
 (Pydb) continue
 \end{verbatim}
 
-One difference betwen this kind of invocation that of Section
+One difference between this kind of invocation that of Section
 \ref{pydb-invocation} is that statements may get executed in the
 import of \code{mymodule} will not be debugged. For example if
 \code{mymodule} implements a standalone program and/or has a
@@ -2283,7 +2283,7 @@ this method.
 
 
 \subsection{Inheritance from class \class{Cmd}}
-Because \class{Pdb} inherts from \class{Cmd}, the following
+Because \class{Pdb} inherits from \class{Cmd}, the following
 conventions are used. 
 
 All of the debugger commands listed in \ref{command:debugger} are methods
@@ -2346,7 +2346,7 @@ You can run debugger commands by passing this as a list in parameter
 \code{dbg_cmds}.  
 
 Unless \code{add_exception_hook} is set to \code{False}, we install an
-exception hook to enter the debugger on any otherwise unhandled
+exception hook to enter the debugger on any otherwise not handled
 exception.
 
 If you want experimental thread debugging support, set
@@ -2377,7 +2377,7 @@ To use add this to your Python program:
 \begin{funcdesc}{pm}{\optional{dbg_cmds=None}}
 Enter post-mortem debugging of the traceback found in
 \code{sys.last_traceback}. Note you may need to have \code{sys}
-imported priort to having the error raised to have sys.last_traceback
+imported prior to having the error raised to have sys.last_traceback
 set.
 
 You can run debugger commands by passing this as a list as parameter
@@ -2614,7 +2614,7 @@ function.
 
 \item[\code{'c_call'}]
 A C function is about to be called.  This may be an extension function
-or a builtin.  \var{arg} is the C function object.
+or a built-in function.  \var{arg} is the C function object.
 
 \item[\code{'c_return'}]
 A C function has returned. \var{arg} is \code{None}.
@@ -2634,12 +2634,15 @@ Manual}{http://docs.python.org/ref/ref.html}.
 \section{Files making up the Debugger \label{debugger-files}}
 
 Here are the files making up the debugger and what is in
-them. Currently we use GNU automake and makes substitutings in files
-and Python programs which then get installed. A file with a \code{.in}
-suffix is a file that is the input for the substitution. The
-corresponding output file has the \code{.in} stipped off. For example
-{\tt pydb.py.in} becomes \code{pydb.py} after a Python interpreter and
-package name (pydb) is substituted inside it.
+them. Currently we use GNU automake in the build process, and this
+allows for substitution to take place in the files and Python programs
+which get installed. In particular the path to the Python interpreter
+is used that the debugger configured and tested with. A file with a
+\code{.in} suffix is a file that is the input for the
+substitution. The corresponding output file has the \code{.in}
+stripped off. For example {\tt pydb.py.in} becomes \code{pydb.py}
+after a Python interpreter and package name (pydb) is substituted
+inside it.
 
 \begin{description}
   
@@ -2722,9 +2725,9 @@ The program is not configured using \code{setup.py} yet, but
 Normally the \code{configure} uses your execution search-path variable
 (\code{PATH}) to find the python interpreter. However it is possible
 that you might now have python or the right python in your
-\code{PATH}.  Soome installations may have several versions of python
-may be installed or installed in an unusual place. Use this
-configuration in such cases.
+\code{PATH}.  Some installations may have several versions of Python
+may be installed or may have Python installed in an unusual place. Use
+this configuration in such cases.
 
 \item[--{}--with--{}--lispdir]
 
@@ -2744,4 +2747,3 @@ If you don't have readline but have \code{pyreadline} or prefer to use
 that, use this option.
 
 \end{description}
-
