@@ -1,4 +1,4 @@
-"""$Id
+"""$Id: server.py,v 1.2 2008/05/29 02:53:01 rockyb Exp $
 Debugger Server code
 """
 from gdb import Gdb
