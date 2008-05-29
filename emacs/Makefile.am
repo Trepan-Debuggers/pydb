@@ -13,9 +13,9 @@
 #   You should have received a copy of the GNU General Public License along
 #   with Bash; see the file COPYING.  If not, write to the Free Software
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-#$Id: Makefile.am,v 1.12 2008/02/06 16:40:30 rockyb Exp $
+#$Id: Makefile.am,v 1.13 2008/05/29 04:07:05 rockyb Exp $
 
-check_DATA = pydb-test.el elk-test.el
+check_DATA = pydb-test.el test-gud.el elk-test.el
 EXTRA_DIST = pydb.el $(check_DATA)
 ELCFILES   = pydb.elc
 if INSTALL_EMACS_LISP

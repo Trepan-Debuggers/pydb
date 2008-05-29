@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.39 2007/04/15 22:27:45 rockyb Exp $
+# $Id: test.py.in,v 1.40 2008/05/29 04:07:05 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -140,7 +140,7 @@ class PdbTests(unittest.TestCase):
                             pythonfile='%sgcd.py' % srcdir,
                             rightfile=os.path.join(builddir, "brkpt3.right"),
                             args='3 5',
-                            truncate=-2,
+                            truncate=-5,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3")
         if sys.version_info[0:2] == (2, 5):

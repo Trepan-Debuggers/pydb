@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.48 2008/05/21 15:20:50 rockyb Exp $
+#$Id: Makefile.am,v 1.49 2008/05/29 04:07:05 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -71,6 +71,7 @@ check_DATA = \
 	tracetest-2.5.right  \
 	tracetest.right      \
 	withbug.cmd          \
+	withbug.py           \
 	withbug.right
 
 TESTS = test.py              \

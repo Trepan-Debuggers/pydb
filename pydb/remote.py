@@ -1,4 +1,4 @@
-"""$Id: remote.py,v 1.1 2008/05/29 02:50:50 rockyb Exp $
+"""$Id: remote.py,v 1.2 2008/05/29 04:07:05 rockyb Exp $
 Contains all code for remote/out-of-process connections."""
 
 from gdb import Gdb
@@ -57,8 +57,8 @@ class RemoteWrapperServer(RemoteWrapper):
     def do_pydbserver(self, args):
         """ Allow a debugger to connect to this session.
 The first argument is the type or protocol that is used for this connection
-(which can be the name of a class that is avaible either in the current
-working directory or in Python's PYTHONPATH environtment variable).
+(which can be the name of a class that is available either in the current
+working directory or in Python's PYTHONPATH environment variable).
 The next argument is protocol specific arguments (e.g. hostname and
 port number for a TCP connection, or a serial device for a serial line
 connection). The next argument is the filename of the script that is
