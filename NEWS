@@ -15,7 +15,7 @@
 
 * pseudo gdb-like "annotate" set/show commands and option.
 
-* Better emacs interactivion via above annotate
+* Better emacs interaction via above annotate
 
 * bug when "info local" is run inside a "with" statement
 
