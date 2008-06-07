@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.45 2008/05/31 11:49:01 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.46 2008/06/07 16:43:31 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -42,7 +42,7 @@ class Bdb(bdb.Bdb):
         "Show call paramaters and values"
         self.setup(frame)
 
-        # Does sure format_stack_entry have an 'include_location' parameter?
+        # Does format_stack_entry() have an 'include_location' parameter?
         fse_code = self.format_stack_entry.func_code
         fse_args = fse_code.co_varnames
         if 'include_location' in fse_args:
