@@ -52,72 +52,103 @@ Here are some of the most frequently-needed commands:
 Set a breakpoint at \c
 .I function\c
 \& or at the specified file and line.
+.PP
 .TP
 .B clear \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
 \&
 Clear a breakpoint at \c
 .I function\c
-\& or at the specified file and line.
+\& or at the specified file and line. If line number is specified, all
+breakpoints in that line are cleared. If a function is specified,
+breakpoints at beginning of function are cleared.  With no argument,
+clears all breakpoints in the line that the selected frame is
+executing in. See also the 'delete' command which clears breakpoints by number.
+.PP
 .TP
-.TP
-.B continue
-Continue running your program (after stopping, e.g. at a breakpoint).
+.B continue \fR[\fIline\fR]
+\&
+Continue running your program until the next breakpoint or until the
+end of the program. If a line number is given set a one-time
+breakpoint at that line. 
+.PP
 .TP
 .B delete \fR[\fIbreakpoint-numbers\fR]
-\&
-Delete breakpoints by number.
+\& 
+Delete breakpoints by number. To delete all breakpoints, give no
+breakpoint number.  See also the 'clear' command which clears
+breakpoints by line/file number.
+.PP
 .TP
 .B disassemble \fR[\fIlocation\fR]
-\&
-Disassemble Python instructions
+\& 
+Disassemble Python instructions at the point you are currently stopped
+at. If location is a line number, do not show instructions before
+line. Location can also be a class, method, function, code or string
+argument.
+.PP
 .TP
 .BI examine " expr"\c
 \&
 Give type/object and value information about expression.
 .TP
+.PP
 .B finish
 Run until the completion of the current function or method.
+.PP
 .TP
-.BI frame " frame-number"
+.BI frame " frame-number" 
+\&
 Set the stack frame to \fIframe-number\fR for purposes of examinine local variables. For positioning relative to the current frame, use 
 .B up
 or 
 .B down.
+.PP
 .TP
 .B help \fR[\|\fIname\fR\|]
 Show information about pydb command \c
 .I name\c
 \&, or general information
 about using pydb.
+.PP
 .TP
 .B info \fR[\|\fIname\fR\|]
+\&
 Get the various information usually about the debugged program.
+.PP
 .TP
 .B list \fR[\|\fIfile\fB:\fIline\fR|\fIfunction]
 type the text of the program in the vicinity of where it is presently stopped
 or at the specified function or file and line.
+.PP
 .TP
 .B next \fR[\|\fIcount\fR\|]
 Execute next program line(s) (after stopping); step \c
 .I over\c
 \& any
 function calls in the line.
+.PP
 .TP
 .BI pp " expr"\c
 \&
 Pretty print the value of an expression.
+.PP
 .TP
 .BI print " expr"\c
 \&
 Display the value of an expression.
+.PP
 .TP
 .BI source " filename"\c
 \&
 Read and execute the lines in file \fIfilename\fR as a series of debugger 
-commands.
+commands. An error in any command terminates execution of the command
+file and control is returned to the console.
+.PP
 .TP
 .B quit
+\&
 Exit from the debugger.
+.PP
 .TP
 .B run \fR[\|\fIarglist\fR\|]
 (Re)start your program (with \c
@@ -125,21 +156,26 @@ Exit from the debugger.
 \&, if specified). If you want the debugger to get reloaded, use
 .B restart
 instead.
+.PP
 .TP
 .B set
 Modify parts of the debugger environment.
+.PP
 .TP
 .B shell \fIcommand\fR
 Run a shell command.
+.PP
 .TP
 .B show
 See the debugger environment settings
+.PP
 .TP
 .B step \fR[\|\fIcount\fR\|]
 Execute next program line(s) (after stopping); step \c
 .I into\c
 \& any
 function calls in the line.
+.PP
 .TP
 .B where \fR[\|\fIcount\fR\|]
 Display all or \fIcount\fR items of the program stack.

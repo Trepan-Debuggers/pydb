@@ -71,75 +71,152 @@ Here are some of the most frequently-needed commands:
 <DD>
 
 Set a breakpoint at <I>function</I> or at the specified file and line.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>clear </B>[<I>file</I><B>:</B><I>line</I>|<I>function</I>]
 
 <DD>
 
-Clear a breakpoint at <I>function</I> or at the specified file and line.
-<DT><DT><B>continue</B>
+Clear a breakpoint at <I>function</I> or at the specified file and line. If line number is specified, all
+breakpoints in that line are cleared. If a function is specified,
+breakpoints at beginning of function are cleared.  With no argument,
+clears all breakpoints in the line that the selected frame is
+executing in. See also the 'delete' command which clears breakpoints by number.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>continue </B>[<I>line</I>]
 
 <DD>
-<DD>
-Continue running your program (after stopping, e.g. at a breakpoint).
+
+Continue running your program until the next breakpoint or until the
+end of the program. If a line number is given set a one-time
+breakpoint at that line. 
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>delete </B>[<I>breakpoint-numbers</I>]
 
 <DD>
+ 
+Delete breakpoints by number. To delete all breakpoints, give no
+breakpoint number.  See also the 'clear' command which clears
+breakpoints by line/file number.
+</DL>
+<P>
 
-Delete breakpoints by number.
+<DL COMPACT>
 <DT><B>disassemble </B>[<I>location</I>]
 
 <DD>
+ 
+Disassemble Python instructions at the point you are currently stopped
+at. If location is a line number, do not show instructions before
+line. Location can also be a class, method, function, code or string
+argument.
+</DL>
+<P>
 
-Disassemble Python instructions
+<DL COMPACT>
 <DT><B>examine</B><I> expr</I><DD>
 
 Give type/object and value information about expression.
-<DT><B>finish</B>
+<DT></DL>
+<P>
 
 <DD>
+<B>finish</B>
+
 Run until the completion of the current function or method.
+<P>
+
+<DL COMPACT>
 <DT><B>frame</B><I> frame-number</I>
 
 <DD>
+
 Set the stack frame to <I>frame-number</I> for purposes of examinine local variables. For positioning relative to the current frame, use 
 <B>up</B>
 
 or 
 <B>down.</B>
 
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>help </B>[<I>name</I>]
 
 <DD>
 Show information about pydb command <I>name</I>, or general information
 about using pydb.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>info </B>[<I>name</I>]
 
 <DD>
+
 Get the various information usually about the debugged program.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>list </B>[<I>file</I><B>:</B><I>line</I>|<I>function]</I>
 
 <DD>
 type the text of the program in the vicinity of where it is presently stopped
 or at the specified function or file and line.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>next </B>[<I>count</I>]
 
 <DD>
 Execute next program line(s) (after stopping); step <I>over</I> any
 function calls in the line.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>pp</B><I> expr</I><DD>
 
 Pretty print the value of an expression.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>print</B><I> expr</I><DD>
 
 Display the value of an expression.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>source</B><I> filename</I><DD>
 
 Read and execute the lines in file <I>filename</I> as a series of debugger 
-commands.
+commands. An error in any command terminates execution of the command
+file and control is returned to the console.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>quit</B>
 
 <DD>
+
 Exit from the debugger.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>run </B>[<I>arglist</I>]
 
 <DD>
@@ -147,23 +224,43 @@ Exit from the debugger.
 <B>restart</B>
 
 instead.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>set</B>
 
 <DD>
 Modify parts of the debugger environment.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>shell </B><I>command</I>
 
 <DD>
 Run a shell command.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>show</B>
 
 <DD>
 See the debugger environment settings
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>step </B>[<I>count</I>]
 
 <DD>
 Execute next program line(s) (after stopping); step <I>into</I> any
 function calls in the line.
+</DL>
+<P>
+
+<DL COMPACT>
 <DT><B>where </B>[<I>count</I>]
 
 <DD>
@@ -268,6 +365,6 @@ others).
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:19:06 GMT, June 08, 2008
+Time: 21:02:57 GMT, June 08, 2008
 </BODY>
 </HTML>
