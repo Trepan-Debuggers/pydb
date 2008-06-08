@@ -1,0 +1,273 @@
+Content-type: text/html
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of pydb</TITLE>
+</HEAD><BODY>
+<H1>pydb</H1>
+Section: User Commands  (1)<BR><A HREF="#index">Index</A>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pydb - enhanced Python debugger
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>pydb </B>
+
+[debugger-options] 
+python-script 
+[script-options...]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This manual page documents briefly the
+<B>pydb</B>
+
+command.
+<P>
+
+<B>pydb</B>
+
+is an extended Python debugger. It extends the Python standard
+debugger pdb and is suited for use with the graphical debugger DDD.
+The purpose of a debugger such as this one is to allow you to see what is
+going on ``inside'' another program while it executes---or what another
+program was doing at the moment it crashed.
+<P>
+<P>
+
+We follow gdb's command set unless there's good reason not to.
+<P>
+<P>
+
+pydb can do four main kinds of things (plus other things in support of
+these) to help you catch bugs in the act:
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
+Start or restart your Python script, specifying arguments that might
+affect its behavior.
+<P>
+<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
+Make your program stop at various points possibly determined by
+specified conditions.
+<P>
+<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
+Examine what has happened when your program has stopped.
+<P>
+<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
+Change things in your program, so you can experiment with correcting the
+effects of one bug and go on to learn about another.
+</DL>
+<P>
+
+<P>
+Here are some of the most frequently-needed commands:
+<DL COMPACT>
+<DT><B>break </B>[<I>file</I><B>:</B><I>line</I>|<I>function</I>]
+
+<DD>
+
+Set a breakpoint at <I>function</I> or at the specified file and line.
+<DT><B>clear </B>[<I>file</I><B>:</B><I>line</I>|<I>function</I>]
+
+<DD>
+
+Clear a breakpoint at <I>function</I> or at the specified file and line.
+<DT><DT><B>continue</B>
+
+<DD>
+<DD>
+Continue running your program (after stopping, e.g. at a breakpoint).
+<DT><B>delete </B>[<I>breakpoint-numbers</I>]
+
+<DD>
+
+Delete breakpoints by number.
+<DT><B>disassemble </B>[<I>location</I>]
+
+<DD>
+
+Disassemble Python instructions
+<DT><B>examine</B><I> expr</I><DD>
+
+Give type/object and value information about expression.
+<DT><B>finish</B>
+
+<DD>
+Run until the completion of the current function or method.
+<DT><B>frame</B><I> frame-number</I>
+
+<DD>
+Set the stack frame to <I>frame-number</I> for purposes of examinine local variables. For positioning relative to the current frame, use 
+<B>up</B>
+
+or 
+<B>down.</B>
+
+<DT><B>help </B>[<I>name</I>]
+
+<DD>
+Show information about pydb command <I>name</I>, or general information
+about using pydb.
+<DT><B>info </B>[<I>name</I>]
+
+<DD>
+Get the various information usually about the debugged program.
+<DT><B>list </B>[<I>file</I><B>:</B><I>line</I>|<I>function]</I>
+
+<DD>
+type the text of the program in the vicinity of where it is presently stopped
+or at the specified function or file and line.
+<DT><B>next </B>[<I>count</I>]
+
+<DD>
+Execute next program line(s) (after stopping); step <I>over</I> any
+function calls in the line.
+<DT><B>pp</B><I> expr</I><DD>
+
+Pretty print the value of an expression.
+<DT><B>print</B><I> expr</I><DD>
+
+Display the value of an expression.
+<DT><B>source</B><I> filename</I><DD>
+
+Read and execute the lines in file <I>filename</I> as a series of debugger 
+commands.
+<DT><B>quit</B>
+
+<DD>
+Exit from the debugger.
+<DT><B>run </B>[<I>arglist</I>]
+
+<DD>
+(Re)start your program (with <I>arglist</I>, if specified). If you want the debugger to get reloaded, use
+<B>restart</B>
+
+instead.
+<DT><B>set</B>
+
+<DD>
+Modify parts of the debugger environment.
+<DT><B>shell </B><I>command</I>
+
+<DD>
+Run a shell command.
+<DT><B>show</B>
+
+<DD>
+See the debugger environment settings
+<DT><B>step </B>[<I>count</I>]
+
+<DD>
+Execute next program line(s) (after stopping); step <I>into</I> any
+function calls in the line.
+<DT><B>where </B>[<I>count</I>]
+
+<DD>
+Display all or <I>count</I> items of the program stack.
+</DL>
+<P>
+
+For full details on pydb, see <A HREF="http://bashdb.sourceforge.net/pydb/pydb/index.html">http://bashdb.sourceforge.net/pydb/pydb/index.html</A>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<DL COMPACT>
+<DT><B>-h | --help</B>
+
+<DD>
+show invocation help and exit
+<DT><B>--version</B>
+
+<DD>
+show the version number and exit
+<DT><B>-n | --nx</B>
+
+<DD>
+Don't execute commands found in any initialization files
+<DT><B>--batch</B>
+
+<DD>
+Don't run interactive commands on debugger entry
+<DT><B>--cd=DIR</B>
+
+<DD>
+Change current directory to DIR.
+<DT><B>-x | --command=FILE</B>
+
+<DD>
+Execute commands from FILE
+<DT><B>-e | --exec</B>
+
+<DD>
+Run debugger commands command-list. Commands should be separated by
+&quot;;;&quot;-the same as you would do inside the debugger. You may need to
+quote this option to prevent command shell interpretation, e.g. --exec
+&quot;break 20;; continue&quot;
+<DT><B>--error=FILE</B>
+
+<DD>
+Write debugger's error output (stderr) to FILE
+<DT><B>-A | --annotate=LEVEL</B>
+
+<DD>
+Set gdb-like annotation_level. The annotation level is used by
+front-ends to get posted about program information when things change
+without having to poll for the information.
+<DT><B>--basename</B>
+
+<DD>
+Report file locations as only the base filename, and omit the
+directory name. This is useful in running regression tests.
+<DT><B>-o | --output=FILE</B>
+
+<DD>
+Write debugger's output (stdout) to FILE
+<DT><B>-X | --trace</B>
+
+<DD>
+Show lines before executing them. This option also sets --batch.
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+
+/usr/local/lib/python2.5/site-packages/pydb.doc 
+
+<A HREF="http://bashdb.sourceforge.net/pydb/">http://bashdb.sourceforge.net/pydb/</A>
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+pydb was written by Richard Wolff &lt;<A HREF="mailto:rwolff@noao.edu">rwolff@noao.edu</A>&gt; (now retired)
+based on the standard Python debugger pdb.py. Over the many years, pdb.py and
+pydb.py have diverged. It was subsequently revised and
+expanded to be more like gdb by Rocky Bernstein &lt;<A HREF="mailto:rockyb@users.sourceforge.net">rockyb@users.sourceforge.net</A>&gt;
+<P>
+The first version of this manual page was written by Gregor Hoffleit
+&lt;<A HREF="mailto:flight@debian.org">flight@debian.org</A>&gt; for the Debian project (but may be used by
+others).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 20:19:06 GMT, June 08, 2008
+</BODY>
+</HTML>
