@@ -62,7 +62,9 @@ Clear a breakpoint at \c
 breakpoints in that line are cleared. If a function is specified,
 breakpoints at beginning of function are cleared.  With no argument,
 clears all breakpoints in the line that the selected frame is
-executing in. See also the 'delete' command which clears breakpoints by number.
+executing in. See also the 
+.B delete
+command which clears breakpoints by number.
 .PP
 .TP
 .B continue \fR[\fIline\fR]
@@ -75,8 +77,9 @@ breakpoint at that line.
 .B delete \fR[\fIbreakpoint-numbers\fR]
 \& 
 Delete breakpoints by number. To delete all breakpoints, give no
-breakpoint number.  See also the 'clear' command which clears
-breakpoints by line/file number.
+breakpoint number.  See also the 
+.B clear
+command which clears breakpoints by line/file number.
 .PP
 .TP
 .B disassemble \fR[\fIlocation\fR]
@@ -92,7 +95,8 @@ argument.
 Give type/object and value information about expression.
 .TP
 .PP
-.B finish
+.BI finish\c
+\& 
 Run until the completion of the current function or method.
 .PP
 .TP
@@ -228,10 +232,11 @@ Write debugger's output (stdout) to FILE
 Show lines before executing them. This option also sets --batch.
 .PD
 .SH "SEE ALSO"
-.Sp
-@pythondir@/pydb.doc 
 .Sp 
 http://bashdb.sourceforge.net/pydb/
+.PP
+.Sp
+http://bashdb.sourceforge.net/pydb/lib/index.html
 .SH AUTHOR
 pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
 based on the standard Python debugger pdb.py. Over the many years, pdb.py and
