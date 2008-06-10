@@ -7,10 +7,12 @@ Content-type: text/html
 Section: User Commands  (1)<BR><A HREF="#index">Index</A>
 <A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
 
+
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 
-pydb - enhanced Python debugger
+pydb --- enhanced Python debugger
+
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
@@ -19,6 +21,7 @@ pydb - enhanced Python debugger
 [debugger-options] 
 python-script 
 [script-options...]
+
 <A NAME="lbAD">&nbsp;</A>
 <H2>DESCRIPTION</H2>
 
@@ -46,25 +49,21 @@ pydb can do four main kinds of things (plus other things in support of
 these) to help you catch bugs in the act:
 <P>
 <DL COMPACT>
-<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
-Start or restart your Python script, specifying arguments that might
-affect its behavior.
+<DT>&nbsp;&nbsp;&nbsp;&bull; Start or restart your Python script, specifying arguments that might affect its behavior.<DD>
 <P>
-<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
-Make your program stop at various points possibly determined by
+<DT>&nbsp;&nbsp;&nbsp;&bull; Make your program stop at various points possibly determined by<DD>
 specified conditions.
 <P>
-<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
-Examine what has happened when your program has stopped.
+<DT>&nbsp;&nbsp;&nbsp;&bull; Examine what has happened when your program has stopped.<DD>
 <P>
-<DT>&nbsp;&nbsp;&nbsp;&bull;<DD>
-Change things in your program, so you can experiment with correcting the
-effects of one bug and go on to learn about another.
+<DT>&nbsp;&nbsp;&nbsp;&bull; Change things in your program, so you can experiment with correcting the effects of one bug and go on to learn about another.<DD>
 </DL>
 <P>
 
 <P>
 Here are some of the most frequently-needed commands:
+<P>
+
 <DL COMPACT>
 <DT><B>break </B>[<I>file</I><B>:</B><I>line</I>|<I>function</I>]
 
@@ -73,6 +72,7 @@ Here are some of the most frequently-needed commands:
 Set a breakpoint at <I>function</I> or at the specified file and line.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>clear </B>[<I>file</I><B>:</B><I>line</I>|<I>function</I>]
@@ -90,6 +90,7 @@ command which clears breakpoints by number.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>continue </B>[<I>line</I>]
 
@@ -100,6 +101,7 @@ end of the program. If a line number is given set a one-time
 breakpoint at that line. 
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>delete </B>[<I>breakpoint-numbers</I>]
@@ -114,6 +116,7 @@ command which clears breakpoints by line/file number.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>disassemble </B>[<I>location</I>]
 
@@ -125,6 +128,7 @@ line. Location can also be a class, method, function, code or string
 argument.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>examine</B><I> expr</I><DD>
@@ -152,6 +156,7 @@ or
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>help </B>[<I>name</I>]
 
@@ -160,6 +165,7 @@ Show information about pydb command <I>name</I>, or general information
 about using pydb.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>info </B>[<I>name</I>]
@@ -170,6 +176,7 @@ Get the various information usually about the debugged program.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>list </B>[<I>file</I><B>:</B><I>line</I>|<I>function]</I>
 
@@ -178,6 +185,7 @@ type the text of the program in the vicinity of where it is presently stopped
 or at the specified function or file and line.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>next </B>[<I>count</I>]
@@ -188,6 +196,7 @@ function calls in the line.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>pp</B><I> expr</I><DD>
 
@@ -195,12 +204,14 @@ Pretty print the value of an expression.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>print</B><I> expr</I><DD>
 
 Display the value of an expression.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>source</B><I> filename</I><DD>
@@ -211,6 +222,7 @@ file and control is returned to the console.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>quit</B>
 
@@ -219,6 +231,7 @@ file and control is returned to the console.
 Exit from the debugger.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>run </B>[<I>arglist</I>]
@@ -230,6 +243,7 @@ Exit from the debugger.
 instead.
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>set</B>
@@ -247,6 +261,7 @@ Run a shell command.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>show</B>
 
@@ -254,6 +269,7 @@ Run a shell command.
 See the debugger environment settings
 </DL>
 <P>
+
 
 <DL COMPACT>
 <DT><B>step </B>[<I>count</I>]
@@ -264,6 +280,7 @@ function calls in the line.
 </DL>
 <P>
 
+
 <DL COMPACT>
 <DT><B>where </B>[<I>count</I>]
 
@@ -273,66 +290,87 @@ Display all or <I>count</I> items of the program stack.
 <P>
 
 For full details on pydb, see <A HREF="http://bashdb.sourceforge.net/pydb/pydb/index.html">http://bashdb.sourceforge.net/pydb/pydb/index.html</A>
+
 <A NAME="lbAE">&nbsp;</A>
 <H2>OPTIONS</H2>
 
 <P>
 
 <DL COMPACT>
-<DT><B>-h | --help</B>
-
-<DD>
-show invocation help and exit
 <DT><B>--version</B>
 
 <DD>
 show the version number and exit
-<DT><B>-n | --nx</B>
+<DT><B>-h | --help</B>
 
 <DD>
-Don't execute commands found in any initialization files
+show invocation help and exit
+<DT><B>-X | --trace</B>
+
+<DD>
+Show lines before executing them. This option also sets
+<B>--batch.</B>
+
+<DT><B>-X | --fntrace</B>
+
+<DD>
+Show functions before executing them. This option also sets
+<B>--batch</B>
+
 <DT><B>--batch</B>
 
 <DD>
 Don't run interactive commands on debugger entry
-<DT><B>--cd=DIR</B>
-
-<DD>
-Change current directory to DIR.
-<DT><B>-x | --command=FILE</B>
-
-<DD>
-Execute commands from FILE
-<DT><B>-e | --exec</B>
-
-<DD>
-Run debugger commands command-list. Commands should be separated by
-&quot;;;&quot;-the same as you would do inside the debugger. You may need to
-quote this option to prevent command shell interpretation, e.g. --exec
-&quot;break 20;; continue&quot;
-<DT><B>--error=FILE</B>
-
-<DD>
-Write debugger's error output (stderr) to FILE
-<DT><B>-A | --annotate=LEVEL</B>
-
-<DD>
-Set gdb-like annotation_level. The annotation level is used by
-front-ends to get posted about program information when things change
-without having to poll for the information.
 <DT><B>--basename</B>
 
 <DD>
 Report file locations as only the base filename, and omit the
 directory name. This is useful in running regression tests.
-<DT><B>-o | --output=FILE</B>
+<DT><B>-x | --command=FILE</B>
+
+<DD>
+Execute commands from FILE.
+<DT><B>--cd=DIR</B>
+
+<DD>
+Change current directory to DIR.
+<DT><B>--error=FILE</B>
+
+<DD>
+Write debugger's error output (stderr) to FILE
+<DT><DT><B>-e | --exec</B>
+
+<DD>
+<DD>
+Run debugger commands command-list. Commands should be separated by
+&quot;;;&quot;-the same as you would do inside the debugger. You may need to
+quote this option to prevent command shell interpretation, e.g. 
+<B>--exec</B>
+
+&quot;break 20;; continue&quot;
+<DT><B>-n | --nx</B>
+
+<DD>
+Don't execute commands found in any initialization files
+<DT><B>-o FILE | --output=FILE</B>
 
 <DD>
 Write debugger's output (stdout) to FILE
-<DT><B>-X | --trace</B>
+<DT><B>--sigcheck</B>
 
 <DD>
-Show lines before executing them. This option also sets --batch.
+Set to watch for signal handler changes.
+<DT><B>-T, --threading</B>
+
+<DD>
+Start off with threading debug support.
+<DT><B>-A LEVEL | --annotate=LEVEL</B>
+
+<DD>
+Set gdb-like annotation_level. The annotation level is used by
+front-ends to get posted about program information when things change
+without having to poll for the information.
+
 
 </DL>
 <A NAME="lbAF">&nbsp;</A>
@@ -344,6 +382,7 @@ Show lines before executing them. This option also sets --batch.
 
 
 <A HREF="http://bashdb.sourceforge.net/pydb/lib/index.html">http://bashdb.sourceforge.net/pydb/lib/index.html</A>
+
 <A NAME="lbAG">&nbsp;</A>
 <H2>AUTHOR</H2>
 
@@ -371,6 +410,6 @@ others).
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 01:27:08 GMT, June 09, 2008
+Time: 01:04:10 GMT, June 10, 2008
 </BODY>
 </HTML>

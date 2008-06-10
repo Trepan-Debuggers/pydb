@@ -1,12 +1,16 @@
+.\"$Id: pydb.1.in,v 1.15 2008/06/10 01:05:35 rockyb Exp $
 .TH pydb 1 
+.\"===================================================================
 .SH NAME
-pydb \- enhanced Python debugger
+pydb \(em enhanced Python debugger
+.\"===================================================================
 .SH SYNOPSIS
 .B pydb 
 [debugger-options] 
 python-script 
 [script-options...]
-.SH "DESCRIPTION"
+.\"===================================================================
+.SH DESCRIPTION
 This manual page documents briefly the
 .BR pydb
 command.
@@ -26,26 +30,22 @@ pydb can do four main kinds of things (plus other things in support of
 these) to help you catch bugs in the act:
 
 .TP
-\ \ \ \(bu
-Start or restart your Python script, specifying arguments that might
-affect its behavior.
+\ \ \ \(bu Start or restart your Python script, specifying arguments that might affect its behavior.
 
 .TP
-\ \ \ \(bu
-Make your program stop at various points possibly determined by
+\ \ \ \(bu Make your program stop at various points possibly determined by
 specified conditions.
 
 .TP
-\ \ \ \(bu
-Examine what has happened when your program has stopped.
+\ \ \ \(bu Examine what has happened when your program has stopped.
 
 .TP
-\ \ \ \(bu
-Change things in your program, so you can experiment with correcting the
-effects of one bug and go on to learn about another.
+\ \ \ \(bu Change things in your program, so you can experiment with correcting the effects of one bug and go on to learn about another.
 .PP
 
 Here are some of the most frequently-needed commands:
+
+.\"-------------------------------------------------------------------
 .TP
 .B break \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
 \&
@@ -53,6 +53,7 @@ Set a breakpoint at \c
 .I function\c
 \& or at the specified file and line.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B clear \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
 \&
@@ -66,6 +67,7 @@ executing in. See also the
 .B delete
 command which clears breakpoints by number.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B continue \fR[\fIline\fR]
 \&
@@ -73,6 +75,7 @@ Continue running your program until the next breakpoint or until the
 end of the program. If a line number is given set a one-time
 breakpoint at that line. 
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B delete \fR[\fIbreakpoint-numbers\fR]
 \& 
@@ -81,6 +84,7 @@ breakpoint number.  See also the
 .B clear
 command which clears breakpoints by line/file number.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B disassemble \fR[\fIlocation\fR]
 \& 
@@ -89,6 +93,7 @@ at. If location is a line number, do not show instructions before
 line. Location can also be a class, method, function, code or string
 argument.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .BI examine " expr"\c
 \&
@@ -107,6 +112,7 @@ Set the stack frame to \fIframe-number\fR for purposes of examinine local variab
 or 
 .B down.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B help \fR[\|\fIname\fR\|]
 Show information about pydb command \c
@@ -114,16 +120,19 @@ Show information about pydb command \c
 \&, or general information
 about using pydb.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B info \fR[\|\fIname\fR\|]
 \&
 Get the various information usually about the debugged program.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B list \fR[\|\fIfile\fB:\fIline\fR|\fIfunction]
 type the text of the program in the vicinity of where it is presently stopped
 or at the specified function or file and line.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B next \fR[\|\fIcount\fR\|]
 Execute next program line(s) (after stopping); step \c
@@ -131,16 +140,19 @@ Execute next program line(s) (after stopping); step \c
 \& any
 function calls in the line.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .BI pp " expr"\c
 \&
 Pretty print the value of an expression.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .BI print " expr"\c
 \&
 Display the value of an expression.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .BI source " filename"\c
 \&
@@ -148,11 +160,13 @@ Read and execute the lines in file \fIfilename\fR as a series of debugger
 commands. An error in any command terminates execution of the command
 file and control is returned to the console.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B quit
 \&
 Exit from the debugger.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B run \fR[\|\fIarglist\fR\|]
 (Re)start your program (with \c
@@ -161,6 +175,7 @@ Exit from the debugger.
 .B restart
 instead.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B set
 Modify parts of the debugger environment.
@@ -169,10 +184,12 @@ Modify parts of the debugger environment.
 .B shell \fIcommand\fR
 Run a shell command.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B show
 See the debugger environment settings
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B step \fR[\|\fIcount\fR\|]
 Execute next program line(s) (after stopping); step \c
@@ -180,68 +197,85 @@ Execute next program line(s) (after stopping); step \c
 \& any
 function calls in the line.
 .PP
+.\"-------------------------------------------------------------------
 .TP
 .B where \fR[\|\fIcount\fR\|]
 Display all or \fIcount\fR items of the program stack.
 .PP
 For full details on pydb, see \c
 http://bashdb.sourceforge.net/pydb/pydb/index.html
+.\"===================================================================
 .SH OPTIONS
 .PP
 .TP 10
-.B \-h | \-\-help
-show invocation help and exit
-.TP
 .B \-\-version
 show the version number and exit
 .TP
-.B \-n | \-\-nx
-Don't execute commands found in any initialization files
+.B \-h | \-\-help
+show invocation help and exit
+.TP
+.B \-X | \-\-trace
+Show lines before executing them. This option also sets
+.B \-\-batch.
+.TP
+.B \-X | \-\-fntrace
+Show functions before executing them. This option also sets
+.B \-\-batch
 .TP
 .B \-\-batch
 Don't run interactive commands on debugger entry
-.TP
-.B \-\-cd=DIR
-Change current directory to DIR.
-.TP
-.B \-x | \-\-command=FILE
-Execute commands from FILE
-.TP
-.B \-e | \-\-exec
-Run debugger commands command-list. Commands should be separated by
-";;"-the same as you would do inside the debugger. You may need to
-quote this option to prevent command shell interpretation, e.g. --exec
-"break 20;; continue"
-.TP
-.B \-\-error=FILE
-Write debugger's error output (stderr) to FILE
-.TP
-.B \-A | \-\-annotate=LEVEL
-Set gdb-like annotation_level. The annotation level is used by
-front-ends to get posted about program information when things change
-without having to poll for the information.
 .TP
 .B \-\-basename
 Report file locations as only the base filename, and omit the
 directory name. This is useful in running regression tests.
 .TP
-.B \-o | \-\-output=FILE
+.B \-x | \-\-command=FILE
+Execute commands from FILE.
+.TP
+.B \-\-cd=DIR
+Change current directory to DIR.
+.TP
+.B \-\-error=FILE
+Write debugger's error output (stderr) to FILE
+.TP
+.TP
+.B \-e | \-\-exec
+Run debugger commands command-list. Commands should be separated by
+";;"-the same as you would do inside the debugger. You may need to
+quote this option to prevent command shell interpretation, e.g. 
+.B \-\-exec
+"break 20;; continue"
+.TP
+.B \-n | \-\-nx
+Don't execute commands found in any initialization files
+.TP
+.B \-o FILE | \-\-output=FILE
 Write debugger's output (stdout) to FILE
 .TP
-.B \-X | \-\-trace
-Show lines before executing them. This option also sets --batch.
+.B \-\-sigcheck
+Set to watch for signal handler changes.
+.TP
+.B -T, --threading
+Start off with threading debug support.
+.TP
+.B \-A LEVEL | \-\-annotate=LEVEL
+Set gdb-like annotation_level. The annotation level is used by
+front-ends to get posted about program information when things change
+without having to poll for the information.
 .PD
+.\"===================================================================
 .SH "SEE ALSO"
 .Sp 
 http://bashdb.sourceforge.net/pydb/
 .PP
 .Sp
 http://bashdb.sourceforge.net/pydb/lib/index.html
+.\"===================================================================
 .SH AUTHOR
 pydb was written by Richard Wolff <rwolff@noao.edu> (now retired)
 based on the standard Python debugger pdb.py. Over the many years, pdb.py and
 pydb.py have diverged. It was subsequently revised and
-expanded to be more like gdb by Rocky Bernstein <rockyb@users.sourceforge.net>
+expanded to be more like gdb by Rocky Bernstein <rocky@gnu.org>
 
 The first version of this manual page was written by Gregor Hoffleit
 <flight@debian.org> for the Debian project (but may be used by
