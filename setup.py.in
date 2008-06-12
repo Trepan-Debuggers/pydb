@@ -76,7 +76,7 @@ if False:
         description = "Improved Python Debugger",
         long_description = \
         """pydb is an expanded version of the Python debugger loosely
-        based on the gdb comand set. It also has all of the features
+        based on the gdb command set. It also has all of the features
         found in an earlier version of pydb.py that was distributed
         with the debugger GUI ddd.
 
@@ -85,6 +85,8 @@ if False:
         * thread debugging. (Experimental)
         * signal handling (similar to gdb's).
         * non-interactive POSIX-shell like line tracing.
+        * disassembly of instructions
+        * ipython support
         * ability to flexibly redirect debugger output to a file (useful for example in cgi's)
         * Many gdb commands such as the set/show/info commands
         * gdb-like help with subcommand-specific help available on info, set, or show subcommands; e.g. help info line works
