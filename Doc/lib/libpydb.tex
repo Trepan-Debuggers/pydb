@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.133 2008/05/21 10:43:10 rockyb Exp $
+% $Id: libpydb.tex,v 1.134 2008/07/03 09:23:04 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1621,17 +1621,26 @@ commands are saved that file. Otherwise they are saved to
 \verb|~/pydb-restart.txt|.
 
 
-\item[source \var{filename}]\label{command:source}
+\item[source \optional{-v} \var{filename}]\label{command:source}
 
 Read debugger commands from a file named \var{filename}.
 Note that the file \code{.pydbrc} is read automatically
 this way when \code{pydb} is started.
+
+ `-v', for verbose mode, is given then \code{pydb} displays each command
+as it is executed.  The option must be given before \var{filename}, and is
+interpreted as part of the filename anywhere else.
 
 An error in any command terminates execution of the command and
 control is returned to the console.
 
 For tracking down problems with command files, see the \samp{set
 trace-commands on} debugger command. See \ref{command:trace-commands}. 
+
+A command file for \code{pydb} is a text file made of lines that are
+\code{pydb} commands.  Comments (lines starting with `#') may also be
+included.  An empty line in a command file does nothing; it does not
+mean to repeat the last command, as it would from the terminal.
 
 \item[unalias \var{name}]\label{command:unalias}
 

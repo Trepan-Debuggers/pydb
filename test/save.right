@@ -16,7 +16,7 @@ Breakpoints saved to file ./savefile.txt
 ['break gcd.py:17\n']
 +save settings ./savefile.txt
 Settings saved to file ./savefile.txt
-+source ./savefile.txt
++source -v ./savefile.txt
 +p len(open('./savefile.txt').readlines())
 12
 +save all ./savefile.txt

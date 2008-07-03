@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.151 2008/05/21 11:02:51 rockyb Exp $"""
+$Id: gdb.py.in,v 1.152 2008/07/03 09:23:06 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1866,14 +1866,21 @@ Send a signal to the debugged process.
         return False
         
     def do_source(self, arg):
-        """source FILE
+        """source [-v] FILE
         Read debugger commands from a file named FILE.
+        Optional -v switch (before the filename) causes each command in
+        FILE to be echoed as it is executed.
         Note that the file '.@PACKAGE_NAME@rc' is read automatically
         in this way when @PACKAGE_NAME@ is started.
 
         An error in any command terminates execution of the command
         file and control is returned to the console."""
-        self.setup_source(os.path.expanduser(arg), True);
+        args = arg.split()
+        verbose=False
+        if len(args) == 2 and args[0] == '-v': 
+            arg=args[1]
+            verbose=True
+        self.setup_source(os.path.expanduser(arg), verbose);
         rc = self.execRcLines()
         if rc == 1:  return True
         return False

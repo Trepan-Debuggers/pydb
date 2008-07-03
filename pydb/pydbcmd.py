@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.47 2008/04/16 01:20:47 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.48 2008/07/03 09:23:06 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -198,7 +198,7 @@ See also 'examine' an 'whatis'.
     do_h = do_help
 
     # Can be executed earlier than 'setup' if desired
-    def execRcLines(self):
+    def execRcLines(self, verbose=False):
 
         """Some commands were batched in self.rcLines.  Run as many of
         them as we can now.
@@ -215,6 +215,7 @@ See also 'examine' an 'whatis'.
             for line in rcLines:
                 self.rcLines = self.rcLines[1:]
                 line = line[:-1]
+                if verbose: self.msg('+' + line)
                 if len(line) > 0:
                     # Some commands like step, continue,
                     # return return 1 to indicate execution
@@ -222,8 +223,7 @@ See also 'examine' an 'whatis'.
                     # value is kind of sucky but at present
                     # it's too much work to fix all of the
                     # places needed. So live with it.
-                    if self.onecmd(line) == 1:
-                        return 1
+                    if self.onecmd(line) == 1: return 1
 
     def get_an_int(self, arg, errmsg=None, min_value=None, max_value=None):
         """Another get_int() routine, this one simpler and less stylized
