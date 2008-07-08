@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.152 2008/07/03 09:23:06 rockyb Exp $"""
+$Id: gdb.py.in,v 1.153 2008/07/08 23:44:23 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1880,8 +1880,8 @@ Send a signal to the debugged process.
         if len(args) == 2 and args[0] == '-v': 
             arg=args[1]
             verbose=True
-        self.setup_source(os.path.expanduser(arg), verbose);
-        rc = self.execRcLines()
+        self.setup_source(os.path.expanduser(arg), True);
+        rc = self.execRcLines(verbose)
         if rc == 1:  return True
         return False
 

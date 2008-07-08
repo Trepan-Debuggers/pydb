@@ -18,8 +18,11 @@ Breakpoints saved to file ./savefile.txt
 Settings saved to file ./savefile.txt
 +source -v ./savefile.txt
 +p len(open('./savefile.txt').readlines())
++p len(open('./savefile.txt').readlines())
 12
 +save all ./savefile.txt
++save all ./savefile.txt
 Settings and breakpoints saved to file ./savefile.txt
++source ./savefile.txt
 +source ./savefile.txt
 +quit
