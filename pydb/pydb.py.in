@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.155 2008/05/21 11:02:51 rockyb Exp $"""
+$Id: pydb.py.in,v 1.156 2008/07/28 14:05:12 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -499,6 +499,15 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
         pass
     return
 
+def uncaught_exception(p):
+    traceback.print_exc()
+    print "Uncaught exception. Entering post mortem debugging"
+    t = sys.exc_info()[2]
+    p.interaction(t.tb_frame,t)
+    print "Post mortem debugger finished."
+    return None
+
+
 def run(statement, globals=None, locals=None):
 
     """Execute the statement (given as a string) under debugger
@@ -529,7 +538,10 @@ def runeval(expression, globals=None, locals=None):
 
     p = Pdb()
     p.running=True
-    return p.runeval(expression, globals, locals)
+    try:
+        return p.runeval(expression, globals, locals)
+    except:
+        uncaught_exception(p)
 
 def runcall(*args, **kwds):
 
@@ -543,7 +555,10 @@ def runcall(*args, **kwds):
 
     p = Pdb()
     p.running=True
-    return p.runcall(*args, **kwds)
+    try:
+        return p.runcall(*args, **kwds)
+    except:
+        uncaught_exception(p)
 
 def runl(*args):
 
