@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.46 2008/06/07 16:43:31 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.47 2008/11/16 06:38:46 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -50,6 +50,8 @@ class Bdb(bdb.Bdb):
                                              include_location=False))
         else:
             self.msg(self.format_stack_entry(self.stack[-1]))
+            return
+        return
 
     def __print_location_if_trace(self, frame, include_fntrace=True):
         if self.linetrace or (self.fntrace and include_fntrace):
@@ -58,6 +60,9 @@ class Bdb(bdb.Bdb):
             self.display.displayAny(self.curframe)
             if self.linetrace_delay:
                 time.sleep(self.linetrace_delay)
+                return
+            return
+        return
 
     def bp_commands(self, frame):
 
@@ -136,6 +141,7 @@ class Bdb(bdb.Bdb):
             else: ss = ''
             self.msg('\tbreakpoint already hit %d time%s' %
                      (bp.hits, ss), out)
+        return
 
     def output_break_commands(self):
         "Output a list of 'break' commands"
@@ -185,8 +191,7 @@ class Bdb(bdb.Bdb):
                 #### ARG. All for the below name change.
                 self.do_delete(str(bp.number))
             return True
-        else:
-            return False
+        return False
 
     def canonic(self, filename):
 
@@ -214,6 +219,7 @@ class Bdb(bdb.Bdb):
                 if not canonic: canonic = filename
             canonic = os.path.normcase(canonic)
             self.fncache[filename] = canonic
+            return canonic
         return canonic
 
     def canonic_filename(self, frame):
@@ -239,6 +245,7 @@ class Bdb(bdb.Bdb):
             self.breaks[filename].remove(lineno)
         if not self.breaks[filename]:
             del self.breaks[filename]
+            return brkpts
         return brkpts
 
     def complete(self, text, state):
@@ -316,6 +323,7 @@ class Bdb(bdb.Bdb):
 
             if add_quotes_around_file: filename = "'%s'" % filename
             s += " %s at line %r" % (filename, lineno)
+            return s
         return s
 
     # The following two methods can be called by clients to use
@@ -346,10 +354,12 @@ class Bdb(bdb.Bdb):
             self.quitting = 1
             self.running = False
             sys.settrace(None)
+        return
 
     def reset(self):
         bdb.Bdb.reset(self)
         self.forget()
+        return
 
     def set_trace(self, frame=None):
         """Wrapper to accomodate different versions of Python"""
@@ -360,6 +370,7 @@ class Bdb(bdb.Bdb):
         else:
             # older versions
             self.bdb_set_trace(self)
+        return
 
     def user_call(self, frame, argument_list):
         """This method is called when there is the remote possibility
@@ -380,6 +391,8 @@ class Bdb(bdb.Bdb):
                 self.__print_location_if_trace(frame)
                 if not self.break_here(frame): return
             self.interaction(frame, None)
+            return
+        return
 
     def user_exception(self, frame, (exc_type, exc_value, exc_traceback)):
         """This function is called if an exception occurs,
@@ -396,6 +409,7 @@ class Bdb(bdb.Bdb):
         self.msg("%s:%s" % (str(exc_type_name),
                             str(self._saferepr(exc_value))))
         self.interaction(frame, exc_traceback)
+        return
 
     def user_line(self, frame):
         """This function is called when we stop or break at this line.
@@ -441,6 +455,8 @@ class Bdb(bdb.Bdb):
                 return
         if self.bp_commands(frame):
             self.interaction(frame, None)
+            return
+        return
 
     def user_return(self, frame, return_value):
         """This function is called when a return trap is set here."""
@@ -458,4 +474,6 @@ class Bdb(bdb.Bdb):
         self.__print_location_if_trace(frame, False)
         if self.returnframe != None:
             self.interaction(frame, None)
+            return
+        return
 
