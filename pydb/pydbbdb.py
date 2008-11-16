@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.47 2008/11/16 06:38:46 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.48 2008/11/16 07:52:20 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -28,7 +28,12 @@ class Bdb(bdb.Bdb):
         self._repr.maxset    = 10
         self._repr.maxfrozen = 10
         self._repr.array     = 10
-        self._saferepr = self._repr.repr
+        self._saferepr       = self._repr.repr
+
+        # Certain debugger commands are and actions only applicable
+        # for running programs. Thus we record the running status of
+        # the debugged code.
+        self.running         = False
 
         # A 0 value means stop on this occurrence. A positive value means to
         # skip that many more step/next's.
