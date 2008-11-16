@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.49 2008/05/29 04:07:05 rockyb Exp $
+#$Id: Makefile.am,v 1.50 2008/11/16 17:10:05 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-# SUBDIRS = thread
+# SUBDIRS = data unit thread 
+SUBDIRS = data unit
 
 check_DATA = \
         .pydbrc           \

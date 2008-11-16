@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.45 2007/05/23 09:25:43 rockyb Exp $"""
+$Id: fns.py,v 1.46 2008/11/16 17:10:05 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -39,7 +39,7 @@ def arg_split(s,posix=False):
 def checkline(obj, filename, lineno):
     """Check whether specified line seems to be executable.
 
-    Return `lineno` if it is, 0 if not (e.g. a docstring, comment, blank
+    Return LINENO if it is, 0 if not (e.g. a docstring, comment, blank
     line or EOF). Warning: testing is not comprehensive.
     """
     line = linecache.getline(filename, lineno)
@@ -50,7 +50,7 @@ def checkline(obj, filename, lineno):
     # Don't allow setting breakpoint at a blank line
     if (not line or (line[0] == '#') or
          (line[:3] == '"""') or line[:3] == "'''"):
-        obj.errmsg('Blank or comment')
+        obj.errmsg('Blank, doc string, or comment')
         return 0
     return lineno
 

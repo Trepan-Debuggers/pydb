@@ -4,7 +4,7 @@
 +info break
 No breakpoints.
 +break 30
-*** Blank or comment
+*** Blank, doc string, or comment
 +info break
 No breakpoints.
 +###############################################################
@@ -30,7 +30,7 @@ No breakpoints.
 +break 0
 *** End of file
 +break 1
-*** Blank or comment
+*** Blank, doc string, or comment
 +break 99
 *** End of file
 +# 

@@ -1,8 +1,8 @@
 #!/bin/sh
-#$Id: autogen.sh,v 1.3 2006/03/15 19:22:16 rockyb Exp $
+#$Id: autogen.sh,v 1.4 2008/11/16 17:10:05 rockyb Exp $
 # Run this to generate all the initial makefiles, etc.
 
-srcdir=`dirname $0`
+srcdir=$(dirname $0)
 
 aclocal
 automake --add-missing --gnu
