@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-checkline.py.in,v 1.1 2008/11/16 17:10:05 rockyb Exp $
+# $Id: checkline.py.in,v 1.1 2008/11/16 17:23:21 rockyb Exp $
 "Unit test for checkline"
 import os, sys, unittest
 

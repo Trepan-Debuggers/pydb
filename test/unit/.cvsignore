@@ -1,3 +1,4 @@
 Makefile
 Makefile.in
-test-checkline.py
+checkline.py
+listsize.py

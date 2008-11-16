@@ -1,4 +1,4 @@
-TESTS = test-checkline.py
+TESTS = checkline.py listsize.py
 
 abs_srcdir=@abs_srcdir@
 abs_builddir=@abs_builddir@
