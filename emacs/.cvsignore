@@ -1,5 +1,6 @@
 Makefile
 Makefile.in
 elc-stamp
-pydb.el
 pydb-test.el
+pydb.el
+semantic.cache

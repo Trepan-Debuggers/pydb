@@ -4,9 +4,10 @@ Makefile.in
 PKG-INFO
 aclocal.m4
 autom4te.cache
+build
 config.log
 config.status
 configure
 pydb*.tar.gz
+semantic.cache
 setup.py
-build
