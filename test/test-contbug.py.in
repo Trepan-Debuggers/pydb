@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-contbug.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $
+# $Id: test-contbug.py.in,v 1.2 2008/11/17 19:06:39 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -50,9 +50,11 @@ class RunTests(unittest.TestCase):
         python_script = '%shanoi.py' % srcdir
 
         if sys.version_info[0:2] == (2, 5):
-            rightfile = os.path.join(srcdir, "contbug-2.5.right")
+            rightfile = os.path.join(srcdir, 'data', 
+                                     "contbug-2.5.right")
         else:
-            rightfile = os.path.join(srcdir, "contbug.right")
+            rightfile = os.path.join(srcdir, 'data',
+                                     "contbug.right")
 
         outfile       = 'contbug.out'
         if os.path.exists(outfile): os.unlink(outfile)

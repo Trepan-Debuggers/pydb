@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.40 2008/05/29 04:07:05 rockyb Exp $
+# $Id: test.py.in,v 1.41 2008/11/17 19:06:39 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -75,7 +75,8 @@ def run_debugger(testname, pythonfile, args='', outfile=None,
         outfile_opt = '--output=%s ' % outfile
 
     if rightfile is None:
-        rightfile = os.path.join(srcdir, "%s.right" % testname)
+        rightfile = os.path.join(srcdir, 'data',
+                                 "%s.right" % testname)
 
     # print "builddir: %s, cmdfile: %s, outfile: %s, rightfile: %s" % \
     # (builddir, cmdfile, outfile, rightfile)
@@ -117,16 +118,19 @@ class PdbTests(unittest.TestCase):
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir,
                             pydb_opts='--threading',
-                            rightfile=os.path.join(srcdir, "brkpt1t.right"),
+                            rightfile=os.path.join(srcdir, 'data',
+                                                   "brkpt1t.right"),
                             truncate=-2)
         self.assertEqual(True, result, "brkpt1 --threading")
 
     def test_brkpt2(self):
         """Unit test breakpoint setting and display - part 2."""
         if sys.version_info[0:2] != (2, 5):
-            rightfile = os.path.join(srcdir, "brkpt2-2.3.right")
+            rightfile = os.path.join(srcdir, 'data',
+                                     "brkpt2-2.3.right")
         else:
-            rightfile = os.path.join(srcdir, "brkpt2.right")
+            rightfile = os.path.join(srcdir, 'data',
+                                     "brkpt2.right")
         result=run_debugger(testname='brkpt2',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5',
@@ -138,15 +142,16 @@ class PdbTests(unittest.TestCase):
         cmdfile=os.path.join(builddir, 'brkpt3.cmd')
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
-                            rightfile=os.path.join(builddir, "brkpt3.right"),
+                            rightfile=os.path.join(builddir, 'data',
+                                                   "brkpt3.right"),
                             args='3 5',
                             truncate=-5,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3")
         if sys.version_info[0:2] == (2, 5):
-            rightfile = os.path.join(srcdir, "brkpt3-2.5t.right")
+            rightfile = os.path.join(srcdir, 'data', "brkpt3-2.5t.right")
         else:
-            rightfile = os.path.join(srcdir, "brkpt3t.right")
+            rightfile = os.path.join(srcdir, 'data', "brkpt3t.right")
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
                             args='3 5',

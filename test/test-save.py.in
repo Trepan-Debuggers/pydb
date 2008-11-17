@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-save.py.in,v 1.1 2008/05/21 15:20:50 rockyb Exp $ -*- Python -*-
+# $Id: test-save.py.in,v 1.2 2008/11/17 19:06:39 rockyb Exp $ -*- Python -*-
 """Unit test of the save command."""
 import difflib, os, time, sys, unittest
 
@@ -27,7 +27,7 @@ pydb_path    = os.path.join(pydir, pydb_short)
 def run_debugger(testname, pydb_opts='', args=''):
     global srcdir, builddir, pydir
 
-    rightfile   = os.path.join(builddir, "%s.right" % testname)
+    rightfile   = os.path.join(builddir, 'data', "%s.right" % testname)
 
     os.environ['PYTHONPATH']=os.pathsep.join(sys.path)
     cmdfile     = os.path.join(builddir, "%s.cmd"   % testname)

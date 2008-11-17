@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-pm.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $ -*- Python -*-
+# $Id: test-pm.py.in,v 1.2 2008/11/17 19:06:39 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's Post-Mortem (pm) commands "
 import difflib, os, time, sys, unittest
 
@@ -50,7 +50,7 @@ class PdbTests(unittest.TestCase):
         except FloatingPointError:
             t = sys.exc_info()[2]
             outfile    = 'pm.out'
-            rightfile  = os.path.join(srcdir, 'pm.right')
+            rightfile  = os.path.join(srcdir, 'data', 'pm.right')
             errfile    = 'pm.err'
             old_stdout = sys.stdout
             old_stderr = sys.stderr

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.50 2008/11/16 17:10:05 rockyb Exp $
+#$Id: Makefile.am,v 1.51 2008/11/17 19:06:39 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,58 +22,30 @@ SUBDIRS = data unit
 check_DATA = \
         .pydbrc           \
 	brkpt1.cmd        \
-	brkpt1.right      \
-	brkpt1t.right     \
 	brkpt2.cmd        \
-	brkpt2.right      \
-	brkpt2-2.3.right  \
 	cmdparse.cmd      \
-	cmdparse.right    \
 	comm1.cmd         \
 	comm2.cmd         \
-	contbug.right     \
-	contbug-2.5.right \
 	except.py         \
 	filebug.cmd       \
 	filebug.py        \
-	filebug.right     \
-	fntrace.right     \
 	gcd.py            \
 	hanoi.py          \
-	help.right        \
 	history.cmd       \
-	history.right     \
 	logging.cmd       \
-	logging.right     \
 	noscript.cmd      \
-	noscript.right    \
 	pm.cmd            \
-	pm.right          \
-	pydbrc.cmd           \
-	pydbrc.right         \
-	run.cmd              \
-	run.right            \
-	run2.cmd             \
-	run2.right           \
-	save.cmd             \
-	save.right           \
-	setshow.cmd          \
-	setshow.right        \
-	settrace.py          \
-	sighandler.cmd       \
-	sighandler.right     \
-        sigtestexample.py    \
-	step.cmd             \
-	step.right           \
-	trace-2.5.right      \
-	trace-2.4-final.right  \
-	trace.right          \
-	tracetest-2.4-final.right \
-	tracetest-2.5.right  \
-	tracetest.right      \
-	withbug.cmd          \
-	withbug.py           \
-	withbug.right
+	pydbrc.cmd        \
+	run.cmd           \
+	run2.cmd          \
+	save.cmd          \
+	setshow.cmd       \
+	settrace.py       \
+	sighandler.cmd    \
+	step.cmd          \
+        sigtestexample.py \
+	withbug.cmd       \
+	withbug.py
 
 TESTS = test.py              \
 	test-complete.py     \

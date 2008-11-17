@@ -1,0 +1,12 @@
++cd .
++file hanoi.py
++info line
+Line 2 of "hanoi.py" at instruction 0
++where 2
+-> 0 in file 'hanoi.py' at line 2
+## 1 in exec cmd in globals, locals at line 1
++step 1+1
++where 2
+-> 0 in file 'hanoi.py' at line 12
+## 1 in exec cmd in globals, locals at line 1
++quit

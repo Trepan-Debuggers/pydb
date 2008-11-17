@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-run.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $
+# $Id: test-run.py.in,v 1.2 2008/11/17 19:06:39 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -50,9 +50,11 @@ class RunTests(unittest.TestCase):
         python_script = '%sgcd.py' % srcdir
         cmdfile       = '%sbrkpt2.cmd' % srcdir
         if sys.version_info[0:2] != (2, 5):
-            rightfile = "%sbrkpt2-2.3.right" % srcdir
+            rightfile = os.path.join('data', 
+                                     "%sbrkpt2-2.3.right" % srcdir)
         else:
-            rightfile = "%sbrkpt2.right" % srcdir
+            rightfile = os.path.join('data',
+                                     "%sbrkpt2.right" % srcdir)
         outfile       = 'runtest.out'
         if os.path.exists(outfile): os.unlink(outfile)
         pydb.runl('--basename', '--batch', '--nx', '--output', outfile,
@@ -64,7 +66,7 @@ class RunTests(unittest.TestCase):
         """Test pydb.runl()"""
         python_script = '%shanoi.py' % srcdir
         cmdfile       = '%scmdparse.cmd' % srcdir
-        rightfile     = '%scmdparse.right' % srcdir
+        rightfile     = os.path.join('data', '%scmdparse.right' % srcdir)
         outfile       = 'runtest.out'
         if os.path.exists(outfile): os.unlink(outfile)
         args = ('--basename', '--batch', '--nx', '--output', outfile,
@@ -77,7 +79,7 @@ class RunTests(unittest.TestCase):
         """Test pydb.runl()"""
         python_script = '%shanoi.py' % srcdir
         cmdfile       = '%spydbrc.cmd' % srcdir
-        rightfile     = '%spydbrc.right' % srcdir
+        rightfile     = os.path.join('data', '%spydbrc.right' % srcdir)
         outfile       = 'pydbrc.out'
         if os.path.exists(outfile): os.unlink(outfile)
         os.environ['HOME'] = srcdir
