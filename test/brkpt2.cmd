@@ -1,6 +1,6 @@
 # 
 # Test of breakpoint handling
-# $Id: brkpt2.cmd,v 1.9 2007/05/19 01:19:14 rockyb Exp $
+# $Id: brkpt2.cmd,v 1.10 2008/11/24 21:24:28 rockyb Exp $
 #
 set basename on
 set trace-commands on
@@ -41,11 +41,11 @@ where 2
 ###############################################################
 ### Test frame command
 ###############################################################
-frame 0
+frame 
 frame abs(-1*2)
 frame -3
 frame -2
-frame
+frame 0
 ###############################################################
 ### Test ignore
 ###############################################################

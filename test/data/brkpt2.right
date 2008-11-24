@@ -58,7 +58,7 @@ No breakpoints.
 +###############################################################
 +### Test frame command
 +###############################################################
-+frame 0
++frame 
 (gcd.py:35):  gcd
 35     return gcd(b-a, a)
 +frame abs(-1*2)
@@ -68,7 +68,9 @@ No breakpoints.
 41     print "The GCD of %d and %d is %d" % (a, b, gcd(a, b))
 +frame -2
 (<string>:1):  <module>
-+frame
++frame 0
+(gcd.py:35):  gcd
+35     return gcd(b-a, a)
 +###############################################################
 +### Test ignore
 +###############################################################

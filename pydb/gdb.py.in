@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.153 2008/07/08 23:44:23 rockyb Exp $"""
+$Id: gdb.py.in,v 1.154 2008/11/24 21:24:28 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1264,12 +1264,10 @@ is no Python file."""
         return True
 
     def do_frame(self, arg):
-        """frame frame-number
-        Move the current frame to the specified frame number.
+        """frame [frame-number]
 
-        If using gdb dialect up matches the gdb: 0 is the most recent
-        frame.  Otherwise we match Python's stack: 0 is the oldest
-        frame.
+        Move the current frame to frame `frame-number' if specified,
+        or the current frame, 0 if no frame number specified.
 
         A negative number indicates position from the other end.
         So 'frame -1' moves when gdb dialect is in effect moves
@@ -1278,6 +1276,7 @@ is no Python file."""
         if not self.stack:
             self.msg("Program has no stack frame set.")
             return False
+        arg = arg.strip() or '0'
         arg = self.get_an_int(arg,
                               ("The 'frame' command requires a frame number."+
                                " Got: %s") % arg)

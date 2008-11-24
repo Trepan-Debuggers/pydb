@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.135 2008/07/07 16:40:50 rockyb Exp $
+% $Id: libpydb.tex,v 1.136 2008/11/24 21:24:27 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1919,7 +1919,10 @@ There is currently a bug in \code{next} in that it is possible it may
 act like \code{step} if occasionally.
 
 \begin{description}
-\item[frame \optional{\var{thread-Name}{\Large{|}}\var{thread-number}} \var{frame-number}]
+\item[frame \optional{\var{thread-Name}{\Large{|}}\var{thread-number}} \optional{\var{frame-number}}]
+
+Move the current frame to the frame \var{frame-number} if specified, or the
+current frame, 0 if no frame number specified.
 
 Move the current frame to the specified frame number. If a
 \var{thread-Name} or \var{thread-number}is given, move the current
