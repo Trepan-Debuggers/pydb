@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.48 2008/11/16 07:52:20 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.49 2008/12/07 23:42:40 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -149,9 +149,11 @@ class Bdb(bdb.Bdb):
         return
 
     def output_break_commands(self):
-        "Output a list of 'break' commands"
-        # FIXME: for now we ae going to assume no breakpoints set
-        # previously
+        """Return a list of 'break' commands. This could be used to save and
+        restore breakpoint status across a restart"""
+        # FIXME: We are going to assume no breakpoints set
+        # previously. bp_no is renumbered breakpoint numbers used
+        # in subsequent "disable" commands.
         bp_no = 0 
         out = []
         for bp in bdb.Breakpoint.bpbynumber:
