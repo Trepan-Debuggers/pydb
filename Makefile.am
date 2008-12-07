@@ -1,5 +1,5 @@
-#$Id: Makefile.am,v 1.51 2007/11/01 09:20:26 rockyb Exp $
-#   Copyright (C) 2006, 2007 Rocky Bernstein
+#$Id: Makefile.am,v 1.52 2008/12/07 23:48:02 rockyb Exp $
+#   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -115,6 +115,8 @@ EXTRA_DIST +=  \
 	Doc/tools/patchlevel.h \
 	Doc/tools/toc2bkm.py
 
+test: check
+
 PHONY += ChangeLog
 ChangeLog:
 	$(CVS2CL) -W 450 --header $(srcdir)/cvs2cl_header --utc -w -I ChangeLog --usermap $(srcdir)/cvs2cl_usermap -P 
@@ -126,7 +128,3 @@ endif
 .PHONY: $(PHONY)
 
 .OPTIONAL: $(DEBUGGER)
-
-#;;; Local Variables: ***
-#;;; mode:makefile ***
-#;;; End: ***
