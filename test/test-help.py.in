@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-help.py.in,v 1.2 2008/11/17 19:06:39 rockyb Exp $
+# $Id: test-help.py.in,v 1.3 2008/12/08 00:40:57 rockyb Exp $
 "Unit test of getting help options "
 import difflib, os, time, sys, unittest
 
@@ -28,7 +28,7 @@ def run_debugger(testname, pythonfile, pydb_opts='', args='',
                  outfile=None, need_25=True):
     global srcdir, builddir, pydir
 
-    if sys.version_info[0:2] == (2, 5) and need_25:
+    if sys.hexversion >= 0x02050000 and need_25:
         rightfile   = os.path.join(srcdir, 'data',
                                    "%s-2.5.right" % testname)
     else:

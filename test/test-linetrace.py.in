@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-linetrace.py.in,v 1.4 2008/11/17 19:06:39 rockyb Exp $
+# $Id: test-linetrace.py.in,v 1.5 2008/12/08 00:40:57 rockyb Exp $
 "Unit test for Extended Python debugger's set linetrace "
 import difflib, os, sys, time, unittest
 
@@ -20,7 +20,7 @@ def run_python(testname, pythonfile, args='', outfile=None):
     if outfile is None:
         outfile     = "%s.out" % testname
 
-    if sys.version_info[0:2] == (2, 5):
+    if sys.hexversion >= 0x02050000:
         rightfile   = os.path.join(srcdir, 'data',
                                    "%s-2.5.right" % testname)
     elif sys.version_info[0:2] == (2, 4) and sys.version_info[3] == 'final':

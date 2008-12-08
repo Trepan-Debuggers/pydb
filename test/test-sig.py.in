@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-sig.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $
+# $Id: test-sig.py.in,v 1.2 2008/12/08 00:40:57 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, sys, unittest, signal
 
@@ -141,7 +141,7 @@ class SigTests(unittest.TestCase):
         lines = f.readlines()
         f.close()
         self.assertEqual(True, 'Program received signal SIGUSR1\n' in lines)
-        if sys.version_info[0:2] != (2, 5):
+        if sys.hexversion < 0x02050000:
             self.assertEqual(True,
                              "-> 0 in file 'sigtestexample.py' at line 20\n"
                              in lines)
