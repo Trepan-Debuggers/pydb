@@ -3,10 +3,15 @@ check_DATA = \
 	brkpt1t.right             \
 	brkpt2-2.3.right          \
 	brkpt2.right              \
+	brkpt3t.right             \
+	brkpt3-2.5t.right         \
+	brkpt3.right              \
 	checkline.py              \
 	cmdparse.right            \
 	contbug-2.5.right         \
 	contbug.right             \
+	file.right                \
+	file-2.5.right            \
 	filebug.right             \
 	fntrace.right             \
 	help.right                \

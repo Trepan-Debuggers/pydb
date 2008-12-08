@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.42 2008/12/08 00:40:57 rockyb Exp $
+# $Id: test.py.in,v 1.43 2008/12/08 02:04:38 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -125,7 +125,7 @@ class PdbTests(unittest.TestCase):
 
     def test_brkpt2(self):
         """Unit test breakpoint setting and display - part 2."""
-        if sys.hexversion < 0x02040000:
+        if sys.hexversion <= 0x020400f0:
             rightfile = os.path.join(srcdir, 'data',
                                      "brkpt2-2.3.right")
         else:

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.51 2008/11/17 19:06:39 rockyb Exp $
+#$Id: Makefile.am,v 1.52 2008/12/08 02:04:38 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -75,7 +75,6 @@ EXTRA_DIST = \
 	$(patsubst %.py,%.py.in, $(TESTS)) \
 	brkpt3.cmd.in \
 	.pydbrc.in \
-	brkpt3t.right brkpt3-2.5t.right brkpt3.right    \
 	file.right.in file-2.5.right.in file.cmd.in \
         settrace.py.in
 
