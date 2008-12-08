@@ -24,6 +24,7 @@ check_DATA = \
 	run2.right                \
 	save.right                \
 	setshow.right             \
+	setshow-no-rl.right       \
 	sighandler.right          \
 	step.right                \
 	trace-2.4-final.right     \

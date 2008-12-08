@@ -1,7 +1,7 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.23 2008/05/17 10:08:33 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.24 2008/12/08 11:26:26 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -171,7 +171,10 @@ set history size n - set number of commands to save in history
         elif args[1] == 'size':
             try:
                 size = self.get_int(args[2], cmdname="set history size")
-                self.set_history_length(size)
+                if self.set_history_length:
+                    self.set_history_length(size)
+                else:
+                    self.errmsg("History is not available (no readline?).")
             except ValueError:
                 return
         else:

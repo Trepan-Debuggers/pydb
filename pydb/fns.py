@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.46 2008/11/16 17:10:05 rockyb Exp $"""
+$Id: fns.py,v 1.47 2008/12/08 11:26:26 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -247,7 +247,7 @@ def get_last_tb_or_frame_tb(frameno=1):
     sys.last_traceback is set, we will return that and assume that
     this is what post-mortem will want. If sys.last_traceback has not
     been set, then perhaps we *about* to raise an error and are
-    fielding an exception. So assume that sys.exec_info()[frameno]
+    fielding an exception. So assume that sys.exc_info()[frameno]
     is where we want to look."""
 
     tb = sys.exc_info()[frameno]

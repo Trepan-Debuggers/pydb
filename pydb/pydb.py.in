@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.156 2008/07/28 14:05:12 rockyb Exp $"""
+$Id: pydb.py.in,v 1.157 2008/12/08 11:26:26 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -394,7 +394,7 @@ def help():
 def pm(dbg_cmds=None, frameno=1, p=None):
 
     """Set up post-mortem debugging using the last traceback.  But if
-    there is no traceback, we'll assume that sys.exec_info() contains
+    there is no traceback, we'll assume that sys.exc_info() contains
     what we want and frameno is the index location of where we want
     to start.
 
@@ -412,7 +412,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
     """Enter debugger read loop after your program has crashed.
 
     If no traceback parameter, t, is supplied, the last traceback and
-    if that doesn't exist either we'll assume that sys.exec_info()
+    if that doesn't exist either we'll assume that sys.exc_info()
     contains what we want and frameno is the index location of where
     we want to start.
 

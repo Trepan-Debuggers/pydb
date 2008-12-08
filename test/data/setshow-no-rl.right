@@ -1,0 +1,14 @@
+basename is on.
+Annotation level is 0.
+Annotation level is 1.
+Argument list to give program being debugged when it is started is 
+""abc"".
+Flushing output is "on".
+Flushing output is "off".
+Function tracing is on.
+Function tracing is off.
+Number of source lines pydb will list by default is 10.
+Number of lines to show in listing is 60.
+*** History is not available (no readline?).
+deftrace is off.
+deftrace is on.
