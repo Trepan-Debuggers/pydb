@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-with.py.in,v 1.5 2008/12/08 00:40:57 rockyb Exp $ -*- Python -*-
+# $Id: test-with.py.in,v 1.6 2008/12/08 05:09:16 rockyb Exp $ -*- Python -*-
 """Unit test of the bug in using 'info local' when inside a "with" command."""
 import difflib, os, time, sys, unittest
 
@@ -24,10 +24,12 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
-def run_debugger(testname, pydb_opts='', args=''):
+def run_debugger(testname, pydb_opts='', args='', rightfile=None,
+                 need_26=False):
     global srcdir, builddir, pydir
 
-    rightfile   = os.path.join(builddir, 'data', "%s.right" % testname)
+    if rightfile is None:
+        rightfile   = os.path.join(builddir, 'data', "%s.right" % testname)
 
     os.environ['PYTHONPATH']=os.pathsep.join(sys.path)
     cmdfile     = os.path.join(builddir, "%s.cmd"   % testname)
@@ -49,7 +51,8 @@ def run_debugger(testname, pydb_opts='', args=''):
     tofile    = outfile
     todate    = time.ctime(os.stat(tofile).st_mtime)
     tolines   = open(tofile, 'U').readlines()[0:-1]
-    tolines[4]= tolines[4][0:74] + "\n"
+    if not need_26:
+        tolines[4]= tolines[4][0:74] + "\n"
     diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
                                      tofile, fromdate, todate))
     if len(diff) == 0:
@@ -63,7 +66,16 @@ class PdbTests(unittest.TestCase):
     def test_with(self):
         """Test running bug running "info local" inside a "with" command"""
         if sys.hexversion >= 0x02050000:
-            result=run_debugger(testname='withbug', pydb_opts='--basename')
+            if sys.hexversion >= 0x02060000:
+                need_26 = True
+                rightfile = os.path.join(srcdir, 'data',
+                                         "withbug-2.6.right")
+            else:
+                need_26 = False
+                rightfile = os.path.join(srcdir, 'data',
+                                         "withbug.right")
+            result=run_debugger(testname='withbug', pydb_opts='--basename',
+                                rightfile=rightfile, need_26=need_26)
             self.assertEqual(True, result, "pydb 'withbug' command comparision")
         self.assertTrue(True, 'With test skipped - not 2.5')
         return

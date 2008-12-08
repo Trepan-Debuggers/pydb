@@ -1,0 +1,6 @@
++continue 17
+Breakpoint 1 set in file withbug.py, line 17.
+Deleted breakpoint 1
++info local
+f = 1
++quit

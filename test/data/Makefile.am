@@ -32,6 +32,7 @@ check_DATA = \
 	tracetest-2.4-final.right \
 	tracetest-2.5.right       \
 	tracetest.right           \
-	withbug.right
+	withbug.right             \
+	withbug-2.6.right
 
 EXTRA_DIST = $(check_DATA)
