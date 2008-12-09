@@ -6,6 +6,8 @@
 
 * Catch exceptions raised in runcall()
 
+* Revise tests for 2.6 and systems without readline
+
 * Small doc and test changes. 
 
 This may be the last release before a major rewrite.
