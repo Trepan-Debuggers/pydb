@@ -1,9 +1,9 @@
 """set subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision__ = "$Id: set.py,v 1.24 2008/12/08 11:26:26 rockyb Exp $"
+__revision__ = "$Id: set.py,v 1.25 2008/12/09 20:06:10 rockyb Exp $"
 # -*- coding: utf-8 -*-
-#   Copyright (C) 2006, 2007 Rocky Bernstein
+#   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -72,7 +72,12 @@ Follow this command with any number of args, to be passed to the program."""
         return
 
     def set_basename(self, args):
-        """Set short filenames (the basename) in debug output"""
+        """Set short filenames (the basename) in debug output.
+
+Setting this causes the debugger output to give just the basename for
+filenames. This is useful in debugger testing or possibly showing
+examples where you don't want to hide specific filesystem and
+installation information."""
         try:
             self.basename = self.get_onoff(args[1])
         except ValueError:
@@ -80,7 +85,7 @@ Follow this command with any number of args, to be passed to the program."""
         return
 
     def set_cmdtrace(self, args):
-        """Set to show lines read from the debugger command file"""
+        """Set echoing lines read from debugger command files"""
         try:
             self.cmdtrace = self.get_onoff(args[1])
         except ValueError:
@@ -130,7 +135,13 @@ object variables.
         return False
 
     def set_deftrace(self, args):
-        """Set to def's (method creation) before they are run"""
+        """Set stop before 'def' (method creation) statements.
+
+Classes may have many methods and stand-alone programs may have many
+functions. Generally there isn't much value to stopping before adding
+a method or function to Python's symbol table. (More to the point, it
+can be an annoyance.) However if you do want this, e.g. you want to
+debug methods is over-writing one another, then set this."""
         try:
             self.deftrace = self.get_onoff(args[1])
         except ValueError:
@@ -180,7 +191,10 @@ set history size n - set number of commands to save in history
         else:
             self.undefined_cmd("set history", args[0])
     def set_interactive(self, args):
-        """Set whether we are interactive"""
+        """Set whether we are interactive.
+
+Some dangerous commands prompt for confirmation before they are run. 
+However if we are not interactive, this is not done """
         try:
             self.noninteractive = not self.get_onoff(args[1])
         except ValueError:
@@ -188,15 +202,24 @@ set history size n - set number of commands to save in history
         return
 
     def set_linetrace(self, args):
-        """Set line execution tracing and delay on tracing"""
+        """Set line execution tracing and delay on tracing.
+
+Set linetrace {on|off}. Turns line tracing on or off. 
+
+Set linetrace delay `delay'. 'delay' is a fixed or floating-point
+number.  This is only meaningful when line tracing is on.  The DELAY
+value sets the time to sleep between printing line-trace output.  This
+might be useful if you are showing output in a front-end.
+"""
+
         if args[1] == 'delay':
             try:
                 delay = float(args[2])
                 self.linetrace_delay = delay
             except IndexError:
-                self.errmsg("Need a 3rd floating-point number")
+                self.errmsg("Need a floating-point number (the 4th parameter)")
             except ValueError:
-                self.errmsg(("3rd argument %s is not a floating-point "
+                self.errmsg(("4th argument %s is not a floating-point "
                              + "number") % str(args[2]) )
         else:
             try:
@@ -214,7 +237,18 @@ set history size n - set number of commands to save in history
         return
 
     def set_logging(self, args):
-        """Set logging options"""
+        """Set logging options".
+
+set logging {on|off}. 
+set logging file `filename'
+set logging redirect {on|off}
+
+
+The first form turns logging on or off. If it is on, then the second
+form indicates where the file where output will be logged to. If
+redirect is on then output will only go to the log file, otherwise it
+goes both to the console and the log file.
+"""
         if len(args):
             try:
                 old_logging  = self.logging
@@ -247,14 +281,17 @@ set history size n - set number of commands to save in history
         else:
             self.msg("""Usage: set logging on
 set logging off
-set logging file FILENAME
-set logging overwrite [on|off]
-set logging redirect [on|off]""")
+set logging file `filename'
+set logging overwrite {on|off}
+set logging redirect {on|off}""")
         return
 
 
     def set_maxargsize(self, args):
-        """Set maximum size to use in showing argument parameters"""
+        """Set maximum size to use in showing argument parameters.
+
+If a parameter value is longer than the maximum, the output printed is
+truncated to that size and '...' is appended to indicate the elision."""
         try:
             self.maxargstrsize = self.get_int(args[1])
         except ValueError:
@@ -262,7 +299,11 @@ set logging redirect [on|off]""")
         return
 
     def set_prompt(self, args):
-        """Set debugger's prompt"""
+        """Set debugger's prompt.
+
+Generally this is a bad idea. However in some special circumstances
+such as running from an alternate front-end like ipython you may want
+to do this."""
         # Use the original prompt so we keep spaces and punctuation
         # just skip over the work prompt.
         re_prompt = re.compile(r'\s*prompt\s(.*)$')
@@ -311,11 +352,11 @@ signal is encountered you should set this on."""
 
     def set_warnoptions(self, args):
 
-        """Set the Python warning options that are in effect when a
-program is started or restarted. On the command line, these are the -W
-options, e.g. -Werror, or -We::Deprecation. However options should not
-contain leading -W's and should be separated with white space only,
-e.g. don't use commas.
+        """Set the Python warning options that when a program is started or restarted. 
+
+On the command line, these are the -W options, e.g. -Werror, or
+-We::Deprecation. However options should not contain leading -W's and
+should be separated with white space only, e.g. don't use commas.
 
 Examples:
   set warn error e::Deprecation

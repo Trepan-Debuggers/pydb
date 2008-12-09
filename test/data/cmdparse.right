@@ -39,7 +39,7 @@ Number of source lines pydb will list by default is 20.
 +###  test linetrace...
 +########################################
 +set linetrace delay
-*** Need a 3rd floating-point number
+*** Need a floating-point number (the 4th parameter)
 +set linetrace delay 2
 +show linetrace delay
 line trace delay is 2.0. (In seconds)
@@ -47,7 +47,7 @@ line trace delay is 2.0. (In seconds)
 +show linetrace delay
 line trace delay is 0.5. (In seconds)
 +set linetrace delay foo
-*** 3rd argument foo is not a floating-point number
+*** 4th argument foo is not a floating-point number
 +show linetrace delay
 line trace delay is 0.5. (In seconds)
 +set linetrace on
@@ -286,19 +286,19 @@ set args -- Set argument list to give program being debugged when it is started
 set autoeval -- Evaluate every unrecognized command
 set basename -- Set short filenames (the basename) in debug output
 set debug-pydb -- Set whether we allow tracing the debugger
-set deftrace -- Set to def's (method creation) before they are run
+set deftrace -- Set stop before 'def' (method creation) statements
 set flush -- Set whether we flush output after each write
 set fntrace -- Set function execution tracing
 set history -- Generic command for setting command history parameters
 set interactive -- Set whether we are interactive
 set linetrace -- Set line execution tracing and delay on tracing
 set listsize -- Set number of source lines the debugger will list by default
-set logging -- Set logging options
+set logging -- Set logging options"
 set maxargsize -- Set maximum size to use in showing argument parameters
 set prompt -- Set debugger's prompt
 set sigcheck -- Set signal handler checking/adjusting
-set trace-commands -- Set to show lines read from the debugger command file
-set warnoptions -- Set the Python warning options that are in effect when a
+set trace-commands -- Set echoing lines read from debugger command files
+set warnoptions -- Set the Python warning options that when a program is started or restarted. 
 set width -- Set number of characters the debugger thinks are in a line
 +help set linesize
 *** Unknown 'help set' subcommand linesize
