@@ -2,7 +2,7 @@
 12-10-2008
 * "frame" (no arg) is "frame 0" like gdb
 
-* Fix a bug starting ipython and runnying pydb.
+* Fix a bug starting ipython and running pydb.
 
 * Catch exceptions raised in runcall()
 
