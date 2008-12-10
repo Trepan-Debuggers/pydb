@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test.py.in,v 1.43 2008/12/08 02:04:38 rockyb Exp $
+# $Id: test.py.in,v 1.44 2008/12/10 13:31:26 rockyb Exp $
 "Unit test for the Extended Python debugger's disassembler."
 import difflib, os, time, sys, unittest
 
@@ -60,9 +60,12 @@ pydir        = os.path.join(top_builddir, "pydb")
 pydb_short   = "pydb.py"
 pydb_path    = os.path.join(pydir, pydb_short)
 
+# FIXME! combine truncate and ingore_lines into a filter function
+# (create with lambda). And move all of this out to a helper function
+# anyway.
 def run_debugger(testname, pythonfile, args='', outfile=None,
                  rightfile=None, pydb_opts='', truncate=None,
-                 cmdfile=None):
+                 cmdfile=None, ignore_line=None):
     global srcdir, builddir, pydir
     if cmdfile is None:
         cmdfile     = os.path.join(srcdir, "%s.cmd" % testname)
@@ -96,16 +99,16 @@ def run_debugger(testname, pythonfile, args='', outfile=None,
     tolines   = open(tofile, 'U').readlines()
 
     if truncate:
-        diff = list(difflib.unified_diff(fromlines[0:truncate],
-                                         tolines[0:truncate],
-                                         fromfile, tofile, fromdate, todate))
-    else:
-        diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
-                                         tofile, fromdate, todate))
-    if len(diff) == 0:
-        os.unlink(outfile)
-    for line in diff:
-        print line,
+        fromlines = fromlines[0:truncate]
+        tolines   = tolines[0:truncate]
+    if ignore_line:
+        del fromlines[ignore_line]
+        del tolines[ignore_line]
+
+    diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
+                                     tofile, fromdate, todate))
+    if len(diff) == 0: os.unlink(outfile)
+    for line in diff: print line,
     return len(diff) == 0
     
 class PdbTests(unittest.TestCase):
@@ -142,10 +145,11 @@ class PdbTests(unittest.TestCase):
         cmdfile=os.path.join(builddir, 'brkpt3.cmd')
         result=run_debugger(testname='brkpt3',
                             pythonfile='%sgcd.py' % srcdir,
-                            rightfile=os.path.join(builddir, 'data',
+                            rightfile=os.path.join(srcdir, 'data',
                                                    "brkpt3.right"),
                             args='3 5',
                             truncate=-5,
+                            ignore_line=19,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3")
         if sys.hexversion >= 0x02050000:
@@ -158,6 +162,7 @@ class PdbTests(unittest.TestCase):
                             pydb_opts='--threading',
                             rightfile=rightfile,
                             truncate=-2,
+                            ignore_line=20,
                             cmdfile=cmdfile)
         self.assertEqual(True, result, "brkpt3 --threading")
 

@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-run.py.in,v 1.4 2008/12/08 02:04:38 rockyb Exp $
+# $Id: test-run.py.in,v 1.5 2008/12/10 13:31:26 rockyb Exp $
 "Unit test for Extended Python debugger's runl and runv commands "
 import difflib, os, sys, unittest, signal, time
 
@@ -50,11 +50,11 @@ class RunTests(unittest.TestCase):
         python_script = '%sgcd.py' % srcdir
         cmdfile       = '%sbrkpt2.cmd' % srcdir
         if sys.hexversion <= 0x020400f0:
-            rightfile = os.path.join('data', 
-                                     "%sbrkpt2-2.3.right" % srcdir)
+            rightfile     = os.path.join(top_srcdir, 'test', 'data', 
+                                         'brkpt2-2.3.right')
         else:
-            rightfile = os.path.join('data',
-                                     "%sbrkpt2.right" % srcdir)
+            rightfile     = os.path.join(top_srcdir, 'test', 'data', 
+                                         'brkpt2.right')
         outfile       = 'runtest.out'
         if os.path.exists(outfile): os.unlink(outfile)
         pydb.runl('--basename', '--batch', '--nx', '--output', outfile,
@@ -66,7 +66,8 @@ class RunTests(unittest.TestCase):
         """Test pydb.runl()"""
         python_script = '%shanoi.py' % srcdir
         cmdfile       = '%scmdparse.cmd' % srcdir
-        rightfile     = os.path.join('data', '%scmdparse.right' % srcdir)
+        rightfile     = os.path.join(top_srcdir, 'test', 'data', 
+                                     'cmdparse.right')
         outfile       = 'runtest.out'
         if os.path.exists(outfile): os.unlink(outfile)
         args = ('--basename', '--batch', '--nx', '--output', outfile,
@@ -79,7 +80,8 @@ class RunTests(unittest.TestCase):
         """Test pydb.runl()"""
         python_script = '%shanoi.py' % srcdir
         cmdfile       = '%spydbrc.cmd' % srcdir
-        rightfile     = os.path.join('data', '%spydbrc.right' % srcdir)
+        rightfile     = os.path.join(top_srcdir, 'test', 'data', 
+                                     'pydbrc.right')
         outfile       = 'pydbrc.out'
         if os.path.exists(outfile): os.unlink(outfile)
         os.environ['HOME'] = srcdir
