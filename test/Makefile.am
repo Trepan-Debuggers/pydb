@@ -1,5 +1,5 @@
-#$Id: Makefile.am,v 1.53 2008/12/12 13:10:19 rockyb Exp $
-#   Copyright (C) 2006, 2007 Rocky Bernstein
+#$Id: Makefile.am,v 1.54 2008/12/12 14:56:00 rockyb Exp $
+#   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ check_DATA = \
 	cmdparse.cmd      \
 	comm1.cmd         \
 	comm2.cmd         \
+	dbgcall.py        \
 	except.py         \
 	filebug.cmd       \
 	filebug.py        \

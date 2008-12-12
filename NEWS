@@ -1,3 +1,6 @@
+1.25cvs
+* Clean up debugger(). Add "status=continue".  
+
 1.24
 12-10-2008
 * "frame" (no arg) is "frame 0" like gdb

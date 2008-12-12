@@ -1,5 +1,5 @@
 #!@PYTHON@ -t
-# $Id: test-dbgcall.py.in,v 1.1 2008/12/12 13:10:19 rockyb Exp $ -*- Python -*-
+# $Id: test-dbgcall.py.in,v 1.2 2008/12/12 14:56:00 rockyb Exp $ -*- Python -*-
 "Unit test for Extended Python debugger's debugger() call"
 import difflib, os, sys, time, unittest
 from subprocess import *
@@ -44,7 +44,7 @@ class DbgCallTests(unittest.TestCase):
         tofile    = outfile
         todate    = time.ctime(os.stat(tofile).st_mtime)
         tolines   = open(tofile, 'U').readlines()
-        diff = list(difflib.unified_diff(fromlines, tolines, fromfile,
+        diff = list(difflib.unified_diff(fromlines[1:], tolines[1:], fromfile,
                                          tofile, fromdate, todate))
         if len(diff) == 0:
             os.unlink(outfile)
