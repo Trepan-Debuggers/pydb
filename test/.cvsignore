@@ -17,6 +17,7 @@ settrace.py
 test-complete.py
 test-connect.py
 test-contbug.py
+test-dbgcall.py
 test-disassem.py
 test-fifo-connect.py
 test-file.py

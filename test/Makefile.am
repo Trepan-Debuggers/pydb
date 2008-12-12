@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.52 2008/12/08 02:04:38 rockyb Exp $
+#$Id: Makefile.am,v 1.53 2008/12/12 13:10:19 rockyb Exp $
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,7 @@ TESTS = test.py              \
 	test-complete.py     \
 	test-contbug.py      \
         test-connect.py      \
+	test-dbgcall.py      \
 	test-disassem.py     \
         test-file.py         \
 	test-fifo-connect.py \

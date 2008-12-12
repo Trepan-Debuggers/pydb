@@ -1,0 +1,69 @@
+(/src/external-vcs/pydb/test/dbgcall.py:17):  <module>
+17 if __name__=='__main__':
+(dbgcall.py:18):  <module>
++  18     i_args=len(sys.argv)
+(dbgcall.py:19):  <module>
++  19     if i_args != 1 and i_args != 2:
+(dbgcall.py:23):  <module>
++  23     n=3
+(dbgcall.py:24):  <module>
++  24     sys.settrace(None)
+(dbgcall.py:34):  <module>
++  34     if n < 1 or n > 100: 
+(dbgcall.py:38):  <module>
++  38     hanoi(n, "a", "b", "c")
+--Call level -5 
+(dbgcall.py:10):  hanoi
++  10 def hanoi(n,a,b,c):
+(dbgcall.py:11):  hanoi
++  11     if n-1 > 0:
+(dbgcall.py:12):  hanoi
++  12        hanoi(n-1, a, c, b) 
+--Call level -4 
+(dbgcall.py:10):  hanoi
++  10 def hanoi(n,a,b,c):
+(dbgcall.py:11):  hanoi
++  11     if n-1 > 0:
+(dbgcall.py:12):  hanoi
++  12        hanoi(n-1, a, c, b) 
+--Call level -3 
+(dbgcall.py:10):  hanoi
++  10 def hanoi(n,a,b,c):
+(dbgcall.py:11):  hanoi
++  11     if n-1 > 0:
+(dbgcall.py:13):  hanoi
++  13     print "Move disk %s to %s" % (a, b)
+Move disk a to b
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:13):  hanoi
++  13     print "Move disk %s to %s" % (a, b)
+Move disk a to c
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:15):  hanoi
++  15        hanoi(n-1, c, b, a) 
+--Call level -3 
+(dbgcall.py:10):  hanoi
++  10 def hanoi(n,a,b,c):
+(dbgcall.py:11):  hanoi
++  11     if n-1 > 0:
+(dbgcall.py:13):  hanoi
++  13     print "Move disk %s to %s" % (a, b)
+Move disk b to c
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:15):  hanoi
++  15        hanoi(n-1, c, b, a) 
+(dbgcall.py:13):  hanoi
++  13     print "Move disk %s to %s" % (a, b)
+'continued'
+Move disk a to b
+(dbgcall.py:14):  hanoi
++  14     if n-1 > 0:
+(dbgcall.py:15):  hanoi
++  15        hanoi(n-1, c, b, a) 

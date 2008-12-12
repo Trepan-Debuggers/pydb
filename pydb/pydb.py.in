@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.157 2008/12/08 11:26:26 rockyb Exp $"""
+$Id: pydb.py.in,v 1.158 2008/12/12 13:10:18 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -14,7 +14,7 @@ __title__ = '@PACKAGE_NAME@'
 # The name of the debugger we are currently going by.
 __version__ = '@PACKAGE_VERSION@'
 
-import inspect, os, re, sys, traceback
+import inspect, os, re, sys, traceback, types
 
 import fns
 
@@ -274,57 +274,84 @@ class Pdb(Gdb):
 # Other top-level routines
 #########################################################
 
+# Start here: note status is new and params have changed...
 def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
-             new_instance=False):
-    """Enter the debugger at the calling stack frame.  This is useful to
-    hard-code a breakpoint at a given point in a program, even if the code
-    is not otherwise being debugged (e.g., when an assertion fails).
-    Leaving this the debugger terminates the program.
+             status='start'):
+    """Enter the debugger at the calling stack frame.  This can be
+    used as a way to hard-code a breakpoint in a program, even if the
+    code is not otherwise being debugged (e.g., when an assertion
+    fails).  Leaving the debugger, i.e. issuing a "quit" command,
+    terminates the program.
 
-    dbg_cmds is an optional list of debugger commands you want to run.
+    dbg_cmds, a list of strings, is an optional list of debugger
+    commands you want to run.
 
     If add_exception is True (the default), we will install an exception hook
     to call the post-mortem debugger on an unhandled exception.
 
     If the debugger was called previously, normally we use that. This
-    way any previous debugger state that was set gets used. If you
-    don't the debugger state to be used, set parameter new_instance
-    True.
+    way any previous debugger state that was set gets used.
+
+    Setting the parameter `status' to the string 'new' will cause a
+    new instance to be created which might wiping out other
+    instances which might contain information like breakpoints or
+    debugger settings.
+    
+    If instead `status' is set to 'continue', an existing instance
+    will resume. Omitting status or setting it to 'start' will start
+    the debugger which might be a 'new' depending on whether or not
+    an instance has been created. 
+
+    In all cases a string indicating what was done is returned.
+
+    Since debugging slows down a program, one may want to stop and
+    continue it at various points in your program.
     """
     global _pydb_trace
+
+    if types.BooleanType == type(status):
+        if status: status = 'new' 
+        else: status = 'start'
+        print "debugger() interface has changed see docstring."
+
     try:
         if not isinstance(_pydb_trace, Pdb):
             print "Your program should not use _pydb_trace"
-            return
+            return '_pydb_trace conflict'
     except NameError:
-        new_instance = True
+        status = 'new'
     except:
         print "Unknown error"
-        return
+        return 'Unknown error'
 
-    if new_instance:
+    back_frame = inspect.currentframe().f_back
+    if 'new' == status:
         if add_threaddbg:
             import threaddbg
             _pydb_trace = threaddbg.threadDbg()
         else:
             _pydb_trace = Pdb()
-        _pydb_trace.reset()
         _pydb_trace._program_sys_argv = list(sys.argv)
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
         _pydb_trace._sys_argv[:0] = [__title__]
         _pydb_trace.main_dirname = os.path.dirname(sys.argv[0])
 
+    _pydb_trace.curframe  = back_frame
+    _pydb_trace.stopframe = back_frame
+    if 'continue' == status:
+        pass
+    elif _pydb_trace.running:
+        return 'running'
+    _pydb_trace.running = True
+
     # We don't support "run" so we'll make "run" and "R" be "restart"
     _pydb_trace.do_R = _pydb_trace.do_run = _pydb_trace.do_restart
-    _pydb_trace.curframe=inspect.currentframe()
+
+    _pydb_trace.curframe  = back_frame
+    _pydb_trace.stopframe = back_frame
 
     # Dispatcher needs to field BdbQuit exception
     _pydb_trace.field_BdbQuit   = True
-
-    if _pydb_trace.running:
-        _pydb_trace.do_next('2')
-        return
-    _pydb_trace.running = True
 
     if dbg_cmds != None:
         _pydb_trace.cmdqueue = list(dbg_cmds)
@@ -332,15 +359,8 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
     if add_exception_hook:
         sys.excepthook = exception_hook
 
-    # Set to skip over return statement
-    _pydb_trace.step_ignore = 1
-    # There can be no other commands after the following one
-    # unless we adjust _pydb_trace.step_ignore accordingly.
-    # Note in some cases we stop in the "return" below and in some
-    # cases we step one more so we need to be conservitive in the
-    # step count. I don't know why weird behavior.
     _pydb_trace.set_trace(_pydb_trace.curframe)
-    return
+    return status
 
 def exception_hook(type, value, tb, dbg_cmds=None, cmdfile=None):
     """An exception hook to call @PACKAGE_NAME@'s post-mortem debugger.
