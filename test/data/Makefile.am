@@ -10,6 +10,7 @@ check_DATA = \
 	cmdparse.right            \
 	contbug-2.5.right         \
 	contbug.right             \
+	dbgcall.right             \
 	file.right                \
 	file-2.5.right            \
 	filebug.right             \
