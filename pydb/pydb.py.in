@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.159 2008/12/13 03:56:39 rockyb Exp $"""
+$Id: pydb.py.in,v 1.160 2008/12/13 14:13:47 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -224,6 +224,9 @@ class Pdb(Gdb):
 
     See the Gdb class documentation for more information and information on
     the meanings of the parameters.
+
+    If there is something you want to run before/after on each stopping
+    point, set precmd_hook and/or postcmd_hook
     """
 
     def __init__(self, completekey='tab', stdin=None, stdout=None,
@@ -238,7 +241,32 @@ class Pdb(Gdb):
                                                "n", "next", "return", "jump"])
         self.__show_annotations_postcmd = set(["down", "frame", "up"])
         self.__show_annotations = True
+        self.precmd_hooks = []
+        self.preloop_hooks = []
+        self.postcmd_hooks = []
+        self.postloop_hooks = []
         return
+
+    def __annotation(self, label, cmd, *args):
+        self.msg(chr(26) + chr(26) + label) # chr(26) is Ctrl-Z
+        cmd(*args)
+        self.msg(chr(26) + chr(26))
+
+
+    def precmd(self, line):
+        fns.runhooks(self, self.precmd_hooks, line)
+        return line
+        
+    def preloop(self):
+        fns.runhooks(self, self.preloop_hooks)
+        if self.annotate > 0:
+            if self.__show_annotations:
+                # if we are here, the stack frames have changed outside the
+                # command loop (e.g. after a "continue" command), so we show
+                # the annotations again
+                self.__annotation('breakpoints', self.do_info, 'breakpoints')
+                self.__annotation('stack', self.do_where, 0)
+                self.__annotation('locals', self.do_info, 'locals')
 
     def postcmd(self, stop, line):
         if self.annotate > 0:
@@ -251,22 +279,12 @@ class Pdb(Gdb):
             if cmd in self.__show_annotations_postcmd:
                 self.__annotation('stack', self.do_where, 0)
                 self.__annotation('locals', self.do_info, 'locals')
+        fns.runhooks(self, self.postcmd_hooks, stop, line)
         return stop
 
-    def preloop(self):
-        if self.annotate > 0:
-            if self.__show_annotations:
-                # if we are here, the stack frames have changed outside the
-                # command loop (e.g. after a "continue" command), so we show
-                # the annotations again
-                self.__annotation('breakpoints', self.do_info, 'breakpoints')
-                self.__annotation('stack', self.do_where, 0)
-                self.__annotation('locals', self.do_info, 'locals')
-
-    def __annotation(self, label, cmd, *args):
-        self.msg(chr(26) + chr(26) + label) # chr(26) is Ctrl-Z
-        cmd(*args)
-        self.msg(chr(26) + chr(26))
+    def postloop(self):
+        fns.runhooks(self, self.postloop_hooks)
+        return
 
 # -- end class Pdb
 

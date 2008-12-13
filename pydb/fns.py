@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.48 2008/12/13 03:56:39 rockyb Exp $"""
+$Id: fns.py,v 1.49 2008/12/13 14:13:47 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -260,6 +260,49 @@ def get_last_tb_or_frame_tb():
         pass
     return tb
 
+def get_brkpt_lineno(obj, arg):
+    """get_brkpt_lineno(obj,arg)->(filename, file, lineno)
+    
+    See if arg is a line number or a function name.  Return what
+    we've found. None can be returned as a value in the triple.
+
+    obj should be some sort of Gdb object and contain a curframe,
+    errmsg and lineinfo method.
+    """
+    funcname, filename = (None, None)
+    try:
+        # First see if the breakpont is an integer
+        lineno = int(arg)
+        filename = obj.curframe.f_code.co_filename
+    except ValueError:
+        try:
+            func = eval(arg, obj.curframe.f_globals,
+                        obj.curframe.f_locals)
+        except:
+            func = arg
+        try:
+            # See if agument is a function name
+            if hasattr(func, 'im_func'):
+                func = func.im_func
+            code = func.func_code
+            # use co_name to identify the bkpt (function names
+            #could be aliased, but co_name is invariant)
+            lineno = code.co_firstlineno
+            filename = code.co_filename
+        except:
+            # The last possibility is that a breakpoint argument can be
+            # is some sort of file + linenumber.
+            (ok, filename, ln) = obj.lineinfo(arg)
+            if not ok:
+                obj.errmsg(('The specified object %s is not'
+                            +' a function, or not found'
+                            +' along sys.path or no line given.')
+                           % str(repr(arg)))
+                return (None, None, None)
+            funcname = ok
+            lineno = int(ln)
+    return (funcname, filename, lineno)
+
 def print_dict(s, obj, title):
     if hasattr(obj, "__dict__"):
         d=obj.__dict__
@@ -360,6 +403,14 @@ def print_stack_trace(obj, count=None):
         pass
     return
 
+def runhooks(obj, hook_list, *args):
+    for hook in hook_list:
+        try: 
+            hook(obj, args)
+        except:
+            pass
+        return
+
 def search_file(filename, directories, cdir):
     """Return a full pathname for filename if we can find one. path
     is a list of directories to prepend to filename. If no file is
@@ -410,49 +461,6 @@ def parse_filepos(obj, arg):
     else:
         # no colon: can be lineno or function
         return get_brkpt_lineno(obj, arg)
-
-def get_brkpt_lineno(obj, arg):
-    """get_brkpt_lineno(obj,arg)->(filename, file, lineno)
-    
-    See if arg is a line number or a function name.  Return what
-    we've found. None can be returned as a value in the triple.
-
-    obj should be some sort of Gdb object and contain a curframe,
-    errmsg and lineinfo method.
-    """
-    funcname, filename = (None, None)
-    try:
-        # First see if the breakpont is an integer
-        lineno = int(arg)
-        filename = obj.curframe.f_code.co_filename
-    except ValueError:
-        try:
-            func = eval(arg, obj.curframe.f_globals,
-                        obj.curframe.f_locals)
-        except:
-            func = arg
-        try:
-            # See if agument is a function name
-            if hasattr(func, 'im_func'):
-                func = func.im_func
-            code = func.func_code
-            # use co_name to identify the bkpt (function names
-            #could be aliased, but co_name is invariant)
-            lineno = code.co_firstlineno
-            filename = code.co_filename
-        except:
-            # The last possibility is that a breakpoint argument can be
-            # is some sort of file + linenumber.
-            (ok, filename, ln) = obj.lineinfo(arg)
-            if not ok:
-                obj.errmsg(('The specified object %s is not'
-                            +' a function, or not found'
-                            +' along sys.path or no line given.')
-                           % str(repr(arg)))
-                return (None, None, None)
-            funcname = ok
-            lineno = int(ln)
-    return (funcname, filename, lineno)
 
 def whence_file(py_script):
     """Do a shell-like path lookup for py_script and return the results.
