@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.158 2008/12/12 13:10:18 rockyb Exp $"""
+$Id: pydb.py.in,v 1.159 2008/12/13 03:56:39 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -422,9 +422,7 @@ def pm(dbg_cmds=None, frameno=1, p=None):
     'p', is an optional pydb.Pdb object.
     """
 
-    # frameno+1 because we are about to add one more level of call
-    # in get_last_tb_or_frame_tb
-    tb = fns.get_last_tb_or_frame_tb(frameno+1)
+    tb = fns.get_last_tb_or_frame_tb()
     post_mortem(tb, dbg_cmds=dbg_cmds, p=p)
     return
 
@@ -456,7 +454,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
     if t is None:
         # frameno+1 because we are about to add one more level of call
         # in get_last_tb_or_frame_tb
-        t = fns.get_last_tb_or_frame_tb(frameno+1)
+        t = fns.get_last_tb_or_frame_tb()
         if t is None:
             print "Can't find traceback for post_mortem " + \
                   "in sys.last_traceback or sys.exec_info()"

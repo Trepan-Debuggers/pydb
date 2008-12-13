@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.47 2008/12/08 11:26:26 rockyb Exp $"""
+$Id: fns.py,v 1.48 2008/12/13 03:56:39 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -241,16 +241,16 @@ def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""
     return frame.f_back is not None and op_at_frame(frame.f_back)=='EXEC_STMT'
 
-def get_last_tb_or_frame_tb(frameno=1):
+def get_last_tb_or_frame_tb():
 
     """Intended to be used going into post mortem routines.  If
     sys.last_traceback is set, we will return that and assume that
     this is what post-mortem will want. If sys.last_traceback has not
     been set, then perhaps we *about* to raise an error and are
-    fielding an exception. So assume that sys.exc_info()[frameno]
+    fielding an exception. So assume that sys.exc_info()[2]
     is where we want to look."""
 
-    tb = sys.exc_info()[frameno]
+    tb = sys.exc_info()[2]
 
     try:
         if inspect.istraceback(sys.last_traceback):
