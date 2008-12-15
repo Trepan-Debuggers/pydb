@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.154 2008/11/24 21:24:28 rockyb Exp $"""
+$Id: gdb.py.in,v 1.155 2008/12/15 15:26:23 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1507,7 +1507,7 @@ we are in interactive mode, we'll prompt to make sure.
         """n(ext) [count]
 Continue execution until the next line in the current function is reached or it returns.
 
-With an integer argument, perform that many times."""
+With an integer argument, perform 'next' that many times."""
         if not self.is_running(): return
         try:
             # 0 means stop now or step 1, so we subtract 1.
