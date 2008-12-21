@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.155 2008/12/15 15:26:23 rockyb Exp $"""
+$Id: gdb.py.in,v 1.156 2008/12/21 02:17:36 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1242,11 +1242,17 @@ is no Python file."""
                    self.mainpyfile = ""
         else:
             # XXX how to clean up name space ??
-            self.mainpyfile=fname
-            self._program_sys_argv = [self.mainpyfile]
-            self._runscript(self.mainpyfile)
-            # Fake up curframe? 
-            return self.quitting
+            if os.path.exists(fname):
+                self.mainpyfile=fname
+                self._program_sys_argv = [self.mainpyfile]
+                self._runscript(self.mainpyfile)
+                # Fake up curframe? 
+                return self.quitting
+            else:
+                self.errmsg("file '%s' does not exist" % fname)
+                return None
+            pass
+        pass
 
     def do_finish(self, arg):
         """finish
