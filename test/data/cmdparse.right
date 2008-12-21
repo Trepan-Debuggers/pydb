@@ -241,6 +241,7 @@ pydb's prompt is "(Pydb) ".
 +up fdsafdsa
 *** up command: Expecting an integer, got: fdsafdsa.
 +u='foo'
+*** TypeError: exec: arg 2 must be a dictionary or None
 +down 1 b c
 *** down command: Expecting an integer, got: 1 b c.
 +frame foo

@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.49 2008/12/07 23:42:40 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.50 2008/12/21 10:54:21 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -434,9 +434,18 @@ class Bdb(bdb.Bdb):
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
             filename = self.filename(self.canonic_filename(frame))
-            line = linecache.getline(filename, inspect.getlineno(frame))
-            # No don't have a breakpoint. So we are either
-            # stepping or here be of line tracing.
+
+            # Python 2.5 or greater has 3 arg getline which handles
+            # eggs and zip files
+            if 3 == linecache.getline.func_code.co_argcount:
+                line = linecache.getline(filename, inspect.getlineno(frame),
+                                         frame.f_globals)
+            else:
+                line = linecache.getline(filename, inspect.getlineno(frame))
+                pass
+
+            # No, we don't have a breakpoint. So we are either
+            # stepping or here because of line tracing.
             if self.step_ignore > 0:
                 # Don't stop this time, just note a step was done in
                 # step count

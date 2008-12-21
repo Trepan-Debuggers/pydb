@@ -1,8 +1,8 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: checkline.py.in,v 1.1 2008/11/16 17:23:21 rockyb Exp $
+# $Id: checkline.py.in,v 1.2 2008/12/21 10:54:23 rockyb Exp $
 "Unit test for checkline"
-import os, sys, unittest
+import inspect, os, sys, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -22,6 +22,7 @@ class CheckLine(unittest.TestCase):
 
     def test_basic(self):
         global top_srcdir
+        self.curframe = inspect.currentframe()
         check_script = os.path.join(top_srcdir, 'test', 'data',
                                     'checkline.py')
         for t in ( ( 1, True), 

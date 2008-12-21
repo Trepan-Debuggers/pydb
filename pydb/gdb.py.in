@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.156 2008/12/21 02:17:36 rockyb Exp $"""
+$Id: gdb.py.in,v 1.157 2008/12/21 10:54:21 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1486,10 +1486,18 @@ we are in interactive mode, we'll prompt to make sure.
         if filename is None: return
         breaklist = self.get_file_breaks(filename)
 
+        # Python 2.5 or greater has 3 arg getline which handles
+        # eggs and zip files
+        if 3 == linecache.getline.func_code.co_argcount:
+            getline = lambda f, l: linecache.getline(f, l, 
+                                                     self.curframe.f_globals)
+        else:
+            getline = lambda f, l: linecache.getline(f, l)
+
         # We now have range information. Do the listing.
         try:
             for lineno in range(first, last+1):
-                line = linecache.getline(filename, lineno)
+                line = getline(filename, lineno)
                 if not line:
                     self.msg('[EOF]')
                     break

@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.49 2008/12/13 14:13:47 rockyb Exp $"""
+$Id: fns.py,v 1.50 2008/12/21 10:54:21 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -42,7 +42,7 @@ def checkline(obj, filename, lineno):
     Return LINENO if it is, 0 if not (e.g. a docstring, comment, blank
     line or EOF). Warning: testing is not comprehensive.
     """
-    line = linecache.getline(filename, lineno)
+    line = linecache.getline(filename, lineno, obj.curframe.f_globals)
     if not line:
         obj.errmsg('End of file')
         return 0

@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.48 2008/07/03 09:23:06 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.49 2008/12/21 10:54:21 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -71,7 +71,7 @@ class Cmd(cmd.Cmd):
 
         statement = 'execfile( "%s")' % filename
         self.running = True
-        self.run(statement, globals=globals_, locals=locals_)
+        self.run(statement)
         return
 
     def default(self, line):
@@ -96,7 +96,16 @@ class Cmd(cmd.Cmd):
             global_vars = None
         try:
             code = compile(line + '\n', '"%s"' % line, 'single')
-            exec code in global_vars, local_vars
+            save_stdout = sys.stdout
+            save_stdin = sys.stdin
+            try:
+                sys.stdin = self.stdin
+                sys.stdout = self.stdout
+                exec code in globals, locals
+            finally:
+                sys.stdout = save_stdout
+                sys.stdin = save_stdin
+                pass
         except:
             t, v = sys.exc_info()[:2]
             if type(t) == types.StringType:
@@ -442,7 +451,7 @@ See also 'examine' an 'whatis'.
 
             if print_line:
                 self.msg_nocr('+ ')
-            line=linecache.getline(filename, lineno)
+            line=linecache.getline(filename, lineno, self.curframe.f_globals)
             if line and len(line.strip()) != 0:
                 self.print_source_line(lineno, line)
 
