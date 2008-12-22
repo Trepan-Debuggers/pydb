@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.157 2008/12/21 10:54:21 rockyb Exp $"""
+$Id: gdb.py.in,v 1.158 2008/12/22 13:19:42 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1566,7 +1566,7 @@ With an integer argument, perform 'next' that many times."""
                     return False
                 
             self.msg(pprint.pformat(val))
-        except EOFError:
+        except:
             pass
 
     def do_pwd(self, arg):
