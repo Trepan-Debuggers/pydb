@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.52 2008/12/07 23:48:02 rockyb Exp $
+#$Id: Makefile.am,v 1.53 2008/12/22 23:28:41 rockyb Exp $
 #   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -84,6 +84,8 @@ install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
 	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
+test: check
+
 # cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
 
@@ -115,7 +117,6 @@ EXTRA_DIST +=  \
 	Doc/tools/patchlevel.h \
 	Doc/tools/toc2bkm.py
 
-test: check
 
 PHONY += ChangeLog
 ChangeLog:
