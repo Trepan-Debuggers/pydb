@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.50 2008/12/21 10:54:21 rockyb Exp $"""
+$Id: fns.py,v 1.51 2008/12/22 21:02:14 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007 Rocky Bernstein
 #
@@ -410,6 +410,70 @@ def runhooks(obj, hook_list, *args):
         except:
             pass
         return
+
+def search_python_file(filename, directories=sys.path, 
+                       module_globals=None):
+    fullname = filename
+    try:
+        stat = os.stat(fullname)
+    except os.error, msg:
+        basename = os.path.split(filename)[1]
+
+        # Try for a __loader__, if available
+        if module_globals and '__loader__' in module_globals:
+            name = module_globals.get('__name__')
+            loader = module_globals['__loader__']
+            get_source = getattr(loader, 'get_source', None)
+
+            if name and get_source:
+                if basename.startswith(name.split('.')[-1]+'.'):
+                    try:
+                        data = get_source(name)
+                    except (ImportError, IOError):
+                        pass
+                    else:
+                        if data is None:
+                            # No luck, the PEP302 loader cannot find the source
+                            # for this module.
+                            return []
+                        cache[filename] = (
+                            len(data), None,
+                            [line+'\n' for line in data.splitlines()], fullname
+                        )
+                        return cache[filename][2]
+
+        # Try looking through the module search path, taking care to handle packages.
+
+        if basename == '__init__.py':
+            # filename referes to a package
+            basename = filename
+
+        for dirname in sys.path:
+            # When using imputil, sys.path may contain things other than
+            # strings; ignore them when it happens.
+            try:
+                fullname = os.path.join(dirname, basename)
+            except (TypeError, AttributeError):
+                # Not sufficiently string-like to do anything useful with.
+                pass
+            else:
+                try:
+                    stat = os.stat(fullname)
+                    break
+                except os.error:
+                    pass
+        else:
+            # No luck
+##          print '*** Cannot stat', filename, ':', msg
+            return []
+    try:
+        fp = open(fullname, 'rU')
+        lines = fp.readlines()
+        fp.close()
+    except IOError, msg:
+##      print '*** Cannot open', fullname, ':', msg
+        return []
+
 
 def search_file(filename, directories, cdir):
     """Return a full pathname for filename if we can find one. path
