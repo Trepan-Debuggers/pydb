@@ -7,7 +7,7 @@ communication line, or via a FIFO.
 
 Modified from Matt Fleming's 2006 Google Summer of Code project.
 
-$Id: connection.py,v 1.9 2007/02/04 12:50:36 rockyb Exp $"""
+$Id: connection.py,v 1.10 2008/12/22 15:17:25 rockyb Exp $"""
 
 NotImplementedMessage = "This method must be overriden in a subclass"
 
@@ -267,7 +267,7 @@ class ConnectionFIFO(ConnectionInterface):
             return
         self.outp.close()
         outfile = self.outfile()
-        if outfile is not None and os.path.exists(outfile):
+        if outfile is not None and os.path.isfile(outfile):
             os.unlink(outfile)
         self.inp.close()
         self.inp = self.outp = None

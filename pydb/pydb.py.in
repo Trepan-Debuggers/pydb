@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.160 2008/12/13 14:13:47 rockyb Exp $"""
+$Id: pydb.py.in,v 1.161 2008/12/22 15:17:25 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -401,7 +401,7 @@ def help():
     doc_file='%s.doc' % __title__
     for dirname in sys.path:
         fullname = os.path.join(dirname, __title__, doc_file)
-        if os.path.exists(fullname):
+        if os.path.isfile(fullname):
             sts = os.system('${PAGER-more} '+fullname)
             if sts: print 'Pager exit status: %s' % str(sts)
             break
@@ -727,7 +727,7 @@ def main(p=None):
         p._program_sys_argv = list(sys.argv)
 
         mainpyfile = p._program_sys_argv[0] # Get script filename.
-        if not os.path.exists(mainpyfile):
+        if not os.path.isfile(mainpyfile):
             mainpyfile=fns.whence_file(mainpyfile)
             if not os.path.exists(mainpyfile):
                 print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
