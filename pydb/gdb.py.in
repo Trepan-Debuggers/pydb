@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.158 2008/12/22 13:19:42 rockyb Exp $"""
+$Id: gdb.py.in,v 1.159 2008/12/26 04:32:19 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1606,7 +1606,7 @@ Run python as a command subshell.
 
         # Python does it's own history thing.
         # Make sure it doesn't damage ours.
-        if self.readline:
+        if hasattr(self, 'readline') and self.readline:
             try:
                 self.write_history_file
             except IOError:
@@ -1623,7 +1623,7 @@ Run python as a command subshell.
             interact(banner='Pydb python shell')
 
         # Restore our history if we can do so.
-        if self.readline and self.histfile is not None:
+        if hasattr(self, 'readline') and self.readline and self.histfile is not None:
             try:
                 self.readline.read_history_file(self.histfile)
             except IOError:
