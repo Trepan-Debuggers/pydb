@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.137 2008/12/25 22:53:25 rockyb Exp $
+% $Id: libpydb.tex,v 1.138 2008/12/26 01:40:44 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -2157,6 +2157,20 @@ pydb.Pdb.precmd = myprecmd
 pydb.debugger(dbg_cmds=['s'] * 30)
 \end{verbatim}
 
+Since the debugger slows things down looking for stoppoing points. If
+you want to remove this overhead and have Python run closer to full
+speed, here's how you can remove the debugger hook:
+
+\begin{verbatim}
+    sys.settrace(None)
+\end{verbatim}
+
+If you need to turn it on subsequently:
+
+\begin{verbatim}
+    pydb.debugger(status='continue')
+\end{verbatim}
+
 \subsection{Calling the Debugger after a Crash: Post-Mortem
   Debugging ({\tt pydb.post_mortem}, {\tt pydb.pm}, {\tt pydb.exception_hook})}\label{subsection-post-mortem}
 
@@ -2230,22 +2244,6 @@ script these lines:
 \begin{verbatim}
   import pydb, sys
   sys.excepthook = pydb.exception_hook
-\end{verbatim}
-
-Since the debugger slows things down looking for stoppoing points. If
-you want to remove this overhead and have Python run closer to full
-speed, here's how you can remove the debugger hook:
-
-\begin{verbatim}
-    sys.settrace(None)
-\end{verbatim}
-
-If you need to turn it on subsequently:
-
-\begin{verbatim}
-     _pydb_trace.reset()
-    _pydb_trace.running = True
-    sys.settrace(_pydb_trace.trace_dispatch)
 \end{verbatim}
 
 \subsubsection{Post-Mortem Debugging within {\tt pydb}}
