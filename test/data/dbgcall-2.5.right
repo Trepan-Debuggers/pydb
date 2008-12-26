@@ -1,16 +1,16 @@
-(/tmp/pydb-1.25/test/dbgcall.py:17): 
+(/src/external-vcs/pydb/test/dbgcall.py:17):  <module>
 17 if __name__=='__main__':
-(dbgcall.py:18): 
+(dbgcall.py:18):  <module>
 +  18     i_args=len(sys.argv)
-(dbgcall.py:19): 
+(dbgcall.py:19):  <module>
 +  19     if i_args != 1 and i_args != 2:
-(dbgcall.py:23): 
+(dbgcall.py:23):  <module>
 +  23     n=3
-(dbgcall.py:24): 
+(dbgcall.py:24):  <module>
 +  24     sys.settrace(None)
-(dbgcall.py:34): 
+(dbgcall.py:34):  <module>
 +  34     if n < 1 or n > 100: 
-(dbgcall.py:38): 
+(dbgcall.py:38):  <module>
 +  38     hanoi(n, "a", "b", "c")
 --Call level -5 
 (dbgcall.py:10):  hanoi
@@ -109,5 +109,5 @@ Move disk a to b
 +  15        hanoi(n-1, c, b, a) 
 (dbgcall.py:15):  hanoi
 +  15        hanoi(n-1, c, b, a) 
-(dbgcall.py:38): 
+(dbgcall.py:38):  <module>
 +  38     hanoi(n, "a", "b", "c")

@@ -30,7 +30,7 @@ if __name__=='__main__':
         sys.exit(2)
 
     pydb.debugger(status='continue', 
-                  dbg_cmds=['p "continued"', 'step 2', 'quit'])
+                  dbg_cmds=['p "continued"', 'step 2', 'c'])
     if n < 1 or n > 100: 
         print "*** number of disks should be between 1 and 100" 
         sys.exit(2)

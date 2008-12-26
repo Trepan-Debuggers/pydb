@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.53 2008/12/22 23:28:41 rockyb Exp $
+#$Id: Makefile.am,v 1.54 2008/12/26 02:40:45 rockyb Exp $
 #   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
+AUTOMAKE_OPTIONS = dist-bzip2
 SUBDIRS = test emacs
 
 # Basename of debugger, used to form help doc, python script and script
