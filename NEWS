@@ -1,5 +1,8 @@
-1.25cvs
+1.25
+12-25-2008
 * Clean up debugger(). Add "status=continue".  
+* list now works in the presense of zipped eggs
+* Some small bug fixes.
 
 1.24
 12-10-2008
