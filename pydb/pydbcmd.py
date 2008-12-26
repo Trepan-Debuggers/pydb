@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.50 2008/12/22 21:02:14 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.51 2008/12/26 01:56:52 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -456,7 +456,12 @@ See also 'examine' an 'whatis'.
                 l = self.curframe.f_globals['__loader__']
                 print l
                 pass
-            line=linecache.getline(filename, lineno, self.curframe.f_globals)
+            if 2 == linecache.getline.func_code.co_argcount:
+                line = linecache.getline(filename, lineno)
+            else:
+                line = linecache.getline(filename, lineno, 
+                                         self.curframe.f_globals)
+                pass
             if line and len(line.strip()) != 0:
                 self.print_source_line(lineno, line)
 
