@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.78 2008/12/26 02:40:45 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.79 2008/12/26 03:03:43 rockyb Exp $])dnl
 AC_INIT([pydb],[1.25],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 MIN_VERSION='2.4.0'
@@ -31,6 +31,7 @@ AC_SUBST(MIN_VERSION)
 AM_PATH_LISPDIR
 
 AC_PATH_PROG(EMACS, emacs, no)
+
 if test x$EMACS != xno ; then
   $EMACS -batch -q -no-site-file -eval \
   '(if (<= emacs-major-version 21)
@@ -42,7 +43,8 @@ if test x$EMACS != xno ; then
     EMACS=no
   fi
 fi
-AM_CONDITIONAL(INSTALL_EMACS_LISP, test "x$lispdir" != "x")
+AM_CONDITIONAL(INSTALL_EMACS_LISP, 
+	       [test "x$lispdir" != "x" -a "x$EMACS" != "xno"])
 
 ##
 ## AM_PATH_PYTHON seems to use PACKAGE and AC_INIT sets PACKAGE_NAME.
