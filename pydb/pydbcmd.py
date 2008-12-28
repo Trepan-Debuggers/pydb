@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.51 2008/12/26 01:56:52 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.52 2008/12/28 16:20:19 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -135,7 +135,7 @@ output.
 Some commands like 'info', 'set', and 'show' can accept an
 additional subcommand to give help just about that particular
 subcommand. For example 'help info line' give help about the
-\code{info line} command.
+'info line' command.
 
 See also 'examine' an 'whatis'.
         """
