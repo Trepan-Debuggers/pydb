@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.138 2008/12/26 01:40:44 rockyb Exp $
+% $Id: libpydb.tex,v 1.139 2008/12/31 10:36:43 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -2125,21 +2125,23 @@ every statement that he debugged program runs. And this has a
 noticeable effect. With \code{debugger()} there is absolutely no
 overhead (provided there are no other breakpoints set in the program).
 
-\subsubsection{Line tracing}\label{subsubsection-linetracing}
-Rather than trace the entire program, if there is a specific portion
-that you want traced that can be done too, passing a list of debugger
-commands to \code{debugger}.
+\subsubsection{Turning the debugger on an off and using {\tt Pdb.precmd}}\label{subsubsection-precmd}
+
+Since the debugger slows things down looking for stoppoing points. If
+you want to remove this overhead and have Python run closer to full
+speed, here's how you can remove the debugger hook:
 
 \begin{verbatim}
-import pydb 
-# some code here ...
-pydb.debugger(["set linetrace on", "continue"])
-# This and subsequent lines will be traced
-# more code ...
-pydb.debugger(["set linetrace off", "continue"])
+    sys.settrace(None)
 \end{verbatim}
 
-If there's somethone you want to run before stepping you can do that
+If you need to turn it on subsequently:
+
+\begin{verbatim}
+    pydb.debugger(status='continue')
+\end{verbatim}
+
+If there's something you want to run before stepping you can do that
 by monkey-patching \code{Pdb.precmd}:
 
 \begin{verbatim}
@@ -2157,18 +2159,18 @@ pydb.Pdb.precmd = myprecmd
 pydb.debugger(dbg_cmds=['s'] * 30)
 \end{verbatim}
 
-Since the debugger slows things down looking for stoppoing points. If
-you want to remove this overhead and have Python run closer to full
-speed, here's how you can remove the debugger hook:
+\subsubsection{Line tracing}\label{subsubsection-linetracing}
+Rather than trace the entire program, if there is a specific portion
+that you want traced that can be done too, passing a list of debugger
+commands to \code{debugger}.
 
 \begin{verbatim}
-    sys.settrace(None)
-\end{verbatim}
-
-If you need to turn it on subsequently:
-
-\begin{verbatim}
-    pydb.debugger(status='continue')
+import pydb 
+# some code here ...
+pydb.debugger(["set linetrace on", "continue"])
+# This and subsequent lines will be traced
+# more code ...
+pydb.debugger(["set linetrace off", "continue"])
 \end{verbatim}
 
 \subsection{Calling the Debugger after a Crash: Post-Mortem
@@ -2368,7 +2370,7 @@ The \code{pydb} module defines the following functions, and each enters
 the debugger in a slightly different way:
 
 \begin{funcdesc}{debugger}{\optional{dbg_cmds=None,
-      add_exception_hook=True, add_threaddbg=False, new_instance=False}}\label{debugger}
+      add_exception_hook=True, add_threaddbg=False, status='start'}}\label{debugger}
 Enter the debugger at the statement which follows (in execution) the
 \code{debugger()} statement. This hard-codes a call to the debugger
 at a given point in a program, even if the code is not otherwise being
@@ -2396,10 +2398,21 @@ exception.
 If you want experimental thread debugging support, set
 \code{add_threaddbg} to \code{True}.
 
-If the debugger was called previously, normally we use that. This way
-any previous debugger state that was set gets used. If you don't the
-debugger state to be used, set parameter new_instance \code{True}.
+Setting the parameter \code{status} to the string 'new' will cause a
+new instance to be created which might wiping out other
+instances which might contain information like breakpoints or
+debugger settings.
+
+If instead \code{status} is set to 'continue', an existing instance
+will resume. Omitting status or setting it to 'start' will start
+the debugger which might be a 'new' depending on whether or not
+an instance has been created. 
 \end{funcdesc}
+
+If instead `status' is set to 'continue', an existing instance
+will resume. Omitting status or setting it to 'start' will start
+    the debugger which might be a 'new' depending on whether or not
+    an instance has been created. 
 
 \begin{funcdesc}{exception_hook}{type, value, tb, dbg_cmds=None,
     cmdfile=None}
