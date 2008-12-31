@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.159 2008/12/26 04:32:19 rockyb Exp $"""
+$Id: gdb.py.in,v 1.160 2008/12/31 02:48:28 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1458,8 +1458,9 @@ given the following options are passed:
 
 Kill execution of program being debugged.
 
-Equivalent of kill -KILL <pid>. This is an unmaskable signal. When all
-else fails, e.g. in thread code, use this.
+Equivalent of kill -KILL <pid> where <pid> is os.getpid(), the current
+debugged process. This is an unmaskable signal. When all else fails, e.g. in
+thread code, use this.
 
 If 'unconditionally' is given, no questions are asked. Otherwise, if
 we are in interactive mode, we'll prompt to make sure.
