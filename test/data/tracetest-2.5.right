@@ -1,6 +1,6 @@
 (/src/external-cvs/pydb/test/settrace.py:51):  <module>
 51 hanoi(n, "a", "b", "c")
--> 0 <module>() called from file 'settrace.py' at line 51
+-> 0 <module> called from file 'settrace.py' at line 51
  46  	          'continue']
  47  	
  48  	import pydb
@@ -14,7 +14,7 @@
 (settrace.py:15):  hanoi
 15     if n-1 > 0:
 -> 0 hanoi(n=3, a='a', b='b', c='c') called from file 'settrace.py' at line 15
-## 1 <module>() called from file 'settrace.py' at line 51
+## 1 <module> called from file 'settrace.py' at line 51
 a = 'a'
 c = 'c'
 b = 'b'

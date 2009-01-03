@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.50 2008/12/21 10:54:21 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.51 2009/01/03 13:48:45 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -300,10 +300,13 @@ class Bdb(bdb.Bdb):
             s = "<lambda>"
 
         args, varargs, varkw, local_vars = inspect.getargvalues(frame)
-        parms=inspect.formatargvalues(args, varargs, varkw, local_vars)
-        if len(parms) >= self.maxargstrsize:
-            parms = "%s...)" % parms[0:self.maxargstrsize]
-        s += parms
+        if not ('<module>' == s and ([], None, None,) == (args, varargs, varkw,)):
+            parms=inspect.formatargvalues(args, varargs, varkw, local_vars)
+            if len(parms) >= self.maxargstrsize:
+                parms = "%s...)" % parms[0:self.maxargstrsize]
+                pass
+            s += parms
+            pass
 
         # ddd can't handle wrapped stack entries.
         # if len(s) >= 35:
