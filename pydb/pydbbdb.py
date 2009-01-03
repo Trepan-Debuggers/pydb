@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.51 2009/01/03 13:48:45 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.52 2009/01/03 13:57:45 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -7,6 +7,9 @@ import bdb, inspect, linecache, time, types
 from repr import Repr
 from fns import *
 ## from complete import rl_complete
+
+def frame2file(obj, frame):
+    return obj.filename(obj.canonic_filename(frame))
 
 class Bdb(bdb.Bdb):
 
@@ -291,7 +294,7 @@ class Bdb(bdb.Bdb):
         """
         import repr as repr_mod
         frame, lineno = frame_lineno
-        filename = self.filename(self.canonic_filename(frame))
+        filename = frame2file(self, frame)
 
         s = ''
         if frame.f_code.co_name:
@@ -436,7 +439,7 @@ class Bdb(bdb.Bdb):
         if self.stop_here(frame) or self.linetrace or self.fntrace:
             # Don't stop if we are looking at a def for which a breakpoint
             # has not been set.
-            filename = self.filename(self.canonic_filename(frame))
+            filename = frame2file(self, frame)
 
             # Python 2.5 or greater has 3 arg getline which handles
             # eggs and zip files
