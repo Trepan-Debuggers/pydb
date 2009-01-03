@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.52 2008/12/26 01:56:52 rockyb Exp $"""
+$Id: fns.py,v 1.53 2009/01/03 03:50:14 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein
 #
@@ -275,7 +275,7 @@ def get_brkpt_lineno(obj, arg):
     """
     funcname, filename = (None, None)
     try:
-        # First see if the breakpont is an integer
+        # First see if the breakpoint is an integer
         lineno = int(arg)
         filename = obj.curframe.f_code.co_filename
     except ValueError:
