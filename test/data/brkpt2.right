@@ -54,7 +54,7 @@ Deleted breakpoint 6
 No breakpoints.
 +where 2
 -> 0 gcd(a=3, b=5) called from file 'gcd.py' at line 35
-## 1 <module> called from file 'gcd.py' at line 41
+## 1 <module> file 'gcd.py' at line 41
 +###############################################################
 +### Test frame command
 +###############################################################

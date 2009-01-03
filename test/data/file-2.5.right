@@ -3,10 +3,10 @@
 +info line
 Line 2 of "hanoi.py" at instruction 0
 +where 2
--> 0 <module> called from file 'hanoi.py' at line 2
-## 1 <module> called from file '<string>' at line 1
+-> 0 <module> file 'hanoi.py' at line 2
+## 1 <module> file '<string>' at line 1
 +step 1+1
 +where 2
--> 0 <module> called from file 'hanoi.py' at line 12
-## 1 <module> called from file '<string>' at line 1
+-> 0 <module> file 'hanoi.py' at line 12
+## 1 <module> file '<string>' at line 1
 +quit
