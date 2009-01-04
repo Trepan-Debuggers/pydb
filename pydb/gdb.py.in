@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.160 2008/12/31 02:48:28 rockyb Exp $"""
+$Id: gdb.py.in,v 1.161 2009/01/04 15:18:00 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1013,7 +1013,7 @@ position before running an (unconditional) continue."""
         See also the 'clear' command which clears breakpoints by
         line/file number.."""
         if not arg:
-            if get_confirmation(self, 'Delete all breakpoints (y or n)? '):
+            if get_confirmation(self, 'Delete all breakpoints'):
                 self.clear_all_breaks()
             return
 
@@ -1045,7 +1045,7 @@ the default."""
         args = arg.split()
         if len(args) == 0:
             if get_confirmation(self,
-                'Reinitialize source path to empty? (y or n) '):
+                'Reinitialize source path to empty'):
                 self.search_path=[]
             return
         else:
@@ -1234,12 +1234,11 @@ is no Python file."""
                return
            else:
                # should confirm this per
-               if get_confirmation(self,
-                                   "Discard symbol table from %s'? (y or n)"
+               if get_confirmation(self, "Discard symbol table from '%s'"
                                    % self.mainpyfile):
                    # XXX how to clean up name space ??
                    self._program_sys_argv = None
-                   self.mainpyfile = ""
+                   self.mainpyfile = ''
         else:
             # XXX how to clean up name space ??
             if os.path.exists(fname):
@@ -1466,10 +1465,10 @@ If 'unconditionally' is given, no questions are asked. Otherwise, if
 we are in interactive mode, we'll prompt to make sure.
 """
         if len(arg) > 0 and 'unconditionally'.startswith(arg) or \
-               get_confirmation(self, 'Really do a hard kill (y or n)? ',
-                                True):
+               get_confirmation(self, 'Really do a hard kill', True):
             os.kill(os.getpid(), signal.SIGKILL)
-            return False # Not reached
+            return False # Possibly not reached
+        pass
 
     def do_list(self, arg):
         """l(ist) [- | first [last or count]]

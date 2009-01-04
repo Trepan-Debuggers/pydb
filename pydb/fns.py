@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.53 2009/01/03 03:50:14 rockyb Exp $"""
+$Id: fns.py,v 1.54 2009/01/04 15:18:00 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein
 #
@@ -193,16 +193,26 @@ def find_function(funcname, filename):
     return answer
 
 def get_confirmation(obj, prompt, default=False):
-    """Get a yes/no answer to prompt. obj is an object that has
-    a boolean noninteractive attribute and a msg method. The default
-    value is used for the return if we aren't interactive.
+    """ Called when a dangerous action is about to be done to make
+    sure it's okay. Get a yes/no answer to `prompt' which is printed,
+    suffixed with a question mark and the default value.  The user
+    response converted to a boolean is returned.
+    
+    obj is an object that has a boolean `noninteractive' attribute and a
+    `msg' method. The default value is used for the return if we aren't
+    interactive.
     """
+    if default:
+        prompt += '? (Y or n) '
+    else:
+        prompt += '? (N or y) '
+        pass
     while True and not obj.noninteractive:
         try:
             reply = raw_input(prompt).strip()
+            reply = reply.strip().lower()
         except EOFError:
             reply = 'no'
-            reply = reply.strip().lower()
         if reply in ('y', 'yes'):
             return True
         elif reply in ('n', 'no'):
