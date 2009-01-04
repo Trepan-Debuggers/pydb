@@ -1,5 +1,5 @@
 ;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
-;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org) 
+;; Copyright (C) 2007, 2009 Rocky Bernstein (rocky@gnu.org) 
 ;; This file is (not yet) part of GNU Emacs.
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -178,9 +178,9 @@ and in tracebacks like this:
 			 (match-end gud-pydb-marker-regexp-line-group))))
 
        ;; Append any text before the marker to the output we're going
-       ;; to return - we don't include the marker in this text.
+       ;; to return - include the marker in this text.
        output (concat output
-		      (substring gud-marker-acc 0 (match-beginning 0)))
+		      (substring gud-marker-acc 0 (match-end 0)))
 
        ;; Set the accumulator to the remaining text.
        gud-marker-acc (substring gud-marker-acc (match-end 0))))
