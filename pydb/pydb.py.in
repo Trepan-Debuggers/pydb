@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.161 2008/12/22 15:17:25 rockyb Exp $"""
+$Id: pydb.py.in,v 1.162 2009/01/06 17:19:03 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -719,6 +719,7 @@ def main(p=None):
         # No program given to debug. Set to go into a command loop
         # anyway
         mainpyfile = None
+        p._program_sys_argv = []
 
     else:
         # Save the DEBUGGED programs arguments. This is in case
