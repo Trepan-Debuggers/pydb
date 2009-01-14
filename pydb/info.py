@@ -1,7 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: info.py,v 1.14 2007/11/29 13:09:37 rockyb Exp $"
+__revision = "$Id: info.py,v 1.15 2009/01/14 02:50:28 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -122,8 +122,9 @@ The short command name is L."""
         return False
 
     def filter_local(self, varname):
-        """When the "with" statement is used we seem to get variables having names
-        _[1], _[2], etc. We can't "eval" these because this will raise a NameError.
+        """When the "with" statement is used, we seem to get variables
+        having names _[1], _[2], etc. We can't "eval" these because
+        this will raise a NameError.
         """
 
         if _with_local_varname.match(varname):

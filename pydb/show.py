@@ -1,7 +1,7 @@
 """show subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: show.py,v 1.22 2008/05/20 13:17:51 rockyb Exp $"
+__revision = "$Id: show.py,v 1.23 2009/01/14 02:50:28 rockyb Exp $"
 #   Copyright (C) 2006, 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import fns, sys
 
 class SubcmdShow:
 
-    """Handle set subcommands. This class isn't usuable in of itself,
+    """Handle show subcommands. This class isn't usuable in of itself,
     but is expected to be called with something that subclasses it and
     adds other methods and instance variables like msg and
     _program_sys_argv."""
