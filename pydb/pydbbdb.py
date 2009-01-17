@@ -1,4 +1,4 @@
-"""$Id: pydbbdb.py,v 1.53 2009/01/03 14:13:54 rockyb Exp $
+"""$Id: pydbbdb.py,v 1.54 2009/01/17 07:55:16 rockyb Exp $
 Routines here have to do with the subclassing of bdb.  Defines Python
 debugger Basic Debugger (Bdb) class.  This file could/should probably
 get merged into bdb.py
@@ -305,6 +305,12 @@ class Bdb(bdb.Bdb):
         args, varargs, varkw, local_vars = inspect.getargvalues(frame)
         if '<module>' == s and ([], None, None,) == (args, varargs, varkw,):
             is_module = True
+            if is_exec_stmt(frame): 
+                s += ' exec()'
+            else:
+                fn_name = get_call_function_name(frame)
+                if fn_name: s += ' %s()' % fn_name
+                pass
         else:
             is_module = False
             parms=inspect.formatargvalues(args, varargs, varkw, local_vars)

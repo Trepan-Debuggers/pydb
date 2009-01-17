@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.54 2009/01/04 15:18:00 rockyb Exp $"""
+$Id: fns.py,v 1.55 2009/01/17 07:55:16 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein
 #
@@ -18,7 +18,8 @@ $Id: fns.py,v 1.54 2009/01/04 15:18:00 rockyb Exp $"""
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #    02110-1301 USA.
 
-import inspect, linecache, os, shlex, sys, re, traceback, types
+import dis, inspect, linecache, os, shlex, sys, re, traceback, types
+from opcode import opname
 
 # A pattern for a def header seems to be used a couple of times.
 _re_def_str = r'^\s*def\s'
@@ -255,6 +256,29 @@ def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""
     return frame.f_back is not None and op_at_frame(frame.f_back)=='EXEC_STMT'
 
+def get_call_function_name(frame):
+    """If f_back is looking at a call function, return 
+    the name for it. Otherwise return None"""
+    f_back = frame.f_back
+    if not f_back: return None
+    if 'CALL_FUNCTION' != op_at_frame(f_back): return None
+
+    co         = f_back.f_code
+    code       = co.co_code
+    labels     = dis.findlabels(code)
+    linestarts = dict(dis.findlinestarts(co))
+    inst       = f_back.f_lasti
+    while inst >= 0:
+        c = code[inst]
+        op = ord(c)
+        if inst in linestarts:
+            inst += 1
+            oparg = ord(code[inst]) + (ord(code[inst+1]) << 8)
+            return co.co_names[oparg]
+        inst -= 1
+        pass
+    return None
+
 def get_last_tb_or_frame_tb():
 
     """Intended to be used going into post mortem routines.  If
@@ -384,7 +408,6 @@ def printf(val, fmt):
             return str(val)
     return str(val)
 
-from opcode import opname
 def op_at_frame(frame, pos=None):
     code = frame.f_code.co_code
     if pos is None: pos = frame.f_lasti
