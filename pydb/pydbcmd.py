@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.52 2008/12/28 16:20:19 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.53 2009/01/17 06:31:38 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -429,6 +429,11 @@ See also 'examine' an 'whatis'.
         we give at least some place that's located in a file.      
         """
         i_stack = self.curindex
+
+        # Evaluation routines like "exec" don't show useful location
+        # info. In these cases, we will use the position before that in
+        # the stack.  Hence the looping below which in practices loops
+        # once and sometimes twice.
         while i_stack >= 0:
             frame_lineno = self.stack[i_stack]
             i_stack -= 1
@@ -442,6 +447,10 @@ See also 'examine' an 'whatis'.
                     break
             
             filename = self.filename(self.canonic_filename(frame))
+
+            if '<string>' == filename and i_stack >= 0:
+                continue
+
             self.msg_nocr('(%s:%s):' % (filename, lineno))
             fn_name = frame.f_code.co_name
             if fn_name and fn_name != '?':
@@ -464,11 +473,10 @@ See also 'examine' an 'whatis'.
                 pass
             if line and len(line.strip()) != 0:
                 self.print_source_line(lineno, line)
+                pass
 
-            # If we are stopped at an "exec" or print the next outer
-            # location for that front-ends tracking source execution.
-            if not is_exec_stmt(frame):
-                break
+            break
+        return
 
     def onecmd(self, line):
 

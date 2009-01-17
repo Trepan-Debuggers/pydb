@@ -116,5 +116,3 @@
 +  10        hanoi(n-1, c, b, a) 
 (hanoi.py:31):  <module>
 +  31     hanoi(n, "a", "b", "c")
-(<string>:1):  <module>
-+ 
