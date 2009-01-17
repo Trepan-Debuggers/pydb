@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.54 2009/01/17 06:37:48 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.55 2009/01/17 06:42:30 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -472,7 +472,7 @@ See also 'examine' an 'whatis'.
                 self.print_source_line(lineno, line)
                 pass
 
-            if '<string>' != filename or i_stack >= 0:
+            if '<string>' != filename:
                 break
             pass
         return
