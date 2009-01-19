@@ -5,7 +5,7 @@ or runevel.
 
 (See also @PACKAGE_NAME@.doc for documentation.)
 
-$Id: pydb.py.in,v 1.162 2009/01/06 17:19:03 rockyb Exp $"""
+$Id: pydb.py.in,v 1.163 2009/01/19 18:12:43 rockyb Exp $"""
 
 # This part contains user entry subroutines.
 
@@ -294,7 +294,7 @@ class Pdb(Gdb):
 
 # Start here: note status is new and params have changed...
 def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
-             status='start'):
+             status='start', stdout=None):
     """Enter the debugger at the calling stack frame.  This can be
     used as a way to hard-code a breakpoint in a program, even if the
     code is not otherwise being debugged (e.g., when an assertion
@@ -348,7 +348,7 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
             import threaddbg
             _pydb_trace = threaddbg.threadDbg()
         else:
-            _pydb_trace = Pdb()
+            _pydb_trace = Pdb(stdout=stdout)
         _pydb_trace._program_sys_argv = list(sys.argv)
         _pydb_trace._sys_argv = list(_pydb_trace._program_sys_argv)
         _pydb_trace._sys_argv[:0] = [__title__]
@@ -444,7 +444,8 @@ def pm(dbg_cmds=None, frameno=1, p=None):
     post_mortem(tb, dbg_cmds=dbg_cmds, p=p)
     return
 
-def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
+def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, 
+                p=None, stdout=None):
     """Enter debugger read loop after your program has crashed.
 
     If no traceback parameter, t, is supplied, the last traceback and
@@ -464,7 +465,8 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1, p=None):
     """
 
     if p == None:
-        p = Pdb()
+        p = Pdb(stdout=stdout)
+        pass
     p.reset()
     p.running = False
     re_bogus_file = re.compile("^<.+>$")
@@ -544,7 +546,7 @@ def uncaught_exception(p):
     return None
 
 
-def run(statement, globals=None, locals=None):
+def run(statement, globals=None, locals=None, stdout=None):
 
     """Execute the statement (given as a string) under debugger
     control starting with the statement subsequent to the place that
@@ -558,12 +560,12 @@ def run(statement, globals=None, locals=None):
     in which the code is executed; by default the dictionary of the
     module __main__ is used."""
 
-    p = Pdb()
+    p = Pdb(stdout=stdout)
     p.running=True
     p.run(statement, globals, locals)
     return
 
-def runeval(expression, globals=None, locals=None):
+def runeval(expression, globals=None, locals=None, stdout=None):
 
     """Evaluate the expression (given as a string) under debugger
     control starting with the statement subsequent to the place that
@@ -572,7 +574,7 @@ def runeval(expression, globals=None, locals=None):
     When runeval() returns, it returns the value of the expression.
     Otherwise this function is similar to run()."""
 
-    p = Pdb()
+    p = Pdb(stdout=stdout)
     p.running=True
     try:
         return p.runeval(expression, globals, locals)

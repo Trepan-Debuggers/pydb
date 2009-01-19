@@ -16,9 +16,15 @@ def dis(obj, x=None, start_line=-1, end_line=None):
     if type(x) is types.InstanceType:
         x = x.__class__
     if hasattr(x, 'im_func'):
+        obj.msg("Dissassembly of %s: " % x)
         x = x.im_func
     if hasattr(x, 'func_code'):
+        obj.msg("Dissassembly of %s: " % x)
         x = x.func_code
+    elif hasattr(x, 'f_code'):
+        obj.msg("Dissassembly of %s: " % x)
+        x = x.f_code
+        pass
     if hasattr(x, '__dict__'):
         items = x.__dict__.items()
         items.sort()
@@ -27,11 +33,12 @@ def dis(obj, x=None, start_line=-1, end_line=None):
                             types.FunctionType,
                             types.CodeType,
                             types.ClassType):
-                obj.msg("Disassembly of %s:" % name)
+                obj.msg("Disassembly of %s (%s):" % 
+                        name, type(x1).__name__)
                 try:
                     dis(obj, x1, start_line=start_line, end_line=end_line)
                 except TypeError, msg:
-                    obj.msg("Sorry:", msg)
+                    obj.errmsg("Sorry:", msg)
                 obj.msg("")
     elif hasattr(x, 'co_code'):
         disassemble(obj, x, start_line=start_line, end_line=end_line)
@@ -118,3 +125,21 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
         msg("")
     return
 
+if __name__ == '__main__':
+    class DisassembleTestClass:
+        def errmsg(self, msg):
+            print('*** %s' % msg)
+            return
+        def msg(self, msg):
+            print(msg)
+            return
+        def msg_nocr(self, msg):
+            print msg,
+            return
+        pass
+    import inspect
+    dt = DisassembleTestClass()
+    curframe = inspect.currentframe()
+    dis(dt, curframe)
+    dis(dt, dt.errmsg)
+    pass
