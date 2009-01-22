@@ -95,6 +95,7 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
                 msg_nocr = null_print
                 msg = null_print
             else:
+                statement_count -= 1
                 msg_nocr = obj.msg_nocr
                 msg = obj.msg
             if cur_line > end_line: break

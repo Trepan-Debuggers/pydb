@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.163 2009/01/22 03:32:22 rockyb Exp $"""
+$Id: gdb.py.in,v 1.164 2009/01/22 03:50:13 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1098,7 +1098,7 @@ that."""
         start_line = end_line = None
         try:
             if len(args) > 0:
-                if '.' == args[1]:
+                if '.' == args[0]:
                     start_line = self.curframe.f_lineno
                 else:
                     start_line = int(args[0])
@@ -1122,7 +1122,7 @@ that."""
         except ValueError:
             try:
                 if len(args) > 1:
-                    if '.' == args[2]:
+                    if '.' == args[1]:
                         start_line = self.proc.curframe.f_lineno
                     else:
                         try:
