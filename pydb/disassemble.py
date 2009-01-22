@@ -33,8 +33,6 @@ def dis(obj, x=None, start_line=-1, end_line=None):
                             types.FunctionType,
                             types.CodeType,
                             types.ClassType):
-                obj.msg("Disassembly of %s (%s):" % 
-                        name, type(x1).__name__)
                 try:
                     dis(obj, x1, start_line=start_line, end_line=end_line)
                 except TypeError, msg:
@@ -63,7 +61,17 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
                        start_line=-1, end_line=None,
                        varnames=(), names=(), consts=(), cellvars=(),
                        freevars=(), linestarts={}):
-    """Disassemble byte string of code."""
+    """Disassemble byte string of code. If end_line is negative
+    it counts the number of statement linestarts to use."""
+    statement_count = 10000
+    if end_line is None:
+        end_line = 10000
+    else:
+        if end_line < 0:
+            statement_count = -end_line
+            end_line = 10000
+            pass
+        pass
     labels = findlabels(code)
     n = len(code)
     i = 0
@@ -76,7 +84,7 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
     else:
         msg_nocr = obj.msg_nocr
         msg = obj.msg
-    while i < n:
+    while i < n and statement_count >= 0:
         c = code[i]
         op = ord(c)
         if i in linestarts:
@@ -89,7 +97,7 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
             else:
                 msg_nocr = obj.msg_nocr
                 msg = obj.msg
-            if end_line and cur_line > end_line: break
+            if cur_line > end_line: break
             msg_nocr("%3d" % cur_line)
         else:
             msg_nocr('   ')
@@ -100,11 +108,11 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
         else: msg_nocr('  ')
         msg_nocr(repr(i).rjust(4))
         msg_nocr(opname[op].ljust(20))
-        i = i+1
+        i += 1
         if op >= HAVE_ARGUMENT:
             oparg = ord(code[i]) + ord(code[i+1])*256 + extended_arg
             extended_arg = 0
-            i = i+2
+            i += 2
             if op == EXTENDED_ARG:
                 extended_arg = oparg*65536L
             msg_nocr(repr(oparg).rjust(5))

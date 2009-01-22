@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.162 2009/01/16 04:12:32 rockyb Exp $"""
+$Id: gdb.py.in,v 1.163 2009/01/22 03:32:22 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1098,7 +1098,11 @@ that."""
         start_line = end_line = None
         try:
             if len(args) > 0:
-                start_line = int(args[0])
+                if '.' == args[1]:
+                    start_line = self.curframe.f_lineno
+                else:
+                    start_line = int(args[0])
+                    pass
 
                 if len(args) == 2:
                     try:
@@ -1110,7 +1114,7 @@ that."""
                                 len(args))
                     return False
             if not self.curframe:
-                self.msg("No frame selected.")
+                self.errmsg("No frame selected.")
                 return False
             disassemble.disassemble(self, self.curframe.f_code,
                                     start_line=start_line,
@@ -1118,23 +1122,29 @@ that."""
         except ValueError:
             try:
                 if len(args) > 1:
-                    try:
-                        start_line = self.get_int(args[1],
-                                                  cmdname="disassemble")
-                        if len(args) == 3:
-                            end_line = self.get_int(args[2],
-                                                    cmdname="disassemble")
-                        elif len(args) > 3:
-                            self.errmsg("Expecting 0-3 parameters, got %d" %
-                                        len(args))
+                    if '.' == args[2]:
+                        start_line = self.proc.curframe.f_lineno
+                    else:
+                        try:
+                            start_line = self.get_int(args[1],
+                                                      cmdname="disassemble")
+                            if len(args) == 3:
+                                end_line = self.get_int(args[2],
+                                                        cmdname="disassemble")
+                            elif len(args) > 3:
+                                self.errmsg("Expecting 0-3 parameters, got %d" %
+                                            len(args))
+                                return False
+                        except ValueError:
                             return False
-                    except ValueError:
-                        return False
+                        pass
+                    pass
 
                 if hasattr(self, 'curframe') and self.curframe:
                     obj=self.getval(args[0])
                 else:
                     obj=eval(args[0])
+                    pass
                 disassemble.dis(self, obj,
                                 start_line=start_line, end_line=end_line)
             except NameError:
