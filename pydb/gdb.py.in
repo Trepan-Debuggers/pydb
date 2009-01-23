@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.164 2009/01/22 03:50:13 rockyb Exp $"""
+$Id: gdb.py.in,v 1.165 2009/01/23 05:13:56 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1081,12 +1081,14 @@ the default."""
                 bp.disable()
 
     def do_disassemble(self, arg):
-        """disassemble [obj-or-class] [start line number [end line number]]
+        """disassemble [obj-or-class] [[+|-]start-line [[+|-]end-line]]
 
-With no argument, disassemble the current frame.  With one integer
-argument, the disassembly is narrowed to not show lines before that
-line number. With a second integer argument, disassembly ends as soon
-a the the line number exceeds the ending line number.
+With no argument, disassemble the current frame.  With a start-line
+integer, the disassembly is narrowed to show lines starting at that
+line number or later; with an end-line number, disassembly stops
+when the next line would be greater than that or the end of the code
+is hit. If start-line or end-line has a plus or minus prefix, then the
+line number is relative to the current frame number.
 
 With a class, method, function, code or string argument disassemble
 that."""
@@ -1096,12 +1098,18 @@ that."""
         else:
             args = []
         start_line = end_line = None
+        relative_pos = False
         try:
             if len(args) > 0:
-                if '.' == args[0]:
+                if args[0] in ['+', '-']: 
                     start_line = self.curframe.f_lineno
+                    relative_pos = True
                 else:
                     start_line = int(args[0])
+                    if args[0][0:1] in ['+', '-']: 
+                        relative_pos = True
+                        start_line += self.curframe.f_lineno
+                        pass
                     pass
 
                 if len(args) == 2:
@@ -1118,26 +1126,27 @@ that."""
                 return False
             disassemble.disassemble(self, self.curframe.f_code,
                                     start_line=start_line,
-                                    end_line=end_line)
+                                    end_line=end_line,
+                                    relative_pos=relative_pos)
         except ValueError:
             try:
                 if len(args) > 1:
-                    if '.' == args[1]:
-                        start_line = self.proc.curframe.f_lineno
-                    else:
-                        try:
-                            start_line = self.get_int(args[1],
-                                                      cmdname="disassemble")
-                            if len(args) == 3:
-                                end_line = self.get_int(args[2],
-                                                        cmdname="disassemble")
-                            elif len(args) > 3:
-                                self.errmsg("Expecting 0-3 parameters, got %d" %
-                                            len(args))
-                                return False
-                        except ValueError:
+                    try:
+                        start_line = self.get_int(args[1],
+                                                  cmdname="disassemble")
+                        if args[1][0:1] in ['+', '-']: 
+                            relative_pos = True
+                            start_line += self.proc.curframe.f_lineno
+                            pass
+                        if len(args) == 3:
+                            end_line = self.get_int(args[2],
+                                                    cmdname="disassemble")
+                        elif len(args) > 3:
+                            self.errmsg("Expecting 0-3 parameters, got %d" %
+                                        len(args))
                             return False
-                        pass
+                    except ValueError:
+                        return False
                     pass
 
                 if hasattr(self, 'curframe') and self.curframe:
@@ -1146,7 +1155,8 @@ that."""
                     obj=eval(args[0])
                     pass
                 disassemble.dis(self, obj,
-                                start_line=start_line, end_line=end_line)
+                                start_line=start_line, end_line=end_line,
+                                relative_pos=relative_pos)
             except NameError:
                 self.errmsg("Object '%s' is not something we can disassemble"
                             % args[0])

@@ -4,7 +4,7 @@ import types
 from dis import distb, findlabels, findlinestarts
 from opcode import *
 
-def dis(obj, x=None, start_line=-1, end_line=None):
+def dis(obj, x=None, start_line=-1, end_line=None, relative_pos = False):
     """Disassemble classes, methods, functions, or code.
 
     With no argument, disassemble the last traceback.
@@ -39,7 +39,8 @@ def dis(obj, x=None, start_line=-1, end_line=None):
                     obj.errmsg("Sorry:", msg)
                 obj.msg("")
     elif hasattr(x, 'co_code'):
-        disassemble(obj, x, start_line=start_line, end_line=end_line)
+        disassemble(obj, x, start_line=start_line, end_line=end_line,
+                    relative_pos=relative_pos)
     elif isinstance(x, str):
         dis.disassemble_string(x)
     else:
@@ -48,17 +49,17 @@ def dis(obj, x=None, start_line=-1, end_line=None):
     return
 
 def disassemble(obj, co, lasti=-1, start_line=-1, end_line=None,
-                ):
+                relative_pos=False):
     """Disassemble a code object."""
     disassemble_string(obj, co.co_code, lasti, co.co_firstlineno,
-                       start_line, end_line,
+                       start_line, end_line, relative_pos,
                        co.co_varnames, co.co_names, co.co_consts,
                        co.co_cellvars, co.co_freevars,
                        dict(findlinestarts(co)))
     return
 
 def disassemble_string(obj, code, lasti=-1, cur_line=0,
-                       start_line=-1, end_line=None,
+                       start_line=-1, end_line=None, relative_pos=False,
                        varnames=(), names=(), consts=(), cellvars=(),
                        freevars=(), linestarts={}):
     """Disassemble byte string of code. If end_line is negative
@@ -66,11 +67,8 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
     statement_count = 10000
     if end_line is None:
         end_line = 10000
-    else:
-        if end_line < 0:
-            statement_count = -end_line
-            end_line = 10000
-            pass
+    elif relative_pos:
+        end_line += start_line -1
         pass
     labels = findlabels(code)
     n = len(code)
