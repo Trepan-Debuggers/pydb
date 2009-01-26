@@ -20,8 +20,8 @@ a:visited
 
 #container
 	{
-	width: 780px;
-	padding: 48px;
+	width: 65em;
+	padding: 4em;
 	margin: 0 auto;
 	background-color: #fff;
 	}
@@ -108,7 +108,7 @@ dt
 dd
 	{
 	margin-top: -18px;
-	margin-left: 108px;
+	margin-left: 9em;
 	}
 	
 h4
