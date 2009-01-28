@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.55 2009/01/17 06:42:30 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.56 2009/01/28 02:46:40 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -140,9 +140,9 @@ subcommand. For example 'help info line' give help about the
 See also 'examine' an 'whatis'.
         """
 
-        # We don't want to repeat the last help command. That makes
-        # not much sense and if give help that uses PAGER we may
-        # turn a quit CR into rerunning the help command.
+        # It does not make much sense to repeat the last help
+        # command. Also, given that 'help' uses PAGER, the you may
+        # enter an extra CR which would rerun the (long) help command.
         self.lastcmd='' 
 
         if arg:
