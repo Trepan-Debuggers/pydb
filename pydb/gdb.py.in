@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.165 2009/01/23 05:13:56 rockyb Exp $"""
+$Id: gdb.py.in,v 1.166 2009/01/28 00:08:29 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1558,10 +1558,32 @@ With an integer argument, perform 'next' that many times."""
     do_n = do_next
 
     def do_p(self, arg):
-        """p expression
-        Print the value of the expression."""
+        """Print the value of the expression. Variables accessible are those of the
+environment of the selected stack frame, plus globals. 
+
+The expression may be preceded with /FMT where FMT is one of the
+format letters 'c', 'x', 'o', 'f', or 's' for chr, hex, oct, 
+float or str respectively.
+
+If the length output string large, the first part of the value is
+shown and ... indicates it has been truncated
+
+See also `pp' and `examine' for commands which do more in the way of
+formatting."""
+        args = arg.split()
+        if len(args) > 1 and '/' == args[0][0]:
+            fmt = args[0]
+            del args[0]
+            arg = ' '.join(args)
+        else:
+            fmt = None
+            pass
         try:
-            self.msg(self._saferepr(self.getval(arg)))
+            val = self.getval(arg)
+            if fmt:
+                val = fns.printf(val, fmt)
+                pass
+            self.msg(self._saferepr(val))
         except:
             pass
 
