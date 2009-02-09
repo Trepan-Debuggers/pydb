@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.55 2009/01/17 07:55:16 rockyb Exp $"""
+$Id: fns.py,v 1.56 2009/02/09 03:13:27 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008 Rocky Bernstein
 #
@@ -246,11 +246,6 @@ def get_exec_string(frame, max=30):
         else:
             return exec_arg
     return None
-
-def is_def_stmt(line, frame):
-    """Return True if we are looking at a def statement"""
-    # Should really also check that operand is a code object
-    return _re_def.match(line) and op_at_frame(frame)=='LOAD_CONST'
 
 def is_exec_stmt(frame):
     """Return True if we are looking at an exec statement"""

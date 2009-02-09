@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.55 2008/12/26 03:03:43 rockyb Exp $
+#$Id: Makefile.am,v 1.56 2009/02/09 03:13:26 rockyb Exp $
 #   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ python_debugger_script = $(DEBUGGER).py
 pkgpython_PYTHON = \
 	$(DEBUGGER)/__init__.py \
         $(DEBUGGER)/$(python_debugger_script) \
+	$(DEBUGGER)/bytecode.py  	\
 	$(DEBUGGER)/complete.py  	\
 	$(DEBUGGER)/connection.py  	\
 	$(DEBUGGER)/disassemble.py  	\
