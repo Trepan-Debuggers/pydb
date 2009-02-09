@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.79 2008/12/26 03:03:43 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.80 2009/02/09 09:28:35 rockyb Exp $])dnl
 AC_INIT([pydb],[1.25],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 MIN_VERSION='2.4.0'
@@ -172,11 +172,14 @@ AC_CONFIG_FILES([test/test-save.py], [chmod +x test/test-save.py])
 AC_CONFIG_FILES([test/test-setshow.py], [chmod +x test/test-setshow.py])
 AC_CONFIG_FILES([test/test-sig.py], [chmod +x test/test-sig.py])
 AC_CONFIG_FILES([test/test-sighandle.py], [chmod +x test/test-sighandle.py])
+AC_CONFIG_FILES([test/test-skip.py],[chmod +x test/test-skip.py])
 AC_CONFIG_FILES([test/test-step.py], [chmod +x test/test-step.py])
 AC_CONFIG_FILES([test/test-tcp-connect.py],[chmod +x test/test-tcp-connect.py])
 AC_CONFIG_FILES([test/test-trace.py],[chmod +x test/test-trace.py])
 AC_CONFIG_FILES([test/test-with.py],[chmod +x test/test-with.py])
 AC_CONFIG_FILES([test/test.py],[chmod +x test/test.py])
+AC_CONFIG_FILES([test/unit/bytecode.py],
+	        [chmod +x test/unit/bytecode.py])
 AC_CONFIG_FILES([test/unit/checkline.py],
 	        [chmod +x test/unit/checkline.py])
 AC_CONFIG_FILES([test/unit/listsize.py],

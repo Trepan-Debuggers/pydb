@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.139 2008/12/31 10:36:43 rockyb Exp $
+% $Id: libpydb.tex,v 1.140 2009/02/09 09:28:39 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -979,11 +979,11 @@ To remove all commands from a breakpoint, type commands and
 follow it immediately with \code{end}; that is, give no commands.
 
 Specifying any command resuming execution (currently \code{continue},
-\code{step}, \code{next}, \code{return}, \code{jump}, and \code{quit})
-terminates the command list as if that command was immediately
-followed by \code{end}.  This is because any time you resume execution
-(even with a simple next or step), you may encounter another
-breakpoint---which could have its own command list, leading to
+\code{step}, \code{next}, \code{return}, \code{jump}, \code{skip}, and
+\code{quit}) terminates the command list as if that command was
+immediately followed by \code{end}.  This is because any time you
+resume execution (even with a simple next or step), you may encounter
+another breakpoint---which could have its own command list, leading to
 ambiguities about which list to execute.
 
 If you use the \code{silent} command in the command list, the
@@ -1027,7 +1027,7 @@ condition is removed; i.e., the breakpoint is made unconditional.
 \end{description}
 
 \subsection{Resuming Execution ({\tt step}, {\tt next}, {\tt
-    finish}, {\tt return}, {\tt continue}, {\tt jump})\label{subsubsection-resume}}
+    finish}, {\tt return}, {\tt continue}, {\tt jump}, {\tt skip})\label{subsubsection-resume}}
 
 ``Continuing'' means resuming program execution until the program
 completes normally.  In contrast, ``stepping'' means executing just
@@ -1123,9 +1123,23 @@ The program finished and will be restarted
 (Pydb) 
 \end{verbatim}
 
-Not that the assignment of 1,000 to \code{i} took effect, although it
+Note that the assignment of 1,000 to \code{i} took effect, although it
 had no effect on terminating the \code{for} loop; \code{jump} was
 needed to get out of the loop early.
+
+\item[skip \optional{\var{count}}]\label{command:skip}
+
+Set the next line that will be executed to be the line number which is
+\emph{count} line boundaries away from the current line. By default,
+\emph{count} is one which will skip the current line about to be executed.
+
+This command works by disassembling instructions from the current line
+until a new line number boundary is found and does in effect a
+\code{jump} to that line. So beware, we \emph{are not} statement
+boundaries.
+
+Since this works underneath the same as \code{jump}, the same caveats
+mentioned apply wiht respect to where you cannot jump to.
 
 \end{description}
 

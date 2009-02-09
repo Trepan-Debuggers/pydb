@@ -1,0 +1,25 @@
++set deftrace off
++set linetrace on
++set listsize 1
++skip
+(gcd.py:11):  <module>
+11 import sys
++list
+ 11  ->	import sys
++p sys
+<module 'sys' (built-in)>
++skip foo
+*** skip command: Expecting a positive integer, got: foo
++skip 2
+(gcd.py:24):  <module>
+24 def gcd(a,b):
++c 38
+Breakpoint 1 set in file gcd.py, line 38.
++skip
+(gcd.py:38):  <module>
+38     check_args()
++list
+ 38 B->	    check_args()
++quit
+(gcd.py:38):  <module>
++  38     check_args()
