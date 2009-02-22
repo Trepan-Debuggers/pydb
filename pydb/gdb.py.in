@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.167 2009/02/09 03:13:27 rockyb Exp $"""
+$Id: gdb.py.in,v 1.168 2009/02/22 07:46:55 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1399,7 +1399,7 @@ given the following options are passed:
         # Make sure it doesn't damage ours.
         if self.readline:
             try:
-                self.write_history_file
+                self.write_history_file()
             except IOError:
                 pass
 
@@ -1407,7 +1407,7 @@ given the following options are passed:
         try:
             import IPython
         except ImportError:
-            self.msg("IPython doesn't seem to be importable.")
+            self.errmsg("IPython doesn't seem to be importable.")
             return False
 
         if user_ns:
@@ -1416,7 +1416,7 @@ given the following options are passed:
             ipshell = IPython.Shell.IPShellEmbed(argv=argv)
 
         if hasattr(ipshell.IP, "magic_pydb"):
-            # We an infinite loop when doing recursive edits
+            # We get an infinite loop when doing recursive edits
             self.msg("Removing magic %pydb")
             delattr(ipshell.IP, "magic_pydb")
         ipshell()
@@ -1650,16 +1650,20 @@ Run python as a command subshell.
         # Make sure it doesn't damage ours.
         if hasattr(self, 'readline') and self.readline:
             try:
-                self.write_history_file
+                self.write_history_file()
             except IOError:
                 pass
 
-        if self.curframe and self.curframe.f_locals:
-            local = self.curframe.f_locals
-        else:
-            local = None
+        local = None
+        if self.proc.curframe:
+            if self.proc.curframe.f_locals:
+                local = dict(self.proc.curframe.f_locals)
+                local.update(self.proc.curframe.f_globals)
+            else:
+                local = self.proc.curframe.f_globals
+            pass
 
-        if not local:
+        if local:
             interact(banner='Pydb python shell', local=local)
         else:
             interact(banner='Pydb python shell')
@@ -1768,19 +1772,6 @@ Run python as a command subshell.
         # print "++i: %d, last_stmt %d, line: %d " % (i, last_stmt, last_line)
         self.do_jump(last_line, "Return")
         return False
-
-    def do_retval(self, arg):
-        """retval - Show the value that is to be returned from a
-function.  This command is useful after a 'finish' command or stepping
-just after a 'return' statement. To change the value, make an
-assignment to the variable __return__."""
-        if '__return__' in self.curframe.f_locals:
-            self.msg(self.curframe.f_locals['__return__'])
-        else:
-            self.errmsg('Not yet returned!')
-        return False
-
-    do_rv = do_retval
 
     def do_run(self, arg_str):
         """run [args...]
