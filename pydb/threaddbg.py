@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.41 2009/02/28 11:14:13 rockyb Exp $"""
+$Id: threaddbg.py,v 1.42 2009/02/28 11:26:18 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -115,7 +115,7 @@ dot (.) can be used to indicate the current thread."""
             del args[1:3]
             arg = ' '.join(args)
         if thread_name and thread_name not in self.traced.keys():
-            self.errmsg("Don't know about thread %s" % thread_name)
+            self.errmsg("I don't know about thread %s" % thread_name)
             if not fns.get_confirmation(self,
                                         'Really set anyway (y or n)? '):
                 return
@@ -141,7 +141,7 @@ newest frame."""
                 if hasattr(sys, '_current_frames'):
                     threads = sys._current_frames()
                     if thread_id not in threads.keys():
-                        self.errmsg("Don't know about thread number %s" %
+                        self.errmsg("I don't know about thread number %s" %
                                     thread_name)
                         self.info_thread_terse()
                         return
@@ -158,7 +158,7 @@ newest frame."""
                 if thread_name == '.':
                     thread_name = threading.currentThread().getName()
                 if thread_name not in self.traced.keys():
-                     self.msg("Don't know about thread %s" % thread_name)
+                     self.errmsg("I don't know about thread %s" % thread_name)
                      return
                 thread_id = self.traced[thread_name]
                 if hasattr(sys, '_current_frames'):
@@ -251,7 +251,7 @@ If a thread name is given we will stop only if the the thread has that name."""
             if thread_name == '.':
                 thread_name = threading.currentThread().getName()
             if thread_name not in self.traced.keys():
-                self.msg("Don't know about thread %s" % thread_name)
+                self.errmsg("I don't know about thread %s" % thread_name)
                 if not fns.get_confirmation(self,
                                             'Really set anyway (y or n)? '):
                     return
@@ -301,7 +301,7 @@ and 'T' are short command names for this."""
 
         if len(args) > 1:
             if args[1] not in self.traced.keys():
-                self.msg("Don't know about thread %s" % args[1])
+                self.errmsg("I don't know about thread %s" % args[1])
                 self.info_thread_terse()
                 return
 
@@ -346,12 +346,12 @@ stack trace is given for each frame.
             try:
                 thread_id = int(thread_name)
                 if thread_id not in threads.keys():
-                    self.msg("Don't know about thread number %s" % thread_name)
+                    self.errmsg("I don't know about thread number %s" % thread_name)
                     self.info_thread_terse()
                     return
             except ValueError:
                 if thread_name not in self.traced.keys():
-                    self.msg("Don't know about thread %s" % thread_name)
+                    self.errmsg("I don't know about thread %s" % thread_name)
                     self.info_thread_terse()
                     return
                 thread_id = self.traced[thread_name]
@@ -431,12 +431,12 @@ To get the full stack trace for a specific thread pass in the thread name.
             try:
                 thread_id = int(thread_name)
                 if thread_id not in threads.keys():
-                    self.msg("Don't know about thread number %s" % thread_name)
+                    self.errmsg("I don't know about thread number %s" % thread_name)
                     self.info_thread_terse()
                     return
             except ValueError:
                 if thread_name not in self.traced.keys():
-                    self.msg("Don't know about thread %s" % thread_name)
+                    self.errmsg("I don't know about thread %s" % thread_name)
                     self.info_thread_terse()
                     return
                 thread_id = self.traced[thread_name]
@@ -503,7 +503,7 @@ To get the full stack trace for a specific thread pass in the thread name.
             if thread_name in self.traced_keys():
                 self.info_thread_line(thread_name)
             else:
-                self.msg("Don't know about thread name %s" % thread_name)
+                self.errmsg("I don't know about thread name %s" % thread_name)
             return
 
         # Show all threads
