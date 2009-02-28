@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Thread debugging support.
 
-$Id: threaddbg.py,v 1.40 2007/03/05 04:02:21 rockyb Exp $"""
+$Id: threaddbg.py,v 1.41 2009/02/28 11:14:13 rockyb Exp $"""
 
 ### TODO
 ### - Go over for robustness, 
@@ -115,7 +115,7 @@ dot (.) can be used to indicate the current thread."""
             del args[1:3]
             arg = ' '.join(args)
         if thread_name and thread_name not in self.traced.keys():
-            self.msg("Don't know about thread %s" % thread_name)
+            self.errmsg("Don't know about thread %s" % thread_name)
             if not fns.get_confirmation(self,
                                         'Really set anyway (y or n)? '):
                 return
@@ -141,8 +141,8 @@ newest frame."""
                 if hasattr(sys, '_current_frames'):
                     threads = sys._current_frames()
                     if thread_id not in threads.keys():
-                        self.msg("Don't know about thread number %s" %
-                                 thread_name)
+                        self.errmsg("Don't know about thread number %s" %
+                                    thread_name)
                         self.info_thread_terse()
                         return
                     frame = threads[thread_id]
@@ -167,8 +167,8 @@ newest frame."""
                         self.curframe_thread_name = thread_name
                         frame                     = frames[thread_id]
                 else:
-                    self.msg("Frame selection not supported. Upgrade to")
-                    self.msg("Python 2.5 or install threadframe.")
+                    self.errmsg("Frame selection not supported. Upgrade to")
+                    self.errmsg("Python 2.5 or install threadframe.")
                     return
 
                 newframe = find_nondebug_frame(self, frame)
