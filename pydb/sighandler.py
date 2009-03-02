@@ -1,4 +1,4 @@
-"""$Id: sighandler.py,v 1.31 2008/04/16 01:20:47 rockyb Exp $
+"""$Id: sighandler.py,v 1.32 2009/03/02 03:03:00 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -25,6 +25,7 @@ def lookup_signame(num):
     if num not in signames.values(): return None
     for signame in signames.keys():
         if signames[signame] == num: return signame
+        pass
     # Something went wrong. Should have returned above
     return
 
@@ -39,6 +40,7 @@ def lookup_signum(name):
         if hasattr(signal, uname):
             return getattr(signal, uname)
         return None
+    return # Not reached
 
 fatal_signals = ['SIGKILL', 'SIGSTOP']
 
@@ -103,8 +105,8 @@ class SignalManager:
     default set. Parameter default_print specifies whether or not we
     print receiving a signals that is not ignored.
 
-    All the methods to change these attributes return None on error, or
-    True or False if we have set the action (pass/print/stop) for a signal
+    All the methods which change these attributes return None on error, or
+    True/False if we have set the action (pass/print/stop) for a signal
     handler.
     """
     def __init__(self, pydb=None, ignore_list=None, default_print=True):
@@ -113,6 +115,7 @@ class SignalManager:
             self.pydb = pydb.Pdb()
         else:
             self.pydb = pydb
+            pass
         self.sigs    = {}
         self.siglist = [] # List of signals. Dunno why signal doesn't provide.
     
@@ -141,6 +144,9 @@ class SignalManager:
                                                          self.pydb.set_next,
                                                          print_stack=False,
                                                          pass_along=False)
+                    pass
+                pass
+            pass
         self.action('SIGINT stop print nostack nopass')
         return
 
@@ -156,18 +162,20 @@ class SignalManager:
             # SIGRTMAX) that getsignal can't handle.
             if signame in self.sigs:
                 sigs.pop(signame)
+                pass
             return True
         if old_handler != self.sigs[signame].handle:
             if old_handler not in [signal.SIG_IGN, signal.SIG_DFL]:
                 # save the program's signal handler
                 sigs[signame].old_handler = old_handler
-
+                pass
             # set/restore _our_ signal handler
             try:
                 signal.signal(signum, self.sigs[signame].handle)
             except ValueError:
                 # Probably not in main thread
                 return False
+            pass
         return True
 
     def check_and_adjust_sighandlers(self):
@@ -176,6 +184,8 @@ class SignalManager:
         for signame in self.sigs.keys():
             if not self.check_and_adjust_sighandler(signame, self.sigs):
                 break
+            pass
+        return
 
     def print_info_signal_entry(self, signame):
         """Print status for a single signal name (signame)"""
@@ -183,6 +193,7 @@ class SignalManager:
             description=signal_description[signame]
         else:
             description=""
+            pass
         if signame not in self.sigs.keys():
             # Fake up an entry as though signame were in sigs.
             self.pydb.msg(self.info_fmt
@@ -214,6 +225,8 @@ class SignalManager:
                 return
             else:
                 signame = args[1]
+                pass
+            pass
 
         signame=signame.upper()
         if signame not in self.siglist:
@@ -223,6 +236,7 @@ class SignalManager:
                               % signame)
                 return
             signame = try_signame
+            pass
         self.pydb.msg(self.header)
         self.print_info_signal_entry(signame)
         return
@@ -240,6 +254,7 @@ class SignalManager:
             signame = "SIG"+signame
             if not self.sigs.has_key(signame):
                 return
+            pass
         if len(args) == 1:
             self.info_signal([signame])
             return
@@ -265,6 +280,8 @@ class SignalManager:
                 self.handle_print_stack(signame, on)
             else:
                 self.pydb.errmsg('Invalid arguments')
+                pass
+            pass
         self.check_and_adjust_sighandler(signame, self.sigs)
         return
 
@@ -286,6 +303,7 @@ class SignalManager:
             self.sigs[signame].pass_along   = False
         else:
             self.sigs[signame].stop_method  = None
+            pass
         return set_stop
 
     def handle_pass(self, signame, set_pass):
@@ -297,6 +315,7 @@ class SignalManager:
         if set_pass:
             # Pass implies nostop
             self.sigs[signame].stop_method = None
+            pass
         return set_pass
 
     def handle_ignore(self, signame, set_ignore):
@@ -313,6 +332,7 @@ class SignalManager:
             # noprint implies nostop
             self.sigs[signame].print_method = None
             self.sigs[signame].stop_method  = None
+            pass
         return set_print
 
     ## SigHandler is a class private to SignalManager
@@ -342,6 +362,7 @@ class SignalManager:
                 # SIGRTMAX) that getsignal can't handle.
                 if signame in self.sigs:
                     self.sigs.pop(signame)
+                    pass
             self.pass_along   = pass_along
             self.print_method = print_method
             self.signame      = signame
@@ -371,6 +392,11 @@ class SignalManager:
                     pydb.debugger()
                 else:
                     self.stop_method(frame)
+                    pass
+                pass
+            return
+        pass
+    pass
 
 # When invoked as main program, do some basic tests of a couple of functions
 if __name__=='__main__':
