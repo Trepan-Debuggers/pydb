@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""$Id: sighandler.py,v 1.33 2009/03/05 02:43:55 rockyb Exp $
+"""$Id: sighandler.py,v 1.34 2009/03/05 02:55:43 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -233,7 +233,7 @@ class SignalManager:
             try_signame = 'SIG'+signame
             if try_signame not in self.siglist:
                 try:
-                    num = int(signame)
+                    num = abs(int(signame))
                     try_signame = lookup_signame(num)
                     if try_signame is None:
                         self.pydbg.errmsg(("%d is not a signal number" +
