@@ -1,4 +1,5 @@
-"""$Id: sighandler.py,v 1.32 2009/03/02 03:03:00 rockyb Exp $
+# -*- coding: utf-8 -*-
+"""$Id: sighandler.py,v 1.33 2009/03/05 02:43:55 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -93,7 +94,6 @@ signal_description = {
 
 
 class SignalManager:
-
     """Manages Signal Handling information for the debugger
 
     - Do we print/not print when signal is caught
@@ -232,9 +232,18 @@ class SignalManager:
         if signame not in self.siglist:
             try_signame = 'SIG'+signame
             if try_signame not in self.siglist:
-                self.pydb.msg("%s is not a signal name I know about."
-                              % signame)
-                return
+                try:
+                    num = int(signame)
+                    try_signame = lookup_signame(num)
+                    if try_signame is None:
+                        self.pydbg.errmsg(("%d is not a signal number" +
+                                           " I know about.")  % num)
+                        return
+                except:
+                    self.pydbg.errmsg(("%s is not a signal name I " +
+                                       "know about.") % signame)
+                    return
+                pass
             signame = try_signame
             pass
         self.pydb.msg(self.header)
@@ -349,7 +358,7 @@ class SignalManager:
            stop routine to call to invoke debugger when stopping
            pass_along: True is signal is to be passed to user's handler
         """
-        def __init__(self, signame, print_method, stop,
+        def __init__(self, signame, print_method, stop_method,
                      print_stack=False, pass_along=True):
 
             self.signum = lookup_signum(signame)
@@ -367,7 +376,7 @@ class SignalManager:
             self.print_method = print_method
             self.signame      = signame
             self.print_stack  = print_stack
-            self.stop_method  = stop
+            self.stop_method  = stop_method
             return
 
         def handle(self, signum, frame):
@@ -406,6 +415,9 @@ if __name__=='__main__':
             assert(signum == lookup_signum(signame))
             # Try without the SIG prefix
             assert(signum == lookup_signum(signame[3:]))
+            pass
+        pass
+    pass
 
     h = SignalManager()
     h.info_signal(["TRAP"])
@@ -424,4 +436,4 @@ if __name__=='__main__':
     h.info_signal(['SIGUSR1'])
     h.action('SIGUSR1 nopass stack')
     h.info_signal(['SIGUSR1'])
-
+    pass
