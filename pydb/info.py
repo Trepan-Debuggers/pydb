@@ -1,7 +1,7 @@
 """'show' subcommands, except those that need some sort of text substitution.
 (Those are in gdb.py.in.)
 """
-__revision = "$Id: info.py,v 1.15 2009/01/14 02:50:28 rockyb Exp $"
+__revision = "$Id: info.py,v 1.16 2009/03/06 09:41:37 rockyb Exp $"
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2006, 2007 Rocky Bernstein
 #
@@ -78,7 +78,7 @@ The short command name is L."""
 
     def info_display(self, arg):
         """Expressions to display when program stops, with code numbers."""
-        if not self.display.displayAll():
+        if not self.display.all():
             self.msg('There are no auto-display expressions now.')
         return False
 

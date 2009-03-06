@@ -1,35 +1,26 @@
 # -*- coding: utf-8 -*-
-"""Classes to support gdb-like display/undisplay for pydb, the Extended
-Python debugger. Class Display and DisplayNode are defined.
-
-$Id: display.py,v 1.4 2007/01/08 12:09:19 rockyb Exp $"""
+"""Classes to support gdb-like display/undisplay.
+$Id: display.py,v 1.5 2009/03/06 09:41:37 rockyb Exp $"""
 
 import fns
 
+def signature(frame):
+    '''return suitable frame signature to key display expressions off of.'''
+    if not frame: return None
+    code = frame.f_code
+    return (code.co_name, code.co_filename, code.co_firstlineno)
+
 class Display:
-    displayNext = 1
-    displayList = []
+    '''Manage a list of display expressions.'''
+    def __init__(self):
+        self.next = 0
+        self.list = []
+        return
 
-    def displayIndex(self, frame):
-        if not frame:
-            return None
-        # return suitable index for displayList
-        code = frame.f_code
-        return (code.co_name, code.co_filename, code.co_firstlineno)
-
-    def displayAny(self, frame):
-        # display any items that are active
-        if not frame:
-            return
-        index = self.displayIndex(frame)
-        for dp in Display.displayList:
-            if dp.code == index and dp.enabled:
-                print dp.displayMe(frame)
-
-    def displayAll(self):
+    def all(self):
         """List all display items; return 0 if none"""
         any = 0
-        for dp in Display.displayList:
+        for dp in self.list:
             if not any:
                 print """Auto-display expressions now in effect:
 Num Enb Expression"""
@@ -37,38 +28,55 @@ Num Enb Expression"""
             dp.params()
         return any
 
-    def deleteOne(self, i):
+    def clear(self):
+        """Delete all display expressions"""
+        self.list = []
+        return
+
+    def delete_index(self, i):
         """Delete display expression i"""
-        for dp in Display.displayList:
+        for dp in self.list:
             if i == dp.number:
                 dp.deleteMe()
                 return
+            pass
+        return
 
-    def deleteAll(self):
-        """Delete all display expressions"""
-        for dp in Display.displayList:
-            dp.deleteMe()
-            return
+    def display(self, frame):
+        '''display any items that are active'''
+        if not frame: return
+        sig = signature(frame)
+        for display in self.list:
+            if display.code == sig and display.enabled:
+                print display.displayMe(frame)
+                pass
+            pass
+        return
 
-    def enable(self, i, flag):
-        for dp in Display.displayList:
-            if i == dp.number:
-                if flag:
+    def enable_disable(self, i, b_enable_dispable):
+        for display in self.list:
+            if i == display.number:
+                if b_enable_disable:
                    dp.enableMe()
                 else:
                    dp.disableMe()
                 return
+            pass
+        return
+
+    pass
 
 class DisplayNode(Display):
 
-    def __init__(self, frame, arg, format):
-        self.code = self.displayIndex(frame)
-        self.format = format
+    def __init__(self, frame, arg, fmt):
+        Display.__init(self)
+        self.code = signature(frame)
+        self.fmt = fmt
         self.arg = arg
         self.enabled = True
-        self.number = Display.displayNext
-        Display.displayNext = Display.displayNext + 1
-        Display.displayList.append(self)
+        super.next += 1
+        self.number = super.next
+        super.list.append(self)
 
     def displayMe(self, frame):
         if not frame:
@@ -78,7 +86,7 @@ class DisplayNode(Display):
         except:
             return 'No symbol "' + self.arg + '" in current context.'
         s = "%d: %s" % (self.number,
-                        fns.print_obj(self.arg, frame, self.format, True))
+                        fns.print_obj(self.arg, frame, self.fmt, True))
         return s
 
     def checkValid(self, frame):
@@ -88,7 +96,8 @@ class DisplayNode(Display):
         if res.split()[0] == 'No':
             self.deleteMe()
             # reset counter
-            Display.displayNext = Display.displayNext - 1
+            super.next -= 1
+            pass
         return res
 
     def params(self):
@@ -98,17 +107,41 @@ class DisplayNode(Display):
            what = ' y  '
         else:
            what = ' n  '
-        if self.format:
-           what = what + self.format + ' '
+           pass
+        if self.fmt:
+           what = what + self.fmt + ' '
         what = pad + what + self.arg
         print '%d:%s' % (self.number, what)
+        return
 
     def deleteMe(self):
-        Display.displayList.remove(self)
+        self.list.remove(self)
+        return
 
     def disableMe(self):
         self.enabled = False
+        return
 
     def enableMe(self):
         self.enabled = True
+        return
+    pass
 
+if __name__=='__main__':
+    mgr = Display()
+    import inspect
+    x = 1
+    frame = inspect.currentframe()
+#     mgr.add(frame, 'x > 1')
+#     for line in mgr.all(): print line
+#     mgr.enable_disable(1, False)
+#     for line in mgr.all(): print line
+#     print mgr.display(frame)
+#     mgr.enable_disable(1, False)
+#     for line in mgr.display(frame): print line
+#     mgr.enable_disable(1, True)
+#     for line in mgr.display(frame): print line
+#     mgr.clear()
+#     print '-' * 10
+#     for line in mgr.all(): print line
+#     pass

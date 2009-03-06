@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.168 2009/02/22 07:46:55 rockyb Exp $"""
+$Id: gdb.py.in,v 1.169 2009/03/06 09:41:37 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -411,7 +411,9 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         for i in arg:
             i = self.get_an_int(i, 'index %r is not a number' % i)
             if i is not None:
-                self.display.enable(i, flag)
+                self.display.enable_disable(i, flag)
+                pass
+            pass
         return
 
     def lineinfo(self, identifier):
@@ -460,7 +462,7 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if do_loop:
             if frame or tb:
                 self.print_location(print_line=self.linetrace or self.fntrace)
-                self.display.displayAny(self.curframe)
+                self.display.display(self.curframe)
             if not self.noninteractive:
                 try:
                     self.cmdloop()
@@ -1175,7 +1177,7 @@ that."""
 
         if not arg:
             # Display anything active
-            self.display.displayAny(self.curframe)
+            self.display.display(self.curframe)
         else:
             # Set up a display
             arglist = arg.split()
@@ -2024,12 +2026,17 @@ Deletes the specified alias."""
 
         if arg:
             args = arg.split()
+            if len(args) == 1:
+                self.display.clear()
+                return
             for i in args:
                 i = self.get_an_int(i, 'index %r is not a number' % i)
                 if i is not None:
-                    self.display.deleteOne(i)
-        else:
-            self.display.deleteAll()
+                    if not self.display.delete_index(i):
+                        self.errmsg("No display number %d." % i)
+                        return
+                    pass
+                pass
         return False
 
     def do_up(self, arg):
