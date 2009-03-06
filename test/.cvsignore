@@ -31,6 +31,7 @@ test-save.py
 test-setshow.py
 test-sig.py
 test-sighandle.py
+test-skip.py
 test-step.py
 test-tcp-connect.py
 test-trace.py
