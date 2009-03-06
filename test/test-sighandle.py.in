@@ -1,6 +1,6 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-sighandle.py.in,v 1.1 2007/11/01 09:20:32 rockyb Exp $
+# $Id: test-sighandle.py.in,v 1.2 2009/03/06 08:51:46 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
 import os, time, sys, unittest, signal
 
@@ -62,14 +62,6 @@ class PdbTest(pydb.Pdb):
         self.msg_last_nocr = True
 
 class SigTests(unittest.TestCase):
-    def test_signum_name(self):
-        """Test that signal name and number lookup work """
-        for signum in range(signal.NSIG):
-            signame = sighandler.lookup_signame(signum)
-            if signame is not None:
-                self.assertEqual(signum, sighandler.lookup_signum(signame))
-                # Try without the SIG prefix
-                self.assertEqual(signum, sighandler.lookup_signum(signame[3:]))
 
     def test_settings(self):
         """Test setting signals"""
@@ -79,21 +71,21 @@ class SigTests(unittest.TestCase):
         h.action('SIGUSR1 print pass')
         h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Stack	Pass	Description",
-                   "SIGUSR1       No  	Yes 	Yes  	No  	User defined signal 1"]
+                   "SIGUSR1       No  	Yes 	Yes  	No  	User-defined signal 1"]
         self.assertEqual(p.msgLines, correct)
         p.resetmsg()
         # noprint implies no stop
         h.action('SIGUSR1 noprint stack pass')
         h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Stack	Pass	Description",
-                   "SIGUSR1       No  	No  	Yes  	Yes 	User defined signal 1"]
+                   "SIGUSR1       No  	No  	Yes  	Yes 	User-defined signal 1"]
         self.assertEqual(p.msgLines, correct)
         # stop keyword implies print and nopass
         p.resetmsg()
         h.action('SIGUSR1 stop')
         h.info_signal(['USR1'])
         correct = ["Signal        Stop	Print	Stack	Pass	Description",
-                   "SIGUSR1       Yes 	Yes 	No   	Yes 	User defined signal 1"]
+                   "SIGUSR1       Yes 	Yes 	No   	Yes 	User-defined signal 1"]
         self.assertEqual(p.msgLines, correct)
          
 if __name__ == '__main__':

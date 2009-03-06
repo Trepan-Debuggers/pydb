@@ -2,3 +2,4 @@ Makefile
 Makefile.in
 checkline.py
 listsize.py
+sighandler.py
