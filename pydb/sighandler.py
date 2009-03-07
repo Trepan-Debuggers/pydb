@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""$Id: sighandler.py,v 1.35 2009/03/06 08:51:46 rockyb Exp $
+"""$Id: sighandler.py,v 1.36 2009/03/07 04:20:25 rockyb Exp $
 Handles signal handlers within Pydb.
 """
 #TODO:
@@ -161,7 +161,9 @@ class SignalManager:
             if signame.startswith('SIG') and '_' not in signame:
                 self.siglist.append(signame)
                 if signame not in fatal_signals + ignore_list:
-                    self.sigs[signame] = self.SigHandler(signame, None, None,
+                    self.sigs[signame] = self.SigHandler(signame, 
+                                                         default_print,
+                                                         self.pydb.set_next,
                                                          print_stack=False,
                                                          pass_along=False)
                     pass

@@ -1,7 +1,7 @@
 Signal        Stop	Print	Stack	Pass	Description
-SIGHUP        No  	No  	No   	No  	Hangup
+SIGHUP        Yes 	Yes 	No   	No  	Hangup
 Signal        Stop	Print	Stack	Pass	Description
-SIGHUP        No  	No  	No   	No  	Hangup
+SIGHUP        Yes 	Yes 	No   	No  	Hangup
 Signal        Stop	Print	Stack	Pass	Description
 SIGINT        Yes 	Yes 	No   	No  	Interrupt
 Signal        Stop	Print	Stack	Pass	Description
