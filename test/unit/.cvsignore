@@ -2,5 +2,6 @@ Makefile
 Makefile.in
 bytecode.py
 checkline.py
+fns.py
 listsize.py
 sighandler.py

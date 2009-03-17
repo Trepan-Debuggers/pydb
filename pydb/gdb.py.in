@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.169 2009/03/06 09:41:37 rockyb Exp $"""
+$Id: gdb.py.in,v 1.170 2009/03/17 21:36:10 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1588,6 +1588,40 @@ formatting."""
             self.msg(self._saferepr(val))
         except:
             pass
+
+    def do_pdef(self, arg):
+    """pdef obj
+
+Print the definition header for a callable object.
+If the object is a class, print the constructor information.
+
+See also pydoc."""
+        args = arg.split()
+        if len(args) != 1: return
+        obj_name = args[0]
+        try:
+            obj = eval(arg, self.curframe.f_globals,
+                             self.curframe.f_locals)
+        except:
+            return
+        if not callable(obj):
+            self.errmsg('Object %s is not callable.' % obj_name)
+            return
+
+        if inspect.isclass(obj):
+            self.msg('Class constructor information:')
+            obj = obj.__init__
+        elif type(obj) is types.InstanceType:
+            obj = obj.__call__
+            pass
+
+        output = print_argspec(obj, obj_name)
+        if output is None:
+            self.errmsg('No definition header found for %s' % obj_name)
+        else:
+            self.msg(output)
+            pass
+        return
 
     def do_pp(self, arg):
         """pp expression

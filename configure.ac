@@ -1,4 +1,4 @@
-# Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2006, 2007, 2008, 2009 Rocky Bernstein <rocky@gnu.org>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.81 2009/03/06 08:51:45 rockyb Exp $])dnl
+AC_REVISION([$Id: configure.ac,v 1.82 2009/03/17 21:36:08 rockyb Exp $])dnl
 AC_INIT([pydb],[1.25],[bashdb-pydb-devel@lists.sourceforge.net])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 MIN_VERSION='2.4.0'
@@ -182,6 +182,8 @@ AC_CONFIG_FILES([test/unit/bytecode.py],
 	        [chmod +x test/unit/bytecode.py])
 AC_CONFIG_FILES([test/unit/checkline.py],
 	        [chmod +x test/unit/checkline.py])
+AC_CONFIG_FILES([test/unit/fns.py],
+	        [chmod +x test/unit/fns.py])
 AC_CONFIG_FILES([test/unit/listsize.py],
 	        [chmod +x test/unit/listsize.py])
 AC_CONFIG_FILES([test/unit/sighandler.py],

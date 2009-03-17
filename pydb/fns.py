@@ -1,7 +1,7 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.57 2009/03/12 03:10:58 rockyb Exp $"""
+$Id: fns.py,v 1.58 2009/03/17 21:36:10 rockyb Exp $"""
 # -*- coding: utf-8 -*-
-#   Copyright (C) 2007, 2008 Rocky Bernstein
+#   Copyright (C) 2007, 2008, 2009 Rocky Bernstein
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -347,6 +347,14 @@ def print_dict(s, obj, title):
                 s+="  '%s':\t%s\n" % (key, d[key])
     return s
 
+def print_argspec(obj, obj_name):
+    '''A slightly decorated version of inspect.format_argspec'''
+    try:
+        return obj_name + inspect.formatargspec(*inspect.getargspec(obj))
+    except:
+        return None
+    return # Not reached
+
 def print_obj(arg, frame, format=None, short=False):
     """Return a string representation of an object """
     try:
@@ -575,6 +583,7 @@ if __name__ == '__main__':
     print "show_onoff(True is %s)" % str(show_onoff(True))
     assert show_onoff(True) == 'on'
     print "show_onoff(False is %s)" % str(show_onoff(False))
+    print print_argspec(show_onoff, 'show_onoff')
     assert show_onoff(False) == 'off'
     print "search_file('fns.py', '.', '.'): %s" % (
         search_file("fns.py", ["$cwd", "$cdir"], "."))
@@ -583,7 +592,8 @@ if __name__ == '__main__':
     assert printf(33, "/c") == '!'
     assert printf(33, "/x") == '0x21'
     assert file2module("/tmp/gcd.py") == 'gcd'
-    assert columnize_array(["a"]) == "a\n"
+
+    assert columnize_array(["a"]) == "[a]"
     print columnize_array([
             "one", "two", "three",
             "4ne", "5wo", "6hree",
