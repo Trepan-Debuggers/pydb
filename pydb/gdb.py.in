@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.171 2009/03/17 22:06:01 rockyb Exp $"""
+$Id: gdb.py.in,v 1.172 2009/03/18 10:12:54 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -490,16 +490,19 @@ class Gdb(Bdb, Cmd, SubcmdInfo, SubcmdSet, SubcmdShow):
         if arg:
             if arg == '-':
                 first = max(1, self.lineno - 2*self.listsize - 1)
+            elif arg == '.':
+                first = max(1, 
+                            inspect.getlineno(self.curframe) - self.listsize/2)
             else:
                 args = arg.split()
-                (funcname, filename, first) = parse_filepos(self, args[0])
-                if first == None and funcname == None:
+                (modfunc, filename, first) = parse_filepos(self, args[0])
+                if first == None and modfunc == None:
                     # error should have been shown previously
                     return (None, None, None)
                 if len(args) == 1:
                     first = max(1, first - (self.listsize/2))
                 elif len(args) == 2:
-                    (funcname, last_filename, last) = \
+                    (modfunc, last_filename, last) = \
                                parse_filepos(self, args[1])
                     if filename != last_filename \
                        and filename is not None and last_filename is not None:
@@ -1376,29 +1379,23 @@ recognized actions include "stop", "nostop", "print", "noprint",
         return False
 
     def do_ipython(self, arg_str):
-        """ipython [-d] [ipython-opt1 ipython-opt2 ...]
+        """ipython [ipython-opt1 ipython-opt2 ...]
 
 Run IPython as a command subshell. You need to have ipython installed
 for this command to work. If no IPython options are given, the
 following options are passed: 
    -noconfirm_exit -prompt_in1 'Pydbgr In [\#]: '
 
-If -d is passed you can access debugger state via local variable "debugger".
+You can access debugger state via local variable "ipydb".
+Debugger commands like are installed as IPython magic commands, e.g.
+%list, %up, %where.
 """
 
         if not self.is_running():
             return False
 
-        debug = False
         if arg_str:
             argv = arg_split(arg_str, posix=True)
-            if len(argv) > 0:
-                if argv[0] == '-d':
-                    debug = True
-                    argv  = argv[1:]
-                    pass
-                pass
-            pass
         else:
             argv = ['-noconfirm_exit','-prompt_in1', 'Pydb In [\\#]: ']
             pass
@@ -1423,12 +1420,12 @@ If -d is passed you can access debugger state via local variable "debugger".
             self.errmsg("IPython doesn't seem to be importable.")
             return False
 
-        if debug: user_ns['debugger'] = self
+        user_ns['ipydb'] = self
         ipshell = IPython.Shell.IPShellEmbed(argv=argv, user_ns=user_ns)
         user_ns['ipshell'] = ipshell
 
         # Give ipython and the user a way to get access to the debugger
-        setattr(ipshell, 'debugger', self)
+        setattr(ipshell, 'ipydb', self)
 
         if hasattr(ipshell.IP, "magic_pydb"):
             # We get an infinite loop when doing recursive edits
@@ -1436,6 +1433,24 @@ If -d is passed you can access debugger state via local variable "debugger".
             delattr(ipshell.IP, "magic_pydb")
             pass
         
+        # add IPython "magic" commands for all debugger comamnds and
+        # aliases.  No doubt, this probably could be done in a
+        # better way without "exec".  (Someone just needs to suggest
+        # a way...)
+        ip = IPython.ipapi.get()
+        magic_fn_template="""
+def ipy_%s(self, args):
+   dbg = self.user_ns['ipydb']
+   dbg.continue_running = dbg.do_%s(args)
+   if dbg.continue_running: self.shell.exit()
+   return
+ip.expose_magic("%s", ipy_%s)
+"""
+        expose_magic_template = 'ip.expose_magic("%s", ipy_%s)'
+        for name in self.get_cmds():
+            exec magic_fn_template % ((name,) * 4)
+            pass
+            
         # And just when you thought we've forgotten about running
         # the shell...
         ipshell()
@@ -1447,7 +1462,7 @@ If -d is passed you can access debugger state via local variable "debugger".
             except IOError:
                 pass
             return False
-        return False
+        return self.continue_running
                 
     def do_info(self, arg):
 
@@ -1511,16 +1526,20 @@ we are in interactive mode, we'll prompt to make sure.
         pass
 
     def do_list(self, arg):
-        """l(ist) [- | first [last or count]]
+        """l(ist) [- | . | first [last or count]]
 
-        List source code. Without arguments, list LISTSIZE lines
-        centered around the current line or continue the previous
-        listing. "list -" lists LISTSIZE lines before a previous
-        listing. With one argument other than "-", list LISTSIZE lines
-        centered around the specified position.  With two arguments,
-        list the given range; if the second argument is less than the
-        first, it is a count.  First and last can be either a function
-        name, a line number or file:line"""
+List source code. 
+
+Without arguments, list LISTSIZE lines centered around the current
+line or continue the previous listing. "list -" lists LISTSIZE lines
+before a previous listing. "list ." means list centered around the current
+frame pointer.
+
+With one argument other than "-" or '.', list LISTSIZE lines centered
+around the specified position.  With two arguments, list the given
+range; if the second argument is less than the first, it is a count.
+First and last can be either a function name, a line number or
+file:line"""
 
         filename, first, last = self.parse_list_cmd(arg)
         if filename is None: return
@@ -1533,6 +1552,7 @@ we are in interactive mode, we'll prompt to make sure.
                                                      self.curframe.f_globals)
         else:
             getline = lambda f, l: linecache.getline(f, l)
+            pass
 
         # We now have range information. Do the listing.
         try:

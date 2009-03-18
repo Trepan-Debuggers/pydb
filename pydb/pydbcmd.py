@@ -6,7 +6,7 @@ not always) they are not specific to pydb. They are sort of more
 oriented towards any gdb-like debugger. Also routines that need to be
 changed from cmd are here.
 
-$Id: pydbcmd.py,v 1.56 2009/01/28 02:46:40 rockyb Exp $"""
+$Id: pydbcmd.py,v 1.57 2009/03/18 10:12:54 rockyb Exp $"""
 
 import cmd, linecache, sys, types
 from fns import *
@@ -34,6 +34,24 @@ class Cmd(cmd.Cmd):
         self.nohelp               = 'Undefined command or invalid expression \"%s\".\nType \"help\" for a list of debugger commands.'
         self.prompt               = '(Pydb) '
         self.rcLines              = []
+        return
+
+    def get_cmds(self):
+        '''Return a list of command names. These are the methods
+        that start do_'''
+        names = self.get_names()  # A list of all methods
+        names.sort()
+        # There can be duplicates if routines overridden. Weed these out.
+        prevname = ''; cmds = []
+        for name in names:
+            if name[:3] == 'do_':
+                if name == prevname:
+                    continue
+                prevname = name
+                cmds.append(name[3:])
+                pass
+            pass
+        return cmds
 
     def print_source_line(self, lineno, line):
         """Print out a source line of text , e.g. the second
@@ -50,6 +68,8 @@ class Cmd(cmd.Cmd):
         # however might.
         self.msg_nocr('%d %s' % (lineno, line))
         return
+
+
 
     def _runscript(self, filename):
         # When bdb sets tracing, a number of call and line events happens
@@ -578,4 +598,14 @@ See also 'examine' an 'whatis'.
         self.msg_nocr(ret)
         self.lastcmd = line
         return
+    pass
 
+if __name__ == '__main__':
+    class TestCmd(Cmd):
+        def do_a(self): return
+        def do_b(self): return
+        def do_a(self): return
+        pass
+    testcmd = TestCmd()
+    print testcmd.get_cmds()
+    pass

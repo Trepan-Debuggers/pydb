@@ -1,17 +1,13 @@
-#!/usr/bin/env python
+#!@PYTHON@ -t
 'Unit test for pydb.bytecode'
 import inspect, os, sys, unittest
 
-top_builddir = "../.."
-if top_builddir[-1] != os.path.sep:
-    top_builddir += os.path.sep
-sys.path.insert(0, os.path.join(top_builddir, 'pydb'))
-top_srcdir = "../.."
+top_srcdir = "@top_srcdir@"
 if top_srcdir[-1] != os.path.sep:
     top_srcdir += os.path.sep
 sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
 
-from bytecode import *
+from bytecode import op_at_frame, stmt_contains_make_function, is_def_stmt
 
 class TestByteCode(unittest.TestCase):
 
