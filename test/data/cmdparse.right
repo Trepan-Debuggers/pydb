@@ -209,6 +209,27 @@ Breakpoint index 'foo' is not a number.
  31  	    if a <= 0:
  32  	        return None
  33  	    if a == 1 or b-a == 0:
++list .
+  1  	#!/usr/bin/python
+  2  ->	"""Towers of Hanoi"""
+  3  	import sys
+  4  	
+  5  	def hanoi(n,a,b,c):
+  6  	    if n-1 > 0:
+  7  	       hanoi(n-1, a, c, b) 
+  8  	    print "Move disk %s to %s" % (a, b)
+  9  	    if n-1 > 0:
+ 10  	       hanoi(n-1, c, b, a) 
+ 11  	
+ 12  	if __name__=='__main__':
+ 13  	    i_args=len(sys.argv)
+ 14  	    if i_args != 1 and i_args != 2:
+ 15  	        print "*** Need number of disks or no parameter"
+ 16  	        sys.exit(1)
+ 17  	
+ 18  	    n=3
+ 19  	
+ 20  	    if i_args > 1:
 +# first and last file names are different
 +list gcd.py:24 hanoi.py:10
 *** filename in the range must be the same

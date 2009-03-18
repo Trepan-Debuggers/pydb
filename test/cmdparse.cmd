@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.20 2007/01/25 10:19:15 rockyb Exp $
+# $Id: cmdparse.cmd,v 1.21 2009/03/18 10:15:23 rockyb Exp $
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
@@ -63,6 +63,7 @@ list hanoi.py:12
 list hanoi
 list hanoi 10
 list gcd.py:24
+list .
 # first and last file names are different
 list gcd.py:24 hanoi.py:10
 # File doesn't have 50 lines
