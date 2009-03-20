@@ -1,5 +1,5 @@
 """Functions to support the Extended Python Debugger.
-$Id: fns.py,v 1.59 2009/03/18 10:12:54 rockyb Exp $"""
+$Id: fns.py,v 1.60 2009/03/20 01:30:51 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein
 #
@@ -361,25 +361,39 @@ def print_obj(arg, frame, format=None, short=False):
         if not frame:
             # ?? Should we have set up a dummy globals
             # to have persistence? 
-            val = eval(arg, None, None)
+            obj = eval(arg, None, None)
         else:
-            val = eval(arg, frame.f_globals, frame.f_locals)
+            obj = eval(arg, frame.f_globals, frame.f_locals)
     except:
         return 'No symbol "' + arg + '" in current context.'
     #format and print
     what = arg
     if format:
         what = format + ' ' + arg
-        val = printf(val, format)
-    s = '%s = %s' % (what, val)
+        obj = printf(val, format)
+    s = '%s = %s' % (what, obj)
     if not short:
-        s += '\ntype = %s' % type(val)
+        s += '\ntype = %s' % type(obj)
+        if callable(obj):
+            argspec = print_argspec(obj, arg)
+            if argspec: 
+                s += ':\n\t'
+                if inspect.isclass(obj):
+                    s += 'Class constructor information:\n\t'
+                    obj = obj.__init__
+                elif type(obj) is types.InstanceType:
+                    obj = obj.__call__
+                    pass
+                s+= argspec
+            pass
+
         # Try to list the members of a class.
         # Not sure if this is correct or the
         # best way to do.
-        s = print_dict(s, val, "object variables")
-        if hasattr(val, "__class__"):
-            s = print_dict(s, val.__class__, "class variables")
+        s = print_dict(s, obj, "object variables")
+        if hasattr(obj, "__class__"):
+            s = print_dict(s, obj.__class__, "class variables")
+            pass
     return s
 
 pconvert = {'c':chr, 'x': hex, 'o': oct, 'f': float, 's': str}
