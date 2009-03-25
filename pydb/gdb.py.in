@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.172 2009/03/18 10:12:54 rockyb Exp $"""
+$Id: gdb.py.in,v 1.173 2009/03/25 20:48:46 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1104,35 +1104,34 @@ that."""
             args = []
         start_line = end_line = None
         relative_pos = False
-        try:
-            if len(args) > 0:
-                if args[0] in ['+', '-']: 
-                    start_line = self.curframe.f_lineno
+        if len(args) > 0:
+            if args[0] in ['+', '-']: 
+                start_line = self.curframe.f_lineno
+                relative_pos = True
+            else:
+                start_line = int(args[0])
+                if args[0][0:1] in ['+', '-']: 
                     relative_pos = True
-                else:
-                    start_line = int(args[0])
-                    if args[0][0:1] in ['+', '-']: 
-                        relative_pos = True
-                        start_line += self.curframe.f_lineno
-                        pass
+                    start_line += self.curframe.f_lineno
                     pass
+                pass
 
-                if len(args) == 2:
-                    try:
-                        end_line = self.get_int(args[1], cmdname="disassemble")
-                    except ValueError:
-                        return False
-                elif len(args) > 2:
-                    self.errmsg("Expecting 1-2 line parameters, got %d" %
-                                len(args))
+            if len(args) == 2:
+                try:
+                    end_line = self.get_int(args[1], cmdname="disassemble")
+                except ValueError:
                     return False
-            if not self.curframe:
-                self.errmsg("No frame selected.")
+            elif len(args) > 2:
+                self.errmsg("Expecting 1-2 line parameters, got %d" %
+                            len(args))
                 return False
-            disassemble.disassemble(self, self.curframe.f_code,
-                                    start_line=start_line,
-                                    end_line=end_line,
-                                    relative_pos=relative_pos)
+        if not self.curframe:
+            self.errmsg("No frame selected.")
+            return False
+        disassemble.disassemble(self, self.curframe.f_code,
+                                start_line=start_line,
+                                end_line=end_line,
+                                relative_pos=relative_pos)
         except ValueError:
             try:
                 if len(args) > 1:

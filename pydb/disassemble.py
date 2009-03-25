@@ -25,6 +25,8 @@ def dis(obj, x=None, start_line=-1, end_line=None, relative_pos = False):
         obj.msg("Dissassembly of %s: " % x)
         x = x.f_code
         pass
+    elif inspect.iscode(x):
+        pass
     if hasattr(x, '__dict__'):
         items = x.__dict__.items()
         items.sort()
@@ -132,6 +134,19 @@ def disassemble_string(obj, code, lasti=-1, cur_line=0,
         msg("")
     return
 
+import marshal, struct, time
+# Inspired by show_file from:
+# http://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
+def pyc2code(fname):
+    '''Return a code object from a Python compiled file'''
+    f = open(fname, "rb")
+    magic = f.read(4)
+    moddate = f.read(4)
+    modtime = time.localtime(struct.unpack('L', moddate)[0])
+    code = marshal.load(f)
+    f.close()
+    return magic, moddate, modtime, code
+
 if __name__ == '__main__':
     class DisassembleTestClass:
         def errmsg(self, msg):
@@ -149,4 +164,8 @@ if __name__ == '__main__':
     curframe = inspect.currentframe()
     dis(dt, curframe)
     dis(dt, dt.errmsg)
+
+    import  sys
+    magic, moddate, modtime, co = pyc2code(sys.modules['types'].__file__)
+    disassemble(dt, co, -1, 1, 70)
     pass
