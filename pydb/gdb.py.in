@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.173 2009/03/25 20:48:46 rockyb Exp $"""
+$Id: gdb.py.in,v 1.174 2009/03/31 19:52:58 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -1125,34 +1125,34 @@ that."""
                 self.errmsg("Expecting 1-2 line parameters, got %d" %
                             len(args))
                 return False
-        if not self.curframe:
-            self.errmsg("No frame selected.")
-            return False
-        disassemble.disassemble(self, self.curframe.f_code,
-                                start_line=start_line,
-                                end_line=end_line,
-                                relative_pos=relative_pos)
-        except ValueError:
-            try:
-                if len(args) > 1:
-                    try:
-                        start_line = self.get_int(args[1],
-                                                  cmdname="disassemble")
-                        if args[1][0:1] in ['+', '-']: 
-                            relative_pos = True
-                            start_line += self.proc.curframe.f_lineno
-                            pass
-                        if len(args) == 3:
-                            end_line = self.get_int(args[2],
-                                                    cmdname="disassemble")
-                        elif len(args) > 3:
-                            self.errmsg("Expecting 0-3 parameters, got %d" %
-                                        len(args))
-                            return False
-                    except ValueError:
+            if not self.curframe:
+                self.errmsg("No frame selected.")
+                return False
+            disassemble.disassemble(self, self.curframe.f_code,
+                                    start_line=start_line,
+                                    end_line=end_line,
+                                    relative_pos=relative_pos)
+            pass
+        try:
+            if len(args) > 1:
+                try:
+                    start_line = self.get_int(args[1],
+                                              cmdname="disassemble")
+                    if args[1][0:1] in ['+', '-']: 
+                        relative_pos = True
+                        start_line += self.curframe.f_lineno
+                        pass
+                    if len(args) == 3:
+                        end_line = self.get_int(args[2],
+                                                cmdname="disassemble")
+                    elif len(args) > 3:
+                        self.errmsg("Expecting 0-3 parameters, got %d" %
+                                    len(args))
                         return False
-                    pass
-
+                except ValueError:
+                    return False
+                pass
+            
                 if hasattr(self, 'curframe') and self.curframe:
                     obj=self.getval(args[0])
                 else:
@@ -1161,9 +1161,9 @@ that."""
                 disassemble.dis(self, obj,
                                 start_line=start_line, end_line=end_line,
                                 relative_pos=relative_pos)
-            except NameError:
-                self.errmsg("Object '%s' is not something we can disassemble"
-                            % args[0])
+        except NameError:
+            self.errmsg("Object '%s' is not something we can disassemble"
+                        % args[0])
         return False
 
     def do_display(self, arg):
@@ -1728,12 +1728,12 @@ Run python as a command subshell.
                 pass
 
         local = None
-        if self.proc.curframe:
-            if self.proc.curframe.f_locals:
-                local = dict(self.proc.curframe.f_locals)
-                local.update(self.proc.curframe.f_globals)
+        if self.curframe:
+            if self.curframe.f_locals:
+                local = dict(self.curframe.f_locals)
+                local.update(self.curframe.f_globals)
             else:
-                local = self.proc.curframe.f_globals
+                local = self.curframe.f_globals
             pass
 
         if local:

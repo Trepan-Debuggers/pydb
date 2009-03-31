@@ -1,8 +1,8 @@
 #!@PYTHON@ -t
 # -*- Python -*-
-# $Id: test-disassem.py.in,v 1.1 2007/11/01 09:20:31 rockyb Exp $
+# $Id: test-disassem.py.in,v 1.2 2009/03/31 19:52:59 rockyb Exp $
 "Unit test for Extended Python debugger's signal handling commands "
-import os, time, sys, unittest
+import inspect, os, time, sys, unittest
 
 top_builddir = "@top_builddir@"
 if top_builddir[-1] != os.path.sep:
@@ -54,16 +54,22 @@ class PdbTests(unittest.TestCase):
         """Unit test dissassemble command"""
         import atexit
         deb = PdbTest()
-        deb.do_disassemble('atexit.register')
+        deb.curframe = inspect.currentframe()
+        # deb.do_disassemble('atexit.register')
+        # all_lines = len(deb.msgLines)
+        # self.assertEqual(True, all_lines > 0)
+        # deb.msgReset()
+        deb.do_disassemble('+')
         all_lines = len(deb.msgLines)
         self.assertEqual(True, all_lines > 0)
         deb.msgReset()
-        deb.do_disassemble('atexit.register 1')
-        from_1 = len(deb.msgLines)
-        self.assertEqual(True,  from_1 <= all_lines)
+        deb.do_disassemble('10')
+        all_lines = len(deb.msgLines)
+        self.assertEqual(True,  all_lines > 0)
         deb.msgReset()
-        deb.do_disassemble('atexit.register 1 100')
-        self.assertEqual(True,  len(deb.msgLines) <= from_1)
+        deb.do_disassemble('1 100')
+        all_lines = len(deb.msgLines)
+        self.assertEqual(True,  all_lines > 0)
         deb.msgReset()
         return
         
