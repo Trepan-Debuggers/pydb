@@ -1,0 +1,27 @@
+#!@PYTHON@ -t
+'Unit test for pydb.pydbcmd'
+import os, sys, unittest
+
+top_srcdir = "@top_srcdir@"
+if top_srcdir[-1] != os.path.sep:
+    top_srcdir += os.path.sep
+sys.path.insert(0, os.path.join(top_srcdir, 'pydb'))
+
+from pydbcmd import Cmd
+
+class TestCmd(Cmd):
+    def do_a(self): return
+    def do_b(self): return
+    def do_a(self): return
+    pass
+
+class TestPydbCmd(unittest.TestCase):
+
+    def test_get_cmd(self):
+        test_cmd = TestCmd()
+        self.assertEqual(['a', 'b', 'h', 'help'], test_cmd.get_cmds())
+        return
+    pass
+        
+if __name__ == '__main__':
+    unittest.main()
