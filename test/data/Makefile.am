@@ -28,6 +28,7 @@ check_DATA = \
 	setshow.right             \
 	setshow-no-rl.right       \
 	sighandler.right          \
+	skip.right                \
 	step.right                \
 	trace-2.4-final.right     \
 	trace-2.5.right           \

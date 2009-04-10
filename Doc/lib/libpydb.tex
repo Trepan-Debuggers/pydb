@@ -1,4 +1,4 @@
-% $Id: libpydb.tex,v 1.141 2009/02/22 07:46:54 rockyb Exp $
+% $Id: libpydb.tex,v 1.142 2009/04/10 23:42:02 rockyb Exp $
 
 % A note on labels. First, labels get used has HTML names if they don't
 % have colons in them. Second, the last label inside a (sub)section will
@@ -1804,8 +1804,7 @@ routines, some debugging can be done but it will be much more limited.
 \subsubsection{Showing thread information ({\tt info thread})\label{command:info-thread}}
 
 \begin{description}
-\item[info thread \optional{\var{thread-name}{\Large{|}}\var{thread-number}}
-  \optional{verbose\code{\Large{|}}terse}]
+\item[info thread \optional{\var{thread-name}\Large{|}\var{thread-number}}\optional{verbose\Large{|}terse}]
 
 List all currently-known thread name(s).
 
@@ -1918,7 +1917,7 @@ There is currently a bug in \code{next} in that it is possible it may
 act like \code{step} if occasionally.
 
 \begin{description}
-\item[frame \optional{\var{thread-Name}{\Large{|}}\var{thread-number}} \optional{\var{frame-number}}]
+\item[frame \optional{\var{thread-name}\Large{|}\var{thread-number}} \optional{\var{frame-number}}]
 
 Move the current frame to the frame \var{frame-number} if specified, or the
 current frame, 0 if no frame number specified.
@@ -2766,7 +2765,7 @@ Implements thread debugging.
 
 The Python code is available from the \ulink{pydb files section on
 sourceforge.net}{http://sourceforge.net/project/showfiles.php?group_id=61395&package_id=175827}.
-{\em If you have made an OS package and would like you're URL listed
+\emph{If you have made an OS package and would like you're URL listed
 here, let me know}.
 
 \subsection{Installation options}

@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.54 2008/12/12 14:56:00 rockyb Exp $
+#$Id: Makefile.am,v 1.55 2009/04/10 23:42:02 rockyb Exp $
 #   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ check_DATA = \
 	setshow.cmd       \
 	settrace.py       \
 	sighandler.cmd    \
+	skip.cmd          \
 	step.cmd          \
         sigtestexample.py \
 	withbug.cmd       \
@@ -66,6 +67,7 @@ TESTS = test.py              \
         test-sig.py          \
 	test-sighandle.py    \
 	test-save.py         \
+	test-skip.py         \
 	test-step.py         \
         test-trace.py        \
 	test-tcp-connect.py  \
@@ -83,4 +85,6 @@ EXTRA_DIST = \
 test: check
 
 clean-generic:
-	-rm $(top_builddir)/test/*.pyc $(top_builddir)/test/history.hst
+	-rm $(top_builddir)/test/*.pyc \
+	$(top_builddir)/test/history.hst \
+	$(top_builddir)/test/savefile.txt
