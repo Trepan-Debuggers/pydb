@@ -1,3 +1,17 @@
+1.26
+04-10-2009
+* Add -d (debug debugger) option to ipython
+* Add pdef command
+* Allow a signal number in "info signals"
+* Disassemble command improvements, such as disassembly 
+  of frames
+* Add "p" format specifier in "print" command
+* Add a skip (statement) command
+
+The above are all backports from pydbgr. 
+
+* Doc fixes
+
 1.25
 12-25-2008
 * Clean up debugger(). Add "status=continue".  
