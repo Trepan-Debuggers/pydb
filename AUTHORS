@@ -16,7 +16,7 @@ pdb.py. In particular, display expressions.
 The command interface is from GDB, and so much of the error messages
 and some parts of the documentation too.
 
-Coordination for putting this together are by Rocky Bernstein.
+Coordination for putting this together is by Rocky Bernstein.
 
 
 
