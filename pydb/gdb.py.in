@@ -1,6 +1,6 @@
 """Handles gdb-like command processing.
 (See also @PACKAGE_NAME@.doc for documentation.)
-$Id: gdb.py.in,v 1.174 2009/03/31 19:52:58 rockyb Exp $"""
+$Id: gdb.py.in,v 1.175 2009/07/05 22:29:25 rockyb Exp $"""
 # -*- coding: utf-8 -*-
 #   Copyright (C) 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 #
@@ -2191,6 +2191,38 @@ Prints the type of the argument which can be a Python expression."""
 
     do_T = do_bt = do_where
 
+    def do_edit(self, arg):
+        """edit [POSITION]
+    
+Edit specified file or funciton.
+With no argument, edits file containing most recent line listed.
+"""
+        if len(arg) == 0:
+            if self.curframe is None:
+                self.errmsg('edit: no stack to pick up position from. Use edit FILE:LINE form.')
+                return False
+            filename = self.curframe.f_code.co_filename
+            lineno   = self.curframe.f_lineno
+        elif len(args) == 1:
+            (funcname, filename, lineno) = parse_filepos(self, arg)
+            if lineno is None:
+                self.errmsg('edit: no linenumber provided')
+                return
+            if filename is None:
+                self.errmsg('edit: no filename provided')
+                return
+            pass
+        editor = 'ex'
+        if 'EDITOR' in os.environ:
+            editor = os.environ['EDITOR']
+            pass
+        if os.path.exists(filename):
+            os.system("%s +%d %s" % (editor, lineno, filename))
+        else:
+            self.errmsg("edit: file %s doesn't exist" % filename)
+            pass
+        return False
+    
     def do_EOF(self, arg):
         """EOF
 Handles the receipt of EOF as a command."""
