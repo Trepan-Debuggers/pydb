@@ -16,7 +16,7 @@ __version__ = '@PACKAGE_VERSION@'
 
 import inspect, os, re, sys, traceback, types
 
-import fns
+from fns import runhooks, file_pyc2py, get_last_tb_or_frame_tb
 
 from optparse import OptionParser
 
@@ -254,11 +254,11 @@ class Pdb(Gdb):
 
 
     def precmd(self, line):
-        fns.runhooks(self, self.precmd_hooks, line)
+        runhooks(self, self.precmd_hooks, line)
         return line
         
     def preloop(self):
-        fns.runhooks(self, self.preloop_hooks)
+        runhooks(self, self.preloop_hooks)
         if self.annotate > 0:
             if self.__show_annotations:
                 # if we are here, the stack frames have changed outside the
@@ -279,11 +279,11 @@ class Pdb(Gdb):
             if cmd in self.__show_annotations_postcmd:
                 self.__annotation('stack', self.do_where, 0)
                 self.__annotation('locals', self.do_info, 'locals')
-        fns.runhooks(self, self.postcmd_hooks, stop, line)
+        runhooks(self, self.postcmd_hooks, stop, line)
         return stop
 
     def postloop(self):
-        fns.runhooks(self, self.postloop_hooks)
+        runhooks(self, self.postloop_hooks)
         return
 
 # -- end class Pdb
@@ -310,12 +310,12 @@ def debugger(dbg_cmds=None, add_exception_hook=True, add_threaddbg=False,
     If the debugger was called previously, normally we use that. This
     way any previous debugger state that was set gets used.
 
-    Setting the parameter `status' to the string 'new' will cause a
+    Setting the parameter `status' to the string `new' will cause a
     new instance to be created which might wiping out other
     instances which might contain information like breakpoints or
     debugger settings.
     
-    If instead `status' is set to 'continue', an existing instance
+    If instead `status' is set to `continue', an existing instance
     will resume. Omitting status or setting it to 'start' will start
     the debugger which might be a 'new' depending on whether or not
     an instance has been created. 
@@ -440,7 +440,7 @@ def pm(dbg_cmds=None, frameno=1, p=None):
     'p', is an optional pydb.Pdb object.
     """
 
-    tb = fns.get_last_tb_or_frame_tb()
+    tb = get_last_tb_or_frame_tb()
     post_mortem(tb, dbg_cmds=dbg_cmds, p=p)
     return
 
@@ -474,7 +474,7 @@ def post_mortem(t=None, dbg_cmds=None, cmdfile=None, frameno=1,
     if t is None:
         # frameno+1 because we are about to add one more level of call
         # in get_last_tb_or_frame_tb
-        t = fns.get_last_tb_or_frame_tb()
+        t = get_last_tb_or_frame_tb()
         if t is None:
             print "Can't find traceback for post_mortem " + \
                   "in sys.last_traceback or sys.exec_info()"
@@ -740,7 +740,7 @@ def main(p=None):
 
         # If mainpyfile is an optimized Python script try to find and
         # use non-optimized alternative.
-        mainpyfile_noopt = fns.file_pyc2py(mainpyfile)
+        mainpyfile_noopt = file_pyc2py(mainpyfile)
         if mainpyfile != mainpyfile_noopt \
                and os.path.exists(mainpyfile_noopt):
             print "@PACKAGE_NAME@: Compiled Python script given and we can't use that."
