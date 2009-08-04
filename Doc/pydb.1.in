@@ -43,7 +43,7 @@ specified conditions.
 \ \ \ \(bu Change things in your program, so you can experiment with correcting the effects of one bug and go on to learn about another.
 .PP
 
-Here are some of the most frequently-needed commands:
+Here are some of the most frequently\(hyneeded commands:
 
 .\"-------------------------------------------------------------------
 .TP
@@ -72,12 +72,12 @@ command which clears breakpoints by number.
 .B continue \fR[\fIline\fR]
 \&
 Continue running your program until the next breakpoint or until the
-end of the program. If a line number is given set a one-time
+end of the program. If a line number is given set a one\(hytime
 breakpoint at that line. 
 .PP
 .\"-------------------------------------------------------------------
 .TP
-.B delete \fR[\fIbreakpoint-numbers\fR]
+.B delete \fR[\fIbreakpoint\(hynumbers\fR]
 \& 
 Delete breakpoints by number. To delete all breakpoints, give no
 breakpoint number.  See also the 
@@ -105,9 +105,9 @@ Give type/object and value information about expression.
 Run until the completion of the current function or method.
 .PP
 .TP
-.BI frame " frame-number" 
+.BI frame " frame\(hynumber" 
 \&
-Set the stack frame to \fIframe-number\fR for purposes of examinine local variables. For positioning relative to the current frame, use 
+Set the stack frame to \fIframe\(hynumber\fR for purposes of examinine local variables. For positioning relative to the current frame, use 
 .B up
 or 
 .B down.
@@ -241,7 +241,7 @@ Write debugger's error output (stderr) to FILE
 .TP
 .B \-e | \-\-exec
 Run debugger commands command-list. Commands should be separated by
-";;"-the same as you would do inside the debugger. You may need to
+";;"\(hythe same as you would do inside the debugger. You may need to
 quote this option to prevent command shell interpretation, e.g. 
 .B \-\-exec
 "break 20;; continue"
@@ -255,19 +255,17 @@ Write debugger's output (stdout) to FILE
 .B \-\-sigcheck
 Set to watch for signal handler changes.
 .TP
-.B -T, --threading
+.B \-T, \-\-threading
 Start off with threading debug support.
 .TP
 .B \-A LEVEL | \-\-annotate=LEVEL
-Set gdb-like annotation_level. The annotation level is used by
-front-ends to get posted about program information when things change
+Set gdb\(hylike annotation_level. The annotation level is used by
+front\hyends to get posted about program information when things change
 without having to poll for the information.
 .PD
 .\"===================================================================
 .SH "SEE ALSO"
-.Sp 
 http://bashdb.sourceforge.net/pydb/
-.PP
 .Sp
 http://bashdb.sourceforge.net/pydb/lib/index.html
 .\"===================================================================
