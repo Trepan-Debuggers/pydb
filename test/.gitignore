@@ -2,6 +2,7 @@
 /*~
 /Makefile
 /Makefile.in
+/*.out
 /test-complete.py
 /test-connect.py
 /test-contbug.py

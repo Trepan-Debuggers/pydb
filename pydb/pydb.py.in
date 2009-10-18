@@ -16,7 +16,7 @@ __version__ = '@PACKAGE_VERSION@'
 
 import inspect, os, re, sys, traceback, types
 
-from fns import runhooks, file_pyc2py, get_last_tb_or_frame_tb
+from fns import runhooks, file_pyc2py, get_last_tb_or_frame_tb, whence_file
 
 from optparse import OptionParser
 
@@ -731,7 +731,7 @@ def main(p=None):
 
         mainpyfile = p._program_sys_argv[0] # Get script filename.
         if not os.path.isfile(mainpyfile):
-            mainpyfile=fns.whence_file(mainpyfile)
+            mainpyfile=whence_file(mainpyfile)
             if not os.path.exists(mainpyfile):
                 print "@PACKAGE_NAME@: Python script file '%s' does not exist" \
                       % mainpyfile
