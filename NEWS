@@ -1,3 +1,10 @@
+1.27git
+
+* Status event for breakpoints is xx
+* Remove message that you can step or continue through a post-mortem to restart
+* Fix off-by-one bug in finish
+* Add an "edit" command.
+
 1.26
 04-10-2009
 * Add -d (debug debugger) option to ipython
