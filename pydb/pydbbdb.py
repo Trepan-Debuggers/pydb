@@ -200,6 +200,8 @@ class Bdb(bdb.Bdb):
             if (flag and bp.temporary):
                 #### ARG. All for the below name change.
                 self.do_delete(str(bp.number))
+                pass
+            self.stop_reason = 'brkpt'
             return True
         return False
 

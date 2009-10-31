@@ -797,8 +797,6 @@ def main(p=None):
                 p.errmsg("Uncaught exception.")
                 break
             p.errmsg("Uncaught exception. Entering post mortem debugging")
-            if mainpyfile:
-                p.errmsg( "Running 'c' or 'step' will restart the program")
             p.running = False;
             t = sys.exc_info()[2]
 
