@@ -80,14 +80,16 @@ class Cmd(cmd.Cmd):
         self._wait_for_mainpyfile = True
         self.mainpyfile = self.canonic(filename)
 
-        # Start with fresh empty copy of globals and locals and tell the script
-        # that it's being run as __main__ to avoid scripts being able to access
-        # the pydb.py namespace.
-        globals_ = {"__name__" : "__main__",
-                    "__file__" : self.mainpyfile,
-                    "__builtins__" : __builtins__
-                    }
-        locals_ = globals_
+        # Set several special variables in __main__
+        import __main__
+
+        # The below pydb's globals and cleans old variables on restarts).
+        # __main__.__dict__.clear()
+
+        __main__.__dict__.update({"__name__"    : "__main__",
+                                  "__file__"    : filename,
+                                  "__builtins__": __builtins__,
+                                 })
 
         statement = 'execfile( "%s")' % filename
         self.running = True

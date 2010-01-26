@@ -33,7 +33,6 @@ DEBUGGER = pydb
 python_debugger_script = $(DEBUGGER).py
 pkgpython_PYTHON = \
 	$(DEBUGGER)/__init__.py \
-        $(DEBUGGER)/$(python_debugger_script) \
 	$(DEBUGGER)/bytecode.py  	\
 	$(DEBUGGER)/complete.py  	\
 	$(DEBUGGER)/connection.py  	\
