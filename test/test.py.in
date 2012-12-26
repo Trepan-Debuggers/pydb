@@ -115,14 +115,24 @@ class PdbTests(unittest.TestCase):
 
     def test_brkpt(self):
         """Unit test breakpoint setting and display - part 1."""
+
+        if sys.hexversion >= 0x2073f0:
+            rightfile = os.path.join(srcdir, 'data', "brkpt1-2.7.right")
+        else:
+            rightfile = os.path.join(srcdir, 'data', "brkpt1.right")
         result=run_debugger(testname='brkpt1',
-                            pythonfile='%shanoi.py' % srcdir)
+                            pythonfile='%shanoi.py' % srcdir,
+                            rightfile=rightfile)
         self.assertEqual(True, result, "brkpt1")
+        #############################################################
+        if sys.hexversion >= 0x2073f0:
+            rightfile = os.path.join(srcdir, 'data', "brkpt1t-2.7.right")
+        else:
+            rightfile = os.path.join(srcdir, 'data', "brkpt1t.right")
         result=run_debugger(testname='brkpt1',
                             pythonfile='%shanoi.py' % srcdir,
                             pydb_opts='--threading',
-                            rightfile=os.path.join(srcdir, 'data',
-                                                   "brkpt1t.right"),
+                            rightfile=rightfile,
                             truncate=-2)
         self.assertEqual(True, result, "brkpt1 --threading")
 
