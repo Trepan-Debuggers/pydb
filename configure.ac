@@ -1,4 +1,4 @@
-# Copyright (C) 2006, 2007, 2008, 2009 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2006-2009, 2012 Rocky Bernstein <rocky@gnu.org>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,33 +18,10 @@
 ## Note: the version number (the 2nd parameter in AC_INIT) 
 ## is picked up inside the Python debugger script.
 
-AC_REVISION([$Id: configure.ac,v 1.84 2009/04/10 23:41:58 rockyb Exp $])dnl
-AC_INIT([pydb],[1.26],[bashdb-pydb-devel@lists.sourceforge.net])
+AC_INIT([pydb],[1.261],[https://github.com/rocky/pydb/issues])
 AC_DEFINE([PACKAGE], [pydb], [Python Extended Debugger])
 MIN_VERSION='2.4.0'
 AC_SUBST(MIN_VERSION)
-
-
-##
-## Find out where to install the debugger emacs lisp files
-##
-AM_PATH_LISPDIR
-
-AC_PATH_PROG(EMACS, emacs, no)
-
-if test x$EMACS != xno ; then
-  $EMACS -batch -q -no-site-file -eval \
-  '(if (<= emacs-major-version 21)
-     (progn
-       (error "You need GNU Emacs 22 or better for GNU Emacs support.")
-       (kill-emacs 1)
-     ))'
-  if test $? -ne 0 ; then
-    EMACS=no
-  fi
-fi
-AM_CONDITIONAL(INSTALL_EMACS_LISP, 
-	       [test "x$lispdir" != "x" -a "x$EMACS" != "xno"])
 
 ##
 ## AM_PATH_PYTHON seems to use PACKAGE and AC_INIT sets PACKAGE_NAME.
@@ -80,7 +57,6 @@ AC_SUBST(READLINE)
 ##
 ## Get user-specified Python location
 ##
-AM_PATH_LISPDIR
 AC_ARG_WITH(python,
            AC_HELP_STRING([--with-python], 
 	                  [set path to Python]), 
@@ -136,8 +112,6 @@ AC_PROG_LN_S
 AC_CONFIG_FILES([Doc/Makefile])
 AC_CONFIG_FILES([Doc/pydb.1])
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([emacs/Makefile])
-AC_CONFIG_FILES([emacs/pydb-test.el])
 AC_CONFIG_FILES([pydb/__init__.py])
 AC_CONFIG_FILES([pydb/gdb.py])
 AC_CONFIG_FILES([pydb/pydb.py],[chmod +x pydb/pydb.py])

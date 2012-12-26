@@ -1,5 +1,4 @@
-#$Id: Makefile.am,v 1.56 2009/02/09 03:13:26 rockyb Exp $
-#   Copyright (C) 2006, 2007, 2008 Rocky Bernstein <rocky@gnu.org>
+#   Copyright (C) 2006-2008, 2012 Rocky Bernstein <rocky@gnu.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,11 +17,6 @@
 
 AUTOMAKE_OPTIONS = dist-bzip2
 
-if INSTALL_EMACS_LISP
-emacs = emacs
-else
-emacs =
-endif
 SUBDIRS = test $(emacs)
 
 # Basename of debugger, used to form help doc, python script and script
