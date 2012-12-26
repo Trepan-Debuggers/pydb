@@ -85,9 +85,9 @@ install-binSCRIPTS: $(bin_SCRIPTS) install-data-am
 	chmod +x "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)"
 	$(LN_S) "$(DESTDIR)$(pkgpythondir)/$(python_debugger_script)" "$(DESTDIR)$(bindir)/$(bin_SCRIPTS)"
 
+#: Run all tests
 test: check
 
-# cvs2cl
 MAINTAINERCLEANFILES = ChangeLog
 
 if MAINTAINER_MODE
@@ -120,6 +120,7 @@ EXTRA_DIST +=  \
 
 
 PHONY += ChangeLog
+#: Create a ChangeLog file from git logs
 ChangeLog:
 	git log --pretty --numstat --summary | $(GIT2CL) > $@
 
