@@ -69,14 +69,14 @@ Num Enb Expression"""
 class DisplayNode(Display):
 
     def __init__(self, frame, arg, fmt):
-        Display.__init(self)
+        Display.__init__(self)
         self.code = signature(frame)
         self.fmt = fmt
         self.arg = arg
         self.enabled = True
-        super.next += 1
-        self.number = super.next
-        super.list.append(self)
+        self.next += 1
+        self.number = self.next
+        self.list.append(self)
 
     def displayMe(self, frame):
         if not frame:
@@ -96,7 +96,7 @@ class DisplayNode(Display):
         if res.split()[0] == 'No':
             self.deleteMe()
             # reset counter
-            super.next -= 1
+            self.next -= 1
             pass
         return res
 
